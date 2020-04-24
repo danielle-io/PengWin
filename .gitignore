@@ -9,6 +9,11 @@ npm-debug.*
 *.orig.*
 web-build/
 web-report/
+database/sqlEnv.js
+database/irEnv.js
+database/sqlConfig.js
+
+
 
 # macOS
 .DS_Store

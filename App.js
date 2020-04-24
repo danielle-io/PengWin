@@ -1,19 +1,40 @@
-import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import React, { Component } from 'react';
+// import Login from './components/Login';
+// import Routines from './components/Routines';
+import ScreenManager from './components/ScreenManager';
 
-export default function App() {
-  return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-    </View>
-  );
-}
+class App extends Component{
+  constructor(props){
+      super(props);
+      this.state={
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
+      }
+  }
+  
+  componentDidMount(){
+    this.authListener();
+  }
+    authListener(){
+      fire.auth().onAuthStateChanged((user)=>{
+        if(user)
+        {
+          this.setState({user})
+        }
+          else{
+            this.setState({user : null})
+          }
+        
+      })
+    }
+
+  render(){
+    return(
+      <div className="App">
+        {/* {this.state.user ? (<Routines/>) : (<Login/>)} */}
+      </div>
+    );
+    }
+  }
+  
+export default ScreenManager;
+
