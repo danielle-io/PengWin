@@ -3,7 +3,7 @@ import { Button, Dimensions, StyleSheet, ScrollView, View, Text } from 'react-na
 import { TextField, FilledTextField } from 'react-native-material-textfield';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { Dropdown } from 'react-native-material-dropdown';
-import YouTube from 'react-native-youtube';
+// import YouTube from 'react-native-youtube';
 
 const { width: WIDTH } = Dimensions.get('window')
 
@@ -41,7 +41,7 @@ export default class ParentRewards extends Component {
 
         let routineData = [
             {
-                value: 'Morning Routine',
+                value: 'Morning Routieeee',
             },
 
             {

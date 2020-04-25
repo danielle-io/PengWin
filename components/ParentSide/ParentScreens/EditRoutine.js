@@ -10,9 +10,6 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import {RaisedTextButton} from 'react-native-material-buttons';
 import DatePicker from 'react-native-datepicker';
 
-import Environment from '../../../database/sqlEnv';
-
-
 const {width: WIDTH} = Dimensions.get('window');
 
 Icon.loadFont();
@@ -86,7 +83,6 @@ export default class EditRoutine extends Component {
   // Update the DB
   async changeRoutineComponent(tag, value) {
 
-
     if (tag === 'is_approved'){
       this.setState({currentRoutineApproval: !this.state.currentRoutineApproval})
     }
@@ -97,7 +93,7 @@ export default class EditRoutine extends Component {
     };
     try {
       let response = await fetch(
-        'http://' + Environment + '/updateRoutine/' + this.state.currentRoutineId,
+        'http://localhost:3000/updateRoutine/' + this.state.currentRoutineId,
         {
           method: 'POST',
           headers: {
@@ -119,7 +115,7 @@ export default class EditRoutine extends Component {
   // TO DO: there needs to be a new routine ID for this item before this happens
   componentDidMount() {
     // Get the activities data from the db
-    fetch('http://' + Environment + '/routine/' + this.state.currentRoutineId)
+    fetch('http://localhost:3000/routine/' + this.state.currentRoutineId)
       .then(response => response.json())
       .then(responseJson => {
         return responseJson;
@@ -228,10 +224,6 @@ export default class EditRoutine extends Component {
         prevScreenTitle: 'Edit Routines',
       });
     }
-
-    console.log(
-      this.state.amount_of_activities + 'REW' + this.state.amount_of_rewards,
-    );
   }
 
   displayToggle() {

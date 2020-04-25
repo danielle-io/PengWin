@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { View } from 'react-native';
+import { StyleSheet, ScrollView, View , Text} from 'react-native';
 
 
 export default class Notifications extends Component {
@@ -19,12 +19,15 @@ export default class Notifications extends Component {
         return (
 
             <View style={{ flex: 1 }}>
-                {/* <ScrollView >
+                <ScrollView >
                 <Text>My Notifications</Text>
-                </ScrollView> */}
+                </ScrollView>
             </View>
         );
 
     }
 }
 
+const styles = StyleSheet.create({
+   
+});
