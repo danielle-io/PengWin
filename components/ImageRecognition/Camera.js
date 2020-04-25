@@ -51,6 +51,8 @@ export default class App extends React.Component {
 						/>
 
 						<Button onPress={this._takePhoto} title="Take a photo" />
+
+						
 						{this.state.googleResponse && (
 							<FlatList
 								data={this.state.googleResponse.responses[0].labelAnnotations}

@@ -7,7 +7,7 @@ import {
   Image,
   TouchableOpacity,
 } from 'react-native';
-import YouTube from 'react-native-youtube';
+// import YouTube from 'react-native-youtube';
 import Carousel from 'react-native-carousel-view';
 import SmoothPinCodeInput from 'react-native-smooth-pincode-input';
 import Dialog, {DialogContent} from 'react-native-popup-dialog';
@@ -54,7 +54,7 @@ export default class ChildActivity extends Component {
     } else {
       this.setState({visible1: false, visible2: false});
       //nav to parent
-      this.navigate('ParentRoutines', {prevScreenTitle: 'My Routines'});
+      this.navigate('ParentNavigation', {prevScreenTitle: 'My Routines'});
     }
   };
   render() {
@@ -190,7 +190,7 @@ export default class ChildActivity extends Component {
                 style={{width: WIDTH * 0.5, height: WIDTH * 0.5, margin: 5}}
               />
               <Text style={styles.actTitle}>Watch</Text>
-              <YouTube
+              {/* <YouTube
                 videoId={item.videoid}
                 fullscreen
                 loop
@@ -204,7 +204,7 @@ export default class ChildActivity extends Component {
                   height: 300,
                   paddingTop: 10,
                 }}
-              />
+              /> */}
               <TouchableOpacity
                 style={styles.buttonStyle}
                 onPress={() => {

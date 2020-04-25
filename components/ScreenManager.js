@@ -25,6 +25,8 @@ import ChildPincode from './ChildScreens/ChildPincode';
 import ChildNotifScreen from './ChildScreens/ChildNotifScreen';
 
 import Camera from '../components/ImageRecognition/Camera';
+import irDemo from '../components/ImageRecognition/irDemo';
+
 
 
 import TestingHomePage from './TestingHomePage';
@@ -37,6 +39,8 @@ const Screens = createStackNavigator({
   SignUp: {screen: SignUp},
   Pincode: {screen: Pincode},
   ForgotPassword: {screen: ForgotPassowrd},
+  Camera: {screen:Camera},
+  irDemo: {screen: irDemo },    
 
   ParentNavigation: {screen: ParentNavigation},
   ParentRoutines: {screen: ParentRoutines},
@@ -53,7 +57,6 @@ const Screens = createStackNavigator({
   ChildRoutines: {screen: ChildRoutines},
   ChildActivity: {screen:ChildActivity},
 
-  Camera: {screen:Camera},
 
 });
 

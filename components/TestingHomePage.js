@@ -4,7 +4,6 @@ import { Text, View, StyleSheet } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 
-
 export default class TestingHomePage extends Component {
   constructor(props) {
     super(props)
@@ -97,10 +96,6 @@ export default class TestingHomePage extends Component {
             </Text>
             </TouchableOpacity>
 
-
-
-
-
           </View>
 
           {/* <View style={{ flex: 1, justifyContent: 'center', flexDirection: 'row', flexWrap: 'wrap' }}>
@@ -110,6 +105,13 @@ export default class TestingHomePage extends Component {
           </View> */}
 
           <View style={{ flex: 1, justifyContent: 'space-around', flexDirection: 'row', flexWrap: 'wrap' }}>
+
+          <TouchableOpacity onPress={() => this.navigate('irDemo', { prevScreenTitle: 'irDemo' })}
+              style={styles.otherContainer}>
+              <Text style={styles.linkText}>
+                irDemo
+           </Text>
+            </TouchableOpacity>
 
             <TouchableOpacity onPress={() => this.navigate('Login', { prevScreenTitle: 'TestingHomePage' })}
               style={styles.otherContainer}>
@@ -142,7 +144,7 @@ export default class TestingHomePage extends Component {
               <Text style={styles.linkText}
                 onPress={() => this.navigate('Camera', { prevScreenTitle: 'TestingHomePage' })}>
                 Camera
-        </Text>
+              </Text>
             </View>
           </View>
 
