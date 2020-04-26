@@ -5,8 +5,6 @@ import {
   StyleSheet,
   View,
   Text,
-  Button,
-  Alert,
 } from 'react-native';
 
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -188,11 +186,11 @@ export default class ParentRoutines extends Component {
             () =>
               navigate('EditRoutine', {
                 prevScreenTitle: 'Routines',
-                currentRoutineName: null,
-                currentRoutineId: null,
-                currentRoutineStartTime: '00:00',
-                currentRoutineEndTime: '00:00',
-                currentRoutineApproval: 0,
+                routineName: null,
+                routineId: null,
+                routineStartTime: '00:00',
+                routineEndTime: '00:00',
+                routineApproval: 0,
                 monday: 0,
                 tuesday: 0,
                 wednesday: 0,
@@ -202,7 +200,7 @@ export default class ParentRoutines extends Component {
                 sunday: 0,
 
                 // TO DO: set up rewards
-                currentRewards: null,
+                rewards: null,
               }))
           }
           ripple={ripple}
@@ -215,17 +213,8 @@ export default class ParentRoutines extends Component {
 
   displayActivities() {
     const {navigate} = this.props.navigation;
-    var containerName;
 
-    // parse out the db objects returned from the routines call
     return this.state.activities.map(item => {
-      // if (item.is_active === 0) {
-      //   containerName = 'inactiveRoutineContainer';
-      // }
-      // else {
-      //   containerName = 'routineContainer';
-      // }
-
       return (
         <View style={styles.routineContainer}>
           <View style={styles.routineTitleAndMenu}>
@@ -237,24 +226,18 @@ export default class ParentRoutines extends Component {
                 <MenuOptions>
                   <MenuOption
                     onSelect={() =>
-                      navigate('EditRoutine', {
+                      navigate('EditActivity', {
                         prevScreenTitle: 'Routines',
-                        currentRoutineName: item.routine_name,
-                        currentRoutineId: item.routine_id,
-                        currentRoutineStartTime: item.start_time,
-                        currentRoutineEndTime: item.end_time,
-                        currentRoutineApproval: item.is_approved,
-                        monday: item.monday,
-                        tuesday: item.tuesday,
-                        wednesday: item.wednesday,
-                        thursday: item.thursday,
-                        friday: item.friday,
-                        saturday: item.saturday,
-                        sunday: item.sunday,
-                        amount_of_activities: item.amount_of_activities,
-                        amount_of_rewards: item.amount_of_rewards,
-                        // TO DO: set up rewards
-                        currentRewards: null,
+                        activityName: item.activity_name,
+                        activityId: item.activity_id,
+                        activityTags: eval(item.tags),
+                        activityImagePath: item.image_path,
+                        activityDescription: item.activity_description,
+                        activityAudioPath: item.audio_path,
+                        activityVideoPath: item.video_path,
+                        activityIsPublic: item.is_public,
+                        userId: item.user_id,
+                        rewardId: item.reward_id,
                       })
                     }>
                     <Text style={{color: 'black'}}>Edit</Text>
@@ -317,15 +300,15 @@ export default class ParentRoutines extends Component {
                                        navigate('EditRoutine', {
                                          prevScreenTitle:
                                            'Routines',
-                                         currentRoutineName:
+                                         routineName:
                                            item.routine_name,
-                                         currentRoutineId:
+                                         routineId:
                                            item.routine_id,
-                                         currentRoutineStartTime:
+                                         routineStartTime:
                                            item.start_time,
-                                         currentRoutineEndTime:
+                                         routineEndTime:
                                            item.end_time,
-                                         currentRoutineApproval:
+                                         routineApproval:
                                            item.is_approved,
                                          monday: item.monday,
                                          tuesday: item.tuesday,
@@ -340,7 +323,7 @@ export default class ParentRoutines extends Component {
                                          amount_of_rewards:
                                            item.amount_of_rewards,
                                          // TO DO: set up rewards
-                                         currentRewards: null,
+                                         rewards: null,
                                        })
                                      }>
                                      <Text
@@ -348,7 +331,7 @@ export default class ParentRoutines extends Component {
                                        Edit
                                      </Text>
                                    </MenuOption>
-                                   <MenuOption
+                                   {/* <MenuOption
                                      onSelect={() =>
                                        this.changeActiveStatus(
                                          item.routine_id,
@@ -360,14 +343,14 @@ export default class ParentRoutines extends Component {
                                        item.is_active,
                                        item.routine_id,
                                      )}
-                                   />
-                                   <MenuOption
+                                   /> */}
+                                   {/* <MenuOption
                                      onSelect={() =>
                                        alert('Duplicate')
                                      }
                                      text="Duplicate"
-                                   />
-                                   <MenuOption
+                                   /> */}
+                                   {/* <MenuOption
                                      onSelect={() =>
                                        alert('Delete')
                                      }>
@@ -375,13 +358,13 @@ export default class ParentRoutines extends Component {
                                        style={{color: 'red'}}>
                                        Delete
                                      </Text>
-                                   </MenuOption>
+                                   </MenuOption> */}
                                  </MenuOptions>
                                </Menu>
                              </MenuProvider>
                            </View>
 
-                           <View
+                           {/* <View
                              style={
                                styles.routineDetailsPreview
                              }>
@@ -404,7 +387,7 @@ export default class ParentRoutines extends Component {
                                />{' '}
                                Rewards: {item.amount_of_rewards}{' '}
                              </Text>
-                           </View>
+                           </View> */}
                          </View>
                        );
                      },
@@ -471,9 +454,10 @@ export default class ParentRoutines extends Component {
                          </View>
                        )}
                        <View>
+                         
                          <View style={{marginTop: 100}} />
                          {/* first dialog - yes/cancel */}
-                         <Dialog
+                         {/* <Dialog
                            visible={this.state.visible1}
                            onTouchOutside={() => {
                              this.setState({
@@ -490,7 +474,7 @@ export default class ParentRoutines extends Component {
                              </Text>
                              {/* <Text>This will log you out of the child mode. If you wish to switch from child to parent mode, you will need to enter your 4 digit passcode. Do you wish to continue the switch to parent mode of the app?</Text> */}
 
-                             <Button
+                             {/* <Button
                                onPress={() => {
                                  this.props.navigation.navigate(
                                    'Task1',
@@ -526,7 +510,7 @@ export default class ParentRoutines extends Component {
                                accessibilityLabel="Cancel Button"
                              />
                            </DialogContent>
-                         </Dialog>
+                         </Dialog> */} 
                        </View>
                      </View>
                    );

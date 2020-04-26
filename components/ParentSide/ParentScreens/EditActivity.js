@@ -6,7 +6,6 @@ import {
   View,
   TouchableOpacity,
   Text,
-  Button,
 } from "react-native";
 import { Video } from "expo-av";
 import { TextField } from "react-native-material-textfield";
@@ -42,6 +41,16 @@ export default class Activity extends Component {
       prevScreenTitle: this.props.navigation.state.params.prevScreenTitle,
       recordings: [],
       visible: false,
+      activityName: this.props.navigation.state.params.activityName,
+      activityId: this.props.navigation.state.params.activityId,
+      activityTags: this.props.navigation.state.params.activityTags,
+      activityImagePath: this.props.navigation.state.params.activityImagePath,
+      activityDescription: this.props.navigation.state.params.activityDescription,
+      activityAudioPath: this.props.navigation.state.params.activityAudioPath,
+      activityVideoPath: this.props.navigation.state.params.activityVideoPath,
+      activityIsPublic: this.props.navigation.state.params.activityIsPublic,
+      userId: this.props.navigation.state.params.userId,
+      rewardId: this.props.navigation.state.params.rewardId,
     };
   }
 
@@ -155,18 +164,17 @@ export default class Activity extends Component {
 
           <TextField
             placeholder="(e.g. Wear Shoes)"
-            // // defaultValue="!123"
-            // style={styles.textfieldWithFloatingLabel,
-            //     styles.textFields}
-            // textInputStyle={{ flex: 1 }}
-            // onFocus={e => console.log('Focus', !!e)}
-            // onBlur={e => console.log('Blur', !!e)}
-            // onEndEditing={e => console.log('EndEditing', !!e)}
-            // onSubmitEditing={e => console.log('SubmitEditing', !!e)}
-            // onTextChange={s => console.log('TextChange', s)}
-            // onChangeText={s => console.log('ChangeText', s)}
-
-            // onChangeText = { (text) => this.setState({activityName : text})}
+            value={this.state.activityName}
+            style={styles.textfieldWithFloatingLabel,
+                styles.textFields}
+            textInputStyle={{ flex: 1 }}
+            onFocus={e => console.log('Focus', !!e)}
+            onBlur={e => console.log('Blur', !!e)}
+            onEndEditing={e => console.log('EndEditing', !!e)}
+            onSubmitEditing={e => console.log('SubmitEditing', !!e)}
+            onTextChange={s => console.log('TextChange', s)}
+            onChangeText={s => console.log('ChangeText', s)}
+            onChangeText = { (text) => this.setState({activityName : text})}
           />
         </View>
 
@@ -179,7 +187,7 @@ export default class Activity extends Component {
             textInputProps={{
               placeholder: "?TAGS",
             }}
-            initialTags={["Shoes ", "Nike "]}
+            initialTags={this.state.activityTags}
             onChangeTags={(tags) => console.log(tags)}
             onTagPress={(index, tagLabel, event, deleted) =>
               console.log(
@@ -235,7 +243,7 @@ export default class Activity extends Component {
           <Text style={styles.titles}>Description</Text>
           <TextField
             placeholder="Explain steps that would help your child complete the activity."
-            // defaultValue="!123"
+            value={this.state.activityDescription}
             // labelOffset={10}
             style={
               (styles.textfieldWithFloatingLabel,

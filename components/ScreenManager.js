@@ -15,7 +15,7 @@ import EditReward from './ParentSide/ParentScreens/EditReward';
 import ParentProfile from './ParentSide/ParentScreens/ParentProfile';
 import EditRoutine from './ParentSide/ParentScreens/EditRoutine';
 import ParentRoutines from './ParentSide/ParentScreens/ParentRoutines';
-import Activity from './ParentSide/ParentScreens/Activity';
+import EditActivity from './ParentSide/ParentScreens/EditActivity';
 import Progress from './ParentSide/ParentScreens/Progress';
 // import Notifications from './ParentSide/ParentScreens/Notifications';
 
@@ -44,7 +44,7 @@ const Screens = createStackNavigator({
 
   ParentNavigation: {screen: ParentNavigation},
   ParentRoutines: {screen: ParentRoutines},
-  Activity: {screen: Activity},
+  EditActivity: {screen: EditActivity},
   ParentRewards : {screen:ParentRewards},
   EditReward: {screen:EditReward},
   ParentProfile: {screen:ParentProfile},
