@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@material-ui/core": "^4.9.2",
+    "@react-native-community/audio-toolkit": "^2.0.3",
     "@react-native-community/cameraroll": "^1.4.1",
     "@react-native-community/datetimepicker": "^2.2.2",
     "@react-native-community/masked-view": "^0.1.6",
@@ -54,6 +55,8 @@
     "react-native-sortable-gridview": "^1.1.5",
     "react-native-tab-view": "^2.14.0",
     "react-native-table-component": "^1.2.1",
+    "react-native-tags": "^2.1.0",
+    "react-native-tags-input": "^1.0.9",
     "react-native-user-avatar": "^1.0.4",
     "react-native-vector-icons": "^6.6.0",
     "react-native-video": "^5.0.2",
@@ -61,7 +64,9 @@
     "react-navigation": "^4.1.1",
     "react-navigation-stack": "^2.1.1",
     "unimodules-permissions-interface": "^5.1.0",
-    "uuid": "^3.3.2"
+    "uuid": "^3.3.2",
+    "expo-document-picker": "~8.1.0",
+    "expo-av": "~8.1.0"
   },
   "devDependencies": {
     "@babel/core": "^7.8.4",

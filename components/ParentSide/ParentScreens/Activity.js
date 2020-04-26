@@ -1,5 +1,4 @@
-import React, {Component} from 'react';
-import CameraRoll from '@react-native-community/cameraroll';
+import React, { Component } from "react";
 import {
   Dimensions,
   StyleSheet,
@@ -7,78 +6,152 @@ import {
   View,
   TouchableOpacity,
   Text,
-} from 'react-native';
-import {TextField} from 'react-native-material-textfield';
-import {Image} from 'react-native';
-// import Tags from 'react-native-tags';
+  Button,
+} from "react-native";
+import { Video } from "expo-av";
+import { TextField } from "react-native-material-textfield";
+import { Image } from "react-native";
+import Tags from "react-native-tags";
+import { Player, Recorder } from "@react-native-community/audio-toolkit";
+import Dialog, { DialogContent } from "react-native-popup-dialog";
+import * as ImagePicker from "expo-image-picker";
 
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 Icon.loadFont();
 
-const mainColor = '#3ca897';
+const mainColor = "#3ca897";
 
-const {width: WIDTH} = Dimensions.get('window');
-
-_handleButtonPress = () => {
-  CameraRoll.getPhotos({
-    first: 20,
-    assetType: 'Photos',
-  })
-    .then(r => {
-      this.setState({photos: r.edges});
-    })
-    .catch(err => {
-      //Error Loading Images
-    });
-};
+const { width: WIDTH } = Dimensions.get("window");
 
 export default class Activity extends Component {
-  static navigationOptions = ({navigation}) => ({
-    title: 'Add an Activity', //`${navigation.state.params.currentRoutine}`,
-    prevScreenTitle: 'Activities',
-    headerTitleStyle: {textAlign: 'center', alignSelf: 'center'},
+  static navigationOptions = ({ navigation }) => ({
+    title: "Add an Activity", //`${navigation.state.params.currentRoutine}`,
+    prevScreenTitle: "Activities",
+    headerTitleStyle: { textAlign: "center", alignSelf: "center" },
     headerStyle: {
-      backgroundColor: 'white',
+      backgroundColor: "white",
     },
   });
 
   constructor(props) {
     super(props);
     this.state = {
-      photos: [],
+      disabled: false,
+      photos: null,
+      video: null,
       prevScreenTitle: this.props.navigation.state.params.prevScreenTitle,
-      tags: {
-        tag: '',
-        tagsArray: [],
-      },
-      tagsColor: mainColor,
-      tagsText: '#fff',
+      recordings: [],
+      visible: false,
     };
   }
 
-  updateTagState = state => {
-    this.setState({
-      tags: state,
+  _onPress() {
+    // Disable button while recording and playing back
+    this.setState({ disabled: true });
+
+    // Start recording
+    let rec = new Recorder("hello.mp4").record();
+    this.setState((state) => {
+      const list = [...state.recordings, rec];
+      return {
+        recordings: list,
+      };
     });
+
+    // Stop recording after approximately 3 seconds
+    setTimeout(() => {
+      rec.stop((err) => {
+        // NOTE: In a real situation, handle possible errors here
+
+        // Play the file after recording has stopped
+        let play = new Player("hello.mp4").play().on("ended", () => {
+          // Enable button again after playback finishes
+          this.setState({ disabled: false });
+        });
+      });
+    }, 3000);
+  }
+
+  _handleButtonPress = async () => {
+    let pickerResult = await ImagePicker.launchImageLibraryAsync({
+      allowsEditing: true,
+      aspect: [4, 3],
+    });
+
+    this.setState({ photos: pickerResult });
+  };
+
+  videoPicker = async () => {
+    let vid = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Videos,
+    });
+
+    this.setState({ video: vid });
+    console.log("VIDEO");
+    console.log(vid);
+  };
+
+  returnImage = () => {
+    console.log(this.state.photos);
+    if (this.state.photos) {
+      return (
+        <Image
+          style={{ width: 300, height: 200, borderRadius: 15 }}
+          source={{ uri: this.state.photos.uri }}
+        />
+      );
+    } else {
+      return <Icon name="camera-enhance" color="#DADADA" size={100} />;
+    }
+  };
+
+  returnVideo = () => {
+    console.log(this.state.video);
+    if (this.state.video) {
+      return (
+        <Video
+          source={{ uri: this.state.video.uri }}
+          rate={1.0}
+          volume={1.0}
+          isMuted={false}
+          resizeMode="stretch"
+          shouldPlay
+          isLooping
+          style={{ width: 300, height: 300 }}
+        />
+      );
+    } else {
+      return <Icon name="camera-enhance" color="#DADADA" size={100} />;
+    }
   };
 
   fieldRef = React.createRef();
 
   onSubmit = () => {
-    let {current: field} = this.fieldRef;
+    let { current: field } = this.fieldRef;
     console.log(field.value());
   };
 
-  formatText = text => {
-    return text.replace(/[^+\d]/g, '');
+  formatText = (text) => {
+    return text.replace(/[^+\d]/g, "");
+  };
+
+  noRecs = () => {
+    if (this.state.recordings.length == 0) {
+      return (
+        <Text style={{ color: "#c4c4c4", padding: 10 }}>
+          There are no recordings
+        </Text>
+      );
+    }
   };
 
   render() {
-    const {navigate} = this.props.navigation;
+    const { navigate } = this.props.navigation;
     return (
-      <ScrollView style = {{backgroundColor: '#FFFCF9'}}>
+      <ScrollView style={{ backgroundColor: "#FFFCF9", padding: 20 }}>
         <View style={styles.textFields}>
-          <Text>What is this activity called?</Text>
+          <Text style={styles.titles}>What is this activity called?</Text>
 
           <TextField
             placeholder="(e.g. Wear Shoes)"
@@ -98,67 +171,68 @@ export default class Activity extends Component {
         </View>
 
         <View style={(styles.descriptionBox, styles.textFields)}>
-          <Text>Tags</Text>
-          <Text>Enter some words that match what this activity entails.</Text>
-          {/* <Tags
-            initialText="Insert a tag"
+          <Text style={styles.titles}>Tags</Text>
+          <Text style={styles.description}>
+            Enter some words that match what this activity entails.
+          </Text>
+          <Tags
             textInputProps={{
-              placeholder: 'Activity Tags',
-            }} */}
-            {/* initialTags={['Shoes', 'Nike']}
-            onChangeTags={tags => console.log(tags)}
+              placeholder: "?TAGS",
+            }}
+            initialTags={["Shoes ", "Nike "]}
+            onChangeTags={(tags) => console.log(tags)}
             onTagPress={(index, tagLabel, event, deleted) =>
               console.log(
                 index,
                 tagLabel,
                 event,
-                deleted ? 'deleted' : 'not deleted',
+                deleted ? "deleted" : "not deleted"
               )
-            } */}
-            {/* containerStyle={{justifyContent: 'center'}}
-            inputStyle={{backgroundColor: 'white'}}
-            renderTag={({tag, index, onPress, deleteTagOnPress, readonly}) => (
+            }
+            containerStyle={{ justifyContent: "center" }}
+            inputStyle={{
+              backgroundColor: "#FFFCF9",
+              borderBottomColor: "#c4c4c4",
+              borderBottomWidth: 1,
+            }}
+            renderTag={({
+              tag,
+              index,
+              onPress,
+              deleteTagOnPress,
+              readonly,
+            }) => (
               <View style={styles.tagsbutton}>
                 <Text style={styles.text}>{tag} </Text>
                 <TouchableOpacity
-                  style={{paddingLeft: 19}}
+                  style={{ paddingLeft: 19 }}
                   key={`${tag}-${index}`}
-                  onPress={onPress}>
+                  onPress={onPress}
+                >
                   <Text style={styles.text}>X</Text>
                 </TouchableOpacity>
               </View>
             )}
-          /> */}
+          />
         </View>
 
         <View style={(styles.descriptionBox, styles.textFields)}>
-          <Text>Activity Image</Text>
-          <Text>
+          <Text style={styles.titles}>Activity Image</Text>
+          <Text style={styles.description}>
             Upload an image your child can scan to show activity completion.
           </Text>
-
-          <TouchableOpacity
-            style={styles.camerabutton}
-            onPress={this._handleButtonPress}>
-            <Icon name="camera-enhance" color="#DADADA" size={100} />
-          </TouchableOpacity>
-
-          {this.state.photos.map((p, i) => {
-            return (
-              <Image
-                key={i}
-                style={{
-                  width: 300,
-                  height: 100,
-                }}
-                source={{uri: p.node.image.uri}}
-              />
-            );
-          })}
+          <View style={{ margin: 20, alignItems: "center" }}>
+            <TouchableOpacity
+              style={styles.camerabutton}
+              onPress={this._handleButtonPress}
+            >
+              {this.returnImage()}
+            </TouchableOpacity>
+          </View>
         </View>
 
         <View style={(styles.descriptionBox, styles.textFields)}>
-          <Text>Description</Text>
+          <Text style={styles.titles}>Description</Text>
           <TextField
             placeholder="Explain steps that would help your child complete the activity."
             // defaultValue="!123"
@@ -168,76 +242,184 @@ export default class Activity extends Component {
               styles.textFields,
               styles.descriptionLines)
             }
-            textInputStyle={{flex: 1}}
-            onFocus={e => console.log('Focus', !!e)}
-            onBlur={e => console.log('Blur', !!e)}
-            onEndEditing={e => console.log('EndEditing', !!e)}
-            onSubmitEditing={e => console.log('SubmitEditing', !!e)}
-            onTextChange={s => console.log('TextChange', s)}
-            onChangeText={s => console.log('ChangeText', s)}
+            textInputStyle={{ flex: 1 }}
+            onFocus={(e) => console.log("Focus", !!e)}
+            onBlur={(e) => console.log("Blur", !!e)}
+            onEndEditing={(e) => console.log("EndEditing", !!e)}
+            onSubmitEditing={(e) => console.log("SubmitEditing", !!e)}
+            onTextChange={(s) => console.log("TextChange", s)}
+            onChangeText={(s) => console.log("ChangeText", s)}
             multiline={true}
           />
         </View>
 
         <View style={(styles.descriptionBox, styles.textFields)}>
-          <Text>Audio</Text>
-          <Text>
+          <Text style={styles.titles}>Audio</Text>
+          <Text style={styles.description}>
             Is your child an auditory learner? They might like to hear you
             explain the activity to them.
           </Text>
-          <View style={{flexDirection: 'row'}}>
-            <TouchableOpacity style={styles.button}>
-              <Icon name="microphone" color="#FF6978" size={30} />
+
+          <View
+            style={{
+              flexDirection: "row",
+              justifyContent: "center",
+              margin: 15,
+            }}
+          >
+            <TouchableOpacity
+              disabled={this.state.disabled}
+              style={
+                this.state.disabled ? styles.disabledbutton : styles.button
+              }
+              onPress={() => this._onPress()}
+            >
+              <Icon
+                name="microphone"
+                color={this.state.disabled ? "#c4c4c4" : "#FF6978"}
+                size={30}
+                style={{ marginRight: 10 }}
+              />
               <Text>Record</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.button}>
+            <TouchableOpacity
+              style={styles.button}
+              onPress={() => {
+                this.setState({ visible: true });
+              }}
+            >
               <Icon name="upload" color="#FF6978" size={30} />
-              <Text>Choose from voice notes</Text>
+              <Text>Choose from recordings</Text>
+            </TouchableOpacity>
+          </View>
+
+          <Dialog
+            visible={this.state.visible}
+            onTouchOutside={() => {
+              this.setState({ visible: false });
+            }}
+          >
+            <DialogContent style={{ backgroundColor: "#FFFCF9", padding: 20 }}>
+              <View>
+                <View style={{ margin: 10 }}>
+                  <Text
+                    style={{
+                      color: "#FF6978",
+                      fontSize: 30,
+                      alignContent: "center",
+                    }}
+                  >
+                    Previous Recordings
+                  </Text>
+                </View>
+                {this.noRecs()}
+
+                {this.state.recordings.map((item) => {
+                  console.log(item);
+                  return (
+                    <View
+                      style={{
+                        flexDirection: "row",
+                        justifyContent: "center",
+                        alignItems: "center",
+                        margin: 20,
+                        width: 250,
+                        borderRadius: 15,
+                        height: 50,
+                        backgroundColor: "#fff",
+                        shadowColor: "grey",
+                        shadowOffset: { width: 0, height: 1 },
+                        shadowOpacity: 0.4,
+                        shadowRadius: 2,
+                      }}
+                    >
+                      <Icon
+                        name="music"
+                        color="#FF6978"
+                        size={30}
+                        style={{ paddingRight: 30 }}
+                      />
+                      <Text style={{ fontSize: 20, color: "black" }}>
+                        {item._path}
+                      </Text>
+                      <Text>{item._duration}</Text>
+                    </View>
+                  );
+                })}
+              </View>
+            </DialogContent>
+          </Dialog>
+        </View>
+
+        <View style={(styles.descriptionBox, styles.textFields)}>
+          <Text style={styles.titles}>Video</Text>
+          <Text style={styles.description}>
+            Is your child a visual learner? A video might help your child learn
+            how to do the activity step-by-step.
+          </Text>
+          <View style={{ margin: 20, alignItems: "center" }}>
+            <TouchableOpacity
+              style={styles.camerabutton}
+              onPress={() => this.videoPicker()}
+            >
+              {this.returnVideo()}
             </TouchableOpacity>
           </View>
         </View>
 
         <View style={(styles.descriptionBox, styles.textFields)}>
-          <Text>Video</Text>
-          <Text>
-            Is your child a visual learner? A video might help your child learn
-            how to do the activity step-by-step.
-          </Text>
-
-          <TouchableOpacity style={styles.camerabutton}>
-            <Icon name="camera-enhance" color="#DADADA" size={100} />
-          </TouchableOpacity>
-        </View>
-
-        <View style={(styles.descriptionBox, styles.textFields)}>
-          <Text>Activity Reward</Text>
-          <Text>
+          <Text style={styles.titles}>Activity Reward</Text>
+          <Text style={styles.description}>
             Positive reinforcement is amazing for kids! An image and/or a video
             of the reward (eg: video of baby shark) might get your child pumped
             to perform their activities.
           </Text>
-          <View style={{flexDirection: 'row'}}>
+          <View
+            style={{
+              flexDirection: "row",
+              justifyContent: "center",
+              margin: 15,
+            }}
+          >
             <TouchableOpacity style={styles.button}>
               <Icon name="text" color="#FF6978" size={30} />
               <Text>Description</Text>
             </TouchableOpacity>
 
             <TouchableOpacity style={styles.button}>
-              <Icon name="camera" color="#FF6978" size={30} />
+              <Icon
+                name="camera"
+                color="#FF6978"
+                size={30}
+                style={{ marginRight: 10 }}
+              />
               <Text>Image</Text>
             </TouchableOpacity>
 
             <TouchableOpacity style={styles.button}>
-              <Icon name="video" color="#FF6978" size={30} />
+              <Icon
+                name="video"
+                color="#FF6978"
+                size={30}
+                style={{ marginRight: 10 }}
+              />
               <Text>Video</Text>
             </TouchableOpacity>
           </View>
         </View>
-
-        <TouchableOpacity style={styles.button}>
-          <Text>Save</Text>
-        </TouchableOpacity>
+        <View
+          style={{
+            flexDirection: "row",
+            justifyContent: "center",
+            margin: 15,
+            marginBottom: 100,
+          }}
+        >
+          <TouchableOpacity style={styles.savebutton}>
+            <Text style={{ color: "#fff", fontSize: 20 }}>Save</Text>
+          </TouchableOpacity>
+        </View>
       </ScrollView>
     );
   }
@@ -245,17 +427,17 @@ export default class Activity extends Component {
 
 const styles = StyleSheet.create({
   addImageButton: {
-    color: 'grey',
+    color: "grey",
     fontSize: 65,
   },
   activityImage: {
-    position: 'absolute',
+    position: "absolute",
     paddingHorizontal: 50,
     height: 200,
     width: 200,
   },
   imageContainer: {
-    alignItems: 'center',
+    alignItems: "center",
     marginBottom: 200,
   },
   imageButton: {
@@ -268,7 +450,7 @@ const styles = StyleSheet.create({
     marginLeft: 10,
   },
   descriptionBox: {
-    borderColor: '#e8e8e8',
+    borderColor: "#e8e8e8",
     borderWidth: 1,
     borderRadius: 15,
   },
@@ -281,17 +463,17 @@ const styles = StyleSheet.create({
   lowerCorner: {
     paddingTop: 10,
     paddingBottom: 10,
-    alignItems: 'flex-end',
+    alignItems: "flex-end",
     marginRight: 20,
   },
   footer: {
-    alignItems: 'center',
+    alignItems: "center",
     paddingTop: 10,
     paddingBottom: 40,
     borderTopWidth: 1,
     borderTopWidth: 1,
-    borderTopColor: '#e8e8e8',
-    backgroundColor: '#e8e8e8',
+    borderTopColor: "#e8e8e8",
+    backgroundColor: "#e8e8e8",
   },
   roundButton: {
     fontSize: 30,
@@ -299,75 +481,112 @@ const styles = StyleSheet.create({
     minWidth: 50,
     width: 50,
     borderRadius: 50,
-    color: '#40b6ac',
+    color: "#40b6ac",
   },
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     backgroundColor: mainColor,
   },
   textInput: {
     height: 40,
-    borderColor: 'white',
+    borderColor: "white",
     borderWidth: 1,
     marginTop: 8,
     borderRadius: 5,
     padding: 3,
   },
   tag: {
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
   },
   tagText: {
     color: mainColor,
   },
   center: {
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
   },
   tagsbutton: {
     fontSize: 30,
-    height: 35,
+    height: 30,
     minWidth: 50,
     width: 100,
     borderRadius: 20,
-    backgroundColor: '#FFFCF9',
-    borderColor: '#FF6978',
+    backgroundColor: "#fff",
+    borderColor: "#FF6978",
     borderWidth: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    flexDirection: 'row',
+    justifyContent: "center",
+    alignItems: "center",
+    flexDirection: "row",
     margin: 5,
   },
   button: {
     fontSize: 30,
-    height: 35,
-    width: 200,
+    minWidth: 150,
+    minHeight: 40,
     borderRadius: 20,
-    backgroundColor: '#fff',
-    borderColor: '#FF6978',
+    backgroundColor: "#fff",
+    borderColor: "#FF6978",
     borderWidth: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    flexDirection: 'row',
+    justifyContent: "center",
+    alignItems: "center",
+    flexDirection: "row",
     margin: 5,
+    padding: 2,
+  },
+  savebutton: {
+    fontSize: 30,
+    minWidth: 150,
+    minHeight: 40,
+    borderRadius: 20,
+    backgroundColor: "#FF6978",
+    borderColor: "#fff",
+    borderWidth: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    flexDirection: "row",
+    margin: 5,
+    padding: 2,
+  },
+  disabledbutton: {
+    fontSize: 30,
+    minWidth: 150,
+    minHeight: 40,
+    borderRadius: 20,
+    backgroundColor: "#ffff",
+    borderColor: "#c4c4c4",
+    borderWidth: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    flexDirection: "row",
+    margin: 5,
+    padding: 2,
   },
   camerabutton: {
     fontSize: 30,
     height: 200,
     width: 300,
     borderRadius: 12,
-    backgroundColor: '#fff',
-    justifyContent: 'center',
-    alignItems: 'center',
-    flexDirection: 'row',
+    backgroundColor: "#fff",
+    justifyContent: "center",
+    alignItems: "center",
+    flexDirection: "row",
     margin: 5,
-    shadowColor: 'grey',
+    shadowColor: "grey",
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.4,
     shadowRadius: 2,
   },
   text: {
-    color: '#FF6978',
+    color: "#FF6978",
+  },
+  titles: {
+    fontSize: 24,
+    padding: 5,
+  },
+  description: {
+    fontSize: 20,
+    padding: 5,
   },
 });
