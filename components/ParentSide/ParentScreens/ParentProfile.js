@@ -3,7 +3,10 @@ import {View, Dimensions, StyleSheet} from 'react-native';
 import {TextField} from 'react-native-material-textfield';
 import UserAvatar from 'react-native-user-avatar';
 
+import Environment from '../../../database/sqlEnv';
+
 const {width: WIDTH} = Dimensions.get('window');
+
 
 export default class ParentProfile extends Component {
   static navigationOptions = ({navigation}) => ({
@@ -34,7 +37,7 @@ export default class ParentProfile extends Component {
       [tag]: value,
     };
     try {
-      let response = await fetch('http://localhost:3000/updateUser/' + id, {
+      let response = await fetch(Environment + '/updateUser/' + id, {
         method: 'POST',
         headers: {
           Accept: 'application/json',
@@ -61,7 +64,7 @@ export default class ParentProfile extends Component {
 
   getChildInfo() {
     // Get the routines data from the db
-    fetch('http://localhost:3000/getChildFromParent/' + this.state.userId, {
+    fetch(Environment + '/getChildFromParent/' + this.state.userId, {
       headers: {
         'Cache-Control': 'no-cache',
       },
@@ -82,7 +85,7 @@ export default class ParentProfile extends Component {
 
   getUserInfo() {
     // Get the routines data from the db
-    fetch('http://localhost:3000/getUsers/' + this.state.userId, {
+    fetch(Environment + '/getUsers/' + this.state.userId, {
       headers: {
         'Cache-Control': 'no-cache',
       },

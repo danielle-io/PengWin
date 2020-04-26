@@ -9,6 +9,8 @@ import {TextField} from 'react-native-material-textfield';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import {RaisedTextButton} from 'react-native-material-buttons';
 import DatePicker from 'react-native-datepicker';
+import Environment from '../../../database/sqlEnv';
+
 
 const {width: WIDTH} = Dimensions.get('window');
 
@@ -93,7 +95,7 @@ export default class EditRoutine extends Component {
     };
     try {
       let response = await fetch(
-        'http://localhost:3000/updateRoutine/' + this.state.routineId,
+        '3000/updateRoutine/' + this.state.routineId,
         {
           method: 'POST',
           headers: {
@@ -115,7 +117,7 @@ export default class EditRoutine extends Component {
   // TO DO: there needs to be a new routine ID for this item before this happens
   componentDidMount() {
     // Get the activities data from the db
-    fetch('http://localhost:3000/routine/' + this.state.routineId)
+    fetch(Environment + '/routine/' + this.state.routineId)
       .then(response => response.json())
       .then(responseJson => {
         return responseJson;

@@ -11,9 +11,10 @@ import { Video } from "expo-av";
 import { TextField } from "react-native-material-textfield";
 import { Image } from "react-native";
 import Tags from "react-native-tags";
-import { Player, Recorder } from "@react-native-community/audio-toolkit";
+import { Player } from "@react-native-community/audio-toolkit";
 import Dialog, { DialogContent } from "react-native-popup-dialog";
 import * as ImagePicker from "expo-image-picker";
+import { Audio } from "expo-av";
 
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 Icon.loadFont();
@@ -45,7 +46,8 @@ export default class Activity extends Component {
       activityId: this.props.navigation.state.params.activityId,
       activityTags: this.props.navigation.state.params.activityTags,
       activityImagePath: this.props.navigation.state.params.activityImagePath,
-      activityDescription: this.props.navigation.state.params.activityDescription,
+      activityDescription: this.props.navigation.state.params
+        .activityDescription,
       activityAudioPath: this.props.navigation.state.params.activityAudioPath,
       activityVideoPath: this.props.navigation.state.params.activityVideoPath,
       activityIsPublic: this.props.navigation.state.params.activityIsPublic,
@@ -54,32 +56,44 @@ export default class Activity extends Component {
     };
   }
 
-  _onPress() {
+  async _recordAudio() {
     // Disable button while recording and playing back
-    this.setState({ disabled: true });
+    // this.setState({ disabled: true });
 
-    // Start recording
-    let rec = new Recorder("hello.mp4").record();
-    this.setState((state) => {
-      const list = [...state.recordings, rec];
-      return {
-        recordings: list,
-      };
-    });
-
-    // Stop recording after approximately 3 seconds
-    setTimeout(() => {
-      rec.stop((err) => {
-        // NOTE: In a real situation, handle possible errors here
-
-        // Play the file after recording has stopped
-        let play = new Player("hello.mp4").play().on("ended", () => {
-          // Enable button again after playback finishes
-          this.setState({ disabled: false });
-        });
-      });
-    }, 3000);
+    const recording = new Audio.Recording();
+    try {
+      await recording.prepareToRecordAsync(
+        Audio.RECORDING_OPTIONS_PRESET_HIGH_QUALITY
+      );
+      await recording.startAsync();
+      // You are now recording!
+    } catch (error) {
+      // An error occurred!
+    }
   }
+
+  // Start recording
+  // let rec = new Recorder("hello.mp4").record();
+  // this.setState((state) => {
+  //   const list = [...state.recordings, rec];
+  //   return {
+  //     recordings: list,
+  //   };
+  // };
+
+  // Stop recording after approximately 3 seconds
+  //   setTimeout(() => {
+  //     rec.stop((err) => {
+  //       // NOTE: In a real situation, handle possible errors here
+
+  //       // Play the file after recording has stopped
+  //       let play = new Player("hello.mp4").play().on("ended", () => {
+  //         // Enable button again after playback finishes
+  //         this.setState({ disabled: false });
+  //       });
+  //     });
+  //   }, 3000);
+  // }
 
   _handleButtonPress = async () => {
     let pickerResult = await ImagePicker.launchImageLibraryAsync({
@@ -165,16 +179,15 @@ export default class Activity extends Component {
           <TextField
             placeholder="(e.g. Wear Shoes)"
             value={this.state.activityName}
-            style={styles.textfieldWithFloatingLabel,
-                styles.textFields}
+            style={(styles.textfieldWithFloatingLabel, styles.textFields)}
             textInputStyle={{ flex: 1 }}
-            onFocus={e => console.log('Focus', !!e)}
-            onBlur={e => console.log('Blur', !!e)}
-            onEndEditing={e => console.log('EndEditing', !!e)}
-            onSubmitEditing={e => console.log('SubmitEditing', !!e)}
-            onTextChange={s => console.log('TextChange', s)}
-            onChangeText={s => console.log('ChangeText', s)}
-            onChangeText = { (text) => this.setState({activityName : text})}
+            onFocus={(e) => console.log("Focus", !!e)}
+            onBlur={(e) => console.log("Blur", !!e)}
+            onEndEditing={(e) => console.log("EndEditing", !!e)}
+            onSubmitEditing={(e) => console.log("SubmitEditing", !!e)}
+            onTextChange={(s) => console.log("TextChange", s)}
+            onChangeText={(s) => console.log("ChangeText", s)}
+            onChangeText={(text) => this.setState({ activityName: text })}
           />
         </View>
 
@@ -280,7 +293,7 @@ export default class Activity extends Component {
               style={
                 this.state.disabled ? styles.disabledbutton : styles.button
               }
-              onPress={() => this._onPress()}
+              onPress={() => this._recordAudio()}
             >
               <Icon
                 name="microphone"

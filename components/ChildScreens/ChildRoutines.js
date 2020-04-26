@@ -6,6 +6,8 @@ const {width: WIDTH} = Dimensions.get('window');
 // import {Notifications} from 'react-native-notifications';
 import { Notifications } from 'expo';
 
+import Environment from '../../database/sqlEnv';
+
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 Icon.loadFont();
 console.disableYellowBox = true;
@@ -23,6 +25,8 @@ export default class ChildRoutines extends Component {
     const {navigate} = this.props.navigation;
     this.navigate = navigate;
     this.notif = false;
+
+
 
     // this.getRoutines();
     // this.parseRoutines();
@@ -156,7 +160,7 @@ export default class ChildRoutines extends Component {
 
   // Get the routines data from the db
   getRoutines() {
-    fetch('http://localhost:3000/routines/', {
+    fetch(Environment + 'routines/', {
       headers: {
         'Cache-Control': 'no-cache',
       },

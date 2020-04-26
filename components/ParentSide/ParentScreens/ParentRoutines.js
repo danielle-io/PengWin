@@ -18,6 +18,8 @@ import {
 } from 'react-native-popup-menu';
 import MaterialTabs from 'react-native-material-tabs';
 import Dialog, {DialogContent} from 'react-native-popup-dialog';
+import Environment from '../../../database/sqlEnv';
+
 
 const {width: WIDTH} = Dimensions.get('window');
 
@@ -87,7 +89,7 @@ export default class ParentRoutines extends Component {
 
   // Get the routines data from the db
   getRoutines() {
-    fetch('http://localhost:3000/routines/', {
+    fetch(Environment + '/routines/', {
       headers: {
         'Cache-Control': 'no-cache',
       },
@@ -107,7 +109,7 @@ export default class ParentRoutines extends Component {
 
   // Get the routines data from the db
   getActivities() {
-    fetch('http://localhost:3000/getActivities/' + this.state.userId, {
+    fetch(Environment + '/getActivities/' + this.state.userId, {
       headers: {
         'Cache-Control': 'no-cache',
       },
@@ -137,7 +139,7 @@ export default class ParentRoutines extends Component {
     };
     try {
       let response = await fetch(
-        'http://localhost:3000/updateRoutine/' + routineId,
+        Environment + '/updateRoutine/' + routineId,
         {
           method: 'POST',
           headers: {
