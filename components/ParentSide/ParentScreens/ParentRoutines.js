@@ -244,14 +244,7 @@ export default class ParentRoutines extends Component {
                     }>
                     <Text style={{color: 'black'}}>Edit</Text>
                   </MenuOption>
-                  {/* <MenuOption onSelect={() =>
-                    this.changeActiveStatus(item.routine_id, 'is_active', item.is_active)
-                  }
-                    text={this.setActiveText(item.is_active, item.routine_id)} />
-                  <MenuOption onSelect={() => alert('Duplicate')} text='Duplicate' />
-                  <MenuOption onSelect={() => alert('Delete')} >
-                    <Text style={{ color: 'red' }}>Delete</Text>
-                  </MenuOption> */}
+        
                                </MenuOptions>
                              </Menu>
                            </MenuProvider>
@@ -333,7 +326,7 @@ export default class ParentRoutines extends Component {
                                        Edit
                                      </Text>
                                    </MenuOption>
-                                   {/* <MenuOption
+                                   <MenuOption
                                      onSelect={() =>
                                        this.changeActiveStatus(
                                          item.routine_id,
@@ -345,14 +338,14 @@ export default class ParentRoutines extends Component {
                                        item.is_active,
                                        item.routine_id,
                                      )}
-                                   /> */}
-                                   {/* <MenuOption
+                                   />
+                                   <MenuOption
                                      onSelect={() =>
                                        alert('Duplicate')
                                      }
                                      text="Duplicate"
-                                   /> */}
-                                   {/* <MenuOption
+                                   />
+                                   <MenuOption
                                      onSelect={() =>
                                        alert('Delete')
                                      }>
@@ -360,13 +353,13 @@ export default class ParentRoutines extends Component {
                                        style={{color: 'red'}}>
                                        Delete
                                      </Text>
-                                   </MenuOption> */}
+                                   </MenuOption>
                                  </MenuOptions>
                                </Menu>
                              </MenuProvider>
                            </View>
 
-                           {/* <View
+                           <View
                              style={
                                styles.routineDetailsPreview
                              }>
@@ -389,7 +382,7 @@ export default class ParentRoutines extends Component {
                                />{' '}
                                Rewards: {item.amount_of_rewards}{' '}
                              </Text>
-                           </View> */}
+                           </View>
                          </View>
                        );
                      },
@@ -435,7 +428,7 @@ export default class ParentRoutines extends Component {
                            {this.tabIsRoutines() && (
                              <View
                                style={{
-                                 flex: 1,
+                                //  flex: 1,
                                  flexDirection: 'row',
                                  flexWrap: 'wrap',
                                }}>
