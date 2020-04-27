@@ -37,7 +37,7 @@ export default class ParentProfile extends Component {
       [tag]: value,
     };
     try {
-      let response = await fetch(Environment + '/updateUser/' + id, {
+      let response = await fetch("http://" + Environment + '/updateUser/' + id, {
         method: 'POST',
         headers: {
           Accept: 'application/json',
@@ -64,7 +64,7 @@ export default class ParentProfile extends Component {
 
   getChildInfo() {
     // Get the routines data from the db
-    fetch(Environment + '/getChildFromParent/' + this.state.userId, {
+    fetch("http://" + Environment + '/getChildFromParent/' + this.state.userId, {
       headers: {
         'Cache-Control': 'no-cache',
       },
@@ -85,7 +85,7 @@ export default class ParentProfile extends Component {
 
   getUserInfo() {
     // Get the routines data from the db
-    fetch(Environment + '/getUsers/' + this.state.userId, {
+    fetch("http://" + Environment + '/getUsers/' + this.state.userId, {
       headers: {
         'Cache-Control': 'no-cache',
       },
@@ -136,7 +136,7 @@ export default class ParentProfile extends Component {
       return (
         <View style={styles.parentProfileFormContainer}>
           <View style={styles.avatarContainer}>
-            <UserAvatar size="100" name={fullName} />
+            <UserAvatar size={100} name={fullName} />
           </View>
 
           <TextField
