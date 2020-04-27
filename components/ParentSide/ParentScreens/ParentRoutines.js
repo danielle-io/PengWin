@@ -89,7 +89,7 @@ export default class ParentRoutines extends Component {
 
   // Get the routines data from the db
   getRoutines() {
-    fetch(Environment + '/routines/', {
+    fetch('http://' + Environment + '/routines/', {
       headers: {
         'Cache-Control': 'no-cache',
       },
@@ -109,7 +109,7 @@ export default class ParentRoutines extends Component {
 
   // Get the routines data from the db
   getActivities() {
-    fetch(Environment + '/getActivities/' + this.state.userId, {
+    fetch('http://' + Environment + '/getActivities/' + this.state.userId, {
       headers: {
         'Cache-Control': 'no-cache',
       },
@@ -139,7 +139,7 @@ export default class ParentRoutines extends Component {
     };
     try {
       let response = await fetch(
-        Environment + '/updateRoutine/' + routineId,
+        'http://' + Environment + '/updateRoutine/' + routineId,
         {
           method: 'POST',
           headers: {
