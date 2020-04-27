@@ -18,6 +18,7 @@ const connection = mysql.createPool({
 
 // the hardcoded user id for now
 const userId = 1;
+// console.log(environment.getHost())
 
 // Creating a GET route that returns data from the 'users' table.
 app.get('/users', function (req, res) {
@@ -39,15 +40,22 @@ app.get('/users', function (req, res) {
 });
 
 
+// Creating a GET route that returns data from the 'users' table.
 app.get('/getChildFromParent/:userId', function (req, res) {
   let userId = req.params.userId;
+
+  // Connecting to the database.
   connection.getConnection(function (err, connection) {
+
+    // Executing the MySQL query (select all data from the 'users' table).
     connection.query('select * from children '
       + 'inner join users on children.user_id = users.user_id where parent_id = ?', [userId], function (error, results, fields) {
+        // console.log(results);
         console.log(error);
 
         if (error) throw error;
 
+        // Getting the 'response' from the database and sending it to our route. This is were the data is.
         res.send(results)
       });
   });
@@ -60,7 +68,9 @@ app.post('/updateRoutine/:routineId', function (req, res) {
   let routineId = req.params.routineId;
   var postData = req.body;
 
+  console.log('routes data below');
   console.log(postData);
+  // console.log('post data above');
   connection.getConnection(function (err, connection) {
 
     connection.query('UPDATE routines SET ? WHERE routine_id = ?',
@@ -85,6 +95,7 @@ app.post('/updateUser/:userId', function (req, res) {
 
   console.log('routes data below');
   console.log(postData);
+  // console.log('post data above');
   connection.getConnection(function (err, connection) {
 
     connection.query('UPDATE users SET ? WHERE user_id = ?',
@@ -110,13 +121,17 @@ app.post('/insertRoutine', function (req, res) {
 });
 
 
+// Creating a GET route that returns data from user 1 table.
 app.get('/user', function (req, res) {
+  // Connecting to the database.
   connection.getConnection(function (err, connection) {
 
+    // Executing the MySQL query (select all data from the 'users' table).
     connection.query('SELECT * FROM users where user_id =' + userId, function (error, results, fields) {
-
+      // If some error occurs, we throw an error.
       if (error) throw error;
 
+      // Getting the 'response' from the database and sending it to our route. This is were the data is.
       res.send(results)
     });
   });
@@ -127,6 +142,7 @@ app.get('/user', function (req, res) {
 // Creating a GET route that returns data from user 1 table.
 app.get('/getUsers/:userId', function (req, res) {
   let userId = req.params.userId;
+  // Connecting to the database.
   connection.getConnection(function (err, connection) {
 
     connection.query('SELECT * FROM users WHERE user_id = ?', [userId], function (error, results, fields) {
@@ -158,18 +174,21 @@ app.get('/getActivities/:userId', function (req, res) {
 
 app.get('/routines/:userId', function (req, res) {
   let userId = req.params.userId;
-
+  // Connecting to the database.
   connection.getConnection(function (err, connection) {
 
+    // Executing the MySQL query (select all data from the 'users' table).
     connection.query('select routines.*, a.*, rar.order from routines '
       + 'inner join routines_activities_relationship rar on routines.routine_id = rar.routine_id '
       + 'inner join activities a on rar.activity_id = a.activity_id '
       + 'where routines.user_id = ? '
       + 'order by rar.routine_id, rar.order', [userId], function (error, results, fields) {
-
+        // console.log(results);
         console.log(err);
+        // If some error occurs, we throw an error.
         if (error) throw error;
 
+        // Getting the 'response' from the database and sending it to our route. This is were the data is.
         res.send(results)
       });
   });
@@ -178,8 +197,10 @@ app.get('/routines/:userId', function (req, res) {
 
 app.get('/routine/:routineId', function (req, res) {
   let routineId = req.params.routineId;
+  // Connecting to the database.
   connection.getConnection(function (err, connection) {
 
+    // Executing the MySQL query (select all data from the 'users' table).
     connection.query('select routines.*, a.*, rar.order from routines '
       + 'inner join routines_activities_relationship rar on routines.routine_id = rar.routine_id '
       + 'inner join activities a on rar.activity_id = a.activity_id '
@@ -188,25 +209,30 @@ app.get('/routine/:routineId', function (req, res) {
         console.log('routine routes below');
         console.log(results);
         console.log(error);
-
+        // If some error occurs, we throw an error.
         if (error) throw error;
 
+        // Getting the 'response' from the database and sending it to our route. This is were the data is.
         res.send(results)
       });
   });
 });
 
 app.get('/routines', function (req, res) {
+  // Connecting to the database.
   connection.getConnection(function (err, connection) {
 
+    // Executing the MySQL query (select all data from the 'users' table).
     connection.query('SELECT * FROM routines where user_id=' + userId, function (error, results, fields) {
+      // If some error occurs, we throw an error.
       if (error) throw error;
 
+      // Getting the 'response' from the database and sending it to our route. This is were the data is.
       res.json({ 'routines': results });
     });
   });
 });
-
+// Starting our server.
 app.listen(3000, () => {
   console.log('Go to http://localhost:3000/users so you can see the data.');
 });

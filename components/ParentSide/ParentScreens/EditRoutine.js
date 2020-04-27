@@ -94,7 +94,7 @@ export default class EditRoutine extends Component {
       [tag]: value,
     };
     try {
-      let response = await fetch(
+      let response = await fetch('http://' + 
         '3000/updateRoutine/' + this.state.routineId,
         {
           method: 'POST',
@@ -117,7 +117,7 @@ export default class EditRoutine extends Component {
   // TO DO: there needs to be a new routine ID for this item before this happens
   componentDidMount() {
     // Get the activities data from the db
-    fetch(Environment + '/routine/' + this.state.routineId)
+    fetch('http://' + Environment + '/routine/' + this.state.routineId)
       .then(response => response.json())
       .then(responseJson => {
         return responseJson;
