@@ -3,7 +3,6 @@ import {
   Alert,
   Text,
   View,
-  ImageBackground,
   Image,
   TextInput,
   Dimensions,

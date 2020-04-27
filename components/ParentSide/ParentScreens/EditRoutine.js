@@ -9,6 +9,8 @@ import {TextField} from 'react-native-material-textfield';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import {RaisedTextButton} from 'react-native-material-buttons';
 import DatePicker from 'react-native-datepicker';
+import Environment from '../../../database/sqlEnv';
+
 
 const {width: WIDTH} = Dimensions.get('window');
 
@@ -21,7 +23,7 @@ export default class EditRoutine extends Component {
         
         headerRight: () => <Button onPress={ () => {
            var alr = "";
-            if(navigation.state.params.currentRoutineName === '' || !navigation.state.params.currentRoutineName)
+            if(navigation.state.params.routineName === '' || !navigation.state.params.routineName)
             {
                 alr += "Must have a routine name\n"
             }
@@ -56,13 +58,13 @@ export default class EditRoutine extends Component {
 
     this.state = {
       prevScreenTitle: this.props.navigation.state.params.prevScreenTitle,
-      currentRoutineName: this.props.navigation.state.params.currentRoutineName,
-      currentRoutineId: this.props.navigation.state.params.currentRoutineId,
-      currentRoutineStartTime: this.props.navigation.state.params.currentRoutineStartTime,
-      currentRoutineEndTime: this.props.navigation.state.params.currentRoutineEndTime,
-      currentRoutineApproval: this.props.navigation.state.params.currentRoutineApproval,
-      currentRewards: this.props.navigation.state.params.currentRewards,
-      currentApproval: this.props.navigation.state.params.is_approved,
+      routineName: this.props.navigation.state.params.routineName,
+      routineId: this.props.navigation.state.params.routineId,
+      routineStartTime: this.props.navigation.state.params.routineStartTime,
+      routineEndTime: this.props.navigation.state.params.routineEndTime,
+      routineApproval: this.props.navigation.state.params.routineApproval,
+      rewards: this.props.navigation.state.params.rewards,
+      approval: this.props.navigation.state.params.is_approved,
       amount_of_activities: this.props.navigation.state.params.amount_of_activities,
       amount_of_rewards: this.props.navigation.state.params.amount_of_rewards,
 
@@ -84,16 +86,16 @@ export default class EditRoutine extends Component {
   async changeRoutineComponent(tag, value) {
 
     if (tag === 'is_approved'){
-      this.setState({currentRoutineApproval: !this.state.currentRoutineApproval})
+      this.setState({routineApproval: !this.state.routineApproval})
     }
     console.log('routine id below');
-    console.log(this.state.currentRoutineId);
+    console.log(this.state.routineId);
     var data = {
       [tag]: value,
     };
     try {
       let response = await fetch(
-        'http://localhost:3000/updateRoutine/' + this.state.currentRoutineId,
+        '3000/updateRoutine/' + this.state.routineId,
         {
           method: 'POST',
           headers: {
@@ -115,7 +117,7 @@ export default class EditRoutine extends Component {
   // TO DO: there needs to be a new routine ID for this item before this happens
   componentDidMount() {
     // Get the activities data from the db
-    fetch('http://localhost:3000/routine/' + this.state.currentRoutineId)
+    fetch(Environment + '/routine/' + this.state.routineId)
       .then(response => response.json())
       .then(responseJson => {
         return responseJson;
@@ -140,8 +142,8 @@ export default class EditRoutine extends Component {
 
   getCurrentSwitchState(){
     console.log('in switch function');
-    console.log(this.state.currentRoutineApproval);
-    if (this.state.currentRoutineApproval === 1){
+    console.log(this.state.routineApproval);
+    if (this.state.routineApproval === 1){
       return true;
     }
     return false;
@@ -151,10 +153,10 @@ export default class EditRoutine extends Component {
     var itemNumCounter = 0;
     var mappingVal = this.state.activities;
     if (listName === 'reward') {
-      if (this.state.currentRewards === null) {
+      if (this.state.rewards === null) {
         return;
       }
-      mappingVal = this.state.currentRewards;
+      mappingVal = this.state.rewards;
     }
 
     //  this is the loop where activities populate and rewards populate
@@ -245,7 +247,7 @@ export default class EditRoutine extends Component {
             onValueChange={() =>
               this.changeRoutineComponent(
                 'is_approved',
-                !this.state.currentRoutineApproval,
+                !this.state.routineApproval,
               )
 
             }
@@ -257,14 +259,14 @@ export default class EditRoutine extends Component {
 
   defineTimeText(text) {
     if (text === 'Start') {
-      if (this.state.currentRoutineStartTime === '00:00') {
+      if (this.state.routineStartTime === '00:00') {
         console.log('RETURNING THE START TIME TEXT');
         return 'Select a Start Time';
       }
       return 'Start Time';
     }
     if (text === 'End') {
-      if (this.state.currentRoutineEndTime === '00:00') {
+      if (this.state.routineEndTime === '00:00') {
         return 'Select an End Time';
       }
       return 'End Time';
@@ -273,27 +275,27 @@ export default class EditRoutine extends Component {
 
   defineTime(text) {
     if (text === 'Start') {
-      if (this.state.currentRoutineStartTime === '00:00') {
+      if (this.state.routineStartTime === '00:00') {
         return '00:00';
       }
-      return this.state.currentRoutineStartTime;
+      return this.state.routineStartTime;
     }
     if (text === 'End') {
-      if (this.state.currentRoutineEndTime === '00:00') {
+      if (this.state.routineEndTime === '00:00') {
         return '00:00';
       }
-      return this.state.currentRoutineEndTime;
+      return this.state.routineEndTime;
     }
   }
 
   timeMarginDefinition(text) {
     if (text === 'Start') {
-      if (this.state.currentRoutineStartTime === '00:00') {
+      if (this.state.routineStartTime === '00:00') {
         return 260;
       }
       return 320;
     } else {
-      if (this.state.currentRoutineEndTime === '00:00') {
+      if (this.state.routineEndTime === '00:00') {
         return 260;
       }
       return 330;
@@ -467,8 +469,8 @@ export default class EditRoutine extends Component {
     var alr = '';
 
     if (
-      this.state.currentRoutineName === '' ||
-      !this.state.currentRoutineName
+      this.state.routineName === '' ||
+      !this.state.routineName
     ) {
       alr += 'Must have a routine name\n';
     }
@@ -508,7 +510,7 @@ export default class EditRoutine extends Component {
                 <TextField
                   id="routineNameField"
                   placeholder="Routine Name"
-                  value={this.state.currentRoutineName}
+                  value={this.state.routineName}
                   style={(styles.textfieldWithFloatingLabel, styles.textFields)}
                   textInputStyle={{flex: 1}}
                   onFocus={e => console.log('Focus', !!e)}
@@ -516,12 +518,12 @@ export default class EditRoutine extends Component {
                   onEndEditing={e => {
                     this.changeRoutineComponent(
                       'routine_name',
-                      this.state.currentRoutineName,
+                      this.state.routineName,
                     );
                   }}
                   onSubmitEditing={e => console.log('SubmitEditing', !!e)}
                   onChangeText={text =>
-                    this.setState({currentRoutineName: text})
+                    this.setState({routineName: text})
                   }
                 />
 
@@ -555,7 +557,7 @@ export default class EditRoutine extends Component {
               <Text style={styles.editRoutinesInstructionsText}>
                 {/* TO DO: only say routine in the text string if the word isnt in the routine title */}
                 Add a reward that your child receives when they complete their{' '}
-                {this.state.currentRoutine}.
+                {this.state.routine}.
               </Text>
               {this.displayList('reward')}
               {this.addNewItemButtonToList('reward')}
@@ -589,7 +591,7 @@ export default class EditRoutine extends Component {
                   {
                     this.changeRoutineComponent('start_time', date);
                   }
-                  this.setState({currentRoutineStartTime: date});
+                  this.setState({routineStartTime: date});
                 }}
                 customStyles={{
                   dateInput: {
@@ -617,7 +619,7 @@ export default class EditRoutine extends Component {
                     this.changeRoutineComponent('end_time', date);
                   }
 
-                  this.setState({currentRoutineEndTime: date});
+                  this.setState({routineEndTime: date});
                 }}
                 customStyles={{
                   dateInput: {
@@ -653,7 +655,6 @@ export default class EditRoutine extends Component {
 
 const styles = StyleSheet.create({
   // EDIT ROUTINES
-
   redNumbers: {
     marginLeft: 10,
     color: '#FF6978',

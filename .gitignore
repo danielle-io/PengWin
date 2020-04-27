@@ -12,6 +12,8 @@ web-report/
 database/sqlEnv.js
 database/irEnv.js
 database/sqlConfig.js
+database/sqlEnv.js
+
 
 
 
