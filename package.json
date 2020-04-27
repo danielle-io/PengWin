@@ -21,7 +21,7 @@
     "clarifai": "^2.9.1",
     "expo": "^37.0.8",
     "expo-av": "~8.1.0",
-    "expo-document-picker": "~8.1.0",
+
     "expo-image-picker": "^8.1.0",
     "express": "^4.17.1",
     "firebase": "^7.9.0",
@@ -66,7 +66,9 @@
     "react-navigation": "^4.1.1",
     "react-navigation-stack": "^2.1.1",
     "unimodules-permissions-interface": "^5.1.0",
-    "uuid": "^3.3.2"
+    "uuid": "^3.3.2",
+    "expo-document-picker": "~8.1.0",
+    "expo-font": "~8.1.0"
   },
   "devDependencies": {
     "@babel/core": "^7.8.4",
