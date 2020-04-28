@@ -1,9 +1,12 @@
 import React, { Component } from 'react';
-import { Button, Dimensions, StyleSheet, ScrollView, View, Text } from 'react-native';
+import { Button, Dimensions, StyleSheet, ScrollView, View, Text, TouchableOpacity } from 'react-native';
 import { TextField, FilledTextField } from 'react-native-material-textfield';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { Dropdown } from 'react-native-material-dropdown';
 // import YouTube from 'react-native-youtube';
+import { Video } from "expo-av";
+import { Image } from "react-native";
+import * as ImagePicker from "expo-image-picker";
 
 const { width: WIDTH } = Dimensions.get('window')
 
@@ -24,16 +27,79 @@ export default class ParentRewards extends Component {
     constructor(props) {
         super(props)
         this.state = {
-            reward1: null,
-            reward2: null,
-            reward3: null,
-            reward4: null,
+            photos: null,
+            video: null
+            // reward1: null,
+            // reward2: null,
+            // reward3: null,
+            // reward4: null,
             //prevScreenTitle: this.props.navigation.state.params.prevScreenTitle,
         };
     }
 
+    //from EditActivity
+
+    _handleButtonPress = async () => {
+        let pickerResult = await ImagePicker.launchImageLibraryAsync({
+            allowsEditing: true,
+            aspect: [4, 3],
+        });
+
+        this.setState({ photos: pickerResult });
+    };
+
+    videoPicker = async () => {
+        let vid = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ImagePicker.MediaTypeOptions.Videos,
+        });
+
+        this.setState({ video: vid });
+        console.log("VIDEO");
+        console.log(vid);
+    };
+
+    returnImage = () => {
+        console.log(this.state.photos);
+        if (this.state.photos) {
+            return (
+                <Image
+                    style={{ width: 300, height: 200, borderRadius: 15 }}
+                    source={{ uri: this.state.photos.uri }}
+                />
+            );
+        } else {
+            return <Icon name="camera-enhance" color="#DADADA" size={100} />;
+        }
+    };
+
+
+    returnVideo = () => {
+        console.log(this.state.video);
+        if (this.state.video) {
+            return (
+                <Video
+                    source={{ uri: this.state.video.uri }}
+                    rate={1.0}
+                    volume={1.0}
+                    isMuted={false}
+                    resizeMode="stretch"
+                    shouldPlay
+                    isLooping
+                    style={{ width: 300, height: 300 }}
+                />
+            );
+        } else {
+            return <Icon name="video" color="#DADADA" size={100} />;
+        }
+    };
 
     fieldRef = React.createRef();
+
+    onSubmit = () => {
+        let { current: field } = this.fieldRef;
+        console.log(field.value());
+    };
+
 
     render() {
 
@@ -140,8 +206,15 @@ export default class ParentRewards extends Component {
                         <View style={styles.editRoutineIconAndTitle}>
                             < Text style={styles.textFields}>
                                 Add Image
-                        </Text>
-                            <Icon style={styles.routineDetails} name="camera" />
+                            </Text>
+                            <View style={{ margin: 20, alignItems: "center" }}>
+                                <TouchableOpacity
+                                    style={styles.camerabutton}
+                                    onPress={this._handleButtonPress}
+                                >
+                                    {this.returnImage()}
+                                </TouchableOpacity>
+                            </View>
 
                         </View>
                         {/* //insert image  */}
@@ -156,18 +229,47 @@ export default class ParentRewards extends Component {
                             < Text style={styles.textFields}>
                                 Add Video
                              </Text>
-                            <Icon style={styles.routineDetails} name="video" />
+                            <View style={{ margin: 20, alignItems: "center" }}>
+                                <TouchableOpacity
+                                    style={styles.camerabutton}
+                                    onPress={() => this.videoPicker()}
+                                >
+                                    {this.returnVideo()}
+                                </TouchableOpacity>
+                            </View>
 
                         </View>
 
-                        <Button
-                            title="Save Button"
+                        {/* <Button
+                            title="Save"
                             type="outline"
                             color='#FF6978'
-                        />
+                        /> */}
 
+
+                        {/* <TouchableOpacity style={styles.button}>
+                            <Icon
+                                name="camera"
+                                color="#FF6978"
+                                size={30}
+                                style={{ marginRight: 10 }}
+                            />
+                            <Text>Image</Text>
+                        </TouchableOpacity> */}
+
+                        {/* <TouchableOpacity style={styles.button}>
+                            <Icon
+                                name="video"
+                                color="#FF6978"
+                                size={30}
+                                style={{ marginRight: 10 }}
+                            />
+                            <Text>Video</Text>
+                        </TouchableOpacity> */}
                     </View>
-
+                    <TouchableOpacity style={styles.savebutton}>
+                        <Text style={{ color: "#FF6978", fontSize: 20 }}>Save Reward</Text>
+                    </TouchableOpacity>
 
                 </View>
 
@@ -296,5 +398,34 @@ const styles = StyleSheet.create({
         borderRadius: 50,
         color: '#FFFFFF',
     },
+    camerabutton: {
+        fontSize: 30,
+        height: 200,
+        width: 300,
+        borderRadius: 12,
+        backgroundColor: "#fff",
+        justifyContent: "center",
+        alignItems: "center",
+        flexDirection: "row",
+        margin: 5,
+        shadowColor: "grey",
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.4,
+        shadowRadius: 2,
+    },
+    savebutton: {
+        fontSize: 30,
+        minWidth: 150,
+        minHeight: 40,
+        borderRadius: 20,
+        backgroundColor: "#fff",
+        borderColor: "#FF6978",
+        borderWidth: 1,
+        justifyContent: "center",
+        alignItems: "center",
+        flexDirection: "row",
+        margin: 5,
+        padding: 2,
+      }
 });
 
