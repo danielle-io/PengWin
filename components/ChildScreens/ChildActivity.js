@@ -16,11 +16,12 @@ const { width: WIDTH, height: HEIGHT } = Dimensions.get("window");
 import Star from "../../assets/images/fillstar.png";
 import Ribbon from "../../assets/images/ribbon.png";
 import Head from "../../assets/images/PenguinFace.png";
+import Environment from "../../database/sqlEnv";
 
 import * as Font from "expo-font";
 import { AppLoading } from "expo";
 let customFonts = {
-  'SF': require("../../assets/fonts/SF/SF-Pro-Display-ThinItalic.otf"),
+  SF: require("../../assets/fonts/SF/SF-Pro-Display-ThinItalic.otf"),
   "Inter-SemiBoldItalic":
     "https://rsms.me/inter/font-files/Inter-SemiBoldItalic.otf?v=3.12",
 };
@@ -34,9 +35,12 @@ export default class ChildActivity extends Component {
     this.state = {
       prevScreenTitle: this.props.navigation.state.params.prevScreenTitle,
       currentRoutine: this.props.navigation.state.params.currentRoutine,
+      userID: this.props.navigation.state.params.userID,
       visible1: false,
       visible2: false,
       fontsLoaded: false,
+      activitiesLoaded: false,
+      activities: null,
     };
     ChildActivity.navigationOptions.headerBackTitle = this.props.navigation.state.params.currentRoutine;
   }
@@ -56,8 +60,29 @@ export default class ChildActivity extends Component {
 
   componentDidMount() {
     this._loadFontsAsync();
+    this.props.navigation.addListener("didFocus", (payload) => {
+      this.getActivities();
+    });
   }
-
+  getActivities() {
+    fetch("http://" + Environment + "/getActivities/" + this.state.userID, {
+      headers: {
+        "Cache-Control": "no-cache",
+      },
+    })
+      .then((response) => response.json())
+      .then((responseJson) => {
+        return responseJson;
+      })
+      .then((results) => {
+        this.setState({ activities: results });
+        this.setState({ activitiesLoaded: true });
+        console.log(this.state.activities);
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+  }
   //initial code input value
 
   pinInput = React.createRef();
@@ -80,36 +105,11 @@ export default class ChildActivity extends Component {
       code: "",
     };
     //Array of dummy objects
-    var activities = [
-      {
-        activityName: "Clean Your Bedroom",
-        userDescription:
-          "Thoroughly clean and organize the inside of your drawers and closet. Reorganize and fold clothes. \nVacuum and sweep. This time, clean under your furniture — especially your bed — and in any hard to reach places.",
-        imageDesc:
-          "https://clipartstation.com/wp-content/uploads/2017/11/clean-room-clipart-11.jpg",
-        videoid: "S8wp_plgkv4",
-      },
-      {
-        activityName: "Meal Time",
-        userDescription:
-          "Help with preparing meals, under supervision. Help put clean clothes into piles for each family member, ready to fold. Help with grocery shopping and putting away groceries.",
-        imageDesc:
-          "https://s28194.pcdn.co/wp-content/uploads/2019/07/calm-mealtime.jpg",
-        videoid: "qpYD_nCo-AU",
-      },
-      {
-        activityName: "Meal Time",
-        userDescription:
-          "Help with preparing meals, under supervision. Help put clean clothes into piles for each family member, ready to fold. Help with grocery shopping and putting away groceries.",
-        imageDesc:
-          "https://s28194.pcdn.co/wp-content/uploads/2019/07/calm-mealtime.jpg",
-        videoid: "qpYD_nCo-AU",
-      },
-    ];
+    let activities = this.state.activities;
 
     const { code } = this.state;
 
-    if (this.state.fontsLoaded) {
+    if (this.state.fontsLoaded && this.state.activitiesLoaded) {
       return (
         <View>
           <Carousel
@@ -212,7 +212,7 @@ export default class ChildActivity extends Component {
                   </View>
                 </View>
 
-                <Text style={styles.actTitle}> {item.activityName} </Text>
+                <Text style={styles.actTitle}> {item.activity_name} </Text>
                 <Image
                   source={{ uri: item.imageDesc }}
                   style={{ width: WIDTH * 0.5, height: WIDTH * 0.5, margin: 5 }}
@@ -415,7 +415,6 @@ const styles = StyleSheet.create({
     fontFamily: "SF",
   },
   textStyle: {
-
     fontFamily: "SF",
     fontSize: 20,
     color: "white",
