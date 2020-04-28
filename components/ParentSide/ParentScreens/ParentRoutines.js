@@ -200,9 +200,9 @@ export default class ParentRoutines extends Component {
                 friday: 0,
                 saturday: 0,
                 sunday: 0,
-
-                // TO DO: set up rewards
                 rewards: null,
+                allActivities: this.state.activities,
+
               }))
           }
           ripple={ripple}
@@ -261,9 +261,6 @@ export default class ParentRoutines extends Component {
                    // parse out the db objects returned from the routines call
                    return this.state.results.routines.map(
                      item => {
-                       console.log('ROUTINE NAME');
-                       console.log(item.routine_name);
-
                        if (item.is_active === 0) {
                          containerName =
                            'inactiveRoutineContainer';
@@ -317,6 +314,7 @@ export default class ParentRoutines extends Component {
                                            item.amount_of_activities,
                                          amount_of_rewards:
                                            item.amount_of_rewards,
+                                          allActivities: this.state.activities,
                                          // TO DO: set up rewards
                                          rewards: null,
                                        })
