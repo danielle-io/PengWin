@@ -78,10 +78,13 @@ export default class EditRoutine extends Component {
       friday: this.props.navigation.state.params.friday,
       saturday: this.props.navigation.state.params.saturday,
       sunday: this.props.navigation.state.params.sunday,
+      // TODO: hardcoded ID
+      userId: 1,
       allActivities: this.props.navigation.state.params.allActivities,
       changedValues: [],
       activities: null,
       loaded: false,
+      // TODO: hardcoded date 
       date: "2016-05-15",
     };
   }
@@ -120,7 +123,7 @@ export default class EditRoutine extends Component {
     // This means we are inserting a new item in the db, so we will
     // insert diff than we update
     if (this.state.routineId === null) {
-      console.log("nullll");
+      this.createNewRoutine();
     } else {
       for (const keyValuePair of this.state.changedValues) {
         Object.entries(keyValuePair).map(([key, val]) => {
@@ -129,6 +132,28 @@ export default class EditRoutine extends Component {
       }
     }
   }
+
+  // createNewRoutine(){
+  //   routineName: this.props.navigation.state.params.routineName,
+  //   routineId: this.props.navigation.state.params.routineId,
+  //   routineStartTime: this.props.navigation.state.params.routineStartTime,
+  //   routineEndTime: this.props.navigation.state.params.routineEndTime,
+  //   routineApproval: this.props.navigation.state.params.routineApproval,
+  //   rewards: this.props.navigation.state.params.rewards,
+  //   approval: this.props.navigation.state.params.is_approved,
+  //   amount_of_activities: this.props.navigation.state.params
+  //     .amount_of_activities,
+  //   amount_of_rewards: this.props.navigation.state.params.amount_of_rewards,
+  //   monday: this.props.navigation.state.params.monday,
+  //   tuesday: this.props.navigation.state.params.tuesday,
+  //   wednesday: this.props.navigation.state.params.wednesday,
+  //   thursday: this.props.navigation.state.params.thursday,
+  //   friday: this.props.navigation.state.params.friday,
+  //   saturday: this.props.navigation.state.params.saturday,
+  //   sunday: this.props.navigation.state.params.sunday,
+  //   allActivities: this.props.navigation.state.params.allActivities,
+  //   changedValues: [],
+  // }
 
   // Update the change array
   pushToUpdateArray(tag, value) {
