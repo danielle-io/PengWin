@@ -20,13 +20,16 @@ export const App = () => (
 export default class ParentRewards extends Component {
     static navigationOptions = ({ navigation }) => ({
         title: 'Edit Reward',
-        prevScreenTitle: 'Parent Routines',
+        prevScreenTitle: 'Rewards',
     });
 
 
     constructor(props) {
         super(props)
+        const { navigate } = this.props.navigation;
+        this.navigate = navigate;
         this.state = {
+            prevScreenTitle: this.props.navigation.state.params.prevScreenTitle,
             photos: null,
             video: null
             // reward1: null,
@@ -36,6 +39,20 @@ export default class ParentRewards extends Component {
             //prevScreenTitle: this.props.navigation.state.params.prevScreenTitle,
         };
     }
+
+    // //from ChildActivity
+    // //Header titles for routines
+    // static navigationOptions = ({ navigation }) => ({
+    //     title: `${navigation.state.params.currentReward}`,
+    // });
+    // _onNext = () => {
+    //     this.child._animateNextPage(); // do stuff
+    // };
+
+    //From ChildActivity
+    _onNext = () => {
+        this.child._animateNextPage(); // do stuff
+    };
 
     //from EditActivity
 
@@ -93,6 +110,8 @@ export default class ParentRewards extends Component {
         }
     };
 
+
+
     fieldRef = React.createRef();
 
     onSubmit = () => {
@@ -148,13 +167,15 @@ export default class ParentRewards extends Component {
         ];
 
         return (
+           
 
             <View>
 
                 <View style={styles.rewardsContainer}>
-
+                   
 
                     <View>
+                       
 
                         {/* <View style={styles.editRoutineIconAndTitle}>
                             <Icon style={styles.routineDetailsIcon} name="gift" />
@@ -204,19 +225,35 @@ export default class ParentRewards extends Component {
 
 
                         <View style={styles.editRoutineIconAndTitle}>
-                            < Text style={styles.textFields}>
-                                Add Image
-                            </Text>
+                        <Text style={styles.textFields}>Add Image</Text>
                             <View style={{ margin: 20, alignItems: "center" }}>
+                                
+                                
                                 <TouchableOpacity
                                     style={styles.camerabutton}
-                                    onPress={this._handleButtonPress}
-                                >
+                                //     onPress={this._handleButtonPress}
+                                // >
+                                    onPress={() => {
+                                        this.navigate('Camera', {prevScreenTitle: 'EditReward' });
+                                        this._onNext();
+                                    }}>
                                     {this.returnImage()}
+                                   
                                 </TouchableOpacity>
+
                             </View>
 
                         </View>
+
+                        {/* <TouchableOpacity
+                            style={styles.buttonStyle}
+                            onPress={() => {
+                                this.navigate('Camera', { prevScreenTitle: 'EditReward' });
+                                this._onNext();
+                            }}>
+                            <Text style={styles.textStyle}>Take A Picture!</Text>
+                        </TouchableOpacity> */}
+
                         {/* //insert image  */}
 
                         {/* <Text style = {styles.textFields}>
@@ -247,6 +284,7 @@ export default class ParentRewards extends Component {
                         /> */}
 
 
+
                         {/* <TouchableOpacity style={styles.button}>
                             <Icon
                                 name="camera"
@@ -273,7 +311,7 @@ export default class ParentRewards extends Component {
 
                 </View>
 
-            </View>
+            </View >
 
             //  <View style={styles.textFields}>
             //     <View>
@@ -426,6 +464,6 @@ const styles = StyleSheet.create({
         flexDirection: "row",
         margin: 5,
         padding: 2,
-      }
+    }
 });
 
