@@ -110,6 +110,23 @@ app.post('/insertRoutine', function (req, res) {
 });
 
 
+app.post('/insertRoutineActivityRelationship', function (req, res) {
+  var postData = req.body;
+  connection.query('INSERT INTO routines_activities_relationship  SET ?', postData, function (error, results, fields) {
+    if (error) throw error;
+    res.end(JSON.stringify(results));
+  });
+});
+
+app.post('/insertRewards', function (req, res) {
+  var postData = req.body;
+  connection.query('INSERT INTO rewards  SET ?', postData, function (error, results, fields) {
+    if (error) throw error;
+    res.end(JSON.stringify(results));
+  });
+});
+
+
 app.get('/user', function (req, res) {
   connection.getConnection(function (err, connection) {
 
@@ -175,6 +192,50 @@ app.get('/routines/:userId', function (req, res) {
   });
 });
 
+app.get('/getAllRewards/:userId', function (req, res) {
+  let userId = req.params.userId;
+
+  connection.getConnection(function (err, connection) {
+
+    connection.query('SELECT * FROM rewards where user_id =' + userId, function (error, results, fields) {
+
+        console.log(err);
+        if (error) throw error;
+
+        res.send(results)
+      });
+  });
+});
+
+
+app.get('/getRewardById/:rewardId', function (req, res) {
+  let rewardId = req.params.rewardId;
+
+  connection.getConnection(function (err, connection) {
+
+    connection.query('SELECT * FROM rewards where reward_id =' + rewardId, function (error, results, fields) {
+
+        console.log(err);
+        if (error) throw error;
+
+        res.send(results)
+      });
+  });
+});
+
+app.get('/getActivityById/:activityId', function (req, res) {
+  let activityId = req.params.activityId;
+  connection.getConnection(function (err, connection) {
+
+    connection.query('SELECT * FROM activities where activity_id =' + activityId, function (error, results, fields) {
+
+        console.log(err);
+        if (error) throw error;
+
+        res.send(results)
+      });
+  });
+});
 
 app.get('/routine/:routineId', function (req, res) {
   let routineId = req.params.routineId;

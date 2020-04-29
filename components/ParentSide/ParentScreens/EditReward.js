@@ -181,7 +181,6 @@ export default class ParentRewards extends Component {
             //         </View>
 
             //         <Text style={styles.editRoutinesInstructionsText}>
-            //             {/* TO DO: only say routine in the text string if the word isnt in the routine title */}
             //             Add a reward that your child receives when they complete their {this.state.currentRoutine}.
             //         </Text>
             //         {this.displayList()}

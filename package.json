@@ -20,6 +20,9 @@
     "body-parser": "^1.19.0",
     "clarifai": "^2.9.1",
     "expo": "^37.0.7",
+    "expo-av": "~8.1.0",
+    "expo-document-picker": "~8.1.0",
+    "expo-font": "~8.1.0",
     "expo-image-picker": "^8.1.0",
     "express": "^4.17.1",
     "firebase": "^7.9.0",
@@ -50,6 +53,7 @@
     "react-native-responsive-screen": "^1.4.1",
     "react-native-safe-area-context": "^0.7.2",
     "react-native-screens": "^2.0.0-beta.2",
+    "react-native-searchable-dropdown": "^1.1.1",
     "react-native-sideswipe": "^1.5.0",
     "react-native-smooth-pincode-input": "^1.0.9",
     "react-native-sortable-gridview": "^1.1.5",
@@ -64,10 +68,7 @@
     "react-navigation": "^4.1.1",
     "react-navigation-stack": "^2.1.1",
     "unimodules-permissions-interface": "^5.1.0",
-    "uuid": "^3.3.2",
-    "expo-document-picker": "~8.1.0",
-    "expo-av": "~8.1.0",
-    "expo-font": "~8.1.0"
+    "uuid": "^3.3.2"
   },
   "devDependencies": {
     "@babel/core": "^7.8.4",
