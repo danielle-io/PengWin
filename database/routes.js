@@ -76,6 +76,26 @@ app.post('/updateRoutine/:routineId', function (req, res) {
   });
 });
 
+// Update the routine data
+app.post('/updateActivityRelationship/:routineId', function (req, res) {
+  let routineId = req.params.routineId;
+  var postData = req.body;
+
+  console.log(postData);
+  connection.getConnection(function (err, connection) {
+
+    connection.query('UPDATE routines SET ? WHERE routine_id = ?',
+      [postData, routineId],
+      function (error, results, fields) {
+
+        if (error) {
+          console.log('there was in error in updateRoutine');
+          throw error;
+        }
+        res.send(JSON.stringify(results))
+      });
+  });
+});
 
 // Update the user data
 app.post('/updateUser/:userId', function (req, res) {
@@ -104,6 +124,24 @@ app.post('/updateUser/:userId', function (req, res) {
 app.post('/insertRoutine', function (req, res) {
   var postData = req.body;
   connection.query('INSERT INTO routines SET ?', postData, function (error, results, fields) {
+    if (error) throw error;
+    res.end(JSON.stringify(results));
+  });
+});
+
+
+app.post('/insertRoutineActivityRelationship', function (req, res) {
+  var postData = req.body;
+  connection.query('INSERT INTO routines_activities_relationship  SET ?', postData, function (error, results, fields) {
+    if (error) throw error;
+    res.end(JSON.stringify(results));
+  });
+});
+
+
+app.post('/insertRewards', function (req, res) {
+  var postData = req.body;
+  connection.query('INSERT INTO rewards  SET ?', postData, function (error, results, fields) {
     if (error) throw error;
     res.end(JSON.stringify(results));
   });
@@ -175,6 +213,50 @@ app.get('/routines/:userId', function (req, res) {
   });
 });
 
+app.get('/getAllRewards/:userId', function (req, res) {
+  let userId = req.params.userId;
+
+  connection.getConnection(function (err, connection) {
+
+    connection.query('SELECT * FROM rewards where user_id =' + userId, function (error, results, fields) {
+
+        console.log(err);
+        if (error) throw error;
+
+        res.send(results)
+      });
+  });
+});
+
+
+app.get('/getRewardById/:rewardId', function (req, res) {
+  let rewardId = req.params.rewardId;
+
+  connection.getConnection(function (err, connection) {
+
+    connection.query('SELECT * FROM rewards where reward_id =' + rewardId, function (error, results, fields) {
+
+        console.log(err);
+        if (error) throw error;
+
+        res.send(results)
+      });
+  });
+});
+
+app.get('/getActivityById/:activityId', function (req, res) {
+  let activityId = req.params.activityId;
+  connection.getConnection(function (err, connection) {
+
+    connection.query('SELECT * FROM activities where activity_id =' + activityId, function (error, results, fields) {
+
+        console.log(err);
+        if (error) throw error;
+        console.log(results);
+        res.send(results)
+      });
+  });
+});
 
 app.get('/routine/:routineId', function (req, res) {
   let routineId = req.params.routineId;

@@ -70,8 +70,8 @@ export default class ParentRewards extends Component {
                     currentRoutineId: null,
                     currentRoutineStartTime: null,
                     currentRoutineEndTime: null,
-                    currentRoutineApproval: 0, // TO DO: set up rewards
-
+                    currentRoutineApproval: 0, 
+                    // TODO: set up rewards
                     currentRewards: null,
                   }))
               }
@@ -79,7 +79,7 @@ export default class ParentRewards extends Component {
             />
                                     
             <Text style={styles.routineTitle}>
-                                          Add a Reward                         
+              Add a Reward                         
             </Text>
                                 
           </View>
