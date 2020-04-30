@@ -20,7 +20,7 @@ Icon.loadFont();
 //HEADER TITLES
 const makeRoutineScreenConfig = navigation => {
   return {
-    title: 'My Routine',
+    title: 'My Routines',
     headerRight: () => (
       <Icon
         style={{padding: 15, color: '#848484'}}
