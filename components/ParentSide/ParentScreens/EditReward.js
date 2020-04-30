@@ -231,12 +231,12 @@ export default class ParentRewards extends Component {
                                 
                                 <TouchableOpacity
                                     style={styles.camerabutton}
-                                //     onPress={this._handleButtonPress}
-                                // >
-                                    onPress={() => {
+                                    onPress={this._handleButtonPress}
+                                >
+                                    {/* onPress={() => {
                                         this.navigate('Camera', {prevScreenTitle: 'EditReward' });
                                         this._onNext();
-                                    }}>
+                                    }}> */}
                                     {this.returnImage()}
                                    
                                 </TouchableOpacity>
@@ -464,6 +464,6 @@ const styles = StyleSheet.create({
         flexDirection: "row",
         margin: 5,
         padding: 2,
-    }
+    },
 });
 
