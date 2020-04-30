@@ -4,7 +4,9 @@ import {
   StyleSheet,
   ScrollView,
   View,
+  Slider,
   TouchableOpacity,
+  TouchableHighlight,
   Text,
 } from "react-native";
 import { Video } from "expo-av";
@@ -15,6 +17,8 @@ import { Player } from "@react-native-community/audio-toolkit";
 import Dialog, { DialogContent } from "react-native-popup-dialog";
 import * as ImagePicker from "expo-image-picker";
 import { Audio } from "expo-av";
+import * as FileSystem from "expo-file-system";
+import * as Permissions from "expo-permissions";
 
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 Icon.loadFont();
@@ -35,8 +39,12 @@ export default class Activity extends Component {
 
   constructor(props) {
     super(props);
+    this.recording = null;
+    this.sound = null;
+    this.isSeeking = false;
+    this.shouldPlayAtEndOfSeek = false;
     this.state = {
-      disabled: false,
+      // disabled: false,
       photos: null,
       video: null,
       prevScreenTitle: this.props.navigation.state.params.prevScreenTitle,
@@ -46,31 +54,238 @@ export default class Activity extends Component {
       activityId: this.props.navigation.state.params.activityId,
       activityTags: this.props.navigation.state.params.activityTags,
       activityImagePath: this.props.navigation.state.params.activityImagePath,
-      activityDescription: this.props.navigation.state.params
-        .activityDescription,
+      activityDescription: this.props.navigation.state.params.activityDescription,
       activityAudioPath: this.props.navigation.state.params.activityAudioPath,
       activityVideoPath: this.props.navigation.state.params.activityVideoPath,
       activityIsPublic: this.props.navigation.state.params.activityIsPublic,
       userId: this.props.navigation.state.params.userId,
       rewardId: this.props.navigation.state.params.rewardId,
+      haveRecordingPermissions: false,
+      isLoading: false,
+      isPlaybackAllowed: false,
+      muted: false,
+      soundPosition: null,
+      soundDuration: null,
+      recordingDuration: null,
+      shouldPlay: false,
+      isPlaying: false,
+      isRecording: false,
+      shouldCorrectPitch: true,
+      volume: 1.0,
+      rate: 1.0,
     };
+    this.recordingSettings = JSON.parse(
+      JSON.stringify(Audio.RECORDING_OPTIONS_PRESET_LOW_QUALITY)
+    );
   }
 
-  async _recordAudio() {
-    // Disable button while recording and playing back
-    // this.setState({ disabled: true });
+  componentDidMount() {
+    this._askForPermissions();
+  }
+
+  _askForPermissions = async () => {
+    const response = await Permissions.askAsync(Permissions.AUDIO_RECORDING);
+    this.setState({
+      haveRecordingPermissions: response.status === "granted",
+    });
+  };
+
+  _updateScreenForSoundStatus = (status) => {
+    if (status.isLoaded) {
+      this.setState({
+        soundDuration: status.durationMillis,
+        soundPosition: status.positionMillis,
+        shouldPlay: status.shouldPlay,
+        isPlaying: status.isPlaying,
+        rate: status.rate,
+        muted: status.isMuted,
+        volume: status.volume,
+        shouldCorrectPitch: status.shouldCorrectPitch,
+        isPlaybackAllowed: true,
+      });
+    } else {
+      this.setState({
+        soundDuration: null,
+        soundPosition: null,
+        isPlaybackAllowed: false,
+      });
+      if (status.error) {
+        console.log(`FATAL PLAYER ERROR: ${status.error}`);
+      }
+    }
+  };
+
+  _updateScreenForRecordingStatus = (status) => {
+    if (status.canRecord) {
+      this.setState({
+        isRecording: status.isRecording,
+        recordingDuration: status.durationMillis,
+      });
+    } else if (status.isDoneRecording) {
+      this.setState({
+        isRecording: false,
+        recordingDuration: status.durationMillis,
+      });
+      if (!this.state.isLoading) {
+        this._stopRecordingAndEnablePlayback();
+      }
+    }
+  };
+
+  async _stopPlaybackAndBeginRecording() {
+    this.setState({
+      isLoading: true,
+    });
+    if (this.sound !== null) {
+      await this.sound.unloadAsync();
+      this.sound.setOnPlaybackStatusUpdate(null);
+      this.sound = null;
+    }
+    await Audio.setAudioModeAsync({
+      allowsRecordingIOS: true,
+      interruptionModeIOS: Audio.INTERRUPTION_MODE_IOS_DO_NOT_MIX,
+      playsInSilentModeIOS: true,
+      shouldDuckAndroid: true,
+      interruptionModeAndroid: Audio.INTERRUPTION_MODE_ANDROID_DO_NOT_MIX,
+      playThroughEarpieceAndroid: false,
+      staysActiveInBackground: true,
+    });
+    if (this.recording !== null) {
+      this.recording.setOnRecordingStatusUpdate(null);
+      this.recording = null;
+    }
 
     const recording = new Audio.Recording();
-    try {
-      await recording.prepareToRecordAsync(
-        Audio.RECORDING_OPTIONS_PRESET_HIGH_QUALITY
-      );
-      await recording.startAsync();
-      // You are now recording!
-    } catch (error) {
-      // An error occurred!
-    }
+    await recording.prepareToRecordAsync(this.recordingSettings);
+    recording.setOnRecordingStatusUpdate(this._updateScreenForRecordingStatus);
+
+    this.recording = recording;
+    await this.recording.startAsync();
+    this.setState({
+      isLoading: false,
+    });
   }
+
+  async _stopRecordingAndEnablePlayback() {
+    this.setState({
+      isLoading: true,
+    });
+    try {
+      await this.recording.stopAndUnloadAsync();
+    } catch (error) {}
+    const info = await FileSystem.getInfoAsync(this.recording.getURI());
+    console.log(`FILE INFO: ${JSON.stringify(info)}`);
+    await Audio.setAudioModeAsync({
+      allowsRecordingIOS: false,
+      interruptionModeIOS: Audio.INTERRUPTION_MODE_IOS_DO_NOT_MIX,
+      playsInSilentModeIOS: true,
+      playsInSilentLockedModeIOS: true,
+      shouldDuckAndroid: true,
+      interruptionModeAndroid: Audio.INTERRUPTION_MODE_ANDROID_DO_NOT_MIX,
+      playThroughEarpieceAndroid: false,
+      staysActiveInBackground: true,
+    });
+    const { sound, status } = await this.recording.createNewLoadedSoundAsync(
+      {
+        isLooping: false,
+        isMuted: this.state.muted,
+        volume: this.state.volume,
+        rate: this.state.rate,
+        shouldCorrectPitch: this.state.shouldCorrectPitch,
+      },
+      this._updateScreenForSoundStatus
+    );
+    this.sound = sound;
+    this.setState({
+      isLoading: false,
+    });
+  }
+
+  _onRecordPressed = () => {
+    if (this.state.isRecording) {
+      this._stopRecordingAndEnablePlayback();
+    } else {
+      this._stopPlaybackAndBeginRecording();
+    }
+  };
+
+  _onPlayPausePressed = () => {
+    if (this.sound != null) {
+      if (this.state.isPlaying) {
+        this.sound.pauseAsync();
+      } else {
+        this.sound.playAsync();
+      }
+    }
+  };
+
+  _onSeekSliderValueChange = (value) => {
+    if (this.sound != null && !this.isSeeking) {
+      this.isSeeking = true;
+      this.shouldPlayAtEndOfSeek = this.state.shouldPlay;
+      this.sound.pauseAsync();
+    }
+  };
+
+  _onSeekSliderSlidingComplete = async (value) => {
+    if (this.sound != null) {
+      this.isSeeking = false;
+      const seekPosition = value * this.state.soundDuration;
+      if (this.shouldPlayAtEndOfSeek) {
+        this.sound.playFromPositionAsync(seekPosition);
+      } else {
+        this.sound.setPositionAsync(seekPosition);
+      }
+    }
+  };
+
+  _getSeekSliderPosition() {
+    if (
+      this.sound != null &&
+      this.state.soundPosition != null &&
+      this.state.soundDuration != null
+    ) {
+      return this.state.soundPosition / this.state.soundDuration;
+    }
+    return 0;
+  }
+
+  _getMMSSFromMillis(millis) {
+    const totalSeconds = millis / 1000;
+    const seconds = Math.floor(totalSeconds % 60);
+    const minutes = Math.floor(totalSeconds / 60);
+
+    const padWithZero = (number) => {
+      const string = number.toString();
+      if (number < 10) {
+        return "0" + string;
+      }
+      return string;
+    };
+    return padWithZero(minutes) + ":" + padWithZero(seconds);
+  }
+
+  _getPlaybackTimestamp() {
+    if (
+      this.sound != null &&
+      this.state.soundPosition != null &&
+      this.state.soundDuration != null
+    ) {
+      return `${this._getMMSSFromMillis(
+        this.state.soundPosition
+      )} / ${this._getMMSSFromMillis(this.state.soundDuration)}`;
+    }
+    return "";
+  }
+
+  _getRecordingTimestamp() {
+    if (this.state.recordingDuration != null) {
+      return `${this._getMMSSFromMillis(this.state.recordingDuration)}`;
+    }
+    return `${this._getMMSSFromMillis(0)}`;
+  }
+
+  // }
 
   // Start recording
   // let rec = new Recorder("hello.mp4").record();
@@ -288,12 +503,64 @@ export default class Activity extends Component {
               margin: 15,
             }}
           >
-            <TouchableOpacity
+ 
+
+            <View>
+              {/* Record button */}
+              <TouchableOpacity
+                // disabled={this.state.isLoading}
+                // disabled={this.state.disabled}
+                style={
+                  this.state.disabled ? styles.disabledbutton : styles.button
+                }
+                onPress={() => this._onRecordPressed()}
+              >
+                <Icon
+                  name="microphone"
+                  color={this.state.disabled ? "#c4c4c4" : "#FF6978"}
+                  size={30}
+                  style={{ marginRight: 10 }}
+                />
+                <Text>Record</Text>
+              </TouchableOpacity>
+
+              <Text>{this.state.isRecording ? "LIVE" : ""}</Text>
+              <View>
+                <Text>{this._getRecordingTimestamp()}</Text>
+              </View>
+            </View>
+
+        
+
+            <View>
+              <TouchableOpacity
+                onPress={this._onPlayPausePressed}
+                // disabled={!this.state.isPlaybackAllowed || this.state.isLoading}
+                style={this.state.disabled ? styles.disabledbutton : styles.button}
+              >
+                <Text>Play</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+
+          <View>
+              <Slider
+                style={styles.playbackSlider}
+                value={this._getSeekSliderPosition()}
+                onValueChange={this._onSeekSliderValueChange}
+                onSlidingComplete={this._onSeekSliderSlidingComplete}
+                disabled={!this.state.isPlaybackAllowed || this.state.isLoading}
+              />
+              <Text>{this._getPlaybackTimestamp()}</Text>
+            </View>
+
+
+                       {/* <TouchableOpacity
               disabled={this.state.disabled}
               style={
                 this.state.disabled ? styles.disabledbutton : styles.button
               }
-              onPress={() => this._recordAudio()}
+              onPress={() => this._onRecordPressed()}
             >
               <Icon
                 name="microphone"
@@ -302,7 +569,7 @@ export default class Activity extends Component {
                 style={{ marginRight: 10 }}
               />
               <Text>Record</Text>
-            </TouchableOpacity>
+            </TouchableOpacity> */}
 
             <TouchableOpacity
               style={styles.button}
@@ -313,7 +580,6 @@ export default class Activity extends Component {
               <Icon name="upload" color="#FF6978" size={30} />
               <Text>Choose from recordings</Text>
             </TouchableOpacity>
-          </View>
 
           <Dialog
             visible={this.state.visible}

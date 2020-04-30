@@ -1,24 +1,27 @@
-//  TO DO: FOR NEW ROUTINES: i need to figure out how to insert all required fields into
-// the DB so that its valid which might require doing it all at once or doing
-// the name first, getting back the routine ID, then storing the rest
-
 // TO DO: fix switch bug
-import React, {Component} from 'react';
-import { Dimensions, ScrollView, Text, Switch, StyleSheet, View } from 'react-native';
-import {TextField} from 'react-native-material-textfield';
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import {RaisedTextButton} from 'react-native-material-buttons';
-import DatePicker from 'react-native-datepicker';
-import Environment from '../../../database/sqlEnv';
+import React, { Component } from "react";
+import {
+  Dimensions,
+  Picker,
+  ScrollView,
+  Text,
+  Switch,
+  StyleSheet,
+  View,
+} from "react-native";
+import { TextField } from "react-native-material-textfield";
+import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+import { RaisedTextButton } from "react-native-material-buttons";
+import DatePicker from "react-native-datepicker";
+import Environment from "../../../database/sqlEnv";
 
-
-const {width: WIDTH} = Dimensions.get('window');
+const { width: WIDTH } = Dimensions.get("window");
 
 Icon.loadFont();
 
 export default class EditRoutine extends Component {
-  static navigationOptions = ({navigation}) => ({
-    title: 'Edit Routine',
+  static navigationOptions = ({ navigation }) => ({
+    title: "Edit Routine",
     /* DONE BUTTON
         
         headerRight: () => <Button onPress={ () => {
@@ -53,7 +56,7 @@ export default class EditRoutine extends Component {
   constructor(props) {
     super(props);
 
-    const {navigate} = this.props.navigation;
+    const { navigate } = this.props.navigation;
     this.navigate = navigate;
 
     this.state = {
@@ -65,9 +68,9 @@ export default class EditRoutine extends Component {
       routineApproval: this.props.navigation.state.params.routineApproval,
       rewards: this.props.navigation.state.params.rewards,
       approval: this.props.navigation.state.params.is_approved,
-      amount_of_activities: this.props.navigation.state.params.amount_of_activities,
+      amount_of_activities: this.props.navigation.state.params
+        .amount_of_activities,
       amount_of_rewards: this.props.navigation.state.params.amount_of_rewards,
-
       monday: this.props.navigation.state.params.monday,
       tuesday: this.props.navigation.state.params.tuesday,
       wednesday: this.props.navigation.state.params.wednesday,
@@ -75,38 +78,36 @@ export default class EditRoutine extends Component {
       friday: this.props.navigation.state.params.friday,
       saturday: this.props.navigation.state.params.saturday,
       sunday: this.props.navigation.state.params.sunday,
-
+      allActivities: this.props.navigation.state.params.allActivities,
+      changedValues: [],
       activities: null,
       loaded: false,
-      date: '2016-05-15',
+      date: "2016-05-15",
     };
   }
 
-  // Update the DB
+  // // Update the DB
   async changeRoutineComponent(tag, value) {
-
-    if (tag === 'is_approved'){
-      this.setState({routineApproval: !this.state.routineApproval})
-    }
-    console.log('routine id below');
-    console.log(this.state.routineId);
+    console.log("in change component");
+    console.log(tag);
+    console.log(value);
     var data = {
       [tag]: value,
     };
     try {
-      let response = await fetch('http://' + 
-        '3000/updateRoutine/' + this.state.routineId,
+      let response = await fetch(
+        Environment + "/updateRoutine/" + this.state.routineId,
         {
-          method: 'POST',
+          method: "POST",
           headers: {
-            Accept: 'application/json',
-            'Content-Type': 'application/json',
+            Accept: "application/json",
+            "Content-Type": "application/json",
           },
           body: JSON.stringify(data),
-        },
+        }
       );
       if (response.status >= 200 && response.status < 300) {
-        console.log('SUCCESSFUL CALL');
+        console.log("SUCCESSFUL CALL");
         this.addCalendar();
       }
     } catch (errors) {
@@ -114,36 +115,76 @@ export default class EditRoutine extends Component {
     }
   }
 
+  // Update the DB
+  updateRoutineData() {
+    // This means we are inserting a new item in the db, so we will
+    // insert diff than we update
+    if (this.state.routineId === null) {
+      console.log("nullll");
+    } else {
+      for (const keyValuePair of this.state.changedValues) {
+        Object.entries(keyValuePair).map(([key, val]) => {
+          this.changeRoutineComponent(key, val);
+        });
+      }
+    }
+  }
+
+  // Update the change array
+  pushToUpdateArray(tag, value) {
+    Object.keys(this.state.changedValues).map(function(keyName, keyIndex) {
+      if (keyName === tag) {
+        return;
+      }
+    });
+
+    // I can't remember why this is here??
+    if (tag === "is_approved") {
+      this.setState({ routineApproval: !this.state.routineApproval });
+    }
+
+    // Create a new array based on current state:
+    let tempArray = this.state.changedValues;
+
+    // Add item to it
+    tempArray.push({ [tag]: value });
+
+    // Set state
+    this.setState({ changedValues: tempArray });
+    console.log(this.state.changedValues);
+  }
+
   // TO DO: there needs to be a new routine ID for this item before this happens
   componentDidMount() {
     // Get the activities data from the db
-    fetch('http://' + Environment + '/routine/' + this.state.routineId)
+    fetch(Environment + '/routine/' + this.state.routineId)
       .then(response => response.json())
       .then(responseJson => {
         return responseJson;
       })
-      .then(activities => {
-        this.setState({activities: activities});
-        this.setState({loaded: true});
+      .then((activities) => {
+        this.setState({ activities: activities });
+        this.setState({ loaded: true });
+        this.removeAlreadyAddedActivitiesFromOptions();
       })
-      .catch(error => {
+      .catch((error) => {
         console.error(error);
       });
   }
 
   swapDateValue(value, tag) {
     if (value === 1) {
-      this.setState({[tag]: 0});
+      this.setState({ [tag]: 0 });
       return 0;
     }
-    this.setState({[tag]: 1});
+    this.setState({ [tag]: 1 });
     return 1;
   }
 
-  getCurrentSwitchState(){
-    console.log('in switch function');
+  getCurrentSwitchState() {
+    console.log("in switch function");
     console.log(this.state.routineApproval);
-    if (this.state.routineApproval === 1){
+    if (this.state.routineApproval === 1) {
       return true;
     }
     return false;
@@ -152,7 +193,7 @@ export default class EditRoutine extends Component {
   displayList(listName) {
     var itemNumCounter = 0;
     var mappingVal = this.state.activities;
-    if (listName === 'reward') {
+    if (listName === "reward") {
       if (this.state.rewards === null) {
         return;
       }
@@ -160,7 +201,7 @@ export default class EditRoutine extends Component {
     }
 
     //  this is the loop where activities populate and rewards populate
-    return mappingVal.map(item => {
+    return mappingVal.map((item) => {
       itemNumCounter += 1;
       return (
         <View style={styles.formIndent}>
@@ -173,11 +214,26 @@ export default class EditRoutine extends Component {
     });
   }
 
+  removeAlreadyAddedActivitiesFromOptions() {
+    let tempArray = [];
+    let currentActivityNames = [];
+
+    this.state.activities.map((item) => {
+      currentActivityNames.push(item.activity_name);
+    });
+
+    for (const item of this.state.allActivities) {
+      if (!currentActivityNames.includes(item.activity_name)) {
+        tempArray.push(item);
+      }
+    }
+    this.setState({ allActivities: tempArray });
+  }
+
   addNewItemButtonToList(lns) {
-    console.log('LISTNAME' + lns);
-    lns === 'activity'
-      ? (textfield = 'Add an activity')
-      : (textfield = 'Add a reward');
+    lns === "activity"
+      ? (textfield = "Add an activity")
+      : (textfield = "Add a reward");
 
     return (
       <View style={styles.formIndent}>
@@ -185,11 +241,11 @@ export default class EditRoutine extends Component {
           <RaisedTextButton
             style={styles.roundAddButton}
             titleStyle={{
-              color: '#FFFFFF',
+              color: "#FFFFFF",
               fontSize: 10,
               padding: 0,
               margin: 0,
-              fontWeight: 'bold',
+              fontWeight: "bold",
             }}
             title="+"
             titleColor="white"
@@ -198,11 +254,35 @@ export default class EditRoutine extends Component {
           />
           <View
             style={{
-              borderBottomColor: '#C4C4C4',
+              borderBottomColor: "#C4C4C4",
               borderBottomWidth: 1,
               width: WIDTH * 0.6,
-            }}>
-            <Text style={styles.activityText}>{textfield}</Text>
+            }}
+          >
+            <Text style={styles.activityText}>
+              {/* {textfield} */}
+
+              {lns === "activity" && (
+                <Picker
+                  style={[styles.onePicker]}
+                  itemStyle={styles.onePickerItem}
+                  // selectedValue={this.state.firstLanguage}
+                  // onValueChange={(itemValue) =>
+                  //   this.setState({ firstLanguage: itemValue })
+                  // }
+                >
+                  {this.state.allActivities.map((item, index) => {
+                    return (
+                      <Picker.Item
+                        label={item.activity_name}
+                        value={index}
+                        key={index}
+                      />
+                    );
+                  })}
+                </Picker>
+              )}
+            </Text>
           </View>
         </View>
       </View>
@@ -213,17 +293,17 @@ export default class EditRoutine extends Component {
     if (!this.state.amount_of_activities) this.state.amount_of_activities = 0;
     if (!this.state.amount_of_rewards) this.state.amount_of_rewards = 0;
 
-    if (lmn === 'activity') {
+    if (lmn === "activity") {
       var ct = this.state.amount_of_activities + 1;
-      this.setState({amount_of_activities: ct});
-      this.navigate('Activity', {
-        prevScreenTitle: 'Edit Routines',
+      this.setState({ amount_of_activities: ct });
+      this.navigate("Activity", {
+        prevScreenTitle: "Edit Routines",
       });
     } else {
       var ct = this.state.amount_of_rewards + 1;
-      this.setState({amount_of_rewards: ct});
-      this.navigate('ParentRewards', {
-        prevScreenTitle: 'Edit Routines',
+      this.setState({ amount_of_rewards: ct });
+      this.navigate("ParentRewards", {
+        prevScreenTitle: "Edit Routines",
       });
     }
   }
@@ -238,18 +318,14 @@ export default class EditRoutine extends Component {
         <View style={styles.editRoutineIconAndTitle}>
           <Text style={styles.editRoutinesInstructionsText}>
             Would you like to approve routine completion before your child
-            receives their final reward?{' '}
+            receives their final reward?{" "}
           </Text>
           <Switch
-            style={{padding: 10}}
-            trackColor={{false: '#767577', true: '#FF6978'}}
+            style={{ padding: 10 }}
+            trackColor={{ false: "#767577", true: "#FF6978" }}
             value={this.getCurrentSwitchState()}
             onValueChange={() =>
-              this.changeRoutineComponent(
-                'is_approved',
-                !this.state.routineApproval,
-              )
-
+              this.pushToUpdateArray("is_approved", !this.state.routineApproval)
             }
           />
         </View>
@@ -258,44 +334,43 @@ export default class EditRoutine extends Component {
   }
 
   defineTimeText(text) {
-    if (text === 'Start') {
-      if (this.state.routineStartTime === '00:00') {
-        console.log('RETURNING THE START TIME TEXT');
-        return 'Select a Start Time';
+    if (text === "Start") {
+      if (this.state.routineStartTime === "00:00") {
+        return "Select a Start Time";
       }
-      return 'Start Time';
+      return "Start Time";
     }
-    if (text === 'End') {
-      if (this.state.routineEndTime === '00:00') {
-        return 'Select an End Time';
+    if (text === "End") {
+      if (this.state.routineEndTime === "00:00") {
+        return "Select an End Time";
       }
-      return 'End Time';
+      return "End Time";
     }
   }
 
   defineTime(text) {
-    if (text === 'Start') {
-      if (this.state.routineStartTime === '00:00') {
-        return '00:00';
+    if (text === "Start") {
+      if (this.state.routineStartTime === "00:00") {
+        return "00:00";
       }
       return this.state.routineStartTime;
     }
-    if (text === 'End') {
-      if (this.state.routineEndTime === '00:00') {
-        return '00:00';
+    if (text === "End") {
+      if (this.state.routineEndTime === "00:00") {
+        return "00:00";
       }
       return this.state.routineEndTime;
     }
   }
 
   timeMarginDefinition(text) {
-    if (text === 'Start') {
-      if (this.state.routineStartTime === '00:00') {
+    if (text === "Start") {
+      if (this.state.routineStartTime === "00:00") {
         return 260;
       }
       return 320;
     } else {
-      if (this.state.routineEndTime === '00:00') {
+      if (this.state.routineEndTime === "00:00") {
         return 260;
       }
       return 330;
@@ -304,31 +379,30 @@ export default class EditRoutine extends Component {
 
   getDateButtonTextColor(value) {
     if (value === 1) {
-      return '#FFFFFF';
+      return "#FFFFFF";
     } else {
-      return '#FF6978';
+      return "#FF6978";
     }
   }
 
   getDateButtonColor(value) {
     if (value === 1) {
-      return '#FF6978';
+      return "#FF6978";
     } else {
-      return '#FFFFFF';
+      return "#FFFFFF";
     }
   }
 
   addCalendar() {
-    console.log('adding to cal');
     buttonstyle = {
       fontSize: 10,
       padding: 0,
       margin: 0,
-      fontWeight: 'bold',
+      fontWeight: "bold",
     };
     return (
       <View>
-        <Text style={{fontSize: 15, marginTop: 10}}>Select Days</Text>
+        <Text style={{ fontSize: 15, marginTop: 10 }}>Select Days</Text>
 
         <View style={styles.routinesCalendar}>
           <RaisedTextButton
@@ -339,9 +413,9 @@ export default class EditRoutine extends Component {
             onPress={
               (this._onPress,
               () => {
-                this.changeRoutineComponent(
-                  'monday',
-                  this.swapDateValue(this.state.monday, 'monday'),
+                this.pushToUpdateArray(
+                  "monday",
+                  this.swapDateValue(this.state.monday, "monday")
                 );
               })
             }
@@ -356,9 +430,9 @@ export default class EditRoutine extends Component {
             onPress={
               (this._onPress,
               () => {
-                this.changeRoutineComponent(
-                  'tuesday',
-                  this.swapDateValue(this.state.tuesday, 'tuesday'),
+                this.pushToUpdateArray(
+                  "tuesday",
+                  this.swapDateValue(this.state.tuesday, "tuesday")
                 );
               })
             }
@@ -373,9 +447,9 @@ export default class EditRoutine extends Component {
             onPress={
               (this._onPress,
               () => {
-                this.changeRoutineComponent(
-                  'wednesday',
-                  this.swapDateValue(this.state.wednesday, 'wednesday'),
+                this.pushToUpdateArray(
+                  "wednesday",
+                  this.swapDateValue(this.state.wednesday, "wednesday")
                 );
               })
             }
@@ -390,9 +464,9 @@ export default class EditRoutine extends Component {
             onPress={
               (this._onPress,
               () => {
-                this.changeRoutineComponent(
-                  'thursday',
-                  this.swapDateValue(this.state.thursday, 'thursday'),
+                this.pushToUpdateArray(
+                  "thursday",
+                  this.swapDateValue(this.state.thursday, "thursday")
                 );
               })
             }
@@ -407,9 +481,9 @@ export default class EditRoutine extends Component {
             onPress={
               (this._onPress,
               () => {
-                this.changeRoutineComponent(
-                  'friday',
-                  this.swapDateValue(this.state.friday, 'friday'),
+                this.pushToUpdateArray(
+                  "friday",
+                  this.swapDateValue(this.state.friday, "friday")
                 );
               })
             }
@@ -424,9 +498,9 @@ export default class EditRoutine extends Component {
             onPress={
               (this._onPress,
               () => {
-                this.changeRoutineComponent(
-                  'saturday',
-                  this.swapDateValue(this.state.saturday, 'saturday'),
+                this.pushToUpdateArray(
+                  "saturday",
+                  this.swapDateValue(this.state.saturday, "saturday")
                 );
               })
             }
@@ -441,9 +515,9 @@ export default class EditRoutine extends Component {
             onPress={
               (this._onPress,
               () => {
-                this.changeRoutineComponent(
-                  'sunday',
-                  this.swapDateValue(this.state.sunday, 'sunday'),
+                this.pushToUpdateArray(
+                  "sunday",
+                  this.swapDateValue(this.state.sunday, "sunday")
                 );
               })
             }
@@ -454,48 +528,54 @@ export default class EditRoutine extends Component {
     );
   }
 
+  // Should run on hitting the back button
+  componentWillUnmount() {
+    console.log("navigating back now");
+
+    // Update the database
+    this.updateRoutineData();
+  }
+
   fieldRef = React.createRef();
 
   onSubmit = () => {
-    let {current: field} = this.fieldRef;
+    let { current: field } = this.fieldRef;
     console.log(field.value());
   };
 
-  formatText = text => {
-    return text.replace(/[^+\d]/g, '');
+  formatText = (text) => {
+    return text.replace(/[^+\d]/g, "");
   };
 
   _onSubmit = () => {
-    var alr = '';
+    var alr = "";
 
-    if (
-      this.state.routineName === '' ||
-      !this.state.routineName
-    ) {
-      alr += 'Must have a routine name\n';
+    if (this.state.routineName === "" || !this.state.routineName) {
+      alr += "Must have a routine name\n";
     }
     if (
       this.state.amount_of_activities < 1 ||
       !this.state.amount_of_activities
     ) {
-      alr += 'Must have more than one activity\n';
+      alr += "Must have more than one activity\n";
     }
     if (this.state.amount_of_rewards < 1 || !this.state.amount_of_rewards) {
-      alr += 'Must have more than one reward\n';
+      alr += "Must have more than one reward\n";
     }
-    if (alr !== '') {
+    if (alr !== "") {
       alert(alr);
     } else {
-      this.navigate('ParentNavigation', {
-        prevScreenTitle: 'Routines',
+      // Update database
+      this.updateRoutineData();
+
+      this.navigate("ParentNavigation", {
+        prevScreenTitle: "Routines",
       });
     }
   };
 
   render() {
-
     if (this.state.activities !== null) {
-      console.log(this.state.activities);
     } else {
       return null;
     }
@@ -512,19 +592,14 @@ export default class EditRoutine extends Component {
                   placeholder="Routine Name"
                   value={this.state.routineName}
                   style={(styles.textfieldWithFloatingLabel, styles.textFields)}
-                  textInputStyle={{flex: 1}}
-                  onFocus={e => console.log('Focus', !!e)}
-                  onBlur={e => console.log('Blur', !!e)}
-                  onEndEditing={e => {
-                    this.changeRoutineComponent(
-                      'routine_name',
-                      this.state.routineName,
+                  textInputStyle={{ flex: 1 }}
+                  onEndEditing={(e) => {
+                    this.pushToUpdateArray(
+                      "routine_name",
+                      this.state.routineName
                     );
                   }}
-                  onSubmitEditing={e => console.log('SubmitEditing', !!e)}
-                  onChangeText={text =>
-                    this.setState({routineName: text})
-                  }
+                  onChangeText={(text) => this.setState({ routineName: text })}
                 />
 
                 <View style={styles.editRoutineIconAndTitle}>
@@ -541,8 +616,8 @@ export default class EditRoutine extends Component {
                 </Text>
 
                 {/* Call the displayActivities function to loop over the returned activities */}
-                {this.displayList('activity')}
-                {this.addNewItemButtonToList('activity')}
+                {this.displayList("activity")}
+                {this.addNewItemButtonToList("activity")}
               </View>
             )}
 
@@ -556,11 +631,11 @@ export default class EditRoutine extends Component {
 
               <Text style={styles.editRoutinesInstructionsText}>
                 {/* TO DO: only say routine in the text string if the word isnt in the routine title */}
-                Add a reward that your child receives when they complete their{' '}
+                Add a reward that your child receives when they complete their{" "}
                 {this.state.routine}.
               </Text>
-              {this.displayList('reward')}
-              {this.addNewItemButtonToList('reward')}
+              {this.displayList("reward")}
+              {this.addNewItemButtonToList("reward")}
             </View>
 
             {/** DEADLINES **/}
@@ -579,19 +654,21 @@ export default class EditRoutine extends Component {
             </View>
 
             <View style={styles.timePicker}>
-              <Text style={{fontSize: 18}}>{this.defineTimeText('Start')}</Text>
+              <Text style={{ fontSize: 18 }}>
+                {this.defineTimeText("Start")}
+              </Text>
               <DatePicker
-                style={{marginLeft: this.timeMarginDefinition('Start')}}
-                date={this.defineTime('Start')}
+                style={{ marginLeft: this.timeMarginDefinition("Start") }}
+                date={this.defineTime("Start")}
                 mode="time"
                 showIcon={false}
                 confirmBtnText="Confirm"
                 cancelBtnText="Cancel"
-                onDateChange={date => {
+                onDateChange={(date) => {
                   {
-                    this.changeRoutineComponent('start_time', date);
+                    this.pushToUpdateArray("start_time", date);
                   }
-                  this.setState({routineStartTime: date});
+                  this.setState({ routineStartTime: date });
                 }}
                 customStyles={{
                   dateInput: {
@@ -603,23 +680,23 @@ export default class EditRoutine extends Component {
             </View>
 
             <View style={styles.timePicker}>
-              <Text style={{fontSize: 18}}>{this.defineTimeText('End')}</Text>
+              <Text style={{ fontSize: 18 }}>{this.defineTimeText("End")}</Text>
               <DatePicker
                 style={{
-                  marginLeft: this.timeMarginDefinition('End'),
+                  marginLeft: this.timeMarginDefinition("End"),
                   fontSize: 25,
                 }}
-                date={this.defineTime('End')}
+                date={this.defineTime("End")}
                 mode="time"
                 showIcon={false}
                 confirmBtnText="Confirm"
                 cancelBtnText="Cancel"
-                onDateChange={date => {
+                onDateChange={(date) => {
                   {
-                    this.changeRoutineComponent('end_time', date);
+                    this.pushToUpdateArray("end_time", date);
                   }
 
-                  this.setState({routineEndTime: date});
+                  this.setState({ routineEndTime: date });
                 }}
                 customStyles={{
                   dateInput: {
@@ -636,15 +713,16 @@ export default class EditRoutine extends Component {
 
           <View
             style={{
-              alignItems: 'center',
-            }}>
+              alignItems: "center",
+            }}
+          >
             <RaisedTextButton
               onPress={() => this._onSubmit()}
-              style={{width: 100}}
+              style={{ width: 100 }}
               titleStyle={buttonstyle}
               title="Submit"
-              titleColor={'white'}
-              color={'#FF6978'}
+              titleColor={"white"}
+              color={"#FF6978"}
             />
           </View>
         </ScrollView>
@@ -657,12 +735,12 @@ const styles = StyleSheet.create({
   // EDIT ROUTINES
   redNumbers: {
     marginLeft: 10,
-    color: '#FF6978',
+    color: "#FF6978",
     fontSize: 20,
     padding: 0,
     margin: 0,
     marginTop: 3,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
   activityText: {
     fontSize: 20,
@@ -681,13 +759,13 @@ const styles = StyleSheet.create({
     marginTop: 5,
   },
   editRoutineIconAndTitle: {
-    flexDirection: 'row',
+    flexDirection: "row",
     marginTop: 20,
   },
   routineDetailsIcon: {
-    color: '#355C7D',
+    color: "#355C7D",
     fontSize: 30,
-    color: '#FF6978',
+    color: "#FF6978",
   },
   textFields: {
     padding: 5,
@@ -709,24 +787,24 @@ const styles = StyleSheet.create({
     minWidth: 35,
     width: 35,
     borderRadius: 50,
-    color: 'white',
-    fontWeight: 'bold',
+    color: "white",
+    fontWeight: "bold",
   },
   routinesCalendar: {
-    flexDirection:'row',
+    flexDirection: "row",
     marginLeft: 110,
   },
   timePicker: {
     fontSize: 30,
     marginRight: 200,
-    flexDirection: 'row',
+    flexDirection: "row",
     marginTop: 20,
-    borderBottomColor: '#C4C4C4',
+    borderBottomColor: "#C4C4C4",
     borderBottomWidth: 1,
     marginBottom: 30,
   },
   editRoutineButtonAndList: {
-    flexDirection: 'row',
+    flexDirection: "row",
   },
   roundAddButton: {
     paddingLeft: 0,
@@ -738,8 +816,8 @@ const styles = StyleSheet.create({
     minWidth: 35,
     width: 35,
     borderRadius: 50,
-    color: 'white',
-    fontWeight: 'bold',
+    color: "white",
+    fontWeight: "bold",
   },
 
   editRoutinesInstructionsText: {
@@ -752,7 +830,7 @@ const styles = StyleSheet.create({
     marginLeft: 30,
   },
   imageContainer: {
-    alignItems: 'center',
+    alignItems: "center",
     marginBottom: 200,
   },
   imageButton: {
@@ -760,7 +838,7 @@ const styles = StyleSheet.create({
     marginLeft: 100,
   },
   descriptionBox: {
-    borderColor: '#e8e8e8',
+    borderColor: "#e8e8e8",
     borderWidth: 1,
     borderRadius: 15,
   },
@@ -782,22 +860,50 @@ const styles = StyleSheet.create({
   },
   routines: {
     paddingLeft: 3,
-    textAlignVertical: 'center',
+    textAlignVertical: "center",
     width: WIDTH * 0.3,
     height: 100,
     marginTop: 5,
     marginBottom: 5,
     borderWidth: 3,
     borderRadius: 15,
-    backgroundColor: 'white',
-    shadowOffset: {width: 5, height: 5},
-    shadowColor: 'black',
+    backgroundColor: "white",
+    shadowOffset: { width: 5, height: 5 },
+    shadowColor: "black",
     shadowOpacity: 0.1,
     borderWidth: 0,
   },
   routineTitle: {
     fontSize: 14,
-    textAlign: 'center',
-    textAlignVertical: 'center',
+    textAlign: "center",
+    textAlignVertical: "center",
+  },
+
+  // Picker
+  pickerItem: {
+    color: "#FF6978",
+  },
+  onePicker: {
+    width: 150,
+    height: 44,
+    borderColor: "grey",
+    borderWidth: 1,
+  },
+  onePickerItem: {
+    height: 44,
+    color: "red",
+  },
+  container: {
+    flex: 1,
+    flexDirection: "column",
+    alignItems: "center",
+    padding: 20,
+    backgroundColor: "white",
+  },
+  title: {
+    fontSize: 18,
+    fontWeight: "bold",
+    marginTop: 20,
+    marginBottom: 10,
   },
 });
