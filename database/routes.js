@@ -76,6 +76,26 @@ app.post('/updateRoutine/:routineId', function (req, res) {
   });
 });
 
+// Update the routine data
+app.post('/updateActivityRelationship/:routineId', function (req, res) {
+  let routineId = req.params.routineId;
+  var postData = req.body;
+
+  console.log(postData);
+  connection.getConnection(function (err, connection) {
+
+    connection.query('UPDATE routines SET ? WHERE routine_id = ?',
+      [postData, routineId],
+      function (error, results, fields) {
+
+        if (error) {
+          console.log('there was in error in updateRoutine');
+          throw error;
+        }
+        res.send(JSON.stringify(results))
+      });
+  });
+});
 
 // Update the user data
 app.post('/updateUser/:userId', function (req, res) {
@@ -117,6 +137,7 @@ app.post('/insertRoutineActivityRelationship', function (req, res) {
     res.end(JSON.stringify(results));
   });
 });
+
 
 app.post('/insertRewards', function (req, res) {
   var postData = req.body;
@@ -231,7 +252,7 @@ app.get('/getActivityById/:activityId', function (req, res) {
 
         console.log(err);
         if (error) throw error;
-
+        console.log(results);
         res.send(results)
       });
   });
