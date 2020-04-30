@@ -6,8 +6,11 @@ import {
   Text,
   Image,
   TouchableOpacity,
+  ScrollView,
 } from "react-native";
-// import YouTube from 'react-native-youtube';
+import { Video } from "expo-av";
+import VideoPlayer from "expo-video-player";
+
 import Carousel from "react-native-carousel-view";
 import SmoothPinCodeInput from "react-native-smooth-pincode-input";
 import Dialog, { DialogContent } from "react-native-popup-dialog";
@@ -17,6 +20,9 @@ import Star from "../../assets/images/fillstar.png";
 import Ribbon from "../../assets/images/ribbon.png";
 import Head from "../../assets/images/PenguinFace.png";
 import Environment from "../../database/sqlEnv";
+
+import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+Icon.loadFont();
 
 import * as Font from "expo-font";
 import { AppLoading } from "expo";
@@ -65,7 +71,7 @@ export default class ChildActivity extends Component {
     });
   }
   getActivities() {
-    fetch("http://" + Environment + "/getActivities/" + this.state.userID, {
+    fetch(Environment + "/getActivities/" + this.state.userID, {
       headers: {
         "Cache-Control": "no-cache",
       },
@@ -120,9 +126,31 @@ export default class ChildActivity extends Component {
             onRef={(ref) => (this.child = ref)}
           >
             {activities.map((item, key) => (
-              <View key={key} style={styles.activities}>
+              <View
+                key={key}
+                style={
+                  (styles.activities,
+                  {
+                    backgroundColor: "#FFFCF9",
+                    top: 0,
+                    left: 0,
+                  })
+                }
+              >
                 <View
-                  style={{ flexDirection: "row", justifyContent: "center" }}
+                  style={{
+                    shadowColor: "grey",
+                    shadowOffset: { width: 0, height: 1 },
+                    shadowOpacity: 0.4,
+                    shadowRadius: 2,
+                    width: WIDTH,
+                    top: 0,
+                    left: 0,
+                    backgroundColor: "white",
+                    paddingBottom: 10,
+                    flexDirection: "row",
+                    justifyContent: "center",
+                  }}
                 >
                   <View
                     style={{
@@ -212,36 +240,102 @@ export default class ChildActivity extends Component {
                   </View>
                 </View>
 
-                <Text style={styles.actTitle}> {item.activity_name} </Text>
-                <Image
-                  source={{ uri: item.imageDesc }}
-                  style={{ width: WIDTH * 0.5, height: WIDTH * 0.5, margin: 5 }}
-                />
-                <Text style={styles.actTitle}>Watch</Text>
-                {/* <YouTube
-                videoId={item.videoid}
-                fullscreen
-                loop
-                onReady={e => this.setState({isReady: true})}
-                onChangeState={e => this.setState({status: e.state})}
-                onChangeQuality={e => this.setState({quality: e.quality})}
-                onError={e => this.setState({error: e.error})}
-                style={{
-                  alignSelf: 'center',
-                  width: WIDTH * 0.9,
-                  height: 300,
-                  paddingTop: 10,
-                }}
-              /> */}
-                <TouchableOpacity
-                  style={styles.buttonStyle}
-                  onPress={() => {
-                    this.navigate("Camera", { prevScreenTitle: "ACTIVITY" });
-                    this._onNext();
-                  }}
+                <Text style={styles.actTitle}>
+                  {" "}
+                  {key + 1 + ". " + item.activity_name}{" "}
+                </Text>
+
+                {item.image_path && (
+                  <View
+                    style={{ justifyContent: "center", alignItems: "center" }}
+                  >
+                    <Image
+                      source={{ uri: item.image_path }}
+                      style={{
+                        width: 300,
+                        height: 200,
+                        margin: 5,
+                        borderRadius: 15,
+
+                        resizeMode: "contain",
+                      }}
+                    />
+                  </View>
+                )}
+                {item.activity_description && (
+                  <View>
+                    <Text style={styles.actTitle}>Description</Text>
+                    <Text style={styles.desc}>{item.activity_description}</Text>
+                  </View>
+                )}
+                {item.video_path && (
+                  <View>
+                    <Text style={styles.actTitle}>Watch</Text>
+                    <View
+                      style={{ justifyContent: "center", alignItems: "center" }}
+                    >
+                      <VideoPlayer
+                        videoProps={{
+                          shouldPlay: false,
+                          resizeMode: Video.RESIZE_MODE_CONTAIN,
+                          source: {
+                            uri: item.video_path,
+                          },
+                        }}
+                        inFullscreen={true}
+                        width={300}
+                        height={200}
+                        style={{ borderRadius: 15 }}
+                      />
+                    </View>
+                  </View>
+                )}
+                {item.audio_path && (
+                  <View>
+                    <Text style={styles.actTitle}>Listen To Directions</Text>
+                    <View
+                      style={{
+                        flexDirection: "row",
+                        margin: 15,
+                        justifyContent: "center",
+                      }}
+                    >
+                      <TouchableOpacity style={styles.button}>
+                        <Icon
+                          name="play-circle"
+                          color="#B1EDE8"
+                          size={30}
+                          style={{ marginRight: 10 }}
+                        />
+                        <Text>Play</Text>
+                      </TouchableOpacity>
+
+                      <TouchableOpacity style={styles.button}>
+                        <Icon
+                          name="stop"
+                          color="#B1EDE8"
+                          size={30}
+                          style={{ marginRight: 10 }}
+                        />
+                        <Text>Stop</Text>
+                      </TouchableOpacity>
+                    </View>
+                  </View>
+                )}
+
+                <View
+                  style={{ justifyContent: "center", alignItems: "center" }}
                 >
-                  <Text style={styles.textStyle}>Take A Picture!</Text>
-                </TouchableOpacity>
+                  <TouchableOpacity
+                    style={styles.buttonStyle}
+                    onPress={() => {
+                      this.navigate("Camera", { prevScreenTitle: "ACTIVITY" });
+                      this._onNext();
+                    }}
+                  >
+                    <Text style={styles.textStyle}>Take A Picture!</Text>
+                  </TouchableOpacity>
+                </View>
               </View>
             ))}
 
@@ -350,12 +444,10 @@ export default class ChildActivity extends Component {
 
 const styles = StyleSheet.create({
   activities: {
-    backgroundColor: "white",
+    backgroundColor: "#FF6978",
     padding: WIDTH * 0.01,
-    alignContent: "center",
     margin: WIDTH * 0.01,
     borderRadius: 1,
-    alignItems: "center",
     width: WIDTH * 0.98,
     height: HEIGHT,
   },
@@ -363,6 +455,7 @@ const styles = StyleSheet.create({
     fontFamily: "SF",
     fontSize: 25,
     padding: 10,
+    marginLeft: 20,
   },
   desc: {
     fontSize: 20,
@@ -377,13 +470,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  textStyle: {
-    width: 100,
-    fontSize: 20,
-    color: "white",
-    textAlign: "center",
-  },
-
   buttonStyle: {
     padding: 10,
     margin: 10,
@@ -426,5 +512,21 @@ const styles = StyleSheet.create({
     margin: 20,
     backgroundColor: "#B1EDE8",
     borderRadius: 100,
+  },
+  button: {
+    fontSize: 30,
+    minWidth: 150,
+    minHeight: 40,
+    borderRadius: 20,
+    backgroundColor: "#fff",
+    justifyContent: "center",
+    alignItems: "center",
+    flexDirection: "row",
+    margin: 5,
+    padding: 2,
+    shadowColor: "grey",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.4,
+    shadowRadius: 2,
   },
 });

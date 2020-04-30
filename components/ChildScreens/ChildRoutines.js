@@ -160,7 +160,7 @@ export default class ChildRoutines extends Component {
 
   // Get the routines data from the db
   getRoutines() {
-    fetch("http://" + Environment + "/routines/", {
+    fetch( Environment + "/routines/", {
       headers: {
         "Cache-Control": "no-cache",
       },
@@ -208,10 +208,12 @@ export default class ChildRoutines extends Component {
             {/* TODO: Change Numerical Value to be dynamic*/}
             <View style={styles.detailsContainer}>
               <Text style={styles.routineDetails}>
-                <Icon name="playlist-check" color="#B1EDE8" size={20} /> Tasks: {item.amount_of_activities}
+                <Icon name="playlist-check" color="#B1EDE8" size={20} /> Tasks:{" "}
+                {item.amount_of_activities}
               </Text>
               <Text style={styles.routineDetails}>
-                <Icon name="gift" color="#B1EDE8" size={20} /> Rewards: {item.amount_of_rewards}
+                <Icon name="gift" color="#B1EDE8" size={20} /> Rewards:{" "}
+                {item.amount_of_rewards}
               </Text>
             </View>
           </View>
