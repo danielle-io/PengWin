@@ -160,6 +160,13 @@ export default class Activity extends Component {
     recording.setOnRecordingStatusUpdate(this._updateScreenForRecordingStatus);
 
     this.recording = recording;
+    this.setState(state => {
+      const recordings = [...state.recordings, recording];
+ 
+      return {
+        recordings,
+      };
+    });
     await this.recording.startAsync();
     this.setState({
       isLoading: false,
@@ -210,6 +217,17 @@ export default class Activity extends Component {
   };
 
   _onPlayPausePressed = () => {
+    if (this.sound != null) {
+      if (this.state.isPlaying) {
+        this.sound.pauseAsync();
+      } else {
+        this.sound.playAsync();
+      }
+    }
+  };
+
+  _playFromStart = () => {
+    this._onSeekSliderSlidingComplete(0);
     if (this.sound != null) {
       if (this.state.isPlaying) {
         this.sound.pauseAsync();
@@ -511,13 +529,13 @@ export default class Activity extends Component {
                 // disabled={this.state.isLoading}
                 // disabled={this.state.disabled}
                 style={
-                  this.state.disabled ? styles.disabledbutton : styles.button
+                  this.state.isRecording ? styles.disabledbutton : styles.button
                 }
                 onPress={() => this._onRecordPressed()}
               >
                 <Icon
                   name="microphone"
-                  color={this.state.disabled ? "#c4c4c4" : "#FF6978"}
+                  color={this.state.isRecording ? "#c4c4c4" : "#FF6978"}
                   size={30}
                   style={{ marginRight: 10 }}
                 />
@@ -605,7 +623,9 @@ export default class Activity extends Component {
                 {this.state.recordings.map((item) => {
                   console.log(item);
                   return (
-                    <View
+                    <TouchableOpacity
+                    
+                onPress={  this._playFromStart}
                       style={{
                         flexDirection: "row",
                         justifyContent: "center",
@@ -628,10 +648,10 @@ export default class Activity extends Component {
                         style={{ paddingRight: 30 }}
                       />
                       <Text style={{ fontSize: 20, color: "black" }}>
-                        {item._path}
+                        {item._uri}
                       </Text>
                       <Text>{item._duration}</Text>
-                    </View>
+                    </TouchableOpacity>
                   );
                 })}
               </View>
