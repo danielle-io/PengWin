@@ -231,6 +231,7 @@ app.get('/getAllRewards/:userId', function (req, res) {
 
 app.get('/getRewardById/:rewardId', function (req, res) {
   let rewardId = req.params.rewardId;
+  console.log(rewardId);
 
   connection.getConnection(function (err, connection) {
 
@@ -258,7 +259,7 @@ app.get('/getActivityById/:activityId', function (req, res) {
   });
 });
 
-app.get('/routine/:routineId', function (req, res) {
+app.get('/joinRoutineAndActivityTable/:routineId', function (req, res) {
   let routineId = req.params.routineId;
   connection.getConnection(function (err, connection) {
 
