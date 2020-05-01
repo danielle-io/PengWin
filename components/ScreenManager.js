@@ -8,6 +8,7 @@ import Login from './Login';
 import SignUp from './SignUp';
 import ForgotPassowrd from './ForgotPassword';
 import Pincode from './Pincode';
+import HomePage from './HomePage'
 
 import ParentNavigation from './ParentSide/ParentNavigation';
 import ParentRewards from './ParentSide/ParentScreens/ParentRewards';
@@ -18,6 +19,10 @@ import ParentRoutines from './ParentSide/ParentScreens/ParentRoutines';
 import EditActivity from './ParentSide/ParentScreens/EditActivity';
 import Progress from './ParentSide/ParentScreens/Progress';
 // import Notifications from './ParentSide/ParentScreens/Notifications';
+
+import Question1 from './ParentSide/Questionnaire/Question1';
+import Question2 from './ParentSide/Questionnaire/Question2';
+import Question3 from './ParentSide/Questionnaire/Question3';
 
 import ChildRoutines from './ChildScreens/ChildNavigation';
 import ChildActivity from './ChildScreens/ChildActivity';
@@ -41,6 +46,7 @@ const Screens = createStackNavigator({
   ForgotPassword: {screen: ForgotPassowrd},
   Camera: {screen:Camera},
   irDemo: {screen: irDemo },    
+  HomePage: {screen: HomePage},
 
   ParentNavigation: {screen: ParentNavigation},
   ParentRoutines: {screen: ParentRoutines},
@@ -51,6 +57,10 @@ const Screens = createStackNavigator({
   EditRoutine: {screen:EditRoutine},
   Progress: {screen: Progress},
   // Notifications: {screen: Notifications},
+
+  Question1: {screen:Question1},
+  Question2: {screen:Question2},
+  Question3: {screen:Question3},
 
   ChildPincode: {screen:ChildPincode},
   ChildNotifScreen: {screen:ChildNotifScreen},

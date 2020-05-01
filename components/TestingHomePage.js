@@ -96,6 +96,19 @@ export default class TestingHomePage extends Component {
             <TouchableOpacity
               style={styles.parentContainer}
               onPress={() =>
+                this.navigate("Question1", {
+                  prevScreenTitle: "TestingHomePage",
+                })
+              }
+            >
+              <Text style={styles.linkText}>Parent Questionnaire</Text>
+            </TouchableOpacity>
+
+            
+
+            <TouchableOpacity
+              style={styles.parentContainer}
+              onPress={() =>
                 this.navigate("Progress", {
                   prevScreenTitle: "TestingHomePage",
                 })
@@ -191,6 +204,18 @@ export default class TestingHomePage extends Component {
                 Forgot Password does not exist
               </Text>
             </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.parentContainer}
+              onPress={() =>
+                this.navigate("HomePage", {
+                  prevScreenTitle: "TestingHomePage",
+                })
+              }
+            >
+              <Text style={styles.linkText}>HomePage</Text>
+            </TouchableOpacity>
+            
 
             <View style={styles.otherContainer}>
               <Text

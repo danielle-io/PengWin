@@ -389,7 +389,7 @@ export default class Activity extends Component {
     return (
       <ScrollView style={{ backgroundColor: "#FFFCF9", padding: 20 }}>
         <View style={styles.textFields}>
-          <Text style={styles.titles}>What is this activity called?</Text>
+          <Text style={styles.titles}>What is the activity called?</Text>
 
           <TextField
             placeholder="(e.g. Wear Shoes)"
