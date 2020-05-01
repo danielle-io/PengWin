@@ -498,7 +498,7 @@ export default class EditRoutine extends Component {
       return mappingVal.map((item) => {
         if (listName === "activity") {
           item_name = item.activity_name;
-          status = this.state.activityChangeLoad;
+          // status = this.state.activityChangeLoad;
         } else {
           console.log("ITEMM");
           console.log(item);
@@ -545,12 +545,8 @@ export default class EditRoutine extends Component {
   }
 
   getAllRewardNames() {
-    console.log("ALL REWARDs");
-    console.log(this.state.allRewards);
     var tempArray = [];
     this.state.allRewards.map((item) => {
-      console.log("REWARD ID IN GET ALL");
-      console.log(item.reward_id);
       tempArray.push({ id: item.reward_id, name: item.reward_name });
     });
     this.setState({ allRewardNames: tempArray });
@@ -626,15 +622,16 @@ export default class EditRoutine extends Component {
     // Don't include the add button if there's a reward
     // since you can only add one to a routine.
     if (listName === "reward") {
+      if (!this.state.rewardLoaded){
+        return;
+      }
       if (this.state.currentlySelectedReward !== null) {
         if (this.state.rewardId !== 0) {
           return;
         }
       }
-    } else if (this.state.allActivityNames === []) {
-      {
-        /* If there are no un-used activities don't include an add button */
-      }
+    } 
+    else if (this.state.allActivityNames === []) {
       return (
         <View style={styles.formIndent}>
           <Text style={styles.activityText}>
@@ -970,6 +967,7 @@ export default class EditRoutine extends Component {
     // This means an item was selected but the add button wasnt pressed
     if (this.state.currentlySelectedActivity != null) {
       this.getActivityById(this.state.currentlySelectedActivity.id);
+      console.log("saved activity");
     }
 
     // This changes the relationship table for activities and routines
@@ -992,8 +990,8 @@ export default class EditRoutine extends Component {
 
       console.log("new reward id ");
       console.log(this.state.newReward.id);
-      this.setState({ rewardId: this.state.newReward.id });
 
+      this.setState({ rewardId: this.state.newReward.id });
       this.getRewardById(this.state.newReward.id);
 
       // console.log("CURR ID IS ");
@@ -1005,11 +1003,6 @@ export default class EditRoutine extends Component {
         "amount_of_rewards",
         this.state.amount_of_rewards + 1
       );
-
-      // { this.state.rewardLoaded &&
-      //   console.log("going to display reward");
-      //   this.displayList("reward");
-      // }
     }
 
     this.updateDatabaseChanges();
