@@ -37,6 +37,7 @@ export default class ParentRoutines extends Component {
       selectedTab: 0,
       routes: [{ key: "1", title: "First" }, { key: "2", title: "Second" }],
       visible1: true,
+      allRewards: null,
     };
   }
 
@@ -71,16 +72,17 @@ export default class ParentRoutines extends Component {
 
   // This allows this page to refresh when you come back from
   // edit routines, which allows it to display any changes made
-  componentDidMount() {
-    this.props.navigation.addListener("didFocus", (payload) => {
+  async componentDidMount() {
+    console.log("mounted");
+    await this.props.navigation.addListener("didFocus", (payload) => {
       this.getRoutines();
-      this.getActivities();
+      this.getAllActivitiesForUser();
+      this.getAllRewardsForUser();
     });
   }
 
-  // Get the routines data from the db
   getRoutines() {
-    fetch(Environment + "/routines/", {
+    fetch(Environment + "/getRoutinesByUser/" + this.state.userId, {
       headers: {
         "Cache-Control": "no-cache",
       },
@@ -98,8 +100,27 @@ export default class ParentRoutines extends Component {
       });
   }
 
-  // Get the routines data from the db
-  getActivities() {
+  getAllRewardsForUser() {
+    fetch(Environment + "/getAllRewards/" + this.state.userId, {
+      headers: {
+        "Cache-Control": "no-cache",
+      },
+    })
+      .then((response) => response.json())
+      .then((responseJson) => {
+        return responseJson;
+      })
+      .then((results) => {
+        this.setState({ allRewards: results });
+        console.log("ALL REWARDS BELOW");
+        console.log(this.state.allRewards);
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+  }
+
+  getAllActivitiesForUser() {
     fetch(Environment + "/getActivities/" + this.state.userId, {
       headers: {
         "Cache-Control": "no-cache",
@@ -210,236 +231,177 @@ export default class ParentRoutines extends Component {
           <View style={styles.routineTitleAndMenu}>
             <Text style={styles.routineTitle}> {item.activity_name}</Text>
 
-            <MenuProvider>
+            <Menu style={styles.routineMenuStyling}>
+              <MenuTrigger style={styles.ellipsis} text="..." />
+              <MenuOptions>
+                <MenuOption
+                  onSelect={() =>
+                    navigate("EditActivity", {
+                      prevScreenTitle: "Routines",
+                      activityName: item.activity_name,
+                      activityId: item.activity_id,
+                      activityTags: eval(item.tags),
+                      activityImagePath: item.image_path,
+                      activityDescription: item.activity_description,
+                      activityAudioPath: item.audio_path,
+                      activityVideoPath: item.video_path,
+                      activityIsPublic: item.is_public,
+                      userId: item.user_id,
+                      rewardId: item.reward_id,
+                      allRewards: this.state.allRewards,
+                    })
+                  }
+                >
+                  <Text style={{ color: "black" }}>Edit</Text>
+                </MenuOption>
+              </MenuOptions>
+            </Menu>
+          </View>
+        </View>
+      );
+    });
+  }
+
+  displayRoutines() {
+    const { navigate } = this.props.navigation;
+    var containerName;
+
+    // parse out the db objects returned from the routines call
+    return this.state.results.routines.map((item) => {
+      if (item.is_active === 0) {
+        containerName = "inactiveRoutineContainer";
+      } else {
+        containerName = "routineContainer";
+      }
+
+      return (
+        <View style={styles[containerName]}>
+          <MenuProvider>
+            <View style={styles.routineTitleAndMenu}>
+              <Text style={styles.routineTitle}> {item.routine_name}</Text>
               <Menu style={styles.routineMenuStyling}>
                 <MenuTrigger style={styles.ellipsis} text="..." />
                 <MenuOptions>
                   <MenuOption
                     onSelect={() =>
-                      navigate("EditActivity", {
+                      navigate("EditRoutine", {
                         prevScreenTitle: "Routines",
-                        activityName: item.activity_name,
-                        activityId: item.activity_id,
-                        activityTags: eval(item.tags),
-                        activityImagePath: item.image_path,
-                        activityDescription: item.activity_description,
-                        activityAudioPath: item.audio_path,
-                        activityVideoPath: item.video_path,
-                        activityIsPublic: item.is_public,
-                        userId: item.user_id,
+                        routineName: item.routine_name,
+                        routineId: item.routine_id,
+                        routineStartTime: item.start_time,
+                        routineEndTime: item.end_time,
+                        routineApproval: item.requires_approval,
+                        monday: item.monday,
+                        tuesday: item.tuesday,
+                        wednesday: item.wednesday,
+                        thursday: item.thursday,
+                        friday: item.friday,
+                        saturday: item.saturday,
+                        sunday: item.sunday,
+                        amount_of_activities: item.amount_of_activities,
+                        amount_of_rewards: item.amount_of_rewards,
+                        allActivities: this.state.activities,
                         rewardId: item.reward_id,
+                        userId: this.state.userId,
+                        allRewards: this.state.allRewards,
                       })
                     }
                   >
                     <Text style={{ color: "black" }}>Edit</Text>
                   </MenuOption>
-        
-                               </MenuOptions>
-                             </Menu>
-                           </MenuProvider>
-                         </View>
-                       </View>
-                     );
-                   });
-                 }
+                  <MenuOption
+                    onSelect={() =>
+                      this.changeActiveStatus(
+                        item.routine_id,
+                        "is_active",
+                        item.is_active
+                      )
+                    }
+                    text={this.setActiveText(item.is_active, item.routine_id)}
+                  />
+                  <MenuOption
+                    onSelect={() => alert("Duplicate")}
+                    text="Duplicate"
+                  />
+                  <MenuOption onSelect={() => alert("Delete")}>
+                    <Text style={{ color: "red" }}>Delete</Text>
+                  </MenuOption>
+                </MenuOptions>
+              </Menu>
+            </View>
 
-                 displayRoutines() {
-                   const {navigate} = this.props.navigation;
-                   var containerName;
+            <View style={styles.routineDetailsPreview}>
+              <Text style={styles.routineDetails}>
+                <Icon name="playlist-check" style={styles.routineDetailsIcon} />{" "}
+                Activities: {item.amount_of_activities}{" "}
+              </Text>
+              <Text style={styles.routineDetails}>
+                <Icon name="gift" style={styles.routineDetailsIcon} /> Rewards:{" "}
+                {item.amount_of_rewards}{" "}
+              </Text>
+            </View>
+          </MenuProvider>
+        </View>
+      );
+    });
+  }
 
-                   // parse out the db objects returned from the routines call
-                   return this.state.results.routines.map(
-                     item => {
-                       if (item.is_active === 0) {
-                         containerName =
-                           'inactiveRoutineContainer';
-                       } else {
-                         containerName = 'routineContainer';
-                       }
+  render() {
+    if (this.state.results !== null) {
+      //  console.log(this.state.results);
+    } else {
+      console.log("null below");
+      // return null;
+      // IS THIS WHERE I MAYBE MAKE ANOTHER CALL ?
+    }
+    let ripple = { id: "addButton" };
+    const { navigate } = this.props.navigation;
 
-                       return (
-                         <View style={styles[containerName]}>
-                           <View
-                             style={styles.routineTitleAndMenu}>
-                             <Text style={styles.routineTitle}>
-                               {' '}
-                               {item.routine_name}
-                             </Text>
+    return (
+      <View>
+        {/* Routines and Activities tabs */}
+        <SafeAreaView>
+          <MaterialTabs
+            items={["Routines", "Activities"]}
+            selectedIndex={this.state.selectedTab}
+            barColor="white"
+            // barColor="#D7CBD2"
+            indicatorColor="#B1EDE8"
+            activeTextColor="black"
+            inactiveTextColor="grey"
+            onChange={(index) =>
+              this.setState({
+                selectedTab: index,
+              })
+            }
+          />
+        </SafeAreaView>
 
-                             <MenuProvider>
-                               <Menu
-                                 style={
-                                   styles.routineMenuStyling
-                                 }>
-                                 <MenuTrigger
-                                   style={styles.ellipsis}
-                                   text="..."
-                                 />
-                                 <MenuOptions>
-                                   <MenuOption
-                                     onSelect={() =>
-                                       navigate('EditRoutine', {
-                                         prevScreenTitle:
-                                           'Routines',
-                                         routineName:
-                                           item.routine_name,
-                                         routineId:
-                                           item.routine_id,
-                                         routineStartTime:
-                                           item.start_time,
-                                         routineEndTime:
-                                           item.end_time,
-                                         routineApproval:
-                                           item.is_approved,
-                                         monday: item.monday,
-                                         tuesday: item.tuesday,
-                                         wednesday:
-                                           item.wednesday,
-                                         thursday: item.thursday,
-                                         friday: item.friday,
-                                         saturday: item.saturday,
-                                         sunday: item.sunday,
-                                         amount_of_activities:
-                                           item.amount_of_activities,
-                                         amount_of_rewards:
-                                           item.amount_of_rewards,
-                                          allActivities: this.state.activities,
-                                         // TODO: set up rewards
-                                         rewards: null,
-                                         rewardId: item.reward_id,
-                                         userId: this.state.userId,
-                                       })
-                                     }>
-                                     <Text
-                                       style={{color: 'black'}}>
-                                       Edit
-                                     </Text>
-                                   </MenuOption>
-                                   <MenuOption
-                                     onSelect={() =>
-                                       this.changeActiveStatus(
-                                         item.routine_id,
-                                         'is_active',
-                                         item.is_active,
-                                       )
-                                     }
-                                     text={this.setActiveText(
-                                       item.is_active,
-                                       item.routine_id,
-                                     )}
-                                   />
-                                   <MenuOption
-                                     onSelect={() =>
-                                       alert('Duplicate')
-                                     }
-                                     text="Duplicate"
-                                   />
-                                   <MenuOption
-                                     onSelect={() =>
-                                       alert('Delete')
-                                     }>
-                                     <Text
-                                       style={{color: 'red'}}>
-                                       Delete
-                                     </Text>
-                                   </MenuOption>
-                                 </MenuOptions>
-                               </Menu>
-                             </MenuProvider>
-                           </View>
+        {this.state.loaded && (
+          <View>
+            {this.tabIsRoutines() && (
+              <View
+                style={{
+                  flexDirection: "row",
+                  flexWrap: "wrap",
+                }}
+              >
+                {this.displayRoutines()}
+                {this.displayNewRoutineContainer()}
+              </View>
+            )}
+          </View>
+        )}
 
-                           <View
-                             style={
-                               styles.routineDetailsPreview
-                             }>
-                             <Text style={styles.routineDetails}>
-                               <Icon
-                                 name="playlist-check"
-                                 style={
-                                   styles.routineDetailsIcon
-                                 }
-                               />{' '}
-                               Activities:{' '}
-                               {item.amount_of_activities}{' '}
-                             </Text>
-                             <Text style={styles.routineDetails}>
-                               <Icon
-                                 name="gift"
-                                 style={
-                                   styles.routineDetailsIcon
-                                 }
-                               />{' '}
-                               Rewards: {item.amount_of_rewards}{' '}
-                             </Text>
-                           </View>
-                         </View>
-                       );
-                     },
-                   );
-                 }
-
-                 render() {
-                   if (this.state.results !== null) {
-                     console.log(this.state.results);
-                   } else {
-                     console.log('null below');
-                     // return null;
-                     // IS THIS WHERE I MAYBE MAKE ANOTHER CALL ?
-                   }
-                   let ripple = {id: 'addButton'};
-                   const {navigate} = this.props.navigation;
-
-                   return (
-                     <View>
-                       {/* Routines and Activities tabs */}
-                       <SafeAreaView>
-                         <MaterialTabs
-                           items={['Routines', 'Activities']}
-                           selectedIndex={
-                             this.state.selectedTab
-                           }
-                           barColor="white"
-                           // barColor="#D7CBD2"
-                           indicatorColor="#B1EDE8"
-                           activeTextColor="black"
-                           inactiveTextColor="grey"
-                           onChange={index =>
-                             this.setState({
-                               selectedTab: index,
-                             })
-                           }
-                         />
-                       </SafeAreaView>
-
-                       {this.state.loaded && (
-                         <View>
-                           {this.tabIsRoutines() && (
-                             <View
-                               style={{
-                                 flexDirection: 'row',
-                                 flexWrap: 'wrap',
-                               }}>
-                               {this.displayRoutines()}
-                               {this.displayNewRoutineContainer()}
-                             </View>
-                           )}
-                         </View>
-                       )}
-
-                       {this.state.secondLoaded && (
-                         <View>
-                           {!this.tabIsRoutines() && (
-                             <View>
-                               {this.displayActivities()}
-                             </View>
-                           )}
-                         </View>
-                       )}
-                       <View>
-                         
-                         <View style={{marginTop: 100}} />
-                         {/* first dialog - yes/cancel */}
-                         {/* <Dialog
+        {this.state.secondLoaded && (
+          <View>
+            {!this.tabIsRoutines() && <View>{this.displayActivities()}</View>}
+          </View>
+        )}
+        <View>
+          <View style={{ marginTop: 100 }} />
+          {/* first dialog - yes/cancel */}
+          {/* <Dialog
                            visible={this.state.visible1}
                            onTouchOutside={() => {
                              this.setState({
@@ -606,7 +568,6 @@ const styles = StyleSheet.create({
     marginLeft: 10,
     marginRight: 10,
   },
-
   roundAddButton: {
     marginLeft: 6,
     fontSize: 30,

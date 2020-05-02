@@ -8,9 +8,9 @@ import { Dropdown } from 'react-native-material-dropdown';
 const { width: WIDTH } = Dimensions.get('window')
 
 export const App = () => (
-    <MenuProvider>
+    // <MenuProvider>
         <YourApp />
-    </MenuProvider>
+    // </MenuProvider>
 );
 
 
