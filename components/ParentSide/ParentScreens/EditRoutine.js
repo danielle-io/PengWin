@@ -13,7 +13,6 @@ import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import { RaisedTextButton } from "react-native-material-buttons";
 import DatePicker from "react-native-datepicker";
 import Environment from "../../../database/sqlEnv";
-
 import SearchableDropdown from "react-native-searchable-dropdown";
 
 const { width: WIDTH } = Dimensions.get("window");
@@ -65,7 +64,7 @@ export default class EditRoutine extends Component {
       routineStartTime: this.props.navigation.state.params.routineStartTime,
       routineEndTime: this.props.navigation.state.params.routineEndTime,
       routineApproval: this.props.navigation.state.params.routineApproval,
-      approval: this.props.navigation.state.params.is_approved,
+      approval: this.props.navigation.state.params.requires_approval,
       amount_of_activities: this.props.navigation.state.params
         .amount_of_activities,
       amount_of_rewards: this.props.navigation.state.params.amount_of_rewards,
@@ -160,7 +159,7 @@ export default class EditRoutine extends Component {
     }
   }
 
-  //
+  // Update the activity routine db table w/ changes
   async updateActivityRelationship(routine_activity_id, activity_id, order) {
     var data = {
       routine_activity_id: routine_activity_id,
@@ -224,7 +223,7 @@ export default class EditRoutine extends Component {
       start_time: this.state.routineStartTime,
       end_time: this.state.routineEndTime,
       routineApproval: this.state.routineApproval,
-      approval: this.state.is_approved,
+      approval: this.state.requires_approval,
       amount_of_activities: this.state.activities.length,
       amount_of_rewards: this.state.amount_of_rewards,
       monday: this.state.monday,
@@ -714,7 +713,7 @@ export default class EditRoutine extends Component {
             value={this.getCurrentSwitchState()}
             onValueChange={() =>
               this.pushToUpdateRoutineArray(
-                "is_approved",
+                "requires_approval",
                 !this.state.routineApproval
               )
             }

@@ -14,14 +14,6 @@ import {
 
 const {width: WIDTH} = Dimensions.get('window');
 
-export const App = () => (
-  <MenuProvider>
-            
-    <YourApp />
-        
-  </MenuProvider>
-);
-
 export default class ParentRewards extends Component {
   static navigationOptions = ({navigation}) => ({
     title: 'Rewards',
