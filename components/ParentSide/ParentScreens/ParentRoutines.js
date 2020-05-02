@@ -1,6 +1,5 @@
 import React, { Component } from "react";
 import { Dimensions, SafeAreaView, StyleSheet, View, Text } from "react-native";
-
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import { RaisedTextButton } from "react-native-material-buttons";
 import {
@@ -73,7 +72,6 @@ export default class ParentRoutines extends Component {
   // This allows this page to refresh when you come back from
   // edit routines, which allows it to display any changes made
   componentDidMount() {
-    console.log("running component did mount");
     this.props.navigation.addListener("didFocus", (payload) => {
       this.getRoutines();
       this.getActivities();
@@ -190,9 +188,9 @@ export default class ParentRoutines extends Component {
                 friday: 0,
                 saturday: 0,
                 sunday: 0,
-                rewards: null,
+                reward_id: 0,
                 allActivities: this.state.activities,
-
+                userId: this.state.userId,
               }))
           }
           ripple={ripple}
@@ -306,8 +304,10 @@ export default class ParentRoutines extends Component {
                                          amount_of_rewards:
                                            item.amount_of_rewards,
                                           allActivities: this.state.activities,
-                                         // TO DO: set up rewards
+                                         // TODO: set up rewards
                                          rewards: null,
+                                         rewardId: item.reward_id,
+                                         userId: this.state.userId,
                                        })
                                      }>
                                      <Text
@@ -386,7 +386,6 @@ export default class ParentRoutines extends Component {
                      // return null;
                      // IS THIS WHERE I MAYBE MAKE ANOTHER CALL ?
                    }
-
                    let ripple = {id: 'addButton'};
                    const {navigate} = this.props.navigation;
 
@@ -417,7 +416,6 @@ export default class ParentRoutines extends Component {
                            {this.tabIsRoutines() && (
                              <View
                                style={{
-                                //  flex: 1,
                                  flexDirection: 'row',
                                  flexWrap: 'wrap',
                                }}>
