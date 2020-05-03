@@ -106,6 +106,25 @@ app.post('/updateUser/:userId', function (req, res) {
       });
   });
 });
+app.post('/updateActivity/:activity_id', function (req, res) {
+
+  let activity_id = req.params.activity_id;
+  var postData = req.body;
+
+  console.log(postData);
+  connection.getConnection(function (err, connection) {
+    connection.query('UPDATE activities SET ? WHERE activity_id = ?',
+      [postData, activity_id],
+      function (error, results, fields) {
+
+        if (error){
+          throw error;
+          console.log(err);
+        }
+        res.send(JSON.stringify(results))
+      });
+  });
+});
 
 
 app.post('/insertRoutine', function (req, res) {
@@ -118,6 +137,7 @@ app.post('/insertRoutine', function (req, res) {
     res.end(JSON.stringify(results));
   });
 });
+
 
 
 app.post('/insertRoutineActivityRelationship', function (req, res) {

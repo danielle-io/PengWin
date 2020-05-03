@@ -19,6 +19,7 @@ import * as ImagePicker from "expo-image-picker";
 import { Audio } from "expo-av";
 import * as FileSystem from "expo-file-system";
 import * as Permissions from "expo-permissions";
+import Environment from "../../../database/sqlEnv";
 
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 Icon.loadFont();
@@ -77,6 +78,29 @@ export default class Activity extends Component {
     this.recordingSettings = JSON.parse(
       JSON.stringify(Audio.RECORDING_OPTIONS_PRESET_LOW_QUALITY)
     );
+
+    
+  }
+
+  async postActivity(tag, value){
+    var data = {
+      [tag]: value,
+    };
+    try {
+      let response = await fetch(Environment + "/updateActivity/1" , {
+        method: "POST",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
+      if (response.status >= 200 && response.status < 300) {
+        console.log("POSTED")
+      }
+    } catch (errors) {
+      alert(errors);
+    }
   }
 
   componentDidMount() {
@@ -723,7 +747,8 @@ export default class Activity extends Component {
             marginBottom: 100,
           }}
         >
-          <TouchableOpacity style={styles.savebutton}>
+          <TouchableOpacity style={styles.savebutton}
+          onPress={() => this.postActivity("audio_path","test")}>
             <Text style={{ color: "#fff", fontSize: 20 }}>Save</Text>
           </TouchableOpacity>
         </View>
