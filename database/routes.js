@@ -9,7 +9,7 @@ const app = express();
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
-const connection = mysql.createPool({ 
+const connection = mysql.createPool({
   host: environment.host,
   user: environment.user,
   password: environment.password,
@@ -32,7 +32,7 @@ app.get('/users', function (req, res) {
       // If some error occurs, we throw an error.
       if (error) throw error;
 
-    // Getting the 'response' from the database and sending it to our route. This is were the data is.
+      // Getting the 'response' from the database and sending it to our route. This is were the data is.
       res.send(results)
     });
   });
@@ -45,6 +45,37 @@ app.get('/getChildFromParent/:userId', function (req, res) {
     connection.query('select * from children '
       + 'inner join users on children.user_id = users.user_id where parent_id = ?', [userId], function (error, results, fields) {
         console.log(error);
+
+        if (error) throw error;
+
+        res.send(results)
+      });
+  });
+});
+
+
+app.get('/getUnevaluatedRoutines/:parentId', function (req, res) {
+  let parentId = req.params.parentId;
+  connection.getConnection(function (err, connection) {
+    
+    connection.query('SELECT * FROM child_notifications where parent_id =' + parentId
+    + ' AND is_evaluated = 0'
+    + ' AND requires_approval = 1' 
+    + ' AND in_progress = 0', function (error, results, fields) {
+
+
+        if (error) throw error;
+
+        res.send(results)
+      });
+  });
+});
+
+app.get('/getParentIdOfUser/:userId', function (req, res) {
+  let userId = req.params.userId;
+  connection.getConnection(function (err, connection) {
+    
+    connection.query('SELECT parent_id FROM parents where user_id =' + userId, function (error, results, fields) {
 
         if (error) throw error;
 
@@ -146,12 +177,28 @@ app.get('/getActivities/:userId', function (req, res) {
 
     connection.query('SELECT * FROM activities where user_id =' + userId, function (error, results, fields) {
 
-        console.log(results);
-        console.log(error);
-        if (error) throw error;
+      console.log(results);
+      console.log(error);
+      if (error) throw error;
 
-        res.send(results)
-      });
+      res.send(results)
+    });
+  });
+});
+
+app.get('/getActivitiesFromRoutine/:routineID', function (req, res) {
+  let routineID = req.params.routineID;
+
+  connection.getConnection(function (err, connection) {
+
+    connection.query('SELECT * FROM routines_activities_relationship where routine_id =' + routineID, function (error, results, fields) {
+
+      console.log(results);
+      console.log(error);
+      if (error) throw error;
+
+      res.send(results)
+    });
   });
 });
 
