@@ -1,6 +1,5 @@
 import React, { Component } from "react";
 import { Dimensions, SafeAreaView, StyleSheet, View, Text } from "react-native";
-
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import { RaisedTextButton } from "react-native-material-buttons";
 import {
@@ -38,6 +37,7 @@ export default class ParentRoutines extends Component {
       selectedTab: 0,
       routes: [{ key: "1", title: "First" }, { key: "2", title: "Second" }],
       visible1: true,
+      allRewards: null,
     };
   }
 
@@ -72,17 +72,17 @@ export default class ParentRoutines extends Component {
 
   // This allows this page to refresh when you come back from
   // edit routines, which allows it to display any changes made
-  componentDidMount() {
-    console.log("running component did mount");
-    this.props.navigation.addListener("didFocus", (payload) => {
+  async componentDidMount() {
+    console.log("mounted");
+    await this.props.navigation.addListener("didFocus", (payload) => {
       this.getRoutines();
-      this.getActivities();
+      this.getAllActivitiesForUser();
+      this.getAllRewardsForUser();
     });
   }
 
-  // Get the routines data from the db
   getRoutines() {
-    fetch("http://" + Environment + "/routines/", {
+    fetch(Environment + "/getRoutinesByUser/" + this.state.userId, {
       headers: {
         "Cache-Control": "no-cache",
       },
@@ -100,9 +100,28 @@ export default class ParentRoutines extends Component {
       });
   }
 
-  // Get the routines data from the db
-  getActivities() {
-    fetch("http://" + Environment + "/getActivities/" + this.state.userId, {
+  getAllRewardsForUser() {
+    fetch(Environment + "/getAllRewards/" + this.state.userId, {
+      headers: {
+        "Cache-Control": "no-cache",
+      },
+    })
+      .then((response) => response.json())
+      .then((responseJson) => {
+        return responseJson;
+      })
+      .then((results) => {
+        this.setState({ allRewards: results });
+        console.log("ALL REWARDS BELOW");
+        console.log(this.state.allRewards);
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+  }
+
+  getAllActivitiesForUser() {
+    fetch(Environment + "/getActivities/" + this.state.userId, {
       headers: {
         "Cache-Control": "no-cache",
       },
@@ -131,7 +150,7 @@ export default class ParentRoutines extends Component {
       [tag]: value,
     };
     try {
-      let response = await fetch("http://" + Environment + "/updateRoutine/" + routineId, {
+      let response = await fetch(Environment + "/updateRoutine/" + routineId, {
         method: "POST",
         headers: {
           Accept: "application/json",
@@ -190,9 +209,9 @@ export default class ParentRoutines extends Component {
                 friday: 0,
                 saturday: 0,
                 sunday: 0,
-
-                // TO DO: set up rewards
-                rewards: null,
+                reward_id: 0,
+                allActivities: this.state.activities,
+                userId: this.state.userId,
               }))
           }
           ripple={ripple}
@@ -212,32 +231,31 @@ export default class ParentRoutines extends Component {
           <View style={styles.routineTitleAndMenu}>
             <Text style={styles.routineTitle}> {item.activity_name}</Text>
 
-            <MenuProvider>
-              <Menu style={styles.routineMenuStyling}>
-                <MenuTrigger style={styles.ellipsis} text="..." />
-                <MenuOptions>
-                  <MenuOption
-                    onSelect={() =>
-                      navigate("EditActivity", {
-                        prevScreenTitle: "Routines",
-                        activityName: item.activity_name,
-                        activityId: item.activity_id,
-                        activityTags: eval(item.tags),
-                        activityImagePath: item.image_path,
-                        activityDescription: item.activity_description,
-                        activityAudioPath: item.audio_path,
-                        activityVideoPath: item.video_path,
-                        activityIsPublic: item.is_public,
-                        userId: item.user_id,
-                        rewardId: item.reward_id,
-                      })
-                    }
-                  >
-                    <Text style={{ color: "black" }}>Edit</Text>
-                  </MenuOption>
-                </MenuOptions>
-              </Menu>
-            </MenuProvider>
+            <Menu style={styles.routineMenuStyling}>
+              <MenuTrigger style={styles.ellipsis} text="..." />
+              <MenuOptions>
+                <MenuOption
+                  onSelect={() =>
+                    navigate("EditActivity", {
+                      prevScreenTitle: "Routines",
+                      activityName: item.activity_name,
+                      activityId: item.activity_id,
+                      activityTags: eval(item.tags),
+                      activityImagePath: item.image_path,
+                      activityDescription: item.activity_description,
+                      activityAudioPath: item.audio_path,
+                      activityVideoPath: item.video_path,
+                      activityIsPublic: item.is_public,
+                      userId: item.user_id,
+                      rewardId: item.reward_id,
+                      allRewards: this.state.allRewards,
+                    })
+                  }
+                >
+                  <Text style={{ color: "black" }}>Edit</Text>
+                </MenuOption>
+              </MenuOptions>
+            </Menu>
           </View>
         </View>
       );
@@ -250,9 +268,6 @@ export default class ParentRoutines extends Component {
 
     // parse out the db objects returned from the routines call
     return this.state.results.routines.map((item) => {
-      console.log("ROUTINE NAME");
-      console.log(item.routine_name);
-
       if (item.is_active === 0) {
         containerName = "inactiveRoutineContainer";
       } else {
@@ -261,10 +276,9 @@ export default class ParentRoutines extends Component {
 
       return (
         <View style={styles[containerName]}>
-          <View style={styles.routineTitleAndMenu}>
-            <Text style={styles.routineTitle}> {item.routine_name}</Text>
-
-            <MenuProvider>
+          <MenuProvider>
+            <View style={styles.routineTitleAndMenu}>
+              <Text style={styles.routineTitle}> {item.routine_name}</Text>
               <Menu style={styles.routineMenuStyling}>
                 <MenuTrigger style={styles.ellipsis} text="..." />
                 <MenuOptions>
@@ -276,7 +290,7 @@ export default class ParentRoutines extends Component {
                         routineId: item.routine_id,
                         routineStartTime: item.start_time,
                         routineEndTime: item.end_time,
-                        routineApproval: item.is_approved,
+                        routineApproval: item.requires_approval,
                         monday: item.monday,
                         tuesday: item.tuesday,
                         wednesday: item.wednesday,
@@ -286,8 +300,10 @@ export default class ParentRoutines extends Component {
                         sunday: item.sunday,
                         amount_of_activities: item.amount_of_activities,
                         amount_of_rewards: item.amount_of_rewards,
-                        // TO DO: set up rewards
-                        rewards: null,
+                        allActivities: this.state.activities,
+                        rewardId: item.reward_id,
+                        userId: this.state.userId,
+                        allRewards: this.state.allRewards,
                       })
                     }
                   >
@@ -312,19 +328,19 @@ export default class ParentRoutines extends Component {
                   </MenuOption>
                 </MenuOptions>
               </Menu>
-            </MenuProvider>
-          </View>
+            </View>
 
-          <View style={styles.routineDetailsPreview}>
-            <Text style={styles.routineDetails}>
-              <Icon name="playlist-check" style={styles.routineDetailsIcon} />{" "}
-              Activities: {item.amount_of_activities}{" "}
-            </Text>
-            <Text style={styles.routineDetails}>
-              <Icon name="gift" style={styles.routineDetailsIcon} /> Rewards:{" "}
-              {item.amount_of_rewards}{" "}
-            </Text>
-          </View>
+            <View style={styles.routineDetailsPreview}>
+              <Text style={styles.routineDetails}>
+                <Icon name="playlist-check" style={styles.routineDetailsIcon} />{" "}
+                Activities: {item.amount_of_activities}{" "}
+              </Text>
+              <Text style={styles.routineDetails}>
+                <Icon name="gift" style={styles.routineDetailsIcon} /> Rewards:{" "}
+                {item.amount_of_rewards}{" "}
+              </Text>
+            </View>
+          </MenuProvider>
         </View>
       );
     });
@@ -332,13 +348,12 @@ export default class ParentRoutines extends Component {
 
   render() {
     if (this.state.results !== null) {
-      console.log(this.state.results);
+      //  console.log(this.state.results);
     } else {
       console.log("null below");
       // return null;
       // IS THIS WHERE I MAYBE MAKE ANOTHER CALL ?
     }
-
     let ripple = { id: "addButton" };
     const { navigate } = this.props.navigation;
 
@@ -367,7 +382,6 @@ export default class ParentRoutines extends Component {
             {this.tabIsRoutines() && (
               <View
                 style={{
-                  //  flex: 1,
                   flexDirection: "row",
                   flexWrap: "wrap",
                 }}
@@ -554,7 +568,6 @@ const styles = StyleSheet.create({
     marginLeft: 10,
     marginRight: 10,
   },
-
   roundAddButton: {
     marginLeft: 6,
     fontSize: 30,

@@ -37,7 +37,7 @@ export default class ParentProfile extends Component {
       [tag]: value,
     };
     try {
-      let response = await fetch("http://" + Environment + '/updateUser/' + id, {
+      let response = await fetch(Environment + '/updateUser/' + id, {
         method: 'POST',
         headers: {
           Accept: 'application/json',
@@ -56,7 +56,6 @@ export default class ParentProfile extends Component {
   // This allows this page to refresh when you come back from
   // edit routines, which allows it to display any changes made
   componentDidMount() {
-    console.log('running component did mount');
     this.props.navigation.addListener('didFocus', payload => {
       this.getUserInfo(), this.getChildInfo();
     });
@@ -64,7 +63,7 @@ export default class ParentProfile extends Component {
 
   getChildInfo() {
     // Get the routines data from the db
-    fetch("http://" + Environment + '/getChildFromParent/' + this.state.userId, {
+    fetch(Environment + '/getChildFromParent/' + this.state.userId, {
       headers: {
         'Cache-Control': 'no-cache',
       },
@@ -85,7 +84,7 @@ export default class ParentProfile extends Component {
 
   getUserInfo() {
     // Get the routines data from the db
-    fetch("http://" + Environment + '/getUsers/' + this.state.userId, {
+    fetch(Environment + '/getUser/' + this.state.userId, {
       headers: {
         'Cache-Control': 'no-cache',
       },
