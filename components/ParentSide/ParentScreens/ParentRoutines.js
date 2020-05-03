@@ -37,6 +37,7 @@ export default class ParentRoutines extends Component {
       selectedTab: 0,
       routes: [{ key: "1", title: "First" }, { key: "2", title: "Second" }],
       visible1: true,
+      allRewards: null,
     };
   }
 
@@ -74,11 +75,11 @@ export default class ParentRoutines extends Component {
   componentDidMount() {
     this.props.navigation.addListener("didFocus", (payload) => {
       this.getRoutines();
-      this.getActivities();
+      this.getAllActivitiesForUser();
+      this.getAllRewardsForUser();
     });
   }
 
-  // Get the routines data from the db
   getRoutines() {
     fetch(Environment + '/routines/', {
       headers: {
@@ -98,9 +99,28 @@ export default class ParentRoutines extends Component {
       });
   }
 
-  // Get the routines data from the db
-  getActivities() {
-    fetch(Environment + '/getActivities/' + this.state.userId, {
+    getAllRewardsForUser() {
+      fetch(Environment + "/getAllRewards/" + this.state.userId, {
+        headers: {
+          "Cache-Control": "no-cache",
+        },
+      })
+        .then((response) => response.json())
+        .then((responseJson) => {
+          return responseJson;
+        })
+        .then((results) => {
+          this.setState({ allRewards: results });
+          console.log("ALL REWARDS BELOW");
+          console.log(this.state.allRewards);
+        })
+        .catch((error) => {
+          console.error(error);
+        });
+    }
+  
+  getAllActivitiesForUser() {
+    fetch(Environment + "/getActivities/" + this.state.userId, {
       headers: {
         "Cache-Control": "no-cache",
       },
@@ -228,6 +248,7 @@ export default class ParentRoutines extends Component {
                         activityIsPublic: item.is_public,
                         userId: item.user_id,
                         rewardId: item.reward_id,
+                        allRewards: this.state.allRewards,
                       })
                     }
                   >
@@ -304,10 +325,9 @@ export default class ParentRoutines extends Component {
                                          amount_of_rewards:
                                            item.amount_of_rewards,
                                           allActivities: this.state.activities,
-                                         // TODO: set up rewards
-                                         rewards: null,
                                          rewardId: item.reward_id,
                                          userId: this.state.userId,
+                                         allRewards: this.state.allRewards,
                                        })
                                      }>
                                      <Text

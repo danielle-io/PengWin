@@ -7,6 +7,7 @@ import { Dropdown } from 'react-native-material-dropdown';
 import { Video } from "expo-av";
 import { Image } from "react-native";
 import * as ImagePicker from "expo-image-picker";
+import Environment from "../../../database/sqlEnv";
 
 const { width: WIDTH } = Dimensions.get('window')
 
@@ -31,11 +32,10 @@ export default class ParentRewards extends Component {
         this.state = {
             prevScreenTitle: this.props.navigation.state.params.prevScreenTitle,
             photos: null,
-            video: null
-            // reward1: null,
-            // reward2: null,
-            // reward3: null,
-            // reward4: null,
+            video: null,
+            loaded: false,
+            results: null,
+            routinesArray: []
             //prevScreenTitle: this.props.navigation.state.params.prevScreenTitle,
         };
     }
@@ -48,6 +48,73 @@ export default class ParentRewards extends Component {
     // _onNext = () => {
     //     this.child._animateNextPage(); // do stuff
     // };
+
+    componentDidMount() {
+        console.log('running component did mount for rewards');
+        this.props.navigation.addListener(
+            'didFocus',
+            (payload) => {
+                this.getRoutines();
+            }
+        )
+    }
+
+    //Get the routines data from teh db
+    getRoutines() {
+        fetch(Environment + '/routines/', {
+            headers: {
+                "Cache-Control": "no-cache",
+            },
+        })
+            .then((response) => response.json())
+            .then((responseJson) => {
+                return responseJson;
+            })
+            .then((results) => {
+                this.setState({ results: results });
+                this.setState({ loaded: true });
+            })
+            .catch((error) => {
+                console.error(error);
+            });
+    }
+
+    storeRoutines() {
+        // return this.state.results.routines.map((item) => {
+        //     console.log("ROUTINE NAME for rewards");
+        //     console.log(item.routine_name);
+        //     this.state.routinesArray.push(item.routine_name);
+        // })
+        return this.state.results.routines.map( item => ({value: item.routine_name}));
+
+//         var joined = this.state.myArray.concat('new value');
+// this.setState({ myArray: joined })
+
+    }
+
+    displayForm() {
+        // const routineData = this.state.routinesArray;
+        const data = this.storeRoutines();
+        console.log(data);
+        // console.log(routineData);
+        return (
+            <View style={styles.rewardsContainer}>
+                <Text style={styles.textFields}>
+                    Select Routine
+                </Text>
+
+                <Dropdown
+                    label="Select Routine"
+                    // data={routineData}
+                    data = {data}
+
+                />
+            </View>
+        )
+    }
+
+
+   
 
     //From ChildActivity
     _onNext = () => {
@@ -124,24 +191,26 @@ export default class ParentRewards extends Component {
 
         const { navigate } = this.props.navigation
 
-        let routineData = [
-            {
-                value: 'Morning Routieeee',
-            },
+        // let routineData = [
+        //     {
+        //         value: 'Morning Routieeee',
+        //     },
 
-            {
-                value: 'After School Routine',
-            },
+        //     {
+        //         value: 'After School Routine',
+        //     },
 
-            {
-                value: 'Summer Morning Routine',
-            },
+        //     {
+        //         value: 'Summer Morning Routine',
+        //     },
 
-            {
-                value: 'Pear',
-            }
+        //     {
+        //         value: 'Pear',
+        //     }
 
-        ];
+        // ];
+
+
 
         let activityData = [
             {
@@ -167,15 +236,16 @@ export default class ParentRewards extends Component {
         ];
 
         return (
-           
+
 
             <View>
 
+
                 <View style={styles.rewardsContainer}>
-                   
+
 
                     <View>
-                       
+
 
                         {/* <View style={styles.editRoutineIconAndTitle}>
                             <Icon style={styles.routineDetailsIcon} name="gift" />
@@ -202,14 +272,24 @@ export default class ParentRewards extends Component {
                         // onChangeText={(text) => this.setState({ currentRoutineName: text })}
                         ></TextField>
 
-                        <Text style={styles.textFields}>
-                            Select Routine
-                    </Text>
+                        {/* <Text style={styles.textFields}>
+                            Select Routine */}
+                        {/* </Text>
 
                         <Dropdown
                             label="Select Routine"
                             data={routineData}
-                        />
+                           
+                        /> */}
+
+
+                        {this.state.loaded &&
+                            <View>
+                                {/* {this.storeRoutines()} */}
+                                {this.displayForm()}
+
+                            </View>
+                        }
 
 
                         <Text style={styles.textFields}>
@@ -225,10 +305,10 @@ export default class ParentRewards extends Component {
 
 
                         <View style={styles.editRoutineIconAndTitle}>
-                        <Text style={styles.textFields}>Add Image</Text>
+                            <Text style={styles.textFields}>Add Image</Text>
                             <View style={{ margin: 20, alignItems: "center" }}>
-                                
-                                
+
+
                                 <TouchableOpacity
                                     style={styles.camerabutton}
                                     onPress={this._handleButtonPress}
@@ -238,7 +318,7 @@ export default class ParentRewards extends Component {
                                         this._onNext();
                                     }}> */}
                                     {this.returnImage()}
-                                   
+
                                 </TouchableOpacity>
 
                             </View>
@@ -305,6 +385,7 @@ export default class ParentRewards extends Component {
                             <Text>Video</Text>
                         </TouchableOpacity> */}
                     </View>
+
                     <TouchableOpacity style={styles.savebutton}>
                         <Text style={{ color: "#FF6978", fontSize: 20 }}>Save Reward</Text>
                     </TouchableOpacity>
