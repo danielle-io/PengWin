@@ -1,3 +1,5 @@
+// TODO: move activitites page and tab over to allActivitiesDictionary
+// rather than allActivities
 import React, { Component } from "react";
 import { Dimensions, SafeAreaView, StyleSheet, View, Text } from "react-native";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
@@ -32,12 +34,13 @@ export default class ParentRoutines extends Component {
       secondLoaded: false,
       userId: 1,
       results: null,
-      activities: null,
+      allActivities: null,
       index: 0,
       selectedTab: 0,
       routes: [{ key: "1", title: "First" }, { key: "2", title: "Second" }],
       visible1: true,
       allRewards: null,
+      allActivitiesDictionary: null,
     };
   }
 
@@ -73,7 +76,6 @@ export default class ParentRoutines extends Component {
   // This allows this page to refresh when you come back from
   // edit routines, which allows it to display any changes made
   async componentDidMount() {
-    console.log("mounted");
     await this.props.navigation.addListener("didFocus", (payload) => {
       this.getRoutines();
       this.getAllActivitiesForUser();
@@ -91,8 +93,8 @@ export default class ParentRoutines extends Component {
       .then((responseJson) => {
         return responseJson;
       })
-      .then((results) => {
-        this.setState({ results: results });
+      .then((routines) => {
+        this.setState({ results: routines });
         this.setState({ loaded: true });
       })
       .catch((error) => {
@@ -112,13 +114,27 @@ export default class ParentRoutines extends Component {
       })
       .then((results) => {
         this.setState({ allRewards: results });
-        console.log("ALL REWARDS BELOW");
-        console.log(this.state.allRewards);
       })
       .catch((error) => {
         console.error(error);
       });
   }
+
+  createActivityDictionary(){
+    var tempDict = {};
+    this.state.allActivities.map((item) => {
+      tempDict[item.activity_id] = item;
+    });
+    console.log("TEMP DICT BELOW");
+    console.log(tempDict);
+
+    this.setState({ allActivitiesDictionary: tempDict }); 
+    console.log("the all activities dictionary is below");
+    console.log(this.state.allActivitiesDictionary);
+    this.setState({ secondLoaded: true });
+
+  }
+
 
   getAllActivitiesForUser() {
     fetch(Environment + "/getActivities/" + this.state.userId, {
@@ -131,8 +147,8 @@ export default class ParentRoutines extends Component {
         return responseJson;
       })
       .then((results) => {
-        this.setState({ activities: results });
-        this.setState({ secondLoaded: true });
+        this.setState({ allActivities: results });
+        this.createActivityDictionary();
       })
       .catch((error) => {
         console.error(error);
@@ -210,8 +226,9 @@ export default class ParentRoutines extends Component {
                 saturday: 0,
                 sunday: 0,
                 reward_id: 0,
-                allActivities: this.state.activities,
+                allActivities: this.state.allActivities,
                 userId: this.state.userId,
+                allActivitiesDictionary: this.state.allActivitiesDictionary,
               }))
           }
           ripple={ripple}
@@ -225,7 +242,7 @@ export default class ParentRoutines extends Component {
   displayActivities() {
     const { navigate } = this.props.navigation;
 
-    return this.state.activities.map((item) => {
+    return this.state.allActivities.map((item) => {
       return (
         <View style={styles.routineContainer}>
           <View style={styles.routineTitleAndMenu}>
@@ -249,6 +266,7 @@ export default class ParentRoutines extends Component {
                       userId: item.user_id,
                       rewardId: item.reward_id,
                       allRewards: this.state.allRewards,
+                      allActivitiesDictionary: this.state.allActivitiesDictionary,
                     })
                   }
                 >
@@ -300,10 +318,11 @@ export default class ParentRoutines extends Component {
                         sunday: item.sunday,
                         amount_of_activities: item.amount_of_activities,
                         amount_of_rewards: item.amount_of_rewards,
-                        allActivities: this.state.activities,
+                        allActivities: this.state.allActivities,
                         rewardId: item.reward_id,
                         userId: this.state.userId,
                         allRewards: this.state.allRewards,
+                        allActivitiesDictionary: this.state.allActivitiesDictionary,
                       })
                     }
                   >
@@ -350,10 +369,9 @@ export default class ParentRoutines extends Component {
     if (this.state.results !== null) {
       //  console.log(this.state.results);
     } else {
-      console.log("null below");
-      // return null;
-      // IS THIS WHERE I MAYBE MAKE ANOTHER CALL ?
+      console.log("this.state.results is null :( ");
     }
+
     let ripple = { id: "addButton" };
     const { navigate } = this.props.navigation;
 
@@ -376,6 +394,13 @@ export default class ParentRoutines extends Component {
             }
           />
         </SafeAreaView>
+
+        {/* TESTING CONTAINER
+        {!this.state.loaded && (
+          <View style={{ marginTop: 100 }}>
+            <Text style={{ marginLeft: 50 }}>:( this.stateloaded is not true</Text>
+          </View>
+        )} */}
 
         {this.state.loaded && (
           <View>

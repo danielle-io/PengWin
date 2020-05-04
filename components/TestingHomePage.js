@@ -126,6 +126,22 @@ export default class TestingHomePage extends Component {
               >
                 <Text style={styles.linkText}>Child Routines</Text>
               </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.childContainer}
+                onPress={() =>
+                  this.navigate("ChildRewards", { prevScreenTitle: "Login" })
+                }
+              >
+                <Text style={styles.linkText}>Child Reward</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.childContainer}
+                onPress={() =>
+                  this.navigate("ChildMap", { prevScreenTitle: "Login" })
+                }
+              >
+                <Text style={styles.linkText}>Child Map</Text>
+              </TouchableOpacity>
 
               <TouchableOpacity
                 style={styles.childContainer}

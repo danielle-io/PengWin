@@ -160,7 +160,7 @@ export default class ChildRoutines extends Component {
 
   // Get the routines data from the db
   getRoutines() {
-    fetch( Environment + "/routines/", {
+    fetch( Environment + "/getRoutinesByUser/" + 1, {
       headers: {
         "Cache-Control": "no-cache",
       },

@@ -19,6 +19,7 @@ import * as ImagePicker from "expo-image-picker";
 import { Audio } from "expo-av";
 import * as FileSystem from "expo-file-system";
 import * as Permissions from "expo-permissions";
+import Environment from "../../../database/sqlEnv";
 
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 Icon.loadFont();
@@ -77,6 +78,29 @@ export default class Activity extends Component {
     this.recordingSettings = JSON.parse(
       JSON.stringify(Audio.RECORDING_OPTIONS_PRESET_LOW_QUALITY)
     );
+
+    
+  }
+
+  async postActivity(tag, value){
+    var data = {
+      [tag]: value,
+    };
+    try {
+      let response = await fetch(Environment + "/updateActivity/1" , {
+        method: "POST",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
+      if (response.status >= 200 && response.status < 300) {
+        console.log("POSTED")
+      }
+    } catch (errors) {
+      alert(errors);
+    }
   }
 
   componentDidMount() {
@@ -160,6 +184,13 @@ export default class Activity extends Component {
     recording.setOnRecordingStatusUpdate(this._updateScreenForRecordingStatus);
 
     this.recording = recording;
+    this.setState(state => {
+      const recordings = [...state.recordings, recording];
+ 
+      return {
+        recordings,
+      };
+    });
     await this.recording.startAsync();
     this.setState({
       isLoading: false,
@@ -210,6 +241,17 @@ export default class Activity extends Component {
   };
 
   _onPlayPausePressed = () => {
+    if (this.sound != null) {
+      if (this.state.isPlaying) {
+        this.sound.pauseAsync();
+      } else {
+        this.sound.playAsync();
+      }
+    }
+  };
+
+  _playFromStart = () => {
+    this._onSeekSliderSlidingComplete(0);
     if (this.sound != null) {
       if (this.state.isPlaying) {
         this.sound.pauseAsync();
@@ -511,13 +553,13 @@ export default class Activity extends Component {
                 // disabled={this.state.isLoading}
                 // disabled={this.state.disabled}
                 style={
-                  this.state.disabled ? styles.disabledbutton : styles.button
+                  this.state.isRecording ? styles.disabledbutton : styles.button
                 }
                 onPress={() => this._onRecordPressed()}
               >
                 <Icon
                   name="microphone"
-                  color={this.state.disabled ? "#c4c4c4" : "#FF6978"}
+                  color={this.state.isRecording ? "#c4c4c4" : "#FF6978"}
                   size={30}
                   style={{ marginRight: 10 }}
                 />
@@ -605,7 +647,9 @@ export default class Activity extends Component {
                 {this.state.recordings.map((item) => {
                   console.log(item);
                   return (
-                    <View
+                    <TouchableOpacity
+                    
+                onPress={  this._playFromStart}
                       style={{
                         flexDirection: "row",
                         justifyContent: "center",
@@ -628,10 +672,10 @@ export default class Activity extends Component {
                         style={{ paddingRight: 30 }}
                       />
                       <Text style={{ fontSize: 20, color: "black" }}>
-                        {item._path}
+                        {item._uri}
                       </Text>
                       <Text>{item._duration}</Text>
-                    </View>
+                    </TouchableOpacity>
                   );
                 })}
               </View>
@@ -703,7 +747,8 @@ export default class Activity extends Component {
             marginBottom: 100,
           }}
         >
-          <TouchableOpacity style={styles.savebutton}>
+          <TouchableOpacity style={styles.savebutton}
+          onPress={() => this.postActivity("audio_path","test")}>
             <Text style={{ color: "#fff", fontSize: 20 }}>Save</Text>
           </TouchableOpacity>
         </View>
