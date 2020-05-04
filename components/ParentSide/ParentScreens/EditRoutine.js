@@ -349,7 +349,7 @@ export default class EditRoutine extends Component {
   }
 
 
-  
+
   componentDidMount() {
     // Put all the reward names in an array since those
     // will be displayed in the dropdown

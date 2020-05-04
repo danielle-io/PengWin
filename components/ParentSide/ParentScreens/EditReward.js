@@ -12,7 +12,6 @@ import SearchableDropdown from "react-native-searchable-dropdown";
 
 const { width: WIDTH } = Dimensions.get('window')
 
-
 export default class ParentRewards extends Component {
     static navigationOptions = ({ navigation }) => ({
         title: 'Edit Reward',
@@ -29,12 +28,18 @@ export default class ParentRewards extends Component {
             userId: 1,
             photos: null,
             video: null,
-            loaded: false,
-            secondLoaded: false,
+            routinesLoaded: false,
             activities: null,
-            results: null,
+            allRoutines: null,
+            allActivities: null,
             allActivityNames: [],
-            routinesArray: []
+            routinesArray: [],
+            currentRoutine: null,
+            activitiesLoaded: false,
+            currentActivity: null,
+            routineData: null,
+            activityData: null
+
             //prevScreenTitle: this.props.navigation.state.params.prevScreenTitle,
         };
     }
@@ -54,10 +59,34 @@ export default class ParentRewards extends Component {
             'didFocus',
             (payload) => {
                 this.getRoutines();
-                this.getActivities();
+                // this.getActivitiesForRoutine();
             }
         )
     }
+
+    getAllActivitiesForRoutine() {
+        console.log("WE ARE IN GET ALL ACTIVITIES FOR ROUTINE");
+        console.log(this.state.currentRoutine);
+        var routineId = this.state.currentRoutine.id;
+        fetch(Environment + "/joinRoutineActivityTableByRoutineId/" + routineId, {
+          headers: {
+            "Cache-Control": "no-cache",
+          },
+        })
+          .then((response) => response.json())
+          .then((responseJson) => {
+            return responseJson;
+          })
+          .then((results) => {
+            this.setState({ allActivities: results });
+            this.setState({ activitiesLoaded: true });
+            this.storeActivites();
+          })
+          .catch((error) => {
+            console.error(error);
+          });
+      }
+
 
     //Get the routines data from teh db
     getRoutines() {
@@ -72,9 +101,10 @@ export default class ParentRewards extends Component {
                 return responseJson;
             })
             .then((results) => {
-                this.setState({ results: results });
+                this.setState({ allRoutines: results });
                 console.log(this.state.results);
-                this.setState({ loaded: true });
+                this.setState({ routinesLoaded: true });
+                this.storeRoutines();
             })
             .catch((error) => {
                 // console.log("AH");
@@ -82,111 +112,84 @@ export default class ParentRewards extends Component {
             });
     }
 
+    storeActivites() {
+        console.log("WE ARE IN  store activities");
+
+        var tempArray = [];
+        this.state.allActivities.map(item => 
+            tempArray.push({ id: item.activity_id, name: item.activity_name })
+        )
+        this.setState({ activityData: tempArray });
+    }
+
+
     storeRoutines() {
-        // return this.state.results.routines.map((item) => {
-        //     console.log("ROUTINE NAME for rewards");
-        //     console.log(item.routine_name);
-        //     this.state.routinesArray.push(item.routine_name);
-        // })
-        return this.state.results.routines.map(item => ({ value: item.routine_name }));
-
-        //         var joined = this.state.myArray.concat('new value');
-        // this.setState({ myArray: joined })
-
+        var tempArray = [];
+        this.state.allRoutines.routines.map(item => 
+            tempArray.push({ id: item.routine_id, name: item.routine_name })
+        )
+        this.setState({ routineData: tempArray });
     }
 
-    displayRoutinesForm() {
+    displayForm(currentList) {
+        var stateName = "";
+        var placeholder = "";
+        var items = [];
+        if (currentList === "activites"){
+            placeholder = "Select an activity"
+            items = this.state.activityData;
+        }
+        else{
+            placeholder = "Select an routine";
+            items = this.state.routineData;
+
+        }
         // const routineData = this.state.routinesArray;
-        const data = this.storeRoutines();
-        console.log(data);
         // console.log(routineData);
         return (
             <View style={styles.drop}>
-                <Text style={styles.textFields}>
-                    Select Routine
-                </Text>
+               
+                <SearchableDropdown
+                onItemSelect={(item) => {
+                    if (currentList === "activity"){
+                        this.setState({ currentActivity : item });
+                    }
+                    else {
+                        this.setState({ currentRoutine: item });
+                    }
+                }}
+                containerStyle={{ padding: 5 }}
+                itemStyle={styles.dropDownItem}
+                itemTextStyle={{ color: "#222" }}
+                itemsContainerStyle={{ maxHeight: 140 }}
+                items={items}
+                resetValue={false}
+                textInputProps={{
+                  placeholder: placeholder,
+                  underlineColorAndroid: "transparent",
+                  style: {
+                    padding: 12,
+                    borderWidth: 1,
+                    borderColor: "#ccc",
+                    borderRadius: 5,
+                  },
+                }}
+                // value={this.state.currentlySelectedActivity}
+                listProps={{
+                  nestedScrollEnabled: true,
+                }}
+              />
 
-                <Dropdown
+                {/* <Dropdown
                     label="Select Routine"
-                    // data={routineData}
                     data={data}
-
-                />
+                    onChangeText ={(item) => {
+                     this.setState({ currentRoutine: item });
+                    }}
+                /> */}
             </View>
         )
     }
-
-    getActivities() {
-        // fetch(Environment + "/getActivities/" + this.state.userId, {
-        fetch( Environment + "/joinRoutineAndActivityTable/" + this.state.routineId, {
-            // fetch(Environment + "/joinRoutineAndActivityTable/" + this.state.routineID, {
-            headers: {
-                "Cache-Control": "no-cache",
-            },
-        })
-            .then((response) => response.json())
-            .then((responseJson) => {
-                return responseJson;
-            })
-            .then((results) => {
-                this.setState({ activities: results });
-                console.log("act hi");
-                console.log(this.state.activities);
-                this.setState({ secondLoaded: true });
-            })
-            .catch((error) => {
-                console.error(error);
-            });
-    }
-
-
-
-    displayActivities() {
-        const { navigate } = this.props.navigation;
-
-        return this.state.activities.map((item) => {
-            return (
-                <View>
-                    <Text style={styles.activityName}>
-                        {item.activity_id}. {item.activity_name}
-                    </Text>
-                    {/* <Text style={styles.subtext}>
-                        Image taken by {this.state.childFirstName}
-                    </Text> */}
-                </View>
-            );
-        });
-    }
-
-    storeActivities(){
-        return this.state.activities.map(item => ({ value: item.activity_name }));
-    }
-
-
- 
-
-    displayActivitiesForm() {
-        // const routineData = this.state.routinesArray;
-        const dataAct = this.storeActivities();
-        console.log(dataAct);
-        // console.log(routineData);
-        return (
-            <View style={styles.drop}>
-                <Text style={styles.textFields}>
-                    Select Activities
-                </Text>
-
-                <Dropdown
-                    label="Select Activities"
-                    // data={routineData}
-                    data={dataAct}
-
-                />
-            </View>
-        )
-    }
-
-
 
     //From ChildActivity
     _onNext = () => {
@@ -194,7 +197,6 @@ export default class ParentRewards extends Component {
     };
 
     //from EditActivity
-
     _handleButtonPress = async () => {
         let pickerResult = await ImagePicker.launchImageLibraryAsync({
             allowsEditing: true,
@@ -249,10 +251,7 @@ export default class ParentRewards extends Component {
         }
     };
 
-
-
     fieldRef = React.createRef();
-
     onSubmit = () => {
         let { current: field } = this.fieldRef;
         console.log(field.value());
@@ -263,70 +262,15 @@ export default class ParentRewards extends Component {
 
         const { navigate } = this.props.navigation
 
-        // let routineData = [
-        //     {
-        //         value: 'Morning Routieeee',
-        //     },
-
-        //     {
-        //         value: 'After School Routine',
-        //     },
-
-        //     {
-        //         value: 'Summer Morning Routine',
-        //     },
-
-        //     {
-        //         value: 'Pear',
-        //     }
-
-        // ];
-
-
-
-        // let activityData = [
-        //     {
-        //         value: 'Brush Teeth',
-        //     },
-
-        //     {
-        //         value: 'Get Dressed',
-        //     },
-
-        //     {
-        //         value: 'Wash Hands',
-        //     },
-
-        //     {
-        //         value: 'Eat Snack ',
-        //     },
-
-        //     {
-        //         value: 'Brush Dog Hair ',
-        //     }
-
-        // ];
-
         return (
-
-
             <View>
 
-
-                <View style={styles.rewardsContainer}>
-
-
+              <View style={styles.rewardsContainer}>
                     <View>
-
-
-                        {/* <View style={styles.editRoutineIconAndTitle}>
-                            <Icon style={styles.routineDetailsIcon} name="gift" />
-                            <Text style={styles.editRoutineSectionName}>Rewards</Text>
-                        </View> */}
 
                         <Text style={styles.textFields}>
                             Reward Name
-                    </Text>
+                        </Text>
 
                         < TextField
                             id="reward"
@@ -344,44 +288,30 @@ export default class ParentRewards extends Component {
                         // onChangeText={(text) => this.setState({ currentRoutineName: text })}
                         ></TextField>
 
-                        {/* <Text style={styles.textFields}>
-                            Select Routine */}
-                        {/* </Text>
 
-                        <Dropdown
-                            label="Select Routine"
-                            data={routineData}
-                           
-                        /> */}
-
-
-                        {this.state.loaded &&
+                        {this.state.routinesLoaded &&
                             <View>
-                                {/* {this.storeRoutines()} */}
-                                {this.displayRoutinesForm()}
-
+                                <Text style={styles.textFields}>
+                                    Select Routine
+                                </Text>
+                                {this.displayForm("routine")}
                             </View>
                         }
 
-                        {this.state.secondLoaded &&
+                        {this.state.currentRoutine !== null &&
                             <View>
-                                {/* {this.storeRoutines()} */}
-                                {this.displayActivitiesForm()}
-
+                                {this.getAllActivitiesForRoutine()}
                             </View>
                         }
-                     
 
-                        {/* <Text style={styles.textFields}>
-                            Select Activity
-                    </Text>
-
-                        <Dropdown
-                            label="Select Activity"
-                            data={activityData}
-                        /> */}
-
-
+                        {this.state.activitiesLoaded &&
+                            <View>
+                                <Text style={styles.textFields}>
+                                    Select Activity
+                                </Text>
+                                {this.displayForm("activites")}
+                            </View>
+                        }
 
 
                         <View style={styles.editRoutineIconAndTitle}>
@@ -631,5 +561,13 @@ const styles = StyleSheet.create({
         margin: 5,
         padding: 2,
     },
+    dropDownItem: {
+        padding: 10,
+        marginTop: 2,
+        backgroundColor: "#ddd",
+        borderColor: "#bbb",
+        borderWidth: 1,
+        borderRadius: 5,
+      }
 });
 
