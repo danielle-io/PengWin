@@ -65,15 +65,15 @@ app.post('/updateRoutine/:routineId', function (req, res) {
 });
 
 // Update the routine data
-app.post('/updateActivityRelationship/:routineId', function (req, res) {
-  let routineId = req.params.routineId;
+app.post('/updateActivityRelationship/:routineActivityId', function (req, res) {
+  let routineActivityId = req.params.routineActivityId;
   var postData = req.body;
 
   // console.log(postData);
   connection.getConnection(function (err, connection) {
 
-    connection.query('UPDATE routines SET ? WHERE routine_id = ?',
-      [postData, routineId],
+    connection.query('UPDATE routines_activities_relationship SET ? WHERE routine_activity_id = ?',
+      [postData, routineActivityId],
       function (error, results, fields) {
         if (error){
           throw error;
@@ -210,25 +210,6 @@ app.get('/getActivities/:userId', function (req, res) {
 });
 
 
-app.get('/routines/:userId', function (req, res) {
-  let userId = req.params.userId;
-
-  connection.getConnection(function (err, connection) {
-
-    connection.query('select routines.*, a.*, rar.order from routines '
-      + 'inner join routines_activities_relationship rar on routines.routine_id = rar.routine_id '
-      + 'inner join activities a on rar.activity_id = a.activity_id '
-      + 'where rar.user_id = ? AND rar.routine_id <> 0 '
-      + 'order by rar.routine_id, rar.order', [userId], function (error, results, fields) {
-
-        if (error){
-          throw error;
-          console.log(err);
-        }
-        res.send(results)
-      });
-  });
-});
 
 app.get('/getAllRewards/:userId', function (req, res) {
   let userId = req.params.userId;
@@ -279,14 +260,34 @@ app.get('/getActivityById/:activityId', function (req, res) {
   });
 });
 
-app.get('/joinRoutineAndActivityTable/:routineId', function (req, res) {
+// app.get('/getRoutinesJoinActivities:userId', function (req, res) {
+//   let userId = req.params.userId;
+
+//   connection.getConnection(function (err, connection) {
+
+//     connection.query('select routines.*, a.*, rar.order from routines '
+//       + 'inner join routines_activities_relationship rar on routines.routine_id = rar.routine_id '
+//       + 'inner join activities a on rar.activity_id = a.activity_id '
+//       + 'where rar.user_id = ? AND rar.routine_id <> 0 '
+//       + 'order by rar.routine_id, rar.order', [userId], function (error, results, fields) {
+
+//         if (error){
+//           throw error;
+//           console.log(err);
+//         }
+//         res.send(results)
+//       });
+//   });
+// });
+
+app.get('/joinRoutineActivityTableByRoutineId/:routineId', function (req, res) {
   let routineId = req.params.routineId;
   connection.getConnection(function (err, connection) {
 
-    connection.query('select routines.*, a.*, rar.order from routines '
+    connection.query('select routines.*, a.*, rar.order, rar.routine_activity_id from routines '
       + 'inner join routines_activities_relationship rar on routines.routine_id = rar.routine_id '
       + 'inner join activities a on rar.activity_id = a.activity_id '
-      + 'where rar.routine_id = ? AND rar.routine_id <> 0 '
+      + 'where rar.routine_id = ? AND rar.routine_id <> 0 AND rar.deleted <> 1 '
       + 'order by rar.order', [routineId], function (error, results, fields) {
         // console.log('routine routes below');
         // console.log(results);
@@ -296,6 +297,8 @@ app.get('/joinRoutineAndActivityTable/:routineId', function (req, res) {
           throw error;
           console.log(err);
         }
+        console.log("RESULTS FROM JOINING");
+        console.log(results);
         res.send(results)
       });
   });
