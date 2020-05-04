@@ -58,22 +58,27 @@ export default class RoutineApproval extends Component {
     // }
 
     getActivities() {
-        fetch(Environment + "/routine/" + this.state.routineID, {
+        fetch(
+          Environment +
+            "/joinRoutineAndActivityTable/" +
+            this.state.routineID,
+          {
             headers: {
-                "Cache-Control": "no-cache",
+              "Cache-Control": "no-cache",
             },
-        })
-            .then((response) => response.json())
-            .then((responseJson) => {
-                return responseJson;
-            })
-            .then((results) => {
-                this.setState({ activities: results });
-                this.setState({ activitiesLoaded: true });
-            })
-            .catch((error) => {
-                console.error(error);
-            });
+          }
+        )
+          .then((response) => response.json())
+          .then((responseJson) => {
+            return responseJson;
+          })
+          .then((results) => {
+            this.setState({ activities: results });
+            this.setState({ activitiesLoaded: true });
+          })
+          .catch((error) => {
+            console.error(error);
+          });
     }
 
     componentDidMount() {

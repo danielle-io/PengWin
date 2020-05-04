@@ -3,6 +3,14 @@ import React, { Component } from 'react';
 // import Routines from './components/Routines';
 import ScreenManager from './components/ScreenManager';
 
+import {
+  MenuProvider,
+  Menu,
+  MenuOption,
+  MenuOptions,
+  MenuTrigger,
+} from "react-native-popup-menu";
+
 class App extends Component{
   constructor(props){
       super(props);
@@ -29,6 +37,7 @@ class App extends Component{
 
   render(){
     return(
+      
       <div className="App">
         {/* {this.state.user ? (<Routines/>) : (<Login/>)} */}
       </div>

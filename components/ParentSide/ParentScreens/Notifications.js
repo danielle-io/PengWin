@@ -23,7 +23,7 @@ export default class Notifications extends Component {
             childResults: null,
             routines: null,
             results: null,
-
+            id: null,
             idsLoaded: false,
 
             childFirstName: null,
@@ -75,15 +75,15 @@ export default class Notifications extends Component {
     getRoutineById(routineId) {
         console.log("ROUTINE BY ID");
     
-        fetch(Environment + "/routine/" + routineId)
+        fetch(Environment + "/joinRoutineAndActivityTable/" + routineId)
           .then((response) => response.json())
           .then((responseJson) => {
             return responseJson;
           })
           .then((results) => {
             // var rewardItem = results;
-            this.setState({ routines : results });
-            this.setState({ idsLoaded : true });
+            this.setState({ routines: results });
+            this.setState({ idsLoaded: true });
             console.log("RESULTS FOR ROUTINE BY ID BELOW");
             console.log(results);
           })
@@ -139,7 +139,7 @@ export default class Notifications extends Component {
 
     getUserInfo() {
         // Get the routines data from the db
-        fetch(Environment + '/getUsers/' + this.state.userId, {
+        fetch(Environment + '/getUser/' + this.state.userId, {
             headers: {
                 'Cache-Control': 'no-cache',
             },
@@ -178,6 +178,7 @@ export default class Notifications extends Component {
 
         this.state.needsApproval.map((item) => {
             var id = item.routine_id;
+            this.setState({id: item.routine_id});
             console.log("SHOULD BE ! BELOW");
             console.log(id);
             this.getRoutineById(id);
@@ -209,7 +210,7 @@ export default class Notifications extends Component {
                     onStartShouldSetResponder={() => this.props.navigation.navigate('RoutineApproval', {
                         prevScreenTitle: 'Notifications',
                         routineName: 'Morning Routine',
-                        routineID: 1,
+                        routineID: this.state.id,
                         //childFirstName: this.state.childFirstName, 
                     })}>
 

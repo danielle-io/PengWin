@@ -24,6 +24,8 @@ import ChildRoutines from './ChildScreens/ChildNavigation';
 import ChildActivity from './ChildScreens/ChildActivity';
 import ChildPincode from './ChildScreens/ChildPincode';
 import ChildNotifScreen from './ChildScreens/ChildNotifScreen';
+import ChildRewards from './ChildScreens/ChildRewards';
+import ChildMap from './ChildScreens/ChildMap';
 
 import Camera from '../components/ImageRecognition/Camera';
 import irDemo from '../components/ImageRecognition/irDemo';
@@ -58,8 +60,8 @@ const Screens = createStackNavigator({
   ChildNotifScreen: {screen:ChildNotifScreen},
   ChildRoutines: {screen: ChildRoutines},
   ChildActivity: {screen:ChildActivity},
-
-
+  ChildMap: {screen:ChildMap},
+  ChildRewards: {screen:ChildRewards}
 });
 
 const App = createAppContainer(Screens);

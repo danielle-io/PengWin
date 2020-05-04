@@ -274,18 +274,15 @@ export default class ChildActivity extends Component {
                     <View
                       style={{ justifyContent: "center", alignItems: "center" }}
                     >
-                      <VideoPlayer
-                        videoProps={{
-                          shouldPlay: false,
-                          resizeMode: Video.RESIZE_MODE_CONTAIN,
-                          source: {
-                            uri: item.video_path,
-                          },
-                        }}
-                        inFullscreen={true}
-                        width={300}
-                        height={200}
-                        style={{ borderRadius: 15 }}
+                      <Video
+                        useNativeControls={true}
+                        source={{ uri: item.video_path }}
+                        rate={1.0}
+                        volume={1.0}
+                        isMuted={false}
+                        resizeMode="contain"
+                        isLooping
+                        style={{ width: 300, height: 200 }}
                       />
                     </View>
                   </View>
