@@ -8,6 +8,7 @@ import { Video } from "expo-av";
 import { Image } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import Environment from "../../../database/sqlEnv";
+import SearchableDropdown from "react-native-searchable-dropdown";
 
 const { width: WIDTH } = Dimensions.get('window')
 
@@ -32,6 +33,7 @@ export default class ParentRewards extends Component {
             secondLoaded: false,
             activities: null,
             results: null,
+            allActivityNames: [],
             routinesArray: []
             //prevScreenTitle: this.props.navigation.state.params.prevScreenTitle,
         };
@@ -93,33 +95,6 @@ export default class ParentRewards extends Component {
 
     }
 
-    getActivities() {
-        fetch(Environment + "/getActivities/" + this.state.userId, {
-            // fetch(Environment + "/joinRoutineAndActivityTable/" + this.state.routineID, {
-            headers: {
-                "Cache-Control": "no-cache",
-            },
-        })
-            .then((response) => response.json())
-            .then((responseJson) => {
-                return responseJson;
-            })
-            .then((results) => {
-                this.setState({ activities: results });
-                console.log("act hi");
-                console.log(this.state.activities);
-                this.setState({ secondLoaded: true });
-            })
-            .catch((error) => {
-                console.error(error);
-            });
-    }
-
-    storeActivities(){
-        return this.state.activities.map(item => ({ value: item.activity_name }));
-    }
-
-
     displayRoutinesForm() {
         // const routineData = this.state.routinesArray;
         const data = this.storeRoutines();
@@ -140,6 +115,55 @@ export default class ParentRewards extends Component {
             </View>
         )
     }
+
+    getActivities() {
+        // fetch(Environment + "/getActivities/" + this.state.userId, {
+        fetch( Environment + "/joinRoutineAndActivityTable/" + this.state.routineId, {
+            // fetch(Environment + "/joinRoutineAndActivityTable/" + this.state.routineID, {
+            headers: {
+                "Cache-Control": "no-cache",
+            },
+        })
+            .then((response) => response.json())
+            .then((responseJson) => {
+                return responseJson;
+            })
+            .then((results) => {
+                this.setState({ activities: results });
+                console.log("act hi");
+                console.log(this.state.activities);
+                this.setState({ secondLoaded: true });
+            })
+            .catch((error) => {
+                console.error(error);
+            });
+    }
+
+
+
+    displayActivities() {
+        const { navigate } = this.props.navigation;
+
+        return this.state.activities.map((item) => {
+            return (
+                <View>
+                    <Text style={styles.activityName}>
+                        {item.activity_id}. {item.activity_name}
+                    </Text>
+                    {/* <Text style={styles.subtext}>
+                        Image taken by {this.state.childFirstName}
+                    </Text> */}
+                </View>
+            );
+        });
+    }
+
+    storeActivities(){
+        return this.state.activities.map(item => ({ value: item.activity_name }));
+    }
+
+
+ 
 
     displayActivitiesForm() {
         // const routineData = this.state.routinesArray;
