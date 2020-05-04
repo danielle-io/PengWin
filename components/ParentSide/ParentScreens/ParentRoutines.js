@@ -39,7 +39,7 @@ export default class ParentRoutines extends Component {
       selectedTab: 0,
       routes: [{ key: "1", title: "First" }, { key: "2", title: "Second" }],
       visible1: true,
-      allRewards: null,
+      allRewardsByIdDictionary: null,
       allActivitiesDictionary: null,
     };
   }
@@ -113,11 +113,21 @@ export default class ParentRoutines extends Component {
         return responseJson;
       })
       .then((results) => {
-        this.setState({ allRewards: results });
+        this.createRewardDictionary(results);
       })
       .catch((error) => {
         console.error(error);
       });
+  }
+
+  createRewardDictionary(results){
+    var tempDict = {};
+    results.map((item) => {
+      tempDict[item.reward_id] = item;
+    });
+
+    this.setState({ allRewardsByIdDictionary: tempDict }); 
+    this.setState({ secondLoaded: true });
   }
 
   createActivityDictionary(){
@@ -129,10 +139,7 @@ export default class ParentRoutines extends Component {
     console.log(tempDict);
 
     this.setState({ allActivitiesDictionary: tempDict }); 
-    console.log("the all activities dictionary is below");
-    console.log(this.state.allActivitiesDictionary);
     this.setState({ secondLoaded: true });
-
   }
 
 
@@ -265,7 +272,7 @@ export default class ParentRoutines extends Component {
                       activityIsPublic: item.is_public,
                       userId: item.user_id,
                       rewardId: item.reward_id,
-                      allRewards: this.state.allRewards,
+                      allRewardsByIdDictionary: this.state.allRewardsByIdDictionary,
                       allActivitiesDictionary: this.state.allActivitiesDictionary,
                     })
                   }
@@ -321,7 +328,7 @@ export default class ParentRoutines extends Component {
                         allActivities: this.state.allActivities,
                         rewardId: item.reward_id,
                         userId: this.state.userId,
-                        allRewards: this.state.allRewards,
+                        allRewardsByIdDictionary: this.state.allRewardsByIdDictionary,
                         allActivitiesDictionary: this.state.allActivitiesDictionary,
                       })
                     }
