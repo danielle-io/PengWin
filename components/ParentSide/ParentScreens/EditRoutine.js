@@ -13,7 +13,6 @@ import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import { RaisedTextButton } from "react-native-material-buttons";
 import DatePicker from "react-native-datepicker";
 import Environment from "../../../database/sqlEnv";
-
 import SearchableDropdown from "react-native-searchable-dropdown";
 
 const { width: WIDTH } = Dimensions.get("window");
@@ -65,7 +64,7 @@ export default class EditRoutine extends Component {
       routineStartTime: this.props.navigation.state.params.routineStartTime,
       routineEndTime: this.props.navigation.state.params.routineEndTime,
       routineApproval: this.props.navigation.state.params.routineApproval,
-      approval: this.props.navigation.state.params.is_approved,
+      approval: this.props.navigation.state.params.requires_approval,
       amount_of_activities: this.props.navigation.state.params
         .amount_of_activities,
       amount_of_rewards: this.props.navigation.state.params.amount_of_rewards,
@@ -160,7 +159,7 @@ export default class EditRoutine extends Component {
     }
   }
 
-  //
+  // Update the activity routine db table w/ changes
   async updateActivityRelationship(routine_activity_id, activity_id, order) {
     var data = {
       routine_activity_id: routine_activity_id,
@@ -224,7 +223,7 @@ export default class EditRoutine extends Component {
       start_time: this.state.routineStartTime,
       end_time: this.state.routineEndTime,
       routineApproval: this.state.routineApproval,
-      approval: this.state.is_approved,
+      approval: this.state.requires_approval,
       amount_of_activities: this.state.activities.length,
       amount_of_rewards: this.state.amount_of_rewards,
       monday: this.state.monday,
@@ -498,7 +497,7 @@ export default class EditRoutine extends Component {
       return mappingVal.map((item) => {
         if (listName === "activity") {
           item_name = item.activity_name;
-          status = this.state.activityChangeLoad;
+          // status = this.state.activityChangeLoad;
         } else {
           console.log("ITEMM");
           console.log(item);
@@ -545,12 +544,8 @@ export default class EditRoutine extends Component {
   }
 
   getAllRewardNames() {
-    console.log("ALL REWARDs");
-    console.log(this.state.allRewards);
     var tempArray = [];
     this.state.allRewards.map((item) => {
-      console.log("REWARD ID IN GET ALL");
-      console.log(item.reward_id);
       tempArray.push({ id: item.reward_id, name: item.reward_name });
     });
     this.setState({ allRewardNames: tempArray });
@@ -626,15 +621,16 @@ export default class EditRoutine extends Component {
     // Don't include the add button if there's a reward
     // since you can only add one to a routine.
     if (listName === "reward") {
+      if (!this.state.rewardLoaded){
+        return;
+      }
       if (this.state.currentlySelectedReward !== null) {
         if (this.state.rewardId !== 0) {
           return;
         }
       }
-    } else if (this.state.allActivityNames === []) {
-      {
-        /* If there are no un-used activities don't include an add button */
-      }
+    } 
+    else if (this.state.allActivityNames === []) {
       return (
         <View style={styles.formIndent}>
           <Text style={styles.activityText}>
@@ -717,7 +713,7 @@ export default class EditRoutine extends Component {
             value={this.getCurrentSwitchState()}
             onValueChange={() =>
               this.pushToUpdateRoutineArray(
-                "is_approved",
+                "requires_approval",
                 !this.state.routineApproval
               )
             }
@@ -970,6 +966,7 @@ export default class EditRoutine extends Component {
     // This means an item was selected but the add button wasnt pressed
     if (this.state.currentlySelectedActivity != null) {
       this.getActivityById(this.state.currentlySelectedActivity.id);
+      console.log("saved activity");
     }
 
     // This changes the relationship table for activities and routines
@@ -992,8 +989,8 @@ export default class EditRoutine extends Component {
 
       console.log("new reward id ");
       console.log(this.state.newReward.id);
-      this.setState({ rewardId: this.state.newReward.id });
 
+      this.setState({ rewardId: this.state.newReward.id });
       this.getRewardById(this.state.newReward.id);
 
       // console.log("CURR ID IS ");
@@ -1005,11 +1002,6 @@ export default class EditRoutine extends Component {
         "amount_of_rewards",
         this.state.amount_of_rewards + 1
       );
-
-      // { this.state.rewardLoaded &&
-      //   console.log("going to display reward");
-      //   this.displayList("reward");
-      // }
     }
 
     this.updateDatabaseChanges();

@@ -11,12 +11,6 @@ import Environment from "../../../database/sqlEnv";
 
 const { width: WIDTH } = Dimensions.get('window')
 
-export const App = () => (
-    <MenuProvider>
-        <YourApp />
-    </MenuProvider>
-);
-
 
 export default class ParentRewards extends Component {
     static navigationOptions = ({ navigation }) => ({
@@ -31,9 +25,12 @@ export default class ParentRewards extends Component {
         this.navigate = navigate;
         this.state = {
             prevScreenTitle: this.props.navigation.state.params.prevScreenTitle,
+            userId: 1,
             photos: null,
             video: null,
             loaded: false,
+            secondLoaded: false,
+            activities: null,
             results: null,
             routinesArray: []
             //prevScreenTitle: this.props.navigation.state.params.prevScreenTitle,
@@ -55,13 +52,15 @@ export default class ParentRewards extends Component {
             'didFocus',
             (payload) => {
                 this.getRoutines();
+                this.getActivities();
             }
         )
     }
 
     //Get the routines data from teh db
     getRoutines() {
-        fetch(Environment + '/routines/', {
+        // fetch(Environment + '/routines/', {
+        fetch(Environment + "/getRoutinesByUser/" + this.state.userId, {
             headers: {
                 "Cache-Control": "no-cache",
             },
@@ -72,9 +71,11 @@ export default class ParentRewards extends Component {
             })
             .then((results) => {
                 this.setState({ results: results });
+                console.log(this.state.results);
                 this.setState({ loaded: true });
             })
             .catch((error) => {
+                // console.log("AH");
                 console.error(error);
             });
     }
@@ -85,20 +86,47 @@ export default class ParentRewards extends Component {
         //     console.log(item.routine_name);
         //     this.state.routinesArray.push(item.routine_name);
         // })
-        return this.state.results.routines.map( item => ({value: item.routine_name}));
+        return this.state.results.routines.map(item => ({ value: item.routine_name }));
 
-//         var joined = this.state.myArray.concat('new value');
-// this.setState({ myArray: joined })
+        //         var joined = this.state.myArray.concat('new value');
+        // this.setState({ myArray: joined })
 
     }
 
-    displayForm() {
+    getActivities() {
+        fetch(Environment + "/getActivities/" + this.state.userId, {
+            // fetch(Environment + "/joinRoutineAndActivityTable/" + this.state.routineID, {
+            headers: {
+                "Cache-Control": "no-cache",
+            },
+        })
+            .then((response) => response.json())
+            .then((responseJson) => {
+                return responseJson;
+            })
+            .then((results) => {
+                this.setState({ activities: results });
+                console.log("act hi");
+                console.log(this.state.activities);
+                this.setState({ secondLoaded: true });
+            })
+            .catch((error) => {
+                console.error(error);
+            });
+    }
+
+    storeActivities(){
+        return this.state.activities.map(item => ({ value: item.activity_name }));
+    }
+
+
+    displayRoutinesForm() {
         // const routineData = this.state.routinesArray;
         const data = this.storeRoutines();
         console.log(data);
         // console.log(routineData);
         return (
-            <View style={styles.rewardsContainer}>
+            <View style={styles.drop}>
                 <Text style={styles.textFields}>
                     Select Routine
                 </Text>
@@ -106,7 +134,28 @@ export default class ParentRewards extends Component {
                 <Dropdown
                     label="Select Routine"
                     // data={routineData}
-                    data = {data}
+                    data={data}
+
+                />
+            </View>
+        )
+    }
+
+    displayActivitiesForm() {
+        // const routineData = this.state.routinesArray;
+        const dataAct = this.storeActivities();
+        console.log(dataAct);
+        // console.log(routineData);
+        return (
+            <View style={styles.drop}>
+                <Text style={styles.textFields}>
+                    Select Activities
+                </Text>
+
+                <Dropdown
+                    label="Select Activities"
+                    // data={routineData}
+                    data={dataAct}
 
                 />
             </View>
@@ -114,7 +163,6 @@ export default class ParentRewards extends Component {
     }
 
 
-   
 
     //From ChildActivity
     _onNext = () => {
@@ -212,28 +260,28 @@ export default class ParentRewards extends Component {
 
 
 
-        let activityData = [
-            {
-                value: 'Brush Teeth',
-            },
+        // let activityData = [
+        //     {
+        //         value: 'Brush Teeth',
+        //     },
 
-            {
-                value: 'Get Dressed',
-            },
+        //     {
+        //         value: 'Get Dressed',
+        //     },
 
-            {
-                value: 'Wash Hands',
-            },
+        //     {
+        //         value: 'Wash Hands',
+        //     },
 
-            {
-                value: 'Eat Snack ',
-            },
+        //     {
+        //         value: 'Eat Snack ',
+        //     },
 
-            {
-                value: 'Brush Hair ',
-            }
+        //     {
+        //         value: 'Brush Dog Hair ',
+        //     }
 
-        ];
+        // ];
 
         return (
 
@@ -286,20 +334,28 @@ export default class ParentRewards extends Component {
                         {this.state.loaded &&
                             <View>
                                 {/* {this.storeRoutines()} */}
-                                {this.displayForm()}
+                                {this.displayRoutinesForm()}
 
                             </View>
                         }
 
+                        {this.state.secondLoaded &&
+                            <View>
+                                {/* {this.storeRoutines()} */}
+                                {this.displayActivitiesForm()}
 
-                        <Text style={styles.textFields}>
+                            </View>
+                        }
+                     
+
+                        {/* <Text style={styles.textFields}>
                             Select Activity
                     </Text>
 
                         <Dropdown
                             label="Select Activity"
                             data={activityData}
-                        />
+                        /> */}
 
 
 
@@ -424,6 +480,12 @@ const styles = StyleSheet.create({
     editRoutineIconAndTitle: {
         flexDirection: 'row',
         marginTop: 20,
+    },
+    drop: {
+        marginTop: 10,
+        marginLeft: 30,
+        marginRight: 100,
+        marginBottom: 50,
     },
     // Derived from Parent Profile
     rewardsContainer: {
