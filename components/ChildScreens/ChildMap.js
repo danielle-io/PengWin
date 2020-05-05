@@ -21,6 +21,9 @@ export default class ChildMap extends Component {
     this.state = {};
   }
 
+  static navigationOptions = ({ navigation }) => ({
+    title: "My Rewards",
+  });
   render() {
     //TODO: Figure out how this page looks
     return (
@@ -114,11 +117,23 @@ export default class ChildMap extends Component {
               justifyContent: "center",
             }}
           >
-            <TouchableOpacity style={styles.button}>
+            <TouchableOpacity style={styles.button}
+            onPress={() =>
+              this.props.navigation.navigate("ChildRewards", {
+                prevScreenTitle: "My Map"
+              })
+            }>
               <Text>Back To Rewards</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.button}>
+            <TouchableOpacity style={styles.button}
+            onPress={() =>
+              this.props.navigation.navigate("ChildActivity", {
+                prevScreenTitle: "My Map",
+                currentRoutine: "Morning Routine",
+                userID: 1
+              })
+            }>
               <Text>Start Routine</Text>
             </TouchableOpacity>
           </View>

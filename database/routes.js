@@ -227,6 +227,22 @@ app.get('/getAllRewards/:userId', function (req, res) {
   });
 });
 
+app.get('/getAllRewardsandRoutines/:userId', function (req, res) {
+  let userId = req.params.userId;
+
+  connection.getConnection(function (err, connection) {
+
+    connection.query('SELECT * FROM rewards AS rew, routines AS route WHERE rew.user_id = route.user_id AND route.reward_id = rew.reward_id AND rew.user_id =' + userId, function (error, results, fields) {
+
+      if (error){
+        throw error;
+        console.log(err);
+      }
+        res.send(results)
+      });
+  });
+});
+
 
 app.get('/getRewardById/:rewardId', function (req, res) {
   let rewardId = req.params.rewardId;

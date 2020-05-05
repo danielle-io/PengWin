@@ -17,7 +17,6 @@ export default class ChildRoutines extends Component {
     super(props);
     this.state = {
       loaded: false,
-      secondLoaded: false,
       userId: 1,
       results: null,
       activities: null,
@@ -185,8 +184,6 @@ export default class ChildRoutines extends Component {
   }
 
   renderRoutines() {
-    console.log("IM RENDER ROUTIMES");
-    console.log("THESE ARE MY ROUTINES" + this.state.routines.routines.length);
     return this.state.routines.routines.map((item) => {
       console.log(item);
       if (item.is_active == 1) {
@@ -205,7 +202,6 @@ export default class ChildRoutines extends Component {
               <Text style={styles.routineTitle}>{item.routine_name}</Text>
             </ScrollView>
 
-            {/* TODO: Change Numerical Value to be dynamic*/}
             <View style={styles.detailsContainer}>
               <Text style={styles.routineDetails}>
                 <Icon name="playlist-check" color="#B1EDE8" size={20} /> Tasks:{" "}
