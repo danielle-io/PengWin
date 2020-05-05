@@ -147,9 +147,6 @@ export default class ParentRoutines extends Component {
     this.state.allActivities.map((item) => {
       tempDict[item.activity_id] = item;
     });
-    console.log("TEMP DICT BELOW");
-    console.log(tempDict);
-
     this.setState({ allActivitiesDictionary: tempDict });
     this.setState({ secondLoaded: true });
   }

@@ -111,14 +111,13 @@ export default class EditRoutine extends Component {
       // Use this when the order changes
       // once changing order is possible
       changeActivityRelationship: false,
+      loadedAfterDeletion: true,
     };
   }
 
   // Update the routines in the tb by the table
   // name and the value being inserted
   async changeRoutineComponent(tag, value) {
-    console.log(tag);
-    console.log(value);
     var data = {
       [tag]: value,
     };
@@ -180,12 +179,13 @@ export default class EditRoutine extends Component {
 
   // Update the activity routine db table w/ changes
   async updateActivityRelationship(routine_activity_id, tag, value) {
+    console.log("TAG IS " + tag);
     var data = {
       [tag]: value,
     };
     try {
       let response = await fetch(
-        Environment + "/updateActivityRelationshipTable/" + routine_activity_id,
+        Environment + "/updateActivityRelationship/" + routine_activity_id,
         {
           method: "POST",
           headers: {
@@ -195,11 +195,21 @@ export default class EditRoutine extends Component {
           body: JSON.stringify(data),
         }
       );
+      console.log(response.status);
       if (response.status >= 200 && response.status < 300) {
+        console.log("status is 200");
         this.setState({ activityInserted: true });
+
+        if (tag === 'deleted'){
+          console.log("tag is deleted load trick");
+
+          // Re-fetch the activities, set up by order & id, then 
+          // remove used ones from all activities (all in one call)
+          this.getActivityRoutineJoinTable();
+        }
       }
     } catch (errors) {
-      alert(errors);
+      console.log(errors);
     }
   }
 
@@ -273,14 +283,14 @@ export default class EditRoutine extends Component {
 
   trackDateChanges(date, state) {
     changedDates[date] = state;
-    this.setState({ [date]: state});
+    this.setState({ [date]: state });
     this.addCalendar();
   }
 
   updateDateChanges() {
-      Object.entries(changedDates).map(([key, val]) => {
-        this.changeRoutineComponent(key, val);
-      });
+    Object.entries(changedDates).map(([key, val]) => {
+      this.changeRoutineComponent(key, val);
+    });
   }
 
   // Add a dropdown item in a new row for activities
@@ -355,6 +365,51 @@ export default class EditRoutine extends Component {
     this.setState({ rewardLoaded: true });
   }
 
+  deleteActivity(routineActivityId, order, itemId, listName) {
+    this.setState({ loadedAfterDeletion: false});
+    // this.setState({ activityChangeLoad: false});
+
+    console.log("routineActivityId, order, itemId, listName " + routineActivityId + " " +  order + " " + itemId + " " + listName )
+
+    if (listName === "activity") {
+      this.setState({
+        amount_of_activities: this.state.amount_of_activities - 1,
+      });
+      console.log("updating activity orders");
+      this.updateActivityOrders(order, listName, routineActivityId);
+    }
+  }
+
+  updateActivityOrders(order, listName, routineActivityId) {
+    var arrLength = Object.keys(this.state.routineActivitiesByOrder).length;
+    for (var i = order; i < arrLength; i++) {
+      var currentActivity = this.state.routineActivitiesByOrder[i];
+      console.log("changing the order of " + currentActivity.routine_name);
+
+      this.updateActivityRelationship(
+        currentActivity.routine_activity_id,
+        "order",
+        i - 1
+      );
+    }
+    this.updateActivityRelationship(routineActivityId, "deleted", 1);
+
+
+    // {
+    //   this.state.loadedAfterDeletion && 
+    //   console.log("MADE IT IN AFTER DELETE");
+      
+    //   this.displayList(listName);
+      // this.reRenderList("activity"); 
+      
+      // this.addRow(Object.keys(this.state.routineActivitiesByOrder).length + 1, "activity");
+
+      // this.setState({ loadedAfterDeletion: true });
+
+
+      // }
+  }
+
   componentDidMount() {
     // If there is a reward for the routine, store it
     this.getRoutineReward();
@@ -372,6 +427,7 @@ export default class EditRoutine extends Component {
   }
 
   getActivityRoutineJoinTable() {
+    // console.log("getting activities");
     fetch(
       Environment +
         "/joinRoutineActivityTableByRoutineId/" +
@@ -388,6 +444,12 @@ export default class EditRoutine extends Component {
         // from the potential options for the dropdown
         this.removeAlreadyAddedActivitiesFromOptions();
         this.setState({ activityChangeLoad: true });
+        console.log("loadedAfterDeletion is " + this.state.loadedAfterDeletion);
+        if (this.state.loadedAfterDeletion){
+          
+          console.log("Going to display activities");
+          this.displayList("activities");
+        }
       })
       .catch((error) => {
         console.error(error);
@@ -399,12 +461,26 @@ export default class EditRoutine extends Component {
   // to easily figure out what to omit from the drop down
   setUpActivitiesDictionaryByOrderAndId(activitiesFromDb) {
     console.log("set up activities by order and id");
+    console.log(activitiesFromDb);
     var tempOrderDict = {};
     var tempIdDict = {};
+    
+    var counter = 0;
+
     activitiesFromDb.map((item) => {
-      tempOrderDict[item.order] = item;
+      // Make sure the order numbers are in order and correct
+      if (item.order !== counter){
+        console.log("CHANGING THE ACTIVITY ORDER NOW BC ITS " + item.order + " and it should be " + counter);
+        tempOrderDict[counter] = item;
+        this.updateActivityRelationship(item.routine_activity_id, "order", counter);
+      }
+      else{
+        tempOrderDict[item.order] = item;
+      }
       tempIdDict[item.activity_id] = item;
+      counter += 1;
     });
+
     this.setState({ routineActivitiesByOrder: tempOrderDict });
     this.setState({ routineActivitiesById: tempIdDict });
     this.setState({ activitiesLoaded: true });
@@ -448,6 +524,7 @@ export default class EditRoutine extends Component {
         mappingVal.push(this.state.routineActivitiesByOrder[i]);
       }
     }
+
     var item_name = "";
 
     //  this is the loop where activities populate and rewards populate
@@ -455,6 +532,7 @@ export default class EditRoutine extends Component {
       return mappingVal.map((item) => {
         if (listName === "activity") {
           item_name = item.activity_name;
+          // console.log("ITEM NAME :: " +item.activity_name);
         } else {
           item_name = item.reward_name;
         }
@@ -470,6 +548,24 @@ export default class EditRoutine extends Component {
                 <Icon
                   name="minus-circle-outline"
                   style={styles.deleteItemIcon}
+                  onPress={() => {
+                    if (listName === "activity") {
+                      this.deleteActivity(
+                        item.routine_activity_id,
+                        item.order,
+                        item.activity_id,
+                        listName
+                      );
+                    } else {
+                      this.deleteActivity(
+                        item.reward_id,
+                        item.reward_id,
+                        item.reward_id,
+                        listName
+                      );
+                    }
+                  }}
+                  // onPress={() => this.deleteActivity(this.state.deletingItemId, listName)}
                 />
               </Text>
             </View>
@@ -530,6 +626,8 @@ export default class EditRoutine extends Component {
 
   // ReRender the components on the click of the new button
   reRenderList(listName) {
+    this.setState({ activityChangeLoad: false});
+
     if (listName === "activity") {
       // This is to save the previously added activity if they
       // already added one and now clicked add again
@@ -538,14 +636,16 @@ export default class EditRoutine extends Component {
       }
 
       // Display everything once the activity is loaded
-      {
-        this.state.activityChangeLoad && this.displayList(listName);
-        this.addRow(this.state.amount_of_activities, "activity");
+      // {
+      {this.state.activityChangeLoad &&
+
+      this.displayList(listName);
+      this.addRow(Object.keys(this.state.routineActivitiesByOrder).length + 1, "activity");
       }
     }
 
     // Re-Load Rewards
-    else {
+    if (listName === "reward") {
       this.changeRoutineComponent("reward_id", this.state.newReward.id);
 
       // Display everything once the activity is loaded
@@ -564,7 +664,7 @@ export default class EditRoutine extends Component {
       this.state.currentlySelectedActivity.id
     ];
 
-    this.pushToUpdateRoutineArray("routine_name", this.state.routineName);
+    // this.pushToUpdateRoutineArray("routine_name", this.state.routineName);
 
     // Insert a new activity into the relationship table
     this.insertActivityRelationship(activity.activity_id, order);
@@ -732,9 +832,7 @@ export default class EditRoutine extends Component {
     }
   }
 
-  getDateButtonTextColor(value) {    
-    console.log("text");
-    console.log(value);
+  getDateButtonTextColor(value) {
     if (value === 1 || value === true) {
       return "white";
     } else {
@@ -743,24 +841,22 @@ export default class EditRoutine extends Component {
   }
 
   getDateButtonColor(value) {
-    console.log("in button color");
-    console.log(value);
     if (value === 0) {
       return "#FFFFFF";
     } else {
-      return "#FF6978"; 
+      return "#FF6978";
     }
   }
 
   addCalendar() {
     const dates = [
-      { date: "monday", initial: "M", status: this.state.monday},
-      { date: "tuesday", initial: "T", status: this.state.tuesday},
-      { date: "wednesday", initial: "W", status: this.state.wednesday},
-      { date: "thursday", initial: "Th", status: this.state.thursday},
-      { date: "friday", initial: "F", status: this.state.friday},
-      { date: "saturday", initial: "Sa", status: this.state.saturday},
-      { date: "sunday", initial: "Su", status: this.state.sunday},
+      { date: "monday", initial: "M", status: this.state.monday },
+      { date: "tuesday", initial: "T", status: this.state.tuesday },
+      { date: "wednesday", initial: "W", status: this.state.wednesday },
+      { date: "thursday", initial: "Th", status: this.state.thursday },
+      { date: "friday", initial: "F", status: this.state.friday },
+      { date: "saturday", initial: "Sa", status: this.state.saturday },
+      { date: "sunday", initial: "Su", status: this.state.sunday },
     ];
     return dates.map((item) => {
       return (
@@ -773,7 +869,7 @@ export default class EditRoutine extends Component {
             onPress={
               (this._onPress,
               () => {
-                this.trackDateChanges(item.date, !item.status)
+                this.trackDateChanges(item.date, !item.status);
               })
             }
             // onPress={() => this.trackDateChanges(item.date, !item.state)}
@@ -799,21 +895,19 @@ export default class EditRoutine extends Component {
           </View>
         );
       }
-    }
-    else{
+    } else {
       if (this.state.allActivitiesDictionary === null) {
         return (
           <View style={styles.formIndent}>
             <View style={styles.editRoutineButtonAndList}>
               <Text style={styles.activityText}>
-                You must add activities in the activities tab before you can add them
-                to a routine.
+                You must add activities in the activities tab before you can add
+                them to a routine.
               </Text>
             </View>
           </View>
         );
       }
-
     }
   }
 
@@ -966,7 +1060,7 @@ export default class EditRoutine extends Component {
                 {/* {this.checkThatListItemsExist("activity")} */}
 
                 {this.displayList("activity")}
-                {this.addRow(this.state.amount_of_activities + 1, "activity")}
+                {this.addRow(Object.keys(this.state.routineActivitiesByOrder).length + 1, "activity")}
                 {this.addNewItemButtonToList("activity")}
               </View>
             )}
