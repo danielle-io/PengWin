@@ -297,8 +297,8 @@ app.get('/joinRoutineActivityTableByRoutineId/:routineId', function (req, res) {
           throw error;
           console.log(err);
         }
-        console.log("RESULTS FROM JOINING");
-        console.log(results);
+        // console.log("RESULTS FROM JOINING");
+        // console.log(results);
         res.send(results)
       });
   });

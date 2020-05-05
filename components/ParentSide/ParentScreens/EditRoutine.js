@@ -98,10 +98,13 @@ export default class EditRoutine extends Component {
       newReward: null,
       currentlySelectedActivity: null,
       currentlySelectedReward: null,
+
       activityChangeLoad: true,
       rewardLoaded: false,
-      activityRelationshipOrder: {},
       addToActivityRoutineTbl: [],
+
+      activityInserted: false,
+
       addActivityButtonClicked: false,
       addRewardButtonClicked: false,
       // Use this when the order changes
@@ -131,8 +134,11 @@ export default class EditRoutine extends Component {
         }
       );
       if (response.status >= 200 && response.status < 300) {
-        console.log("SUCCESSFUL CALL");
-        this.addCalendar();
+        if (tag === "reward_id"){
+          this.setState({ rewardLoaded: true });
+          this.displayList("reward");
+          this.addRewardRow(1);
+        }
       }
     } catch (errors) {
       alert(errors);
@@ -159,8 +165,12 @@ export default class EditRoutine extends Component {
         }
       );
       if (response.status >= 200 && response.status < 300) {
-        console.log("SUCCESSFUL CALL");
-        this.addCalendar();
+        this.setState({ activityInserted: true });
+        this.getActivityRoutineJoinTable();
+        this.setState({
+          amount_of_activities: this.state.amount_of_activities + 1,
+        });
+        this.setState({ currentlySelectedActivity: null });
       }
     } catch (errors) {
       alert(errors);
@@ -185,24 +195,30 @@ export default class EditRoutine extends Component {
         }
       );
       if (response.status >= 200 && response.status < 300) {
-        console.log("SUCCESSFUL CALL");
-        this.addCalendar();
+        this.setState({ activityInserted: true });
       }
     } catch (errors) {
       alert(errors);
     }
   }
 
+  updateRoutineActivityAmount() {
+    if (
+      this.state.routineActivitiesByOrder.length !==
+      this.state.amount_of_activities
+    ) {
+      this.pushToUpdateRoutineArray(
+        "amount_of_activities",
+        Object.keys(this.state.routineActivitiesByOrder).length
+      );
+    }
+  }
+
   // Update the DB
   updateRoutineData() {
     // Make sure the activity amount is correct, and if not, update it as well
-    if (this.state.activities) {
-      if (this.state.activities.length !== this.amount_of_activities) {
-        this.pushToUpdateRoutineArray(
-          "amount_of_activities",
-          this.state.activities.length
-        );
-      }
+    if (this.state.routineActivitiesByOrder) {
+      this.updateRoutineActivityAmount();
     }
 
     // This means we are inserting a new item in the db, so we will
@@ -304,6 +320,7 @@ export default class EditRoutine extends Component {
     );
   }
 
+  // TODO: combine this menu with activity menu just make it dynamic  
   addRewardRow(rowNum) {
     return (
       <View>
@@ -313,9 +330,6 @@ export default class EditRoutine extends Component {
               <Text style={styles.redNumbers}>{rowNum}</Text>
               <SearchableDropdown
                 onItemSelect={(item) => {
-                  // const items = this.state.currentlySelectedReward;
-                  // items.push(item);
-                  // this.setState({ newReward : item })
                   this.setState({ newReward: item });
                 }}
                 containerStyle={{ padding: 5 }}
@@ -341,7 +355,7 @@ export default class EditRoutine extends Component {
                     borderRadius: 5,
                   },
                 }}
-                value={this.state.newReward}
+                // value={this.state.newReward}
                 listProps={{
                   nestedScrollEnabled: true,
                 }}
@@ -353,11 +367,7 @@ export default class EditRoutine extends Component {
     );
   }
 
-  componentDidMount() {
-    console.log("rewards by id below");
-    console.log(this.state.allRewardsByIdDictionary);
-    console.log("REWARD ID IS " + this.state.rewardId);
-    
+  getRoutineReward(){
     if (this.state.rewardId !== 0) {
       this.setState({
         currentlySelectedReward: this.state.allRewardsByIdDictionary[
@@ -368,46 +378,53 @@ export default class EditRoutine extends Component {
     console.log("currentlySelectedReward below");
     console.log(this.state.currentlySelectedReward);
 
-      this.setState({ rewardLoaded: true });
-    
-      // Put all the reward names in an array since those
+    this.setState({ rewardLoaded: true });
+  }
+
+
+  componentDidMount() {
+
+    // If there is a reward for the routine, store it
+    this.getRoutineReward();
+  
+    // Put all the reward names in an array since those
     // will be displayed in the dropdown
     if (this.allRewardsByIdDictionary !== null) {
       this.getAllRewardNames();
     }
 
-    // This fetches routine data only if editing an
-    // existing routine
+    // Fetche routine data only if editing an existing routine
     if (this.state.routineId !== null) {
       this.getActivityRoutineJoinTable();
+    }
   }
-}
 
-getActivityRoutineJoinTable(){
-  fetch(
-    Environment +
-      "/joinRoutineActivityTableByRoutineId/" +
-      this.state.routineId
-  )
-    .then((response) => response.json())
-    .then((responseJson) => {
-      return responseJson;
-    })
-    .then((activities) => {
-      this.setUpActivitiesDictionaryByOrderAndId(activities);
-      // Remove all the activities in this routine
-      // from the potential options for the dropdown
-      this.removeAlreadyAddedActivitiesFromOptions();
-    })
-    .catch((error) => {
-      console.error(error);
-    });
-}
+  getActivityRoutineJoinTable() {
+    fetch(
+      Environment +
+        "/joinRoutineActivityTableByRoutineId/" +
+        this.state.routineId
+    )
+      .then((response) => response.json())
+      .then((responseJson) => {
+        return responseJson;
+      })
+      .then((activities) => {
+        this.setUpActivitiesDictionaryByOrderAndId(activities);
+        
+        // Remove all the activities in this routine
+        // from the potential options for the dropdown
+        this.removeAlreadyAddedActivitiesFromOptions();
+        this.setState({ activityChangeLoad: true });
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+  }
 
-  // Make a dictionary of the activities by their order
-  // to be able to easily change and display the order,
-  // and by ID so we can easily figure out what to omit
-  // from the drop down
+  // Make a dictionary of activities by their order
+  // to easily change & display in order, & by ID 
+  // to easily figure out what to omit from the drop down
   setUpActivitiesDictionaryByOrderAndId(activitiesFromDb) {
     console.log("set up activities by order and id");
     var tempOrderDict = {};
@@ -416,7 +433,6 @@ getActivityRoutineJoinTable(){
       tempOrderDict[item.order] = item;
       tempIdDict[item.activity_id] = item;
     });
-
     this.setState({ routineActivitiesByOrder: tempOrderDict });
     this.setState({ routineActivitiesById: tempIdDict });
     this.setState({ activitiesLoaded: true });
@@ -431,30 +447,7 @@ getActivityRoutineJoinTable(){
     return 1;
   }
 
-  // Fetch a reward from the db based on its ID
-  // getRewardById() {
-  //   console.log("REWARD BY ID");
-  //   console.log(this.state.rewardId);
-  //   this.setState({ rewardLoaded: false });
-
-  //   fetch(Environment + "/getRewardById/" + this.state.rewardId)
-  //     .then((response) => response.json())
-  //     .then((responseJson) => {
-  //       return responseJson;
-  //     })
-  //     .then((results) => {
-  //       this.setState({ currentlySelectedReward: results });
-
-  //       this.setState({ rewardLoaded: true });
-  //       console.log("LOADED REWARD");
-  //     })
-  //     .catch((error) => {
-  //       console.error(error);
-  //     });
-  // }
-
   getCurrentSwitchState() {
-    // console.log(this.state.routineApproval);
     if (this.state.routineApproval === 1) {
       return true;
     }
@@ -462,10 +455,8 @@ getActivityRoutineJoinTable(){
   }
 
   displayList(listName) {
-    console.log("displaying list");
-
     var itemNumCounter = 0;
-    var mappingVal = null;
+    var mappingVal = [];
 
     // If no reward, nothing to display
     if (listName === "reward") {
@@ -474,45 +465,29 @@ getActivityRoutineJoinTable(){
       } else {
         mappingVal = [];
         mappingVal.push(this.state.currentlySelectedReward);
-        console.log("MAPPING VAL");
-        console.log(mappingVal);
-        // mappingVal = this.state.currentlySelectedReward;
       }
     } else {
-      // Put the activities in an array
-      mappingVal = [];
-      for (var i = 0; i < Object.keys(this.state.routineActivitiesByOrder).length; i++){
+      // Put ordered activities an array to loop over them
+      for (
+        var i = 0;
+        i < Object.keys(this.state.routineActivitiesByOrder).length;
+        i++
+      ) {
         mappingVal.push(this.state.routineActivitiesByOrder[i]);
       }
-      // mappingVal = this.state.routineActivitiesByOrder;
-      console.log("MAPPING VAL");
-      console.log(mappingVal);
+ 
     }
     var item_name = "";
 
-
     //  this is the loop where activities populate and rewards populate
     if (mappingVal !== null) {
-      console.log("NOT NULL");
-     
       return mappingVal.map((item) => {
-      // return Object.keys(mappingVal).map((keyName,i) => {
-        // console.log("KEYNAME " + keyName);
-        // console.log("I " + i);
-
-      // return for (var key in mappingVal) {
-        // return mappingVal.map((item) => {
         if (listName === "activity") {
           item_name = item.activity_name;
-          console.log("ACTIVITY NAME");
-          console.log(item_name);
-          // status = this.state.activityChangeLoad;
         } else {
-          console.log("ITEM IN DISPLAY LIST");
-          console.log(item_name);
           item_name = item.reward_name;
-          console.log(item_name);
         }
+        
         itemNumCounter += 1;
 
         return (
@@ -536,13 +511,9 @@ getActivityRoutineJoinTable(){
   // This removes activities from a list so that they dont show up
   // in the dropdown if they are already in the routine
   removeAlreadyAddedActivitiesFromOptions() {
-    console.log(" in remove filtered");
     let tempArray = [];
 
-    console.log(Object.keys(this.state.allActivitiesDictionary).length);
-
     for (var key in this.state.allActivitiesDictionary) {
-      
       if (!(key in this.state.routineActivitiesById)) {
         tempArray.push({
           id: key,
@@ -550,24 +521,16 @@ getActivityRoutineJoinTable(){
         });
       }
     }
-    this.setState({ filteredActivities : tempArray });
+    this.setState({ filteredActivities: tempArray });
   }
 
   getAllRewardNames() {
-    console.log("get reward names");
-
     var tempArray = [];
 
     for (var key in this.state.allRewardsByIdDictionary) {
       var rewardName = this.state.allRewardsByIdDictionary[key].reward_name;
-      console.log("KEY IN REWARDS IS " + key);
-      console.log("VALUE IN REWARDS IS " + rewardName);
-
       tempArray.push({ id: key, name: rewardName });
     }
-    // this.state.allRewardsByIdDictionary.map((item) => {
-    //   tempArray.push({ id: item.reward_id, name: item.reward_name });
-    // });
     this.setState({ allRewardNames: tempArray });
   }
 
@@ -575,7 +538,7 @@ getActivityRoutineJoinTable(){
     this.setState({
       addRewardButtonClicked: true,
     });
-    this.reRenderList("reward");
+    this.addRewardRow(1);
   }
 
   clickedAddActivity() {
@@ -597,19 +560,11 @@ getActivityRoutineJoinTable(){
   // ReRender the components on the click of the new button
   reRenderList(listName) {
     if (listName === "activity") {
+
       // This is to save the previously added activity if they
       // already added one and now clicked add again
       if (this.state.currentlySelectedActivity != null) {
-        this.pushToUpdateRoutineArray(
-          "amount_of_activities",
-          this.state.amount_of_activities + 1
-        );
 
-        this.setState({
-          amount_of_activities: this.state.amount_of_activities + 1,
-        });
-
-        // Add the activity to activiites array
         this.addNewActivityToState();
       }
 
@@ -622,38 +577,32 @@ getActivityRoutineJoinTable(){
 
     // Re-Load Rewards
     else {
+      this.changeRoutineComponent("reward_id", this.state.newReward.id);
+
+      // Display everything once the activity is loaded
+      this.setState({
+        currentlySelectedReward: this.state.allRewardsByIdDictionary[
+          this.state.newReward.id
+        ],
+      });
     }
   }
 
   addNewActivityToState() {
+
     var order = Object.keys(this.state.routineActivitiesByOrder).length;
-    console.log("adding new activity to state");
 
     var activity = this.state.allActivitiesDictionary[
       this.state.currentlySelectedActivity.id
     ];
 
-        // Insert a new activity into the relationship table
-        this.insertActivityRelationship(
-          activity.activity_id,
-          order
-        );
-    // var activityObjtempDictionary = this.state.routineActivitiesByOrder;
-    // // activityObjtempArray[order] = 
+    this.pushToUpdateRoutineArray(
+      "routine_name",
+      this.state.routineName
+    );
 
-    // this.setState({ activities: activityObjtempArray });
-    this.getActivityRoutineJoinTable();
-
-    // Don't allow the item to show in the drop down anymore
-    // this.removeAlreadyAddedActivitiesFromOptions();
-
-    this.setState({ activityChangeLoad: true });
-
-
-    // this.getActivityById(this.state.currentlySelectedActivity.id);
-
-    // Set currentlySelectedActivity back to null to reset dropdown
-    this.setState({ currentlySelectedActivity: null });
+    // Insert a new activity into the relationship table
+    this.insertActivityRelationship(activity.activity_id, order);
   }
 
   getAddButtonClickAction(listName) {
@@ -666,10 +615,7 @@ getActivityRoutineJoinTable(){
   }
 
   addNewItemButtonToList(listName) {
-    console.log("add new item button to list");
     var textfield = "";
-    var notEmptyList = true;
-
     listName === "activity"
       ? (textfield = "Add an activity")
       : (textfield = "Add a reward");
@@ -682,6 +628,7 @@ getActivityRoutineJoinTable(){
       }
       if (this.state.currentlySelectedReward !== null) {
         if (this.state.rewardId !== 0) {
+          console.log("are we in the reward dont add button thing")
           return;
         }
       }
@@ -986,7 +933,6 @@ getActivityRoutineJoinTable(){
     // They can't add or list rewards if they haven't made any yet
     if (listName === "reward") {
       if (this.state.allRewardsByIdDictionary !== null) {
-        console.log("going to display list");
         // {this.displayList(listName)}
         // {this.addRewardRow(1)}
         // {this.addNewItemButtonToList(listName)}
@@ -1007,11 +953,6 @@ getActivityRoutineJoinTable(){
 
   // Should run on hitting the back button
   componentWillUnmount() {
-    this.updateDatabaseChanges();
-  }
-
-  updateDatabaseChanges() {
-    // Update the database with any changes
     this.updateRoutineData();
   }
 
@@ -1047,16 +988,10 @@ getActivityRoutineJoinTable(){
 
       this.setState({
         currentlySelectedReward: this.state.allRewardsByIdDictionary[
-          this.state.reward_id
+          this.state.newReward.id
         ],
       });
-
-      // this.getRewardById(this.state.newReward.id);
-
-      // console.log("CURR ID IS ");
-      // console.log(this.state.currentlySelectedReward.id);
       this.pushToUpdateRoutineArray("reward_id", this.state.newReward.id);
-      // this.getRewardById(this.state.currentlySelectedReward.id);
 
       this.pushToUpdateRoutineArray(
         "amount_of_rewards",
@@ -1064,14 +999,13 @@ getActivityRoutineJoinTable(){
       );
     }
 
-    this.updateDatabaseChanges();
+    this.updateRoutineData();
   }
 
   fieldRef = React.createRef();
 
   onSubmit = () => {
     let { current: field } = this.fieldRef;
-    console.log(field.value());
   };
 
   formatText = (text) => {
@@ -1110,6 +1044,9 @@ getActivityRoutineJoinTable(){
     if (this.state.routineActivitiesById !== null && this.state.rewardLoaded) {
     } else {
       console.log("RETURNING NULL");
+      console.log("this.state.routineActivitiesById :: " + this.state.routineActivitiesById);
+      console.log("this.state.rewardLoaded :: " + this.state.rewardLoaded);
+      
       return null;
     }
 
@@ -1124,17 +1061,8 @@ getActivityRoutineJoinTable(){
               </View>
             )}
 
-            {/* TESTING CONTAINER */}
-            {/* {!this.state.rewardLoaded && (
-              <View>
-                <Text>:( reward not loaded</Text>
-              </View>
-            )} */}
-
             {this.state.activitiesLoaded && this.state.rewardLoaded && (
               <View>
-                {/** ROUTINE NAME **/}
-                {/* TODO: fix floating label */}
                 <TextField
                   id="routineNameField"
                   placeholder="Routine Name"
@@ -1185,7 +1113,7 @@ getActivityRoutineJoinTable(){
               {/* {this.checkThatListItemsExist("reward")} */}
               {this.displayList("reward")}
               {this.addRewardRow(1)}
-              {this.addNewItemButtonToList("reward")}
+               {this.addNewItemButtonToList("reward")}
             </View>
 
             {/** DEADLINES **/}
