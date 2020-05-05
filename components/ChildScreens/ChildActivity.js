@@ -9,7 +9,6 @@ import {
   ScrollView,
 } from "react-native";
 import { Video } from "expo-av";
-import VideoPlayer from "expo-video-player";
 
 import Carousel from "react-native-carousel-view";
 import SmoothPinCodeInput from "react-native-smooth-pincode-input";
@@ -256,7 +255,6 @@ export default class ChildActivity extends Component {
                         height: 200,
                         margin: 5,
                         borderRadius: 15,
-
                         resizeMode: "contain",
                       }}
                     />
