@@ -118,6 +118,7 @@ export default class ParentRoutines extends Component {
       .catch((error) => {
         console.error(error);
       });
+     
   }
 
   createActivityDictionary(){
@@ -284,6 +285,8 @@ export default class ParentRoutines extends Component {
     const { navigate } = this.props.navigation;
     var containerName;
 
+    console.log("Rewards in display routines");
+    console.log(this.state.allRewards);
     // parse out the db objects returned from the routines call
     return this.state.results.routines.map((item) => {
       if (item.is_active === 0) {

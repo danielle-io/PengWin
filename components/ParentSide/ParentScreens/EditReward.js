@@ -29,11 +29,9 @@ export default class ParentRewards extends Component {
             photos: null,
             video: null,
             routinesLoaded: false,
-            activities: null,
+            // activities: null,
             allRoutines: null,
             allActivities: null,
-            allActivityNames: [],
-            routinesArray: [],
             currentRoutine: null,
             activitiesLoaded: false,
             currentActivity: null,
@@ -66,7 +64,7 @@ export default class ParentRewards extends Component {
 
     getAllActivitiesForRoutine() {
         console.log("WE ARE IN GET ALL ACTIVITIES FOR ROUTINE");
-        console.log(this.state.currentRoutine);
+        console.log(this.state.currentRoutine)
         var routineId = this.state.currentRoutine.id;
         fetch(Environment + "/joinRoutineActivityTableByRoutineId/" + routineId, {
           headers: {
