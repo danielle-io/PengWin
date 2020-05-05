@@ -20,9 +20,14 @@ import {
 } from "react-native-popup-menu";
 import MaterialTabs from "react-native-material-tabs";
 import Dialog, { DialogContent } from "react-native-popup-dialog";
+
 import Environment from "../../../database/sqlEnv";
+import UserInfo from "../../../state/UserInfo";
 
 const { width: WIDTH } = Dimensions.get("window");
+
+const parent_id = UserInfo.parent_id;
+const child_id = UserInfo.child_id;
 
 Icon.loadFont();
 
@@ -272,6 +277,8 @@ export default class ParentRoutines extends Component {
                   .allRewardsByIdDictionary,
                 allActivitiesDictionary: this.state
                   .allActivitiesDictionary,
+                childId: item.child_id,
+                parentId: item.parent_id,
               })
             }
             ripple={ripple}
@@ -313,6 +320,8 @@ export default class ParentRoutines extends Component {
                 allActivities: this.state.allActivities,
                 userId: this.state.userId,
                 allActivitiesDictionary: this.state.allActivitiesDictionary,
+                childId: child_id,
+                parentId: parent_id,
               }))
           }
           ripple={ripple}
