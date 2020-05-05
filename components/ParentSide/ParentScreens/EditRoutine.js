@@ -274,6 +274,7 @@ export default class EditRoutine extends Component {
   trackDateChanges(date, state) {
     changedDates[date] = state;
     this.setState({ [date]: state});
+    this.addCalendar();
   }
 
   updateDateChanges() {
@@ -731,31 +732,35 @@ export default class EditRoutine extends Component {
     }
   }
 
-  getDateButtonTextColor(value) {
-    if (value === 1) {
-      return "#FFFFFF";
+  getDateButtonTextColor(value) {    
+    console.log("text");
+    console.log(value);
+    if (value === 1 || value === true) {
+      return "white";
     } else {
       return "#FF6978";
     }
   }
 
   getDateButtonColor(value) {
-    if (value === 1) {
-      return "#FF6978";
-    } else {
+    console.log("in button color");
+    console.log(value);
+    if (value === 0) {
       return "#FFFFFF";
+    } else {
+      return "#FF6978"; 
     }
   }
 
   addCalendar() {
     const dates = [
-      { date: "monday", initial: "M", state: this.state.monday},
-      { date: "tuesday", initial: "T", state: this.state.tuesday},
-      { date: "wednesday", initial: "W", state: this.state.wednesday},
-      { date: "thursday", initial: "Th", state: this.state.thursday},
-      { date: "friday", initial: "F", state: this.state.friday},
-      { date: "saturday", initial: "Sa", state: this.state.saturday},
-      { date: "sunday", initial: "Su", state: this.state.sunday},
+      { date: "monday", initial: "M", status: this.state.monday},
+      { date: "tuesday", initial: "T", status: this.state.tuesday},
+      { date: "wednesday", initial: "W", status: this.state.wednesday},
+      { date: "thursday", initial: "Th", status: this.state.thursday},
+      { date: "friday", initial: "F", status: this.state.friday},
+      { date: "saturday", initial: "Sa", status: this.state.saturday},
+      { date: "sunday", initial: "Su", status: this.state.sunday},
     ];
     return dates.map((item) => {
       return (
@@ -764,19 +769,23 @@ export default class EditRoutine extends Component {
             style={styles.roundDateButton}
             titleStyle={styles.buttonstyle}
             title={item.initial}
-            titleColor={this.getDateButtonTextColor(item.state)}
-            onPress={() => this.trackDateChanges(item.date, !item.state)}
-            color={this.getDateButtonColor(item.state)}
+            titleColor={this.getDateButtonTextColor(item.status)}
+            onPress={
+              (this._onPress,
+              () => {
+                this.trackDateChanges(item.date, !item.status)
+              })
+            }
+            // onPress={() => this.trackDateChanges(item.date, !item.state)}
+            color={this.getDateButtonColor(item.status)}
           />
         </View>
       );
     });
   }
 
+  // They can't add or list rewards if they haven't made any yet
   checkThatListItemsExist(listName) {
-    // TODO: write this for activities too
-
-    // They can't add or list rewards if they haven't made any yet
     if (listName === "reward") {
       if (this.state.allRewardsByIdDictionary === null) {
         return (
@@ -790,6 +799,21 @@ export default class EditRoutine extends Component {
           </View>
         );
       }
+    }
+    else{
+      if (this.state.allActivitiesDictionary === null) {
+        return (
+          <View style={styles.formIndent}>
+            <View style={styles.editRoutineButtonAndList}>
+              <Text style={styles.activityText}>
+                You must add activities in the activities tab before you can add them
+                to a routine.
+              </Text>
+            </View>
+          </View>
+        );
+      }
+
     }
   }
 
