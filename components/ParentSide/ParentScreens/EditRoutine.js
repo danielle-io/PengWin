@@ -200,10 +200,10 @@ export default class EditRoutine extends Component {
         console.log("status is 200");
         this.setState({ activityInserted: true });
 
-        if (tag === 'deleted'){
+        if (tag === "deleted") {
           console.log("tag is deleted load trick");
 
-          // Re-fetch the activities, set up by order & id, then 
+          // Re-fetch the activities, set up by order & id, then
           // remove used ones from all activities (all in one call)
           this.getActivityRoutineJoinTable();
         }
@@ -366,10 +366,19 @@ export default class EditRoutine extends Component {
   }
 
   deleteActivity(routineActivityId, order, itemId, listName) {
-    this.setState({ loadedAfterDeletion: false});
+    this.setState({ loadedAfterDeletion: false });
     // this.setState({ activityChangeLoad: false});
 
-    console.log("routineActivityId, order, itemId, listName " + routineActivityId + " " +  order + " " + itemId + " " + listName )
+    console.log(
+      "routineActivityId, order, itemId, listName " +
+        routineActivityId +
+        " " +
+        order +
+        " " +
+        itemId +
+        " " +
+        listName
+    );
 
     if (listName === "activity") {
       this.setState({
@@ -381,33 +390,37 @@ export default class EditRoutine extends Component {
   }
 
   updateActivityOrders(order, listName, routineActivityId) {
-    var arrLength = Object.keys(this.state.routineActivitiesByOrder).length;
-    for (var i = order; i < arrLength; i++) {
-      var currentActivity = this.state.routineActivitiesByOrder[i];
-      console.log("changing the order of " + currentActivity.routine_name);
+    if (
+      this.state.routineActivitiesByOrder != null &&
+      this.state.routineActivitiesByOrder != []
+    ) {
+      var arrLength = Object.keys(this.state.routineActivitiesByOrder).length;
+      for (var i = order; i < arrLength; i++) {
+        var currentActivity = this.state.routineActivitiesByOrder[i];
+        
+        // console.log("changing the order of " + currentActivity.routine_name);
 
-      this.updateActivityRelationship(
-        currentActivity.routine_activity_id,
-        "order",
-        i - 1
-      );
+        this.updateActivityRelationship(
+          currentActivity.routine_activity_id,
+          "order",
+          i - 1
+        );
+      }
     }
     this.updateActivityRelationship(routineActivityId, "deleted", 1);
 
-
     // {
-    //   this.state.loadedAfterDeletion && 
+    //   this.state.loadedAfterDeletion &&
     //   console.log("MADE IT IN AFTER DELETE");
-      
+
     //   this.displayList(listName);
-      // this.reRenderList("activity"); 
-      
-      // this.addRow(Object.keys(this.state.routineActivitiesByOrder).length + 1, "activity");
+    // this.reRenderList("activity");
 
-      // this.setState({ loadedAfterDeletion: true });
+    // this.addRow(Object.keys(this.state.routineActivitiesByOrder).length + 1, "activity");
 
+    // this.setState({ loadedAfterDeletion: true });
 
-      // }
+    // }
   }
 
   componentDidMount() {
@@ -445,8 +458,8 @@ export default class EditRoutine extends Component {
         this.removeAlreadyAddedActivitiesFromOptions();
         this.setState({ activityChangeLoad: true });
         console.log("loadedAfterDeletion is " + this.state.loadedAfterDeletion);
-        if (this.state.loadedAfterDeletion){
-          
+        
+        if (!this.state.loadedAfterDeletion) {
           console.log("Going to display activities");
           this.displayList("activities");
         }
@@ -464,17 +477,25 @@ export default class EditRoutine extends Component {
     console.log(activitiesFromDb);
     var tempOrderDict = {};
     var tempIdDict = {};
-    
+
     var counter = 0;
 
     activitiesFromDb.map((item) => {
       // Make sure the order numbers are in order and correct
-      if (item.order !== counter){
-        console.log("CHANGING THE ACTIVITY ORDER NOW BC ITS " + item.order + " and it should be " + counter);
+      if (item.order !== counter) {
+        console.log(
+          "CHANGING THE ACTIVITY ORDER NOW BC ITS " +
+            item.order +
+            " and it should be " +
+            counter
+        );
         tempOrderDict[counter] = item;
-        this.updateActivityRelationship(item.routine_activity_id, "order", counter);
-      }
-      else{
+        this.updateActivityRelationship(
+          item.routine_activity_id,
+          "order",
+          counter
+        );
+      } else {
         tempOrderDict[item.order] = item;
       }
       tempIdDict[item.activity_id] = item;
@@ -626,7 +647,7 @@ export default class EditRoutine extends Component {
 
   // ReRender the components on the click of the new button
   reRenderList(listName) {
-    this.setState({ activityChangeLoad: false});
+    this.setState({ activityChangeLoad: false });
 
     if (listName === "activity") {
       // This is to save the previously added activity if they
@@ -637,10 +658,12 @@ export default class EditRoutine extends Component {
 
       // Display everything once the activity is loaded
       // {
-      {this.state.activityChangeLoad &&
-
-      this.displayList(listName);
-      this.addRow(Object.keys(this.state.routineActivitiesByOrder).length + 1, "activity");
+      {
+        this.state.activityChangeLoad && this.displayList(listName);
+        this.addRow(
+          Object.keys(this.state.routineActivitiesByOrder).length + 1,
+          "activity"
+        );
       }
     }
 
@@ -1060,7 +1083,10 @@ export default class EditRoutine extends Component {
                 {/* {this.checkThatListItemsExist("activity")} */}
 
                 {this.displayList("activity")}
-                {this.addRow(Object.keys(this.state.routineActivitiesByOrder).length + 1, "activity")}
+                {this.addRow(
+                  Object.keys(this.state.routineActivitiesByOrder).length + 1,
+                  "activity"
+                )}
                 {this.addNewItemButtonToList("activity")}
               </View>
             )}
