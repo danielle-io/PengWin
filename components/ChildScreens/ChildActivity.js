@@ -246,8 +246,8 @@ export default class ChildActivity extends Component {
                 </Text>
 
                 {item.image_path && (
-                  <View
-                    style={{ justifyContent: "center", alignItems: "center" }}
+          <View
+  style={{ justifyContent: "center", alignItems: "center" }}
                   >
                     <Image
                       source={{ uri: item.image_path }}

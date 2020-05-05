@@ -1,16 +1,11 @@
 import React, { Component } from 'react';
-import { View, Dimensions, StyleSheet, Text } from 'react-native';
+import { View, Dimensions, Image, StyleSheet, Text } from 'react-native';
 import { TextField } from 'react-native-material-textfield';
 import Environment from '../../database/sqlEnv';
-import {
-    MenuProvider,
-    Menu,
-    MenuOption,
-    MenuOptions,
-    MenuTrigger,
-} from "react-native-popup-menu";
+import Carousel from "react-native-carousel-view";
 
-const { width: WIDTH } = Dimensions.get('window');
+
+const { width: WIDTH, height: HEIGHT } = Dimensions.get('window');
 
 export default class RoutineApproval extends Component {
     static navigationOptions = ({ navigation }) => ({
@@ -25,37 +20,41 @@ export default class RoutineApproval extends Component {
         this.navigate = navigate;
 
         this.state = {
-            userID: 1,
+            userId: 1,
             routineName: this.props.navigation.state.params.routineName,
             routineID: this.props.navigation.state.params.routineID, 
             prevScreenTitle: this.props.navigation.state.params.prevScreenTitle,
             activities: null,
             activitiesLoaded: false,
-            childFirstName: this.props.navigation.state.params.childFirstName,
+            childResults: null,
+            childLoaded: false,
+            
+            
         };
     }
-
-    
-
-    // //create a filter activities based on data from the relationship table (WTF HOW?!!)
-    // getActivitiesFromRoutine() {
-    //     fetch(Environment + '/getActivitiesFromRoutine/' + this.state.routineID, {
-    //         headers: {
-    //             "Cache-Control": "no-cache",
-    //         },
-    //     })
-    //         .then((response) => response.json())
-    //         .then((responseJson) => {
-    //             return responseJson;
-    //         })
-    //         .then((results) => {
-    //             this.setState({ activities: results });
-    //             this.setState({ activitiesLoaded: true });
-    //         })
-    //         .catch((error) => {
-    //             console.error(error);
-    //         });
-    // }
+    getChildInfo() {
+        fetch(Environment + '/getChildFromParent/' + this.state.userId, {
+            headers: {
+                'Cache-Control': 'no-cache',
+            },
+        })
+            .then(response => response.json())
+            .then(responseJson => {
+                return responseJson;
+            })
+            .then(results => {
+                console.log("FUCKKKKKKKKKKKK");
+                this.setState({ childResults: results });
+                console.log("CHILD RESULTS BELOW");
+                console.log(this.state.childResults);
+                console.log("FUCKKKKKKKKKKKK 3");
+                this.setState({ childLoaded: true });
+                
+            })
+            .catch(error => {
+                console.error(error);
+            });
+    }
 
     getActivities() {
         fetch(
@@ -80,30 +79,67 @@ export default class RoutineApproval extends Component {
             console.error(error);
           });
     }
-
+    
+    getChildsName() {
+        return this.state.childResults.map(itemValue => {
+            return (
+                <Text>{itemValue.first_name}</Text>
+            );
+        });
+    }
     componentDidMount() {
         console.log('running component did mount for ROUTINE APPROVAL ');
         this.props.navigation.addListener('didFocus', payload => {
             this.getActivities();
+            this.getChildInfo();
             
         });
     }
 
     displayActivities() {
         const { navigate } = this.props.navigation;
+        console.log("CHILD'S NAME BELOW");
+        
+        return (
+            <View>
+                <Carousel 
+                height={HEIGHT * 0.9}
+                hideIndicators={false}
+                indicatorSize={12}
+                animate={false}
+                onRef={(ref) => (this.child = ref)}
+                >
+                {this.state.activities.map((item) => (
+                    <View style={styles.carouselContainer}>
+                        
+                        <Text style={styles.activityName}>{item.activity_name}</Text>
+                        
+                        <Text style={styles.subtext}>Image taken by Alex</Text> 
+                        
+           
+                        {item.image_path && (
+                        <View
+                        style={{ justifyContent: "center", alignItems: "center" }}
+                        >
+                        <Image
+                            source={{ uri: item.image_path }}
+                            style={{
+                            width: 300,
+                            height: 200,
+                            margin: 5,
+                            borderRadius: 15,
+                            resizeMode: "contain",
+                            }}
+                            />
+                        </View>
+                            )}
 
-        return this.state.activities.map((item) => {
-            return (
-                <View>
-                    <Text style={styles.activityName}>
-                        {item.activity_id}. {item.activity_name}
-                    </Text>
-                    {/* <Text style={styles.subtext}>
-                        Image taken by {this.state.childFirstName}
-                    </Text> */}
-                </View>
-            );
-        });
+                    </View> 
+                
+                ))}   
+                </Carousel>    
+            </View>
+        );
     }
 
     render() {
@@ -129,10 +165,20 @@ export default class RoutineApproval extends Component {
 
 
 const styles = StyleSheet.create({
-    // RoutinesPage
     topContainer: {
         zIndex: 999,
     },
+    carouselContainer:{
+        backgroundColor: "#E5E5E5",   
+    },
+    activities: {
+        backgroundColor: "#FF6978",
+        padding: WIDTH * 0.01,
+        margin: WIDTH * 0.01,
+        borderRadius: 1,
+        width: WIDTH * 0.98,
+        height: HEIGHT,
+      },
     text: {
         marginTop: 7,
         fontSize: 24,
@@ -146,7 +192,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 20,
     },
     subtext: {
-        marginTop: -40,
+        marginTop: 0,
         fontSize: 20,
         textAlign: "center",
         textAlignVertical: "auto",
@@ -156,100 +202,12 @@ const styles = StyleSheet.create({
     dialog: {
         backgroundColor: "#e1d8ff",
     },
-    routineTitleAndMenu: {
-        flexDirection: "row",
-        flex: 1,
-        overflow: "visible",
-    },
-    ellipsis: {
-        flexDirection: "row",
-        alignSelf: "flex-end",
-        fontSize: 30,
-        marginRight: 10,
-        overflow: "visible",
-    },
-    routineTitle: {
-        marginLeft: 4,
-        marginTop: 2,
-        fontSize: 14,
-        textAlign: "center",
-        flex: 1,
-    },
-    routineContainterOptions: {
-        overflow: "visible",
-        zIndex: 999,
-    },
-    routineOptionsPopout: {
-        overflow: "visible",
-        zIndex: 999,
-    },
-    routineMenuStyling: {
-        overflow: "visible",
-        zIndex: 999,
-    },
-    routineDetailsIcon: {
-        color: "#355C7D",
-        fontSize: 14,
-    },
-    routineDetails: {
-        fontSize: 10,
-        zIndex: 2,
-    },
-    routineDetailsPreview: {
-        zIndex: 2,
-        marginBottom: 10,
-        marginLeft: 5,
-    },
     selectText: {
         fontSize: 15,
         padding: 5,
         marginTop: 10,
         marginBottom: 10,
         marginLeft: 10,
-    },
-
-    routineContainer: {
-        width: WIDTH * 0.3,
-        height: 150,
-        marginTop: 20,
-        marginBottom: 5,
-        borderRadius: 10,
-        backgroundColor: "#FFFFFF",
-        shadowOffset: { width: 5, height: 5 },
-        shadowColor: "black",
-        shadowOpacity: 0.1,
-        borderWidth: 0,
-        paddingTop: 10,
-        overflow: "visible",
-        marginLeft: 10,
-        marginRight: 10,
-    },
-    inactiveRoutineContainer: {
-        width: WIDTH * 0.3,
-        height: 150,
-        marginTop: 20,
-        marginBottom: 5,
-        justifyContent: "space-around",
-        borderRadius: 10,
-        backgroundColor: "#d3d3d3",
-        shadowOffset: { width: 5, height: 5 },
-        shadowColor: "black",
-        shadowOpacity: 0.1,
-        borderWidth: 0,
-        paddingTop: 10,
-        overflow: "visible",
-        marginLeft: 10,
-        marginRight: 10,
-    },
-
-    roundAddButton: {
-        marginLeft: 6,
-        fontSize: 30,
-        height: 50,
-        minWidth: 50,
-        width: 50,
-        borderRadius: 50,
-        color: "#FFFFFF",
     },
     title: {
         fontSize: 16,

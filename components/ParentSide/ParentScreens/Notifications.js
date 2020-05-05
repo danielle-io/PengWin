@@ -161,7 +161,8 @@ export default class Notifications extends Component {
     getChildsName() {
         // console.log("LOK HEREEEEEE")
         // console.log(this.state.childResults[0].first_name);
-        // this.setState({ childFirstName: this.state.childResults[0].first_name });
+        //this.setState({ childFirstName: this.state.childResults[0].first_name });
+
         return this.state.childResults.map(itemValue => {
             
             return (
@@ -190,14 +191,17 @@ export default class Notifications extends Component {
         //     needsApproval[i]
         // }
         console.log("R WE IN ROUTINESNAME");
-        return this.state.routines.map((item) => {
-            console.log(item.routine_name);
-            return (
-                <Text>{item.routine_name}</Text>
-            );
-        });     
+        return(
+            <Text>{this.state.routines[0].routine_name}</Text>
+        );
     }
-
+    //     return this.state.routines.map((item) => {
+    //         console.log(item.routine_name);
+    //         return (
+    //             <Text>{item.routine_name}</Text>
+    //         );
+    //     });     
+    // }
 
     fieldRef = React.createRef();
     //fix hard coding in the navigation below
@@ -205,13 +209,17 @@ export default class Notifications extends Component {
         const { navigate } = this.props.navigation;
 
         return (
+
+
+
+
             <View>
                 <View style={{ flex: 1 }, styles.notificationContainer}
                     onStartShouldSetResponder={() => this.props.navigation.navigate('RoutineApproval', {
                         prevScreenTitle: 'Notifications',
                         routineName: 'Morning Routine',
                         routineID: this.state.id,
-                        //childFirstName: this.state.childFirstName, 
+                        childFirstName: this.state.childFirstName, 
                     })}>
 
                     <Text style={styles.text}>
