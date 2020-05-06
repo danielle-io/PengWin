@@ -65,7 +65,7 @@ export default class Question1 extends Component {
 
                     <StepIndicator
                         customStyles={customStyles}
-                        stepCount= {3}
+                        stepCount= {4}
                         currentPosition={this.state.currentPosition}
                         // labels={labels}
                     />

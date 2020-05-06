@@ -1,8 +1,9 @@
 import React, { Component } from "react";
-import { View, StyleSheet, Text, TouchableOpacity} from 'react-native';
+import { DatePickerIOS, View, Button, StyleSheet, Text, TouchableOpacity} from 'react-native';
 // import MobileStepper from "@bit/mui-org.material-ui.mobile-stepper";
-import StepIndicator from 'react-native-step-indicator';
 import * as Font from "expo-font";
+import StepIndicator from 'react-native-step-indicator';
+import MobileStepper from '@material-ui/core/MobileStepper';
 import { AppLoading } from "expo";
 
 import RadioForm, {RadioButton, RadioButtonInput, RadioButtonLabel} from 'react-native-simple-radio-button';
@@ -13,12 +14,13 @@ let customFonts = {
     // 'SF-Pro-Rounded-Regular': require("../../../assets/fonts/SF/SF-Pro-Rounded-Regular.otf")
 }
 
+
+
 var radio_props = [
-    {label: 'Verbal', value: 0 },
-    {label: 'Non-verbal but can say Yes/No', value: 1 },
-    {label: 'Can speak but not everyone understands', value: 2 },
-    {label: 'Cannot speak but knows words', value: 3 },
-    {label: 'Non verbal', value: 4 }
+    {label: 'Reads well', value: 0 },
+    {label: 'Can read but needs visuals for better understanding', value: 1 },
+    {label: 'Cannot read', value: 2 }
+    // {label: 'Other', value: 3 }
   ];
 
 export default class Question2 extends Component {
@@ -27,18 +29,27 @@ export default class Question2 extends Component {
         const { navigate } = this.props.navigation;
         this.navigate = navigate;
         this.state = {
-          fontsLoaded: false,
-          currentPosition: 1,
-          selected: false
-        //   value: null,
+        prevScreenTitle: this.props.navigation.state.params.prevScreenTitle,
+        fontsLoaded: false,
+        currentPosition: 1,
+        selected: false,
+        chosenDate: new Date(),
+        // steps: 3
         };
+        this.setDate = this.setDate.bind(this);
+      }
+      setDate(newDate) {
+        this.setState({chosenDate: newDate});
       }
 
-
     static navigationOptions = ({ navigation }) => ({
-    title: 'Questionnaire',
-    prevScreenTitle: 'Back'
+        title: 'Questionnaire',
+        prevScreenTitle: 'Back'
     });
+
+    // onContinueClicked = () => {
+    //     this.props.navigation.navigate("Question2");
+    // }
 
     async _loadFontsAsync() {
         await Font.loadAsync(customFonts);
@@ -57,44 +68,44 @@ export default class Question2 extends Component {
                 <View style={{backgroundColor:"#FFFCF9"}}>
                     <Text style={styles.pageHeader}>Create your child's profile</Text>
 
-                <StepIndicator
-                    customStyles={customStyles}
-                    stepCount= {3}
-                    currentPosition={this.state.currentPosition}
-                    // labels={labels}
-                />
+                    <StepIndicator
+                        customStyles={customStyles}
+                        stepCount= {4}
+                        currentPosition={this.state.currentPosition}
+                        // labels={labels}
+                    />
+                {/* <View>
+                    <MobileStepper
+                        variant="dots"
+                        steps={4}
+                        // position="static"
+                    ></MobileStepper>
+                </View> */}
+                    
 
                 <View style={styles.pageBodyContainer}>
-                <Text style={styles.pageBodyText}>2. How would you describe your child’s language ability?</Text>
+                <Text style={styles.pageBodyText}>2. What is your child's birthday?</Text>
 
                     {/* <View style={styles.radioButtonsContainer}> */}
 
-                    <View style={styles.radioButtons}>
-
-                        <RadioForm 
-                        radio_props={radio_props}
-                        initial={0}
-                        buttonColor={'#352D39'}
-                        labelStyle={{margin: 8, fontSize: 22, color: '#352D39'}}
-                        // style= {{lineHeight: 5}}
-                        labelWrapStyle ={{lineHeight: 5}}
-                        labelColor={'#352D39'}
-                        selectedButtonColor={'#352D39'}
-                        onPress={(choice) => {this.setState({value:choice}); this.state.selected = true} }
-                        //it shows the value of previously selected choice. don't know why¯\_(ツ)_/¯
+                    <DatePickerIOS
+                        date={this.state.chosenDate}
+                        onDateChange={this.setDate}
+                        mode={'date'}
                         />
-                    </View>
+
                 </View>
                     
 
                     {/* </View> */}
                     
                 <View style={styles.buttonContainer}>
+
                 <TouchableOpacity
                 style={this.state.selected
                         ? styles.buttonPrimary
                         : styles.buttonSecondary}
-                onPress={() => {this.navigate("Question3",{prevScreenTitle: 'Back'}); console.log("valueee", this.state.value); console.log("clicked")}}
+                onPress={() => {this.navigate("Question3",{prevScreenTitle: 'Back'}); console.log("valueee", this.state.chosenDate); console.log("clickkk")}}
                 >
                 <View>
                 <Text style={this.state.selected
@@ -104,22 +115,24 @@ export default class Question2 extends Component {
                 
                 
                 </TouchableOpacity>
-                </View>
-                </View>
+                
 
+                </View>
+                    
+           </View>
             )
 
-        // }
+        }
         
     }
-}
+
 
 const pastelRed = '#FF6978';
 const spaceBlack = '#352D39';
 
 const styles = StyleSheet.create({
     pageHeader: {
-        fontFamily: 'SF',
+        // fontFamily: 'SF',
         fontSize: 32,
         color: spaceBlack,
         textAlign: 'center',
@@ -149,7 +162,7 @@ const styles = StyleSheet.create({
         // fontFamily: 'SF-Pro-Rounded-Regular',
         fontSize: 24,
         textAlign: 'center',
-        marginLeft: '25%',
+        marginLeft: '20%',
         marginTop: '5%'
     },
 
@@ -170,7 +183,7 @@ const styles = StyleSheet.create({
         borderWidth: 2,
         borderColor: pastelRed,
         backgroundColor: 'white',
-        marginTop: '40%'
+        marginTop: '50%'
     },
     
       buttonPrimary: {
@@ -183,7 +196,7 @@ const styles = StyleSheet.create({
         borderWidth: 2,
         borderColor: pastelRed,
         alignContent: 'center',
-        marginTop: '40%'
+        marginTop: '50%'
       },
     
       buttonSecondaryText: {

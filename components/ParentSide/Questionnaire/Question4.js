@@ -1,9 +1,8 @@
 import React, { Component } from "react";
-import { DatePickerIOS, View, Button, StyleSheet, Text, TouchableOpacity} from 'react-native';
+import { View, StyleSheet, Text, TouchableOpacity} from 'react-native';
 // import MobileStepper from "@bit/mui-org.material-ui.mobile-stepper";
-import * as Font from "expo-font";
 import StepIndicator from 'react-native-step-indicator';
-import MobileStepper from '@material-ui/core/MobileStepper';
+import * as Font from "expo-font";
 import { AppLoading } from "expo";
 
 import RadioForm, {RadioButton, RadioButtonInput, RadioButtonLabel} from 'react-native-simple-radio-button';
@@ -14,42 +13,32 @@ let customFonts = {
     // 'SF-Pro-Rounded-Regular': require("../../../assets/fonts/SF/SF-Pro-Rounded-Regular.otf")
 }
 
-
-
 var radio_props = [
-    {label: 'Reads well', value: 0 },
-    {label: 'Can read but needs visuals for better understanding', value: 1 },
-    {label: 'Cannot read', value: 2 }
-    // {label: 'Other', value: 3 }
+    {label: 'Verbal', value: 0 },
+    {label: 'Non-verbal but can say Yes/No', value: 1 },
+    {label: 'Can speak but not everyone understands', value: 2 },
+    {label: 'Cannot speak but knows words', value: 3 },
+    {label: 'Non verbal', value: 4 }
   ];
 
-export default class Question3 extends Component {
+export default class Question2 extends Component {
     constructor(props) {
         super(props);
         const { navigate } = this.props.navigation;
         this.navigate = navigate;
         this.state = {
-        prevScreenTitle: this.props.navigation.state.params.prevScreenTitle,
-        fontsLoaded: false,
-        currentPosition: 2,
-        selected: false,
-        chosenDate: new Date(),
-        // steps: 3
+          fontsLoaded: false,
+          currentPosition: 3,
+          selected: false
+        //   value: null,
         };
-        this.setDate = this.setDate.bind(this);
       }
-      setDate(newDate) {
-        this.setState({chosenDate: newDate});
-      }
+
 
     static navigationOptions = ({ navigation }) => ({
-        title: 'Questionnaire',
-        prevScreenTitle: 'Back'
+    title: 'Questionnaire',
+    prevScreenTitle: 'Back'
     });
-
-    // onContinueClicked = () => {
-    //     this.props.navigation.navigate("Question2");
-    // }
 
     async _loadFontsAsync() {
         await Font.loadAsync(customFonts);
@@ -68,23 +57,15 @@ export default class Question3 extends Component {
                 <View style={{backgroundColor:"#FFFCF9"}}>
                     <Text style={styles.pageHeader}>Create your child's profile</Text>
 
-                    <StepIndicator
-                        customStyles={customStyles}
-                        stepCount= {4}
-                        currentPosition={this.state.currentPosition}
-                        // labels={labels}
-                    />
-                {/* <View>
-                    <MobileStepper
-                        variant="dots"
-                        steps={4}
-                        // position="static"
-                    ></MobileStepper>
-                </View> */}
-                    
+                <StepIndicator
+                    customStyles={customStyles}
+                    stepCount= {4}
+                    currentPosition={this.state.currentPosition}
+                    // labels={labels}
+                />
 
                 <View style={styles.pageBodyContainer}>
-                <Text style={styles.pageBodyText}>3. How would you describe your child's reading ability?</Text>
+                <Text style={styles.pageBodyText}>4. How would you describe your child’s language ability?</Text>
 
                     {/* <View style={styles.radioButtonsContainer}> */}
 
@@ -95,7 +76,8 @@ export default class Question3 extends Component {
                         initial={0}
                         buttonColor={'#352D39'}
                         labelStyle={{margin: 8, fontSize: 22, color: '#352D39'}}
-                        // labelWrapStyle ={{lineHeight: 5}}
+                        // style= {{lineHeight: 5}}
+                        labelWrapStyle ={{lineHeight: 5}}
                         labelColor={'#352D39'}
                         selectedButtonColor={'#352D39'}
                         onPress={(choice) => {this.setState({value:choice}); this.state.selected = true} }
@@ -108,12 +90,11 @@ export default class Question3 extends Component {
                     {/* </View> */}
                     
                 <View style={styles.buttonContainer}>
-
                 <TouchableOpacity
                 style={this.state.selected
                         ? styles.buttonPrimary
                         : styles.buttonSecondary}
-                onPress={() => {this.navigate("Question4",{prevScreenTitle: 'Back'}); console.log("valueee", this.state.value); console.log("clickkk")}}
+                onPress={() => {this.navigate("ParentRoutines",{prevScreenTitle: 'Back'}); console.log("valueee", this.state.value); console.log("clicked")}}
                 >
                 <View>
                 <Text style={this.state.selected
@@ -123,17 +104,15 @@ export default class Question3 extends Component {
                 
                 
                 </TouchableOpacity>
-                
-
                 </View>
-                    
-           </View>
+                </View>
+
             )
 
-        }
+        // }
         
     }
-
+}
 
 const pastelRed = '#FF6978';
 const spaceBlack = '#352D39';
@@ -170,7 +149,7 @@ const styles = StyleSheet.create({
         // fontFamily: 'SF-Pro-Rounded-Regular',
         fontSize: 24,
         textAlign: 'center',
-        marginLeft: '20%',
+        marginLeft: '25%',
         marginTop: '5%'
     },
 
@@ -191,7 +170,7 @@ const styles = StyleSheet.create({
         borderWidth: 2,
         borderColor: pastelRed,
         backgroundColor: 'white',
-        marginTop: '50%'
+        marginTop: '40%'
     },
     
       buttonPrimary: {
@@ -204,7 +183,7 @@ const styles = StyleSheet.create({
         borderWidth: 2,
         borderColor: pastelRed,
         alignContent: 'center',
-        marginTop: '50%'
+        marginTop: '40%'
       },
     
       buttonSecondaryText: {

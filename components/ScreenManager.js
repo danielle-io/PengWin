@@ -23,6 +23,7 @@ import Progress from './ParentSide/ParentScreens/Progress';
 import Question1 from './ParentSide/Questionnaire/Question1';
 import Question2 from './ParentSide/Questionnaire/Question2';
 import Question3 from './ParentSide/Questionnaire/Question3';
+import Question4 from './ParentSide/Questionnaire/Question4';
 
 import ChildRoutines from './ChildScreens/ChildNavigation';
 import ChildActivity from './ChildScreens/ChildActivity';
@@ -61,6 +62,7 @@ const Screens = createStackNavigator({
   Question1: {screen:Question1},
   Question2: {screen:Question2},
   Question3: {screen:Question3},
+  Question4: {screen:Question4},
 
   ChildPincode: {screen:ChildPincode},
   ChildNotifScreen: {screen:ChildNotifScreen},
