@@ -19,6 +19,8 @@ import Star from "../../assets/images/fillstar.png";
 import Ribbon from "../../assets/images/ribbon.png";
 import Head from "../../assets/images/PenguinFace.png";
 import Environment from "../../database/sqlEnv";
+import UserInfo from "../../state/UserInfo";
+
 
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 Icon.loadFont();
@@ -31,16 +33,19 @@ let customFonts = {
     "https://rsms.me/inter/font-files/Inter-SemiBoldItalic.otf?v=3.12",
 };
 
+
 export default class ChildActivity extends Component {
   //Construct header titles
   constructor(props) {
     super(props);
+    const parentId = UserInfo.parent_id;
+    const childId = UserInfo.child_id;
+    const userId = UserInfo.user_id;
     const { navigate } = this.props.navigation;
     this.navigate = navigate;
     this.state = {
       prevScreenTitle: this.props.navigation.state.params.prevScreenTitle,
       currentRoutine: this.props.navigation.state.params.currentRoutine,
-      userID: this.props.navigation.state.params.userID,
       visible1: false,
       visible2: false,
       fontsLoaded: false,
@@ -50,7 +55,6 @@ export default class ChildActivity extends Component {
     ChildActivity.navigationOptions.headerBackTitle = this.props.navigation.state.params.currentRoutine;
   }
 
-  //Header titles for routines
   static navigationOptions = ({ navigation }) => ({
     title: `${navigation.state.params.currentRoutine}`,
   });
@@ -70,7 +74,7 @@ export default class ChildActivity extends Component {
     });
   }
   getActivities() {
-    fetch(Environment + "/getActivities/" + this.state.userID, {
+    fetch(Environment + "/getActivities/" + 1, {
       headers: {
         "Cache-Control": "no-cache",
       },

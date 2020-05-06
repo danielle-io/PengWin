@@ -4,9 +4,13 @@ import {TextField} from 'react-native-material-textfield';
 import UserAvatar from 'react-native-user-avatar';
 
 import Environment from '../../../database/sqlEnv';
+import UserInfo from "../../../state/UserInfo";
 
 const {width: WIDTH} = Dimensions.get('window');
 
+const parentId = UserInfo.parent_id;
+const childId = UserInfo.child_id;
+const userId = UserInfo.user_id;
 
 export default class ParentProfile extends Component {
   static navigationOptions = ({navigation}) => ({
@@ -16,8 +20,8 @@ export default class ParentProfile extends Component {
 
   constructor(props) {
     super(props);
+    const {navigate} = this.props.navigation;
     this.state = {
-      userId: 1,
       firstLoaded: false,
       loaded: false,
       childResults: null,
@@ -26,7 +30,6 @@ export default class ParentProfile extends Component {
       parentLastName: null,
       email: null,
       childFirstName: null,
-      childUserId: null,
       prevScreenTitle: this.props.navigation.state.params.prevScreenTitle,
     };
   }
@@ -63,7 +66,7 @@ export default class ParentProfile extends Component {
 
   getChildInfo() {
     // Get the routines data from the db
-    fetch(Environment + '/getChildFromParent/' + this.state.userId, {
+    fetch(Environment + '/getChildFromParent/' + userId, {
       headers: {
         'Cache-Control': 'no-cache',
       },
@@ -84,7 +87,7 @@ export default class ParentProfile extends Component {
 
   getUserInfo() {
     // Get the routines data from the db
-    fetch(Environment + '/getUser/' + this.state.userId, {
+    fetch(Environment + '/getUser/' + userId, {
       headers: {
         'Cache-Control': 'no-cache',
       },
@@ -150,7 +153,7 @@ export default class ParentProfile extends Component {
               this.changeUserComponent(
                 'first_name',
                 this.state.parentFirstName,
-                this.state.userId,
+                userId,
               );
             }}
             onSubmitEditing={e => console.log('SubmitEditing', !!e)}
@@ -170,7 +173,7 @@ export default class ParentProfile extends Component {
               this.changeUserComponent(
                 'last_name',
                 this.state.parentLastName,
-                this.state.userId,
+                userId,
               );
             }}
             onSubmitEditing={e => console.log('SubmitEditing', !!e)}
@@ -190,7 +193,7 @@ export default class ParentProfile extends Component {
               this.changeUserComponent(
                 'email',
                 this.state.email,
-                this.state.userId,
+                userId,
               );
             }}
             onSubmitEditing={e => console.log('SubmitEditing', !!e)}
@@ -206,7 +209,6 @@ export default class ParentProfile extends Component {
   fieldRef = React.createRef();
 
   render() {
-    const {navigate} = this.props.navigation;
 
     return (
       <View>

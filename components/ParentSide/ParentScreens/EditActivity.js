@@ -59,7 +59,6 @@ export default class Activity extends Component {
       activityAudioPath: this.props.navigation.state.params.activityAudioPath,
       activityVideoPath: this.props.navigation.state.params.activityVideoPath,
       activityIsPublic: this.props.navigation.state.params.activityIsPublic,
-      userId: this.props.navigation.state.params.userId,
       rewardId: this.props.navigation.state.params.rewardId,
       haveRecordingPermissions: false,
       isLoading: false,
@@ -74,6 +73,7 @@ export default class Activity extends Component {
       shouldCorrectPitch: true,
       volume: 1.0,
       rate: 1.0,
+      
     };
     this.recordingSettings = JSON.parse(
       JSON.stringify(Audio.RECORDING_OPTIONS_PRESET_LOW_QUALITY)

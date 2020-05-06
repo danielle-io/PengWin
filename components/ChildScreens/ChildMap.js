@@ -11,8 +11,15 @@ import {
 import Head from "../../assets/images/rewardPenguin.png";
 import Star from "../../assets/images/roadStar.png";
 import Road from "../../assets/images/RoadMap.png";
-const { width: WIDTH, height: HEIGHT } = Dimensions.get("window");
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+
+import UserInfo from "../../state/UserInfo";
+
+const { width: WIDTH, height: HEIGHT } = Dimensions.get("window");
+const parentId = UserInfo.parent_id;
+const childId = UserInfo.child_id;
+const userId = UserInfo.user_id;
+
 Icon.loadFont();
 export default class ChildMap extends Component {
   constructor() {
@@ -131,7 +138,7 @@ export default class ChildMap extends Component {
               this.props.navigation.navigate("ChildActivity", {
                 prevScreenTitle: "My Map",
                 currentRoutine: "Morning Routine",
-                userID: 1
+                userID: userId
               })
             }>
               <Text>Start Routine</Text>

@@ -7,23 +7,30 @@ const { width: WIDTH } = Dimensions.get("window");
 import { Notifications } from "expo";
 
 import Environment from "../../database/sqlEnv";
+import UserInfo from "../../state/UserInfo";
 
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 Icon.loadFont();
 
+
 console.disableYellowBox = true;
 export default class ChildRoutines extends Component {
+  
   constructor(props) {
     super(props);
+    
     this.state = {
       loaded: false,
-      userId: 1,
       results: null,
       activities: null,
       routines: null,
     };
-
+    const parentId = UserInfo.parent_id;
+    const childId = UserInfo.child_id;
+    const userId = UserInfo.user_id;
     const { navigate } = this.props.navigation;
+ 
+
     this.navigate = navigate;
     this.notif = false;
 
