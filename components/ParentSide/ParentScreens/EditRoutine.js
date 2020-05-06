@@ -16,9 +16,14 @@ import DatePicker from "react-native-datepicker";
 import Environment from "../../../database/sqlEnv";
 
 import SearchableDropdown from "react-native-searchable-dropdown";
+import UserInfo from "../../../state/UserInfo";
 
 const { width: WIDTH } = Dimensions.get("window");
 const changedDates = {};
+
+const parentId = UserInfo.parent_id;
+const childId = UserInfo.child_id;
+const userId = UserInfo.user_id
 
 Icon.loadFont();
 
@@ -64,9 +69,8 @@ export default class EditRoutine extends Component {
       prevScreenTitle: this.props.navigation.state.params.prevScreenTitle,
       routineName: this.props.navigation.state.params.routineName,
       routineId: this.props.navigation.state.params.routineId,
-      routineStartTime: this.props.navigation.state.params.routineStartTime,
-      routineEndTime: this.props.navigation.state.params.routineEndTime,
-      routineApproval: this.props.navigation.state.params.routineApproval,
+      startTime: this.props.navigation.state.params.startTime,
+      endTime: this.props.navigation.state.params.endTime,
       requiresApproval: this.props.navigation.state.params.requires_approval,
       amount_of_activities: this.props.navigation.state.params
         .amount_of_activities,
@@ -78,7 +82,6 @@ export default class EditRoutine extends Component {
       friday: this.props.navigation.state.params.friday,
       saturday: this.props.navigation.state.params.saturday,
       sunday: this.props.navigation.state.params.sunday,
-      userId: this.props.navigation.state.params.userId,
       rewardId: this.props.navigation.state.params.rewardId,
       allRewardsByIdDictionary: this.props.navigation.state.params
         .allRewardsByIdDictionary,
@@ -95,22 +98,15 @@ export default class EditRoutine extends Component {
       activitiesLoaded: false,
       // TODO: hardcoded date
       date: "2016-05-15",
-      newActivities: [],
       newReward: null,
       currentlySelectedActivity: null,
       currentlySelectedReward: null,
 
       activityChangeLoad: true,
       rewardLoaded: false,
-      addToActivityRoutineTbl: [],
-
       activityInserted: false,
-
       addActivityButtonClicked: false,
       addRewardButtonClicked: false,
-      // Use this when the order changes
-      // once changing order is possible
-      changeActivityRelationship: false,
       loadedAfterDeletion: true,
     };
   }
@@ -173,13 +169,13 @@ export default class EditRoutine extends Component {
         this.setState({ currentlySelectedActivity: null });
       }
     } catch (errors) {
-      alert(errors);
+      console.log(errors);
     }
   }
 
   // Update the activity routine db table w/ changes
   async updateActivityRelationship(routine_activity_id, tag, value) {
-    console.log("TAG IS " + tag);
+    console.log("TAG IS " + tag + " ROUTINE_ACTIVITY_ID IS " + routine_activity_id + " VALUE IS " + value);
     var data = {
       [tag]: value,
     };
@@ -202,7 +198,6 @@ export default class EditRoutine extends Component {
 
         if (tag === "deleted") {
           console.log("tag is deleted load trick");
-
           // Re-fetch the activities, set up by order & id, then
           // remove used ones from all activities (all in one call)
           this.getActivityRoutineJoinTable();
@@ -251,13 +246,14 @@ export default class EditRoutine extends Component {
     }
     data = {
       routine_name: this.state.routineName,
-      user_id: this.state.user_id,
-      start_time: this.state.routineStartTime,
-      end_time: this.state.routineEndTime,
-      routineApproval: this.state.routineApproval,
+      start_time: this.state.startTime,
+      end_time: this.state.endTime,
       requiresApproval: this.state.requires_approval,
+      user_id: userId,
       amount_of_activities: this.state.activities.length,
       amount_of_rewards: this.state.amount_of_rewards,
+      is_active: 1,
+      skip_once: 0,
       monday: this.state.monday,
       tuesday: this.state.tuesday,
       wednesday: this.state.wednesday,
@@ -265,6 +261,10 @@ export default class EditRoutine extends Component {
       friday: this.state.friday,
       saturday: this.state.saturday,
       sunday: this.state.sunday,
+      reward_id: this.state.reward_id,
+      parent_id: parentId,
+      child_id: childId,
+      deleted: 0,
     };
   }
 
@@ -365,19 +365,13 @@ export default class EditRoutine extends Component {
     this.setState({ rewardLoaded: true });
   }
 
-  deleteActivity(routineActivityId, order, itemId, listName) {
+  removeItem(routineActivityId, order, itemId, listName) {
     this.setState({ loadedAfterDeletion: false });
     // this.setState({ activityChangeLoad: false});
 
     console.log(
-      "routineActivityId, order, itemId, listName " +
-        routineActivityId +
-        " " +
-        order +
-        " " +
-        itemId +
-        " " +
-        listName
+      "RaID, ordr, itmId, list " + routineActivityId + " " + order +
+        " " + itemId + " " + listName
     );
 
     if (listName === "activity") {
@@ -387,6 +381,16 @@ export default class EditRoutine extends Component {
       console.log("updating activity orders");
       this.updateActivityOrders(order, listName, routineActivityId);
     }
+
+    // TODO: finish deleting rewards
+    else {
+      this.setState({
+        amount_of_rewards: 0,
+      });
+      this.setState({ rewardId: 0 })
+      this.setState({ currentlySelectedReward: null});
+      this.changeRoutineComponent("reward_id", 0);
+    }
   }
 
   updateActivityOrders(order, listName, routineActivityId) {
@@ -394,6 +398,9 @@ export default class EditRoutine extends Component {
       this.state.routineActivitiesByOrder != null &&
       this.state.routineActivitiesByOrder != []
     ) {
+      console.log("this.state.routineActivitiesByOrder");
+      console.log(this.state.routineActivitiesByOrder);
+
       var arrLength = Object.keys(this.state.routineActivitiesByOrder).length;
       for (var i = order; i < arrLength; i++) {
         var currentActivity = this.state.routineActivitiesByOrder[i];
@@ -408,23 +415,18 @@ export default class EditRoutine extends Component {
       }
     }
     this.updateActivityRelationship(routineActivityId, "deleted", 1);
-
     // {
     //   this.state.loadedAfterDeletion &&
-    //   console.log("MADE IT IN AFTER DELETE");
-
     //   this.displayList(listName);
     // this.reRenderList("activity");
-
     // this.addRow(Object.keys(this.state.routineActivitiesByOrder).length + 1, "activity");
-
     // this.setState({ loadedAfterDeletion: true });
-
     // }
   }
 
-  componentDidMount() {
-    // If there is a reward for the routine, store it
+  async componentDidMount() {
+    await this.props.navigation.addListener("didFocus", (payload) => {
+     // If there is a reward for the routine, store it
     this.getRoutineReward();
 
     // Put all the reward names in an array since those
@@ -437,6 +439,7 @@ export default class EditRoutine extends Component {
     if (this.state.routineId !== null) {
       this.getActivityRoutineJoinTable();
     }
+    });   
   }
 
   getActivityRoutineJoinTable() {
@@ -517,7 +520,7 @@ export default class EditRoutine extends Component {
   }
 
   getCurrentSwitchState() {
-    if (this.state.routineApproval === 1) {
+    if (this.state.requiresApproval === 1) {
       return true;
     }
     return false;
@@ -571,14 +574,14 @@ export default class EditRoutine extends Component {
                   style={styles.deleteItemIcon}
                   onPress={() => {
                     if (listName === "activity") {
-                      this.deleteActivity(
+                      this.removeItem(
                         item.routine_activity_id,
                         item.order,
                         item.activity_id,
                         listName
                       );
                     } else {
-                      this.deleteActivity(
+                      this.removeItem(
                         item.reward_id,
                         item.reward_id,
                         item.reward_id,
@@ -586,7 +589,7 @@ export default class EditRoutine extends Component {
                       );
                     }
                   }}
-                  // onPress={() => this.deleteActivity(this.state.deletingItemId, listName)}
+                  // onPress={() => this.removeItem(this.state.deletingItemId, listName)}
                 />
               </Text>
             </View>
@@ -638,7 +641,6 @@ export default class EditRoutine extends Component {
 
   handleApprovalSwitchChange() {
     this.setState({ requiresApproval: !this.state.requiresApproval });
-
     this.pushToUpdateRoutineArray(
       "requires_approval",
       this.state.requiresApproval
@@ -657,7 +659,6 @@ export default class EditRoutine extends Component {
       }
 
       // Display everything once the activity is loaded
-      // {
       {
         this.state.activityChangeLoad && this.displayList(listName);
         this.addRow(
@@ -671,7 +672,6 @@ export default class EditRoutine extends Component {
     if (listName === "reward") {
       this.changeRoutineComponent("reward_id", this.state.newReward.id);
 
-      // Display everything once the activity is loaded
       this.setState({
         currentlySelectedReward: this.state.allRewardsByIdDictionary[
           this.state.newReward.id
@@ -686,8 +686,6 @@ export default class EditRoutine extends Component {
     var activity = this.state.allActivitiesDictionary[
       this.state.currentlySelectedActivity.id
     ];
-
-    // this.pushToUpdateRoutineArray("routine_name", this.state.routineName);
 
     // Insert a new activity into the relationship table
     this.insertActivityRelationship(activity.activity_id, order);
@@ -813,13 +811,13 @@ export default class EditRoutine extends Component {
 
   defineTimeText(text) {
     if (text === "Start") {
-      if (this.state.routineStartTime === "00:00") {
+      if (this.state.startTime === "00:00") {
         return "Select a Start Time";
       }
       return "Start Time";
     }
     if (text === "End") {
-      if (this.state.routineEndTime === "00:00") {
+      if (this.state.endTime === "00:00") {
         return "Select an End Time";
       }
       return "End Time";
@@ -828,27 +826,27 @@ export default class EditRoutine extends Component {
 
   defineTime(text) {
     if (text === "Start") {
-      if (this.state.routineStartTime === "00:00") {
+      if (this.state.startTime === "00:00") {
         return "00:00";
       }
-      return this.state.routineStartTime;
+      return this.state.startTime;
     }
     if (text === "End") {
-      if (this.state.routineEndTime === "00:00") {
+      if (this.state.endTime === "00:00") {
         return "00:00";
       }
-      return this.state.routineEndTime;
+      return this.state.endTime;
     }
   }
 
   timeMarginDefinition(text) {
     if (text === "Start") {
-      if (this.state.routineStartTime === "00:00") {
+      if (this.state.startTime === "00:00") {
         return 260;
       }
       return 320;
     } else {
-      if (this.state.routineEndTime === "00:00") {
+      if (this.state.endTime === "00:00") {
         return 260;
       }
       return 330;
@@ -949,23 +947,6 @@ export default class EditRoutine extends Component {
     // This means an item was selected but the add button wasnt pressed
     if (this.state.currentlySelectedActivity != null) {
       this.addNewActivityToState();
-      // this.getActivityById(this.state.currentlySelectedActivity.id);
-      // console.log("saved activity");
-    }
-
-    // This changes the relationship table for activities and routines
-    if (this.changeActivityRelationship) {
-      // TODO: change existing relationship IDs if order changes
-      // this.changeActivityRelationship(activity_id, order)
-
-      // Only deals with new ones (cant change the order of existing relationshiptableIDs)
-      for (var i = 0; i < this.state.addToActivityRoutineTbl.length; i++) {
-        var currentActivity = this.state.addToActivityRoutineTbl[i];
-        var activity_id = currentActivity.activity_id;
-        var order = currentActivity.order;
-
-        this.insertActivityRelationship(activity_id, order);
-      }
     }
 
     if (this.state.newReward !== null) {
@@ -1080,8 +1061,8 @@ export default class EditRoutine extends Component {
                 </Text>
 
                 {/* Call the displayActivities function to loop over the returned activities */}
+           
                 {/* {this.checkThatListItemsExist("activity")} */}
-
                 {this.displayList("activity")}
                 {this.addRow(
                   Object.keys(this.state.routineActivitiesByOrder).length + 1,
@@ -1107,7 +1088,6 @@ export default class EditRoutine extends Component {
               {this.addNewItemButtonToList("reward")}
             </View>
 
-            {/** DEADLINES **/}
             <View>
               <View style={styles.editRoutineIconAndTitle}>
                 <Icon style={styles.routineDetailsIcon} name="clock-outline" />
@@ -1138,7 +1118,7 @@ export default class EditRoutine extends Component {
                   {
                     this.pushToUpdateRoutineArray("start_time", date);
                   }
-                  this.setState({ routineStartTime: date });
+                  this.setState({ startTime: date });
                 }}
                 customStyles={{
                   dateInput: {
@@ -1165,7 +1145,7 @@ export default class EditRoutine extends Component {
                     this.pushToUpdateRoutineArray("end_time", date);
                   }
 
-                  this.setState({ routineEndTime: date });
+                  this.setState({ endTime: date });
                 }}
                 customStyles={{
                   dateInput: {
@@ -1176,7 +1156,6 @@ export default class EditRoutine extends Component {
                 }}
               />
             </View>
-
             {this.displayToggle()}
           </View>
 

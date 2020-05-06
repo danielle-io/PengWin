@@ -26,8 +26,9 @@ import UserInfo from "../../../state/UserInfo";
 
 const { width: WIDTH } = Dimensions.get("window");
 
-const parent_id = UserInfo.parent_id;
-const child_id = UserInfo.child_id;
+const parentId = UserInfo.parent_id;
+const childId = UserInfo.child_id;
+const userId = UserInfo.user_id;
 
 Icon.loadFont();
 
@@ -39,12 +40,10 @@ export default class ParentRoutines extends Component {
   });
 
   constructor() {
-    // User ID hard coded for now
     super();
     this.state = {
-      loaded: false,
-      secondLoaded: false,
-      userId: 1,
+      routinesLoaded: false,
+      activitiesLoaded: false,
       results: null,
       allActivities: null,
       index: 0,
@@ -96,7 +95,7 @@ export default class ParentRoutines extends Component {
   }
 
   getRoutines() {
-    fetch(Environment + "/getRoutinesByUser/" + this.state.userId, {
+    fetch(Environment + "/getRoutinesByUser/" + userId, {
       headers: {
         "Cache-Control": "no-cache",
       },
@@ -107,7 +106,7 @@ export default class ParentRoutines extends Component {
       })
       .then((routines) => {
         this.setState({ results: routines });
-        this.setState({ loaded: true });
+        this.setState({ routinesLoaded: true });
       })
       .catch((error) => {
         console.error(error);
@@ -115,7 +114,7 @@ export default class ParentRoutines extends Component {
   }
 
   getAllRewardsForUser() {
-    fetch(Environment + "/getAllRewards/" + this.state.userId, {
+    fetch(Environment + "/getAllRewards/" + userId, {
       headers: {
         "Cache-Control": "no-cache",
       },
@@ -139,7 +138,6 @@ export default class ParentRoutines extends Component {
     });
 
     this.setState({ allRewardsByIdDictionary: tempDict });
-    this.setState({ secondLoaded: true });
   }
 
   createActivityDictionary() {
@@ -148,11 +146,11 @@ export default class ParentRoutines extends Component {
       tempDict[item.activity_id] = item;
     });
     this.setState({ allActivitiesDictionary: tempDict });
-    this.setState({ secondLoaded: true });
+    this.setState({ activitiesLoaded: true });
   }
 
   getAllActivitiesForUser() {
-    fetch(Environment + "/getActivities/" + this.state.userId, {
+    fetch(Environment + "/getActivities/" + userId, {
       headers: {
         "Cache-Control": "no-cache",
       },
@@ -232,7 +230,6 @@ export default class ParentRoutines extends Component {
       //     activityAudioPath: item.audio_path,
       //     activityVideoPath: item.video_path,
       //     activityIsPublic: item.is_public,
-      //     userId: item.user_id,
       //     rewardId: item.reward_id,
       //     allRewardsByIdDictionary: this.state
       //       .allRewardsByIdDictionary,
@@ -268,14 +265,11 @@ export default class ParentRoutines extends Component {
                 activityAudioPath: item.audio_path,
                 activityVideoPath: item.video_path,
                 activityIsPublic: item.is_public,
-                userId: item.user_id,
                 rewardId: item.reward_id,
                 allRewardsByIdDictionary: this.state
                   .allRewardsByIdDictionary,
                 allActivitiesDictionary: this.state
                   .allActivitiesDictionary,
-                childId: item.child_id,
-                parentId: item.parent_id,
               })
             }
             ripple={ripple}
@@ -301,11 +295,13 @@ export default class ParentRoutines extends Component {
             () =>
               navigate("EditRoutine", {
                 prevScreenTitle: "Routines",
-                routineName: null,
                 routineId: null,
-                routineStartTime: "00:00",
-                routineEndTime: "00:00",
-                routineApproval: 0,
+                routineName: null,
+                startTime: "00:00",
+                endTime: "00:00",
+                requiresApproval: 0,
+                amount_of_activities: 0,
+                amount_of_rewards: 0,
                 monday: 0,
                 tuesday: 0,
                 wednesday: 0,
@@ -315,10 +311,7 @@ export default class ParentRoutines extends Component {
                 sunday: 0,
                 reward_id: 0,
                 allActivities: this.state.allActivities,
-                userId: this.state.userId,
                 allActivitiesDictionary: this.state.allActivitiesDictionary,
-                childId: child_id,
-                parentId: parent_id,
               }))
           }
           ripple={ripple}
@@ -353,7 +346,6 @@ export default class ParentRoutines extends Component {
                         activityAudioPath: item.audio_path,
                         activityVideoPath: item.video_path,
                         activityIsPublic: item.is_public,
-                        userId: item.user_id,
                         rewardId: item.reward_id,
                         allRewardsByIdDictionary: this.state
                           .allRewardsByIdDictionary,
@@ -399,9 +391,9 @@ export default class ParentRoutines extends Component {
                         prevScreenTitle: "Routines",
                         routineName: item.routine_name,
                         routineId: item.routine_id,
-                        routineStartTime: item.start_time,
-                        routineEndTime: item.end_time,
-                        routineApproval: item.requires_approval,
+                        startTime: item.start_time,
+                        endTime: item.end_time,
+                        requiresApproval: item.requires_approval,
                         monday: item.monday,
                         tuesday: item.tuesday,
                         wednesday: item.wednesday,
@@ -413,7 +405,6 @@ export default class ParentRoutines extends Component {
                         amount_of_rewards: item.amount_of_rewards,
                         allActivities: this.state.allActivities,
                         rewardId: item.reward_id,
-                        userId: this.state.userId,
                         allRewardsByIdDictionary: this.state
                           .allRewardsByIdDictionary,
                         allActivitiesDictionary: this.state
@@ -492,13 +483,13 @@ export default class ParentRoutines extends Component {
         </SafeAreaView>
 
         {/* TESTING CONTAINER
-        {!this.state.loaded && (
+        {!this.state.routinesLoaded && (
           <View style={{ marginTop: 100 }}>
-            <Text style={{ marginLeft: 50 }}>:( this.stateloaded is not true</Text>
+            <Text style={{ marginLeft: 50 }}>:( this.stateroutinesLoaded is not true</Text>
           </View>
         )} */}
         <ScrollView>
-          {this.state.loaded && (
+          {this.state.routinesLoaded && (
             <View>
               {this.tabIsRoutines() && (
                 <View
@@ -514,7 +505,7 @@ export default class ParentRoutines extends Component {
             </View>
           )}
 
-          {this.state.secondLoaded && (
+          {this.state.activitiesLoaded && (
             <View>
               <ScrollView>
                 {!this.tabIsRoutines() && (
@@ -637,14 +628,6 @@ const styles = StyleSheet.create({
     textAlign: "center",
     flex: 1,
   },
-  routineContainterOptions: {
-    overflow: "visible",
-    zIndex: 999,
-  },
-  routineOptionsPopout: {
-    overflow: "visible",
-    zIndex: 999,
-  },
   routineMenuStyling: {
     overflow: "visible",
     zIndex: 999,
@@ -662,14 +645,6 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     marginLeft: 5,
   },
-  selectText: {
-    fontSize: 15,
-    padding: 5,
-    marginTop: 10,
-    marginBottom: 10,
-    marginLeft: 10,
-  },
-
   routineContainer: {
     width: WIDTH * 0.3,
     height: 150,
