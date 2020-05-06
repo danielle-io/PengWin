@@ -276,10 +276,4 @@ const styles = {
     paddingTop: 10,
     paddingLeft: 2,
   },
-  lowerCorner: {
-    paddingTop: 10,
-    paddingBottom: 10,
-    alignItems: "flex-end",
-    marginRight: 20,
-  },
 };

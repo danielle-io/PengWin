@@ -20,6 +20,7 @@ import {
 } from "react-native-popup-menu";
 import MaterialTabs from "react-native-material-tabs";
 import Dialog, { DialogContent } from "react-native-popup-dialog";
+import SearchableDropdown from "react-native-searchable-dropdown";
 
 import Environment from "../../../database/sqlEnv";
 import UserInfo from "../../../state/UserInfo";
@@ -430,6 +431,10 @@ export default class ParentRoutines extends Component {
                     onSelect={() => alert("Duplicate")}
                     text="Duplicate"
                   />
+                   <MenuOption
+                    onSelect={() => alert("Add Tag")}
+                    text="Add Tag"
+                  />
                   <MenuOption onSelect={() => alert("Delete")}>
                     <Text style={{ color: "red" }}>Delete</Text>
                   </MenuOption>
@@ -639,7 +644,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   routineDetails: {
-    fontSize: 10,
+    fontSize: 12,
     zIndex: 2,
   },
   routineDetailsPreview: {
