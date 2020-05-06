@@ -309,9 +309,11 @@ export default class ParentRoutines extends Component {
                 friday: 0,
                 saturday: 0,
                 sunday: 0,
-                reward_id: 0,
+                rewardId: 0,
                 allActivities: this.state.allActivities,
                 allActivitiesDictionary: this.state.allActivitiesDictionary,
+                allRewardsByIdDictionary: this.state.allRewardsByIdDictionary,
+
               }))
           }
           ripple={ripple}

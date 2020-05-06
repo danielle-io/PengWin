@@ -134,7 +134,9 @@ app.post('/insertRoutine', function (req, res) {
       throw error;
       console.log(err);
     }
-    res.end(JSON.stringify(results));
+    // res.send(JSON.stringify(results))
+
+    res.send(JSON.stringify(results))
   });
 });
 
@@ -147,7 +149,7 @@ app.post('/insertRoutineActivityRelationship', function (req, res) {
       throw error;
       console.log(err);
     }
-    res.end(JSON.stringify(results));
+    res.send(JSON.stringify(results));
   });
 });
 
@@ -159,7 +161,7 @@ app.post('/insertRewards', function (req, res) {
       throw error;
       console.log(err);
     } 
-    res.end(JSON.stringify(results));
+    res.send(JSON.stringify(results));
   });
 });
 
@@ -169,7 +171,7 @@ app.post('/insertRewards', function (req, res) {
 //     connection.query('SELECT * FROM users where user_id =' + userId, function (error, results, fields) {
 //       if (error) throw error;
 
-//       res.send(results)
+//       res.ssend(results)
 //     });
 //   });
 // });
