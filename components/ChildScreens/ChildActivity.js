@@ -31,6 +31,8 @@ let customFonts = {
     "https://rsms.me/inter/font-files/Inter-SemiBoldItalic.otf?v=3.12",
 };
 
+
+
 export default class ChildActivity extends Component {
   //Construct header titles
   constructor(props) {
@@ -54,6 +56,28 @@ export default class ChildActivity extends Component {
   static navigationOptions = ({ navigation }) => ({
     title: `${navigation.state.params.currentRoutine}`,
   });
+
+  async updateChild(tag, value){
+    var data = {
+      [tag]: value,
+    };
+    try {
+      let response = await fetch(Environment + "/incrementChildRoutines/1" , {
+        method: "POST",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
+      if (response.status >= 200 && response.status < 300) {
+        console.log("POSTED")
+      }
+    } catch (errors) {
+      alert(errors);
+    }
+  }
+
   _onNext = () => {
     this.child._animateNextPage(); // do stuff
   };
@@ -356,6 +380,7 @@ export default class ChildActivity extends Component {
               <TouchableOpacity
                 style={styles.buttonStyle}
                 onPress={() => {
+                  this.updateChild("routines_complete", 1);
                   this.setState({ visible1: true });
                 }}
               >

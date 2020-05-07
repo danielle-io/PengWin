@@ -106,6 +106,25 @@ app.post('/updateUser/:userId', function (req, res) {
       });
   });
 });
+
+app.post('/incrementChildRoutines/:childID', function (req, res) {
+
+  let childID = req.params.childID;
+
+  connection.getConnection(function (err, connection) {
+
+    connection.query('UPDATE children SET routines_complete = routines_complete + 1 WHERE child_id =' + childID,
+      [postData, childID],
+      function (error, results, fields) {
+        if (error){
+          throw error;
+          console.log(err);
+        }
+        res.send(JSON.stringify(results))
+      });
+  });
+});
+
 app.post('/updateActivity/:activity_id', function (req, res) {
 
   let activity_id = req.params.activity_id;
