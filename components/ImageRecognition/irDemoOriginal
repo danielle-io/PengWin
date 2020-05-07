@@ -25,7 +25,7 @@ export default class App extends React.Component {
     completedCheck: false,
     tagsMatched: [],
     googleResponse: null,
-    tags: { toothbrush: 1, brushing: 1, teeth: 1, tooth: 1 },
+    tags: {"toothbrush":1, "brushing":1, "teeth":1, "tooth":1}
   };
 
   async componentDidMount() {
@@ -42,33 +42,37 @@ export default class App extends React.Component {
           style={styles.container}
           contentContainerStyle={styles.contentContainer}
         >
-          <View style={styles.helpContainer}>
-            {!this.state.itemIsInTags && (
-              <Button
+        
+        <View style={styles.helpContainer}>
+
+        {!this.state.itemIsInTags &&
+                <Button
                 onPress={this._takePhoto}
                 title="Take a photo of your toothbrush"
-              />
-            )}
+                />
+        }
             {this.state.googleResponse && (
+              <View>
               <FlatList
                 data={this.state.googleResponse.responses[0].labelAnnotations}
                 extraData={this.state}
                 keyExtractor={this._keyExtractor}
                 renderItem={({ item }) => (
-                  <View>
-                    {!this.state.itemIsInTags && (
-                      <View>{this._compareToTags(item.description)}</View>
-                    )}
-                    )
-                  </View>
-                )}
+                  // TODO: MODIFY THIS SO IT ONLY RUNS WHILE !this.state.itemIsInTags
+                  this._compareToTags(item.description)
+                )
+                }
+                  
               />
+                 </View>
             )}
+
+            
             {this._maybeRenderImage()}
             {this._maybeRenderUploadingOverlay()}
 
             {this.state.googleResponse && this.state.itemIsInTags && (
-              <Text>Good job!</Text>
+              <View><Text>Good job!</Text></View>
             )}
 
             {this.state.googleResponse && !this.state.itemIsInTags && (
@@ -83,16 +87,20 @@ export default class App extends React.Component {
     );
   }
 
-  _setCheckComplete = () => {
-    this.setState({ completedCheck: true });
-  };
 
   _compareToTags = (description) => {
     var tagMatch = false;
 
-    if (description.toLowerCase() in this.state.tags) {
+    if (description.toLowerCase() in this.state.tags){
       tagMatch = true;
     }
+
+    // for (let i = 0; i < this.state.tags.length; i++) {
+    //   console.log(this.state.tags[i]);
+    //   if (this.state.tags[i].toLowerCase() === description.toLowerCase()) {
+    //     
+    //   }
+    // }
     if (!this.state.itemIsInTags && tagMatch) {
       this.setState({ itemIsInTags: true });
     }
@@ -122,7 +130,7 @@ export default class App extends React.Component {
     if (!activityImage) {
       return;
     }
-
+    console.log("in maybe render");
     return (
       <View
         style={{
@@ -144,10 +152,9 @@ export default class App extends React.Component {
             overflow: "hidden",
           }}
         >
-          <Image
-            source={{ uri: activityImage }}
-            style={{ width: 250, height: 250 }}
-          />
+          {/* {!this.state.completedCheck && */}
+          <Image source={{ uri: activityImage }} style={{ width: 250, height: 250 }} />
+          {/* } */}
         </View>
       </View>
     );
@@ -155,8 +162,9 @@ export default class App extends React.Component {
 
   _keyExtractor = (item, index) => item.id;
 
-
   _takePhoto = async () => {
+    // this.setState({completedCheck : false})
+
     let pickerResult = await ImagePicker.launchCameraAsync({
       allowsEditing: true,
       aspect: [4, 3],
@@ -165,7 +173,6 @@ export default class App extends React.Component {
     this._handleImagePicked(pickerResult);
   };
 
-  //
   _handleImagePicked = async (pickerResult) => {
     try {
       this.setState({ uploading: true });
@@ -237,6 +244,7 @@ export default class App extends React.Component {
 }
 
 async function uploadImageAsync(uri) {
+  console.log("uploading async");
   const blob = await new Promise((resolve, reject) => {
     const xhr = new XMLHttpRequest();
     xhr.onload = function() {

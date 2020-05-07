@@ -30,6 +30,7 @@ const { width: WIDTH } = Dimensions.get("window");
 const parentId = UserInfo.parent_id;
 const childId = UserInfo.child_id;
 const userId = UserInfo.user_id;
+const pincode = UserInfo.pincode;
 
 Icon.loadFont();
 
@@ -193,7 +194,7 @@ export default class ParentRoutines extends Component {
         this.displayRoutines();
       }
     } catch (errors) {
-      alert(errors);
+      console.log(errors);
     }
   }
 
