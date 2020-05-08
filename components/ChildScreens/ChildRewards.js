@@ -93,8 +93,14 @@ export default class ChildRewards extends Component {
   }
 
   tokens(){
+    const Ribbon = {
+      Ribbon: 1,
+      Ribbon2: 2,
+      Ribbon3: 3,
+      Ribbon4: 4
+   };
     return (
-      <Text>{this.state.child.routines_complete}</Text>
+    <Text>{this.state.child.routines_complete} + {Ribbon[1]}</Text>
     )
   }
 

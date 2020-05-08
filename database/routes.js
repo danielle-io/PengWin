@@ -160,6 +160,25 @@ app.post('/insertRoutine', function (req, res) {
 });
 
 
+app.post('/updatePreferences/:user_preference_id', function (req, res) {
+
+  let user_preference_id = req.params.user_preference_id;
+  var postData = req.body;
+
+  console.log(postData);
+  connection.getConnection(function (err, connection) {
+    connection.query('UPDATE user_preferences SET ? WHERE user_preference_id =' + user_preference_id,
+      [postData, user_preference_id],
+      function (error, results, fields) {
+
+        if (error){
+          console.log(error);
+          throw error;
+        }
+        res.send(JSON.stringify(results))
+      });
+  });
+});
 
 app.post('/insertRoutineActivityRelationship', function (req, res) {
   var postData = req.body;
@@ -175,7 +194,7 @@ app.post('/insertRoutineActivityRelationship', function (req, res) {
 
 app.post('/insertRewards', function (req, res) {
   var postData = req.body;
-  connection.query('INSERT INTO rewards  SET ?', postData, function (error, results, fields) {
+  connection.query('INSERT INTO rewards SET ?', postData, function (error, results, fields) {
     if (error){
       throw error;
       console.log(err);
