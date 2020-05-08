@@ -242,29 +242,6 @@ app.post('/insertRewards', function (req, res) {
   });
 });
 
-app.post('/userPreferences', function (req, res) {
-  var postData = req.body;
-  connection.query('INSERT INTO user_preferences  SET ?', postData, function (error, results, fields) {
-    if (error){
-      console.log("ERRRROROOROROROROOR");
-      console.log("ERRRROROOROROROROOR" + err);
-      throw error;
-      
-    } 
-    res.send(JSON.stringify(results));
-  });
-});
-
-// app.get('/user', function (req, res) {
-//   connection.getConnection(function (err, connection) {
-//     connection.query('SELECT * FROM users where user_id =' + userId, function (error, results, fields) {
-//       if (error) throw error;
-
-//       res.ssend(results)
-//     });
-//   });
-// });
-
 
 
 app.get('/getUser/:userId', function (req, res) {

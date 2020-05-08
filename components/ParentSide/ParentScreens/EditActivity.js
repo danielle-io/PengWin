@@ -91,6 +91,30 @@ export default class Activity extends Component {
     
   }
 
+  async postPreference(tag, value){
+    console.log("IN PREFERENCES")
+      var data = {
+        [tag]: value,
+      };
+      try {
+        console.log("IN TRY")
+        let response = await fetch(Environment + "/updatePreferences/1" , {
+          method: "POST",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(data),
+        });
+        
+        if (response.status >= 200 && response.status < 300) {
+          console.log("POSTED")
+        }
+      } catch (errors) {
+        alert(errors);
+      }
+    }
+
   async postActivity(tag, value){
     var data = {
       [tag]: value,
@@ -625,6 +649,7 @@ export default class Activity extends Component {
             <TouchableOpacity
               style={styles.button}
               onPress={() => {
+                this.postPreference("gender",2);
                 this.setState({ visible: true });
               }}
             >

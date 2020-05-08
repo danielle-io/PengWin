@@ -6,7 +6,10 @@ import StepIndicator from 'react-native-step-indicator';
 import Carousel from "react-native-carousel-view";
 import MobileStepper from '@material-ui/core/MobileStepper';
 import { AppLoading } from "expo";
+import * as FileSystem from "expo-file-system";
+import * as Permissions from "expo-permissions";
 import Environment from "../../../database/sqlEnv";
+import UserInfo from "../../../state/UserInfo";
 
 import RadioForm, {RadioButton, RadioButtonInput, RadioButtonLabel} from 'react-native-simple-radio-button';
 
@@ -48,11 +51,13 @@ export default class Question1 extends Component {
     });
 
     async postPreference(tag, value){
+      console.log("IN PREFERENCES")
         var data = {
           [tag]: value,
         };
         try {
-          let response = await fetch(Environment + "/userPreferences/1" , {
+          console.log("IN TRY")
+          let response = await fetch(Environment + "/updatePreferences/1" , {
             method: "POST",
             headers: {
               Accept: "application/json",
@@ -60,6 +65,7 @@ export default class Question1 extends Component {
             },
             body: JSON.stringify(data),
           });
+          
           if (response.status >= 200 && response.status < 300) {
             console.log("POSTED")
           }
@@ -67,6 +73,8 @@ export default class Question1 extends Component {
           alert(errors);
         }
       }
+
+      
 
     // onContinueClicked = () => {
     //     this.props.navigation.navigate("Question2");
@@ -120,7 +128,7 @@ export default class Question1 extends Component {
                         // labelWrapStyle ={{lineHeight: 5}}
                         labelColor={'#352D39'}
                         selectedButtonColor={'#352D39'}
-                        onPress={(choice) => {this.setState({value:choice}); this.state.selected = true } }
+                        onPress={(choice) => {this.setState({value:choice}); this.state.selected = true; this.postPreference("gender",2)} }
                         //it shows the value of previously selected choice. don't know why¯\_(ツ)_/¯
                         />
                     </View>
@@ -134,7 +142,7 @@ export default class Question1 extends Component {
                         ? styles.buttonPrimary
                         : styles.buttonSecondary}
 
-                onPress={() => {this.postPreference("gender", 2); this.navigate("Question2",{prevScreenTitle: 'Back'}); console.log("valueee", this.state.value); console.log("clickkk")}}
+                onPress={() => { this.navigate("Question2",{prevScreenTitle: 'Back'}); console.log("valueee", this.state.value); console.log("clickkk")}}
                 >
                 <View>
                 <Text style={this.state.selected
