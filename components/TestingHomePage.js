@@ -171,11 +171,11 @@ export default class TestingHomePage extends Component {
             >
               <TouchableOpacity
                 onPress={() =>
-                  this.navigate("irDemo", { prevScreenTitle: "irDemo" })
+                  this.navigate("ChildCamera", { prevScreenTitle: "ChildCamera" })
                 }
                 style={styles.otherContainer}
               >
-                <Text style={styles.linkText}>irDemo</Text>
+                <Text style={styles.linkText}>ChildCamera</Text>
               </TouchableOpacity>
 
               <TouchableOpacity

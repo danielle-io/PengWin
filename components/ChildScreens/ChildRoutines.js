@@ -7,24 +7,27 @@ const { width: WIDTH } = Dimensions.get("window");
 import { Notifications } from "expo";
 
 import Environment from "../../database/sqlEnv";
+import UserInfo from "../../state/UserInfo";
 
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 Icon.loadFont();
 
 console.disableYellowBox = true;
+
 export default class ChildRoutines extends Component {
+  
   constructor(props) {
     super(props);
+    
     this.state = {
       loaded: false,
-      secondLoaded: false,
-      userId: 1,
       results: null,
       activities: null,
       routines: null,
     };
 
     const { navigate } = this.props.navigation;
+
     this.navigate = navigate;
     this.notif = false;
 
@@ -160,7 +163,11 @@ export default class ChildRoutines extends Component {
 
   // Get the routines data from the db
   getRoutines() {
-    fetch( Environment + "/getRoutinesByUser/" + 1, {
+    const parentId = UserInfo.parent_id;
+    const childId = UserInfo.child_id;
+    const userId = UserInfo.user_id;
+    
+    fetch( Environment + "/getRoutinesByUser/" + userId, {
       headers: {
         "Cache-Control": "no-cache",
       },
@@ -185,19 +192,20 @@ export default class ChildRoutines extends Component {
   }
 
   renderRoutines() {
-    console.log("IM RENDER ROUTIMES");
-    console.log("THESE ARE MY ROUTINES" + this.state.routines.routines.length);
     return this.state.routines.routines.map((item) => {
-      console.log(item);
+      // console.log(item);
       if (item.is_active == 1) {
         return (
           <View
             style={({ flex: 1 }, styles.routines)}
             onStartShouldSetResponder={() =>
-              this.props.navigation.navigate("ChildActivity", {
+              this.props.navigation.navigate("ChildStartActivity", {
                 prevScreenTitle: "My Routines",
                 currentRoutine: item.routine_name,
-                userID: item.user_id,
+                routineId: item.routine_id,
+                rewardId: item.reward_id,
+                requiresApproval: item.requires_approval,
+                amountOfActivities: item.amount_of_activities,
               })
             }
           >
@@ -205,10 +213,9 @@ export default class ChildRoutines extends Component {
               <Text style={styles.routineTitle}>{item.routine_name}</Text>
             </ScrollView>
 
-            {/* TODO: Change Numerical Value to be dynamic*/}
             <View style={styles.detailsContainer}>
               <Text style={styles.routineDetails}>
-                <Icon name="playlist-check" color="#B1EDE8" size={20} /> Tasks:{" "}
+                <Icon name="playlist-check" color="#B1EDE8" size={20} /> Activities:{" "}
                 {item.amount_of_activities}
               </Text>
               <Text style={styles.routineDetails}>
@@ -279,11 +286,5 @@ const styles = {
     fontSize: 15,
     paddingTop: 10,
     paddingLeft: 2,
-  },
-  lowerCorner: {
-    paddingTop: 10,
-    paddingBottom: 10,
-    alignItems: "flex-end",
-    marginRight: 20,
   },
 };

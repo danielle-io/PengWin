@@ -18,14 +18,51 @@ import MaterialTabs from "react-native-material-tabs";
 const { width: WIDTH } = Dimensions.get("window");
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 Icon.loadFont();
+
+import Environment from "../../database/sqlEnv";
+
 export default class ChildRewards extends Component {
   constructor() {
-    // User ID hard coded for now
     super();
     this.state = {
       index: 0,
       selectedTab: 0,
+
+      loaded: false,
+      results: false,
+      star: null,
     };
+    this.getResults();
+  }
+
+  getResults() {
+    fetch(Environment + "/getAllRewardsandRoutines/" + 1, {
+      headers: {
+        "Cache-Control": "no-cache",
+      },
+    })
+      .then((response) => response.json())
+      .then((responseJson) => {
+        return responseJson;
+      })
+      .then((results) => {
+        this.setState({ results: results });
+        this.setState({ loaded: true });
+        console.log(this.state.results);
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+  }
+
+  displayStars(activities, star) {
+    var stars = [];
+
+    for (let i = 0; i < activities; i++) {
+      stars.push(<Image source={star} style={{ width: 20, height: 20 }} />);
+    }
+
+    return stars;
   }
 
   displayTab1() {
@@ -55,31 +92,32 @@ export default class ChildRewards extends Component {
   displayTab2() {
     return (
       <View
-        style={({ flex: 1 }, styles.routines)}
-        onStartShouldSetResponder={() =>
-          this.props.navigation.navigate("ChildActivity", {
-            prevScreenTitle: "My Routines",
-            currentRoutine: item.routine_name,
-            userID: item.user_id,
-          })
-        }
+        style={{
+          flexDirection: "row",
+          flexWrap: "wrap",
+          margin: 0,
+        }}
       >
-        <ScrollView>
-          <Text style={styles.routineTitle}>Reward1</Text>
-        </ScrollView>
-        <View style={styles.detailsContainer}>
-          <Text style={styles.routineDetails}>
-            <Icon name="playlist-check" color="#B1EDE8" size={20} /> Tasks: 2
-          </Text>
-        </View>
+        {this.state.results.map((item) => {
+          if (item.requires_approval == 1)
+            return (
+              <View style={({ flex: 1 }, styles.routines)}>
+                <ScrollView>
+                  <Text style={styles.routineTitle}>{item.reward_name}</Text>
+                </ScrollView>
+                <View style={styles.detailsContainer}>
+                  <Text style={styles.routineDetails}>
+                    <Icon name="playlist-check" color="#B1EDE8" size={20} />{" "}
+                    Activities: {item.amount_of_activities}
+                  </Text>
+                </View>
 
-        <View style={{flexDirection:"row", margin:10}}>
-          <Image source={Star} style={{ width: 20, height: 20 }} />
-          <Image source={Star} style={{ width: 20, height: 20 }} />
-          <Image source={Star} style={{ width: 20, height: 20 }} />
-          <Image source={UnfilledStar} style={{ width: 20, height: 20 }} />
-          <Image source={UnfilledStar} style={{ width: 20, height: 20 }} />
-        </View>
+                <View style={{ flexDirection: "row", margin: 10 }}>
+                  {this.displayStars(item.amount_of_activities, Star)}
+                </View>
+              </View>
+            );
+        })}
       </View>
     );
   }
@@ -87,37 +125,43 @@ export default class ChildRewards extends Component {
   displayTab3() {
     return (
       <View
-        style={({ flex: 1 }, styles.routines)}
-        onStartShouldSetResponder={() =>
-          this.props.navigation.navigate("ChildActivity", {
-            prevScreenTitle: "My Routines",
-            currentRoutine: item.routine_name,
-            userID: item.user_id,
-          })
-        }
+        style={{
+          flexDirection: "row",
+          flexWrap: "wrap",
+          margin: 0,
+        }}
       >
-        <ScrollView>
-          <Text style={styles.routineTitle}>Reward1</Text>
-        </ScrollView>
-        <View style={styles.detailsContainer}>
-          <Text style={styles.routineDetails}>
-            <Icon name="playlist-check" color="#B1EDE8" size={20} /> Tasks: 2
-          </Text>
-        </View>
+        {this.state.results.map((item) => {
+          if (item.requires_approval == 0)
+            return (
+              <View
+                style={({ flex: 1 }, styles.routines)}
+                onStartShouldSetResponder={() =>
+                  this.props.navigation.navigate("ChildMap", {
+                    prevScreenTitle: "Login",
+                  })
+                }
+              >
+                <ScrollView>
+                  <Text style={styles.routineTitle}>{item.reward_name}</Text>
+                </ScrollView>
+                <View style={styles.detailsContainer}>
+                  <Text style={styles.routineDetails}>
+                    <Icon name="playlist-check" color="#B1EDE8" size={20} />{" "}
+                    Activities: {item.amount_of_activities}
+                  </Text>
+                </View>
 
-        <View style={{flexDirection:"row", margin:10}}>
-          <Image source={Star} style={{ width: 20, height: 20 }} />
-          <Image source={Star} style={{ width: 20, height: 20 }} />
-          <Image source={Star} style={{ width: 20, height: 20 }} />
-          <Image source={UnfilledStar} style={{ width: 20, height: 20 }} />
-          <Image source={UnfilledStar} style={{ width: 20, height: 20 }} />
-        </View>
+                <View style={{ flexDirection: "row", margin: 10 }}>
+                  {this.displayStars(item.amount_of_activities, UnfilledStar)}
+                </View>
+              </View>
+            );
+        })}
       </View>
     );
   }
-
   render() {
-    //TODO: Figure out how this page looks
     return (
       <View>
         <View>
@@ -143,10 +187,9 @@ export default class ChildRewards extends Component {
             <MaterialTabs
               items={["Tokens", "Earned", "Upcoming"]}
               selectedIndex={this.state.selectedTab}
-              barColor="#B1EDE8"
-              // barColor="#D7CBD2"
+              barColor="white"
               indicatorColor="#B1EDE8"
-              activeTextColor="white"
+              activeTextColor="#B1EDE8"
               inactiveTextColor="black"
               onChange={(index) => {
                 this.setState({
@@ -156,10 +199,12 @@ export default class ChildRewards extends Component {
               }}
             />
           </SafeAreaView>
+
           <ScrollView style={{ margin: 50 }}>
-            {this.state.selectedTab === 0 && this.displayTab1()}
-            {this.state.selectedTab === 1 && this.displayTab2()}
-            {this.state.selectedTab === 2 && this.displayTab3()}
+            {this.state.loaded &&
+              ((this.state.selectedTab === 0 && this.displayTab1()) ||
+                (this.state.selectedTab === 1 && this.displayTab2()) ||
+                (this.state.selectedTab === 2 && this.displayTab3()))}
           </ScrollView>
         </View>
       </View>
@@ -207,7 +252,7 @@ const styles = {
   routines: {
     paddingLeft: 3,
     textAlignVertical: "center",
-    width: WIDTH * 0.3,
+    width: WIDTH * 0.25,
     height: 120,
     margin: 10,
     borderWidth: 3,

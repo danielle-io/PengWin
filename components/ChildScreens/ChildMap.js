@@ -11,8 +11,15 @@ import {
 import Head from "../../assets/images/rewardPenguin.png";
 import Star from "../../assets/images/roadStar.png";
 import Road from "../../assets/images/RoadMap.png";
-const { width: WIDTH, height: HEIGHT } = Dimensions.get("window");
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+
+import UserInfo from "../../state/UserInfo";
+
+const { width: WIDTH, height: HEIGHT } = Dimensions.get("window");
+const parentId = UserInfo.parent_id;
+const childId = UserInfo.child_id;
+const userId = UserInfo.user_id;
+
 Icon.loadFont();
 export default class ChildMap extends Component {
   constructor() {
@@ -21,6 +28,9 @@ export default class ChildMap extends Component {
     this.state = {};
   }
 
+  static navigationOptions = ({ navigation }) => ({
+    title: "My Rewards",
+  });
   render() {
     //TODO: Figure out how this page looks
     return (
@@ -114,11 +124,23 @@ export default class ChildMap extends Component {
               justifyContent: "center",
             }}
           >
-            <TouchableOpacity style={styles.button}>
+            <TouchableOpacity style={styles.button}
+            onPress={() =>
+              this.props.navigation.navigate("ChildRewards", {
+                prevScreenTitle: "My Map"
+              })
+            }>
               <Text>Back To Rewards</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.button}>
+            <TouchableOpacity style={styles.button}
+            onPress={() =>
+              this.props.navigation.navigate("ChildActivity", {
+                prevScreenTitle: "My Map",
+                currentRoutine: "Morning Routine",
+                userID: userId
+              })
+            }>
               <Text>Start Routine</Text>
             </TouchableOpacity>
           </View>

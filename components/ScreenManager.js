@@ -1,5 +1,3 @@
-
-
 import React, { Component } from 'react';
 
 import { createAppContainer } from 'react-navigation'
@@ -26,15 +24,12 @@ import ChildPincode from './ChildScreens/ChildPincode';
 import ChildNotifScreen from './ChildScreens/ChildNotifScreen';
 import ChildRewards from './ChildScreens/ChildRewards';
 import ChildMap from './ChildScreens/ChildMap';
+import ChildStartActivity from './ChildScreens/ChildStartActivity';
 
 import Camera from '../components/ImageRecognition/Camera';
-import irDemo from '../components/ImageRecognition/irDemo';
-
-
+import ChildCamera from '../components/ImageRecognition/ChildCamera';
 
 import TestingHomePage from './TestingHomePage';
-
-
 
 const Screens = createStackNavigator({
   TestingHomePage: {screen: TestingHomePage},
@@ -43,7 +38,7 @@ const Screens = createStackNavigator({
   Pincode: {screen: Pincode},
   ForgotPassword: {screen: ForgotPassowrd},
   Camera: {screen:Camera},
-  irDemo: {screen: irDemo },    
+  ChildCamera: {screen: ChildCamera },    
 
   ParentNavigation: {screen: ParentNavigation},
   ParentRoutines: {screen: ParentRoutines},
@@ -61,7 +56,8 @@ const Screens = createStackNavigator({
   ChildRoutines: {screen: ChildRoutines},
   ChildActivity: {screen:ChildActivity},
   ChildMap: {screen:ChildMap},
-  ChildRewards: {screen:ChildRewards}
+  ChildRewards: {screen:ChildRewards},
+  ChildStartActivity: {screen:ChildStartActivity}
 });
 
 const App = createAppContainer(Screens);
