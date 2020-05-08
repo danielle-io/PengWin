@@ -30,10 +30,16 @@ export default class ChildRewards extends Component {
 
       loaded: false,
       results: false,
+      child: false,
       star: null,
+      
     };
     this.getResults();
+    this.getChild();
   }
+  static navigationOptions = ({ navigation }) => ({
+    title: "My Rewards",
+  });
 
   getResults() {
     fetch(Environment + "/getAllRewardsandRoutines/" + 1, {
@@ -55,6 +61,27 @@ export default class ChildRewards extends Component {
       });
   }
 
+  getChild(){
+    fetch(Environment + "/getChildFromParent/" + 1, {
+      headers: {
+        "Cache-Control": "no-cache",
+      },
+    })
+      .then((response) => response.json())
+      .then((responseJson) => {
+        return responseJson;
+      })
+      .then((results) => {
+        results.map(item => {
+          this.setState({ child: item });
+        })
+        console.log(this.state.child);
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+  }
+
   displayStars(activities, star) {
     var stars = [];
 
@@ -65,6 +92,18 @@ export default class ChildRewards extends Component {
     return stars;
   }
 
+  tokens(){
+    const Ribbon = {
+      Ribbon: 1,
+      Ribbon2: 2,
+      Ribbon3: 3,
+      Ribbon4: 4
+   };
+    return (
+    <Text>{this.state.child.routines_complete} + {Ribbon[1]}</Text>
+    )
+  }
+
   displayTab1() {
     return (
       <View
@@ -73,6 +112,7 @@ export default class ChildRewards extends Component {
           flexWrap: "wrap",
         }}
       >
+        {this.tokens()}
         <View style={styles.imageContainer}>
           <Image source={Ribbon} style={styles.imagesActive} />
         </View>
@@ -139,6 +179,7 @@ export default class ChildRewards extends Component {
                 onStartShouldSetResponder={() =>
                   this.props.navigation.navigate("ChildMap", {
                     prevScreenTitle: "Login",
+                    title: item.routine_name
                   })
                 }
               >

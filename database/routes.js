@@ -48,6 +48,8 @@ app.get('/getChildFromParent/:userId', function (req, res) {
 });
 
 
+
+
 // Update the routine data
 app.post('/updateRoutine/:routineId', function (req, res) {
 
@@ -111,6 +113,25 @@ app.post('/updateUser/:userId', function (req, res) {
       });
   });
 });
+
+app.post('/incrementChildRoutines/:childID', function (req, res) {
+
+  let childID = req.params.childID;
+
+  connection.getConnection(function (err, connection) {
+
+    connection.query('UPDATE children SET routines_complete = routines_complete + 1 WHERE child_id =' + childID,
+      [postData, childID],
+      function (error, results, fields) {
+        if (error){
+          throw error;
+          console.log(err);
+        }
+        res.send(JSON.stringify(results))
+      });
+  });
+});
+
 app.post('/updateActivity/:activity_id', function (req, res) {
 
   let activity_id = req.params.activity_id;
@@ -139,13 +160,63 @@ app.post('/insertRoutine', function (req, res) {
       throw error;
       console.log(err);
     }
-    // res.send(JSON.stringify(results))
+    res.send(JSON.stringify(results))
+  });
+});
+
+app.post('/insertChildRoutineNotifications', function (req, res) {
+  var postData = req.body;
+  connection.query('INSERT INTO child_notifications SET ?', postData, function (error, results, fields) {
+    if (error){
+      throw error;
+      console.log(err);
+    }
+    console.log(JSON.stringify(results));
 
     res.send(JSON.stringify(results))
   });
 });
 
+// Update the routine data
+app.post('/updateChildNotifications/:childNotificationsId', function (req, res) {
+  console.log("in update notifications");
+  
+  let childNotificationsId = req.params.childNotificationsId;
+  var postData = req.body;
 
+  connection.getConnection(function (err, connection) {
+    connection.query('UPDATE child_notifications SET ? WHERE child_notifications_id = ?',
+      [postData, childNotificationsId],
+      function (error, results, fields) {
+        if (error){
+          throw error;
+          console.log(err);
+        }
+        res.send(JSON.stringify(results))
+      });
+  });
+});
+
+
+app.post('/updatePreferences/:user_preference_id', function (req, res) {
+
+  let user_preference_id = req.params.user_preference_id;
+  var postData = req.body;
+
+  console.log(postData);
+  connection.getConnection(function (err, connection) {
+    connection.query('UPDATE user_preferences SET ? WHERE user_preference_id =' + user_preference_id,
+      [postData, user_preference_id],
+      function (error, results, fields) {
+
+        if (error){
+          console.log(error);
+          throw error;
+        }
+        res.send(JSON.stringify(results))
+      });
+  });
+});
 
 app.post('/insertRoutineActivityRelationship', function (req, res) {
   var postData = req.body;
@@ -154,6 +225,7 @@ app.post('/insertRoutineActivityRelationship', function (req, res) {
       throw error;
       console.log(err);
     }
+    console.log(JSON.stringify(results));
     res.send(JSON.stringify(results));
   });
 });
@@ -161,7 +233,7 @@ app.post('/insertRoutineActivityRelationship', function (req, res) {
 
 app.post('/insertRewards', function (req, res) {
   var postData = req.body;
-  connection.query('INSERT INTO rewards  SET ?', postData, function (error, results, fields) {
+  connection.query('INSERT INTO rewards SET ?', postData, function (error, results, fields) {
     if (error){
       throw error;
       console.log(err);

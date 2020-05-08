@@ -21,7 +21,9 @@ import * as Progress from "react-native-progress";
 import * as Font from "expo-font";
 
 import uuid from "uuid";
-import Environment from "../../database/irEnv";
+import Environment from "../../database/sqlEnv";
+
+import irEnv from "../../database/irEnv";
 import firebase from "../../database/irDb";
 
 import Star from "../../assets/images/fillstar.png";
@@ -52,26 +54,84 @@ export default class ChildCamera extends React.Component {
     this.state = {
       prevScreenTitle: this.props.navigation.state.params.prevScreenTitle,
       currentRoutine: this.props.navigation.state.params.currentRoutine,
+      imagePathArray: this.props.navigation.state.params.imagePathArray,
+      childNotificationsId: this.props.navigation.state.params
+        .childNotificationsId,
       tagsDictionary: null,
       tags: this.props.navigation.state.params.tags,
       activities: this.props.navigation.state.params.activities,
       key: this.props.navigation.state.params.key,
-
-      activityImage: null,
-
-      // Image recognition states
-      itemIsInTags: false,
-      uploading: false,
-      completedCheck: false,
-      googleResponse: null,
-
       activityImage: null,
       itemIsInTags: false,
       uploading: false,
       googleResponse: null,
-
       fontsLoaded: false,
     };
+  }
+
+  createArray(){
+    var tempArray = [];
+
+    console.log("IMAGE PATH ARRAY :: " + this.state.imagePathArray);
+    console.log("this.state.activityImage :: " + this.state.activityImage);
+
+    if (this.state.imagePathArray) {
+      tempArray = this.state.imagePathArray;
+    }
+
+    console.log(typeof tempArray);
+
+    tempArray.push(this.state.activityImage);
+
+    console.log("TEMP ARRAY :: " + tempArray);
+    console.log("the notif id is " + this.state.childNotificationsId);
+    
+    this.updateImageArrayInDb(JSON.stringify(tempArray));
+  }
+
+  async updateImageArrayInDb(tempArray) {
+    
+    console.log("in update image in db");
+
+    var data = {
+      image_path_array: tempArray,
+      activities_complete: this.state.key + 1
+    };
+
+    let response = await fetch(
+      Environment +
+        "/updateChildNotifications/" +
+        this.state.childNotificationsId,
+      {
+        method: "POST",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      }
+    )
+      .then((response) => response.json())
+      .then((responseJson) => {
+        return responseJson;
+      })
+      .then((results) => {
+        console.log("image inserted!!!");
+        
+        this.goBackToActivityPage(tempArray);
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+  }
+
+  goBackToActivityPage(imageArray) {
+    console.log("leaving page");
+    const { navigate } = this.props.navigation;
+    this.navigate("ChildActivity", {
+      prevScreenTitle: "Routines",
+      imagePathUpdated: imageArray,
+    });
   }
 
   async _loadFontsAsync() {
@@ -84,6 +144,7 @@ export default class ChildCamera extends React.Component {
   });
 
   async componentDidMount() {
+    console.log("in camera");
     this._loadFontsAsync();
     await Permissions.askAsync(Permissions.CAMERA_ROLL);
     await Permissions.askAsync(Permissions.CAMERA);
@@ -104,14 +165,16 @@ export default class ChildCamera extends React.Component {
   _compareToTags = (description) => {
     console.log(this.state.tagsDictionary);
     var tagMatch = false;
+
     if (description.toLowerCase() in this.state.tagsDictionary) {
       tagMatch = true;
     }
 
     if (!this.state.itemIsInTags && tagMatch) {
       this.setState({ itemIsInTags: true });
-      const { navigate } = this.props.navigation;
-      navigate("ChildActivity", { prevScreenTitle: "Activity" });
+      this.createArray();
+
+
     }
   };
 
@@ -125,6 +188,7 @@ export default class ChildCamera extends React.Component {
               backgroundColor: "rgba(0,0,0,0.4)",
               alignItems: "center",
               justifyContent: "center",
+              alignContent: "center",
             },
           ]}
         >
@@ -143,12 +207,12 @@ export default class ChildCamera extends React.Component {
     return (
       <View
         style={{
+          justifyContent: "center",
+          alignItems: "center",
           marginTop: 20,
           width: 250,
           borderRadius: 3,
           elevation: 2,
-          alignItems: "center",
-          justifyContent: "center",
         }}
       >
         <View
@@ -166,7 +230,12 @@ export default class ChildCamera extends React.Component {
         >
           <Image
             source={{ uri: activityImage }}
-            style={{ width: 250, height: 250, alignItems: "center" }}
+            style={{
+              width: 250,
+              height: 250,
+              alignItems: "center",
+              justifyContent: "center",
+            }}
           />
         </View>
       </View>
@@ -176,8 +245,6 @@ export default class ChildCamera extends React.Component {
   _keyExtractor = (item, index) => item.id;
 
   _takePhoto = async () => {
-    // this.setState({completedCheck : false})
-
     let pickerResult = await ImagePicker.launchCameraAsync({
       allowsEditing: true,
       aspect: [4, 3],
@@ -260,7 +327,7 @@ export default class ChildCamera extends React.Component {
       });
       let response = await fetch(
         "https://vision.googleapis.com/v1/images:annotate?key=" +
-          Environment["GOOGLE_CLOUD_VISION_API_KEY"],
+          irEnv["GOOGLE_CLOUD_VISION_API_KEY"],
         {
           headers: {
             Accept: "application/json",
@@ -324,17 +391,14 @@ export default class ChildCamera extends React.Component {
             <View style={styles.headerContainerRight}>
               <Progress.Bar
                 progress={(this.state.key + 1) / this.state.activities.length}
-                style={{
-                  color: "#B1EDE8",
-                  width: 100,
-                  height: 30,
-                  // transform: [{ scale: 0.80 }],
-                  borderWidth: 2,
-                  borderRadius: 20,
-                  // flex: 1,
-                  resizeMode: "contain",
-                  marginRight: "1%",
-                }}
+                color={"#B1EDE8"}
+                width={100}
+                height={30}
+                borderWidth={2}
+                borderRadius={20}
+                // flex: 1,
+                // resizeMode: "contain",
+                // marginRight: "1%",
               />
 
               <View style={styles.headerRibbonContainer}>
@@ -383,13 +447,11 @@ export default class ChildCamera extends React.Component {
                     }
                     extraData={this.state}
                     keyExtractor={this._keyExtractor}
-                    renderItem={({ item }) =>
-                    {
-                      if (!this.state.itemIsInTags){
-                        this._compareToTags(item.description)
+                    renderItem={({ item }) => {
+                      if (!this.state.itemIsInTags) {
+                        this._compareToTags(item.description);
                       }
-                    }
-                    }
+                    }}
                   />
                 </View>
               )}
@@ -401,11 +463,11 @@ export default class ChildCamera extends React.Component {
                 </View>
               )}
 
-              {this.state.googleResponse && this.state.itemIsInTags && (
+              {/* {this.state.googleResponse && this.state.itemIsInTags && (
                 <View>
-                  <Text>Good job!</Text>
+                  {this.createArray()}
                 </View>
-              )}
+              )} */}
 
               {this.state.googleResponse && !this.state.itemIsInTags && (
                 <Text>

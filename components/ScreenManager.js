@@ -29,6 +29,7 @@ import ChildPincode from './ChildScreens/ChildPincode';
 import ChildNotifScreen from './ChildScreens/ChildNotifScreen';
 import ChildRewards from './ChildScreens/ChildRewards';
 import ChildMap from './ChildScreens/ChildMap';
+import ChildStartActivity from './ChildScreens/ChildStartActivity';
 
 import Camera from '../components/ImageRecognition/Camera';
 import ChildCamera from '../components/ImageRecognition/ChildCamera';
@@ -64,7 +65,8 @@ const Screens = createStackNavigator({
   ChildRoutines: {screen: ChildRoutines},
   ChildActivity: {screen:ChildActivity},
   ChildMap: {screen:ChildMap},
-  ChildRewards: {screen:ChildRewards}
+  ChildRewards: {screen:ChildRewards},
+  ChildStartActivity: {screen:ChildStartActivity}
 });
 
 const App = createAppContainer(Screens);
