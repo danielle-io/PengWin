@@ -12,18 +12,20 @@ import {
 import { TextField } from "react-native-material-textfield";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import { RaisedTextButton } from "react-native-material-buttons";
+import { AppLoading } from "expo";
 import DatePicker from "react-native-datepicker";
-import Environment from "../../../database/sqlEnv";
+
+// import DatePickerIOS from '@react-native-community/datetimepicker';
 
 import SearchableDropdown from "react-native-searchable-dropdown";
+
+import Environment from "../../../database/sqlEnv";
 import UserInfo from "../../../state/UserInfo";
+
 
 const { width: WIDTH } = Dimensions.get("window");
 const changedDates = {};
 
-const parentId = UserInfo.parent_id;
-const childId = UserInfo.child_id;
-const userId = UserInfo.user_id
 
 Icon.loadFont();
 
@@ -241,6 +243,9 @@ export default class EditRoutine extends Component {
   }
 
   async createNewRoutine() {
+    const parentId = UserInfo.parent_id;
+    const childId = UserInfo.child_id;
+    const userId = UserInfo.user_id
     data = {
       routine_name: this.state.routineName,
       start_time: this.state.startTime,
@@ -283,29 +288,11 @@ export default class EditRoutine extends Component {
 
         // Set the new routineId
         this.setState({ routineId: results.insertId });
-        // this.insertActivityRelationship(activity_id, 1)
         this.saveAnyChanges();
-
       })
-
       .catch((error) => {
         console.error(error);
       });
-      // if (response.status >= 200 && response.status < 300) {
-        // if (tag === "reward_id") {
-        //   this.setState({ rewardLoaded: true });
-        //   this.displayList("reward");
-        //   this.addRow(1, "reward");
-        // }
-       
-        // this.setState({ routineId : response.routine_id });
-
-        // this.saveAnyChanges();
-
-        // this.insertActivityRelationship(activity_id, 1)
-        // this.saveAnyChanges();
-      // }
-
     }
 
   // Update the array of columns to change and
@@ -392,7 +379,7 @@ export default class EditRoutine extends Component {
   }
 
   getRoutineReward() {
-    if (this.state.rewardId !== 0) {
+    if (this.state.rewardId !== 0 && this.state.allRewardsByIdDictionary) {
       this.setState({
         currentlySelectedReward: this.state.allRewardsByIdDictionary[
           this.state.rewardId
@@ -478,7 +465,7 @@ export default class EditRoutine extends Component {
 
       // Put all the reward names in an array since those
       // will be displayed in the dropdown
-      if (this.allRewardsByIdDictionary !== null) {
+      if (this.allRewardsByIdDictionary) {
         this.getAllRewardNames();
       }
     });   
@@ -1150,7 +1137,7 @@ export default class EditRoutine extends Component {
               </Text>
               <DatePicker
                 style={{ marginLeft: this.timeMarginDefinition("Start") }}
-                date={this.defineTime("Start")}
+                value={this.defineTime("Start")}
                 mode="time"
                 showIcon={false}
                 confirmBtnText="Confirm"
@@ -1176,7 +1163,7 @@ export default class EditRoutine extends Component {
                 style={{
                   marginLeft: this.timeMarginDefinition("End"),
                 }}
-                date={this.defineTime("End")}
+                value={this.defineTime("End")}
                 mode="time"
                 showIcon={false}
                 confirmBtnText="Confirm"

@@ -13,7 +13,7 @@
     "@material-ui/core": "^4.9.2",
     "@react-native-community/audio-toolkit": "^2.0.3",
     "@react-native-community/cameraroll": "^1.4.1",
-    "@react-native-community/datetimepicker": "^2.2.2",
+    "@react-native-community/datetimepicker": "2.2.2",
     "@react-native-community/masked-view": "^0.1.6",
     "@react-native-community/netinfo": "^5.5.1",
     "@unimodules/core": "5.1.0",

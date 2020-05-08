@@ -12,11 +12,6 @@ import UserInfo from "../../state/UserInfo";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 Icon.loadFont();
 
-const parentId = UserInfo.parent_id;
-const childId = UserInfo.child_id;
-const userId = UserInfo.user_id;
-const pincode = UserInfo.pincode;
-
 console.disableYellowBox = true;
 
 export default class ChildRoutines extends Component {
@@ -30,11 +25,8 @@ export default class ChildRoutines extends Component {
       activities: null,
       routines: null,
     };
-    const parentId = UserInfo.parent_id;
-    const childId = UserInfo.child_id;
-    const userId = UserInfo.user_id;
+
     const { navigate } = this.props.navigation;
- 
 
     this.navigate = navigate;
     this.notif = false;
@@ -171,7 +163,11 @@ export default class ChildRoutines extends Component {
 
   // Get the routines data from the db
   getRoutines() {
-    fetch( Environment + "/getRoutinesByUser/" + 1, {
+    const parentId = UserInfo.parent_id;
+    const childId = UserInfo.child_id;
+    const userId = UserInfo.user_id;
+    
+    fetch( Environment + "/getRoutinesByUser/" + userId, {
       headers: {
         "Cache-Control": "no-cache",
       },
@@ -203,11 +199,13 @@ export default class ChildRoutines extends Component {
           <View
             style={({ flex: 1 }, styles.routines)}
             onStartShouldSetResponder={() =>
-              this.props.navigation.navigate("ChildActivity", {
+              this.props.navigation.navigate("ChildStartActivity", {
                 prevScreenTitle: "My Routines",
                 currentRoutine: item.routine_name,
                 routineId: item.routine_id,
-                // userID: item.user_id,
+                rewardId: item.reward_id,
+                requiresApproval: item.requires_approval,
+                amountOfActivities: item.amount_of_activities,
               })
             }
           >
@@ -217,7 +215,7 @@ export default class ChildRoutines extends Component {
 
             <View style={styles.detailsContainer}>
               <Text style={styles.routineDetails}>
-                <Icon name="playlist-check" color="#B1EDE8" size={20} /> Tasks:{" "}
+                <Icon name="playlist-check" color="#B1EDE8" size={20} /> Activities:{" "}
                 {item.amount_of_activities}
               </Text>
               <Text style={styles.routineDetails}>
