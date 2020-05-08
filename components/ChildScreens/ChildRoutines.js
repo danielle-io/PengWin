@@ -12,8 +12,13 @@ import UserInfo from "../../state/UserInfo";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 Icon.loadFont();
 
+const parentId = UserInfo.parent_id;
+const childId = UserInfo.child_id;
+const userId = UserInfo.user_id;
+const pincode = UserInfo.pincode;
 
 console.disableYellowBox = true;
+
 export default class ChildRoutines extends Component {
   
   constructor(props) {
@@ -192,7 +197,7 @@ export default class ChildRoutines extends Component {
 
   renderRoutines() {
     return this.state.routines.routines.map((item) => {
-      console.log(item);
+      // console.log(item);
       if (item.is_active == 1) {
         return (
           <View
@@ -201,7 +206,8 @@ export default class ChildRoutines extends Component {
               this.props.navigation.navigate("ChildActivity", {
                 prevScreenTitle: "My Routines",
                 currentRoutine: item.routine_name,
-                userID: item.user_id,
+                routineId: item.routine_id,
+                // userID: item.user_id,
               })
             }
           >
