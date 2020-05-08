@@ -3,6 +3,7 @@ import { View, Button, StyleSheet, Text, TouchableOpacity} from 'react-native';
 // import MobileStepper from "@bit/mui-org.material-ui.mobile-stepper";
 // import * as Font from "expo-font";
 import StepIndicator from 'react-native-step-indicator';
+import Carousel from "react-native-carousel-view";
 import MobileStepper from '@material-ui/core/MobileStepper';
 import { AppLoading } from "expo";
 
@@ -69,6 +70,14 @@ export default class Question1 extends Component {
                         currentPosition={this.state.currentPosition}
                         // labels={labels}
                     />
+
+                {/* <Carousel
+                            height={HEIGHT * 0.9}
+                            hideIndicators={true}
+                            indicatorSize={20}
+                            animate={false}
+                            onRef={(ref) => (this.child = ref)}
+                        > */}
                     
 
                 <View style={styles.pageBodyContainer}>
