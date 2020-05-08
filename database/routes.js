@@ -43,6 +43,8 @@ app.get('/getChildFromParent/:userId', function (req, res) {
 });
 
 
+
+
 // Update the routine data
 app.post('/updateRoutine/:routineId', function (req, res) {
 
@@ -153,9 +155,40 @@ app.post('/insertRoutine', function (req, res) {
       throw error;
       console.log(err);
     }
-    // res.send(JSON.stringify(results))
+    res.send(JSON.stringify(results))
+  });
+});
+
+app.post('/insertChildRoutineNotifications', function (req, res) {
+  var postData = req.body;
+  connection.query('INSERT INTO child_notifications SET ?', postData, function (error, results, fields) {
+    if (error){
+      throw error;
+      console.log(err);
+    }
+    console.log(JSON.stringify(results));
 
     res.send(JSON.stringify(results))
+  });
+});
+
+// Update the routine data
+app.post('/updateChildNotifications/:childNotificationsId', function (req, res) {
+  console.log("in update notifications");
+  
+  let childNotificationsId = req.params.childNotificationsId;
+  var postData = req.body;
+
+  connection.getConnection(function (err, connection) {
+    connection.query('UPDATE child_notifications SET ? WHERE child_notifications_id = ?',
+      [postData, childNotificationsId],
+      function (error, results, fields) {
+        if (error){
+          throw error;
+          console.log(err);
+        }
+        res.send(JSON.stringify(results))
+      });
   });
 });
 
@@ -187,6 +220,7 @@ app.post('/insertRoutineActivityRelationship', function (req, res) {
       throw error;
       console.log(err);
     }
+    console.log(JSON.stringify(results));
     res.send(JSON.stringify(results));
   });
 });

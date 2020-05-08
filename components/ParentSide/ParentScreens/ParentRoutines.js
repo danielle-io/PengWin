@@ -21,15 +21,16 @@ import {
 import MaterialTabs from "react-native-material-tabs";
 import Dialog, { DialogContent } from "react-native-popup-dialog";
 import SearchableDropdown from "react-native-searchable-dropdown";
+import { AppLoading } from "expo";
 
 import Environment from "../../../database/sqlEnv";
 import UserInfo from "../../../state/UserInfo";
 
 const { width: WIDTH } = Dimensions.get("window");
-
 const parentId = UserInfo.parent_id;
 const childId = UserInfo.child_id;
 const userId = UserInfo.user_id;
+const pincode = UserInfo.pincode;
 
 Icon.loadFont();
 
@@ -139,6 +140,7 @@ export default class ParentRoutines extends Component {
     });
 
     this.setState({ allRewardsByIdDictionary: tempDict });
+    console.log(this.state.allRewardsByIdDictionary);
   }
 
   createActivityDictionary() {
@@ -193,7 +195,7 @@ export default class ParentRoutines extends Component {
         this.displayRoutines();
       }
     } catch (errors) {
-      alert(errors);
+      console.log(errors);
     }
   }
 
@@ -350,10 +352,8 @@ export default class ParentRoutines extends Component {
                         activityVideoPath: item.video_path,
                         activityIsPublic: item.is_public,
                         rewardId: item.reward_id,
-                        allRewardsByIdDictionary: this.state
-                          .allRewardsByIdDictionary,
-                        allActivitiesDictionary: this.state
-                          .allActivitiesDictionary,
+                        allRewardsByIdDictionary: this.state.allRewardsByIdDictionary,
+                        allActivitiesDictionary: this.state.allActivitiesDictionary,
                       })
                     }
                   >
