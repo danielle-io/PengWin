@@ -170,6 +170,18 @@ app.post('/insertRewards', function (req, res) {
   });
 });
 
+app.post('/userPreferences', function (req, res) {
+  var postData = req.body;
+  connection.query('INSERT INTO user_preferences  SET ?', postData, function (error, results, fields) {
+    if (error){
+      console.log("ERRRROROOROROROROOR");
+      console.log("ERRRROROOROROROROOR" + err);
+      throw error;
+      
+    } 
+    res.send(JSON.stringify(results));
+  });
+});
 
 // app.get('/user', function (req, res) {
 //   connection.getConnection(function (err, connection) {
@@ -234,6 +246,22 @@ app.get('/getAllRewards/:userId', function (req, res) {
       });
   });
 });
+
+// app.get('/getPreferences/', function (req, res) {
+//   let userId = req.params.userId;
+//   // Connecting to the database.
+//   connection.getConnection(function (err, connection) {
+
+//     connection.query('SELECT * FROM rewards where user_id =' + userId, function (error, results, fields) {
+
+//       if (error){
+//         throw error;
+//         console.log(err);
+//       }
+//         res.send(results)
+//       });
+//   });
+// });
 
 app.get('/getAllRewardsandRoutines/:userId', function (req, res) {
   let userId = req.params.userId;

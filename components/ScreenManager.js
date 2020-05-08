@@ -42,12 +42,7 @@ const Screens = createStackNavigator({
   Pincode: {screen: Pincode},
   ForgotPassword: {screen: ForgotPassowrd},
   Camera: {screen:Camera},
-<<<<<<< HEAD
-  irDemo: {screen: irDemo },    
-  HomePage: {screen: HomePage},
-=======
   ChildCamera: {screen: ChildCamera },    
->>>>>>> origin
 
   ParentNavigation: {screen: ParentNavigation},
   ParentRoutines: {screen: ParentRoutines},

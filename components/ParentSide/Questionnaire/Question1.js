@@ -6,6 +6,7 @@ import StepIndicator from 'react-native-step-indicator';
 import Carousel from "react-native-carousel-view";
 import MobileStepper from '@material-ui/core/MobileStepper';
 import { AppLoading } from "expo";
+import Environment from "../../../database/sqlEnv";
 
 import RadioForm, {RadioButton, RadioButtonInput, RadioButtonLabel} from 'react-native-simple-radio-button';
 
@@ -27,6 +28,9 @@ var radio_props = [
 export default class Question1 extends Component {
     constructor(props) {
         super(props);
+
+        // this.postPreference("gender", 2);
+
         const { navigate } = this.props.navigation;
         this.navigate = navigate;
         this.state = {
@@ -42,6 +46,27 @@ export default class Question1 extends Component {
         title: 'Questionnaire',
         prevScreenTitle: 'Back'
     });
+
+    async postPreference(tag, value){
+        var data = {
+          [tag]: value,
+        };
+        try {
+          let response = await fetch(Environment + "/userPreferences/1" , {
+            method: "POST",
+            headers: {
+              Accept: "application/json",
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(data),
+          });
+          if (response.status >= 200 && response.status < 300) {
+            console.log("POSTED")
+          }
+        } catch (errors) {
+          alert(errors);
+        }
+      }
 
     // onContinueClicked = () => {
     //     this.props.navigation.navigate("Question2");
@@ -109,7 +134,7 @@ export default class Question1 extends Component {
                         ? styles.buttonPrimary
                         : styles.buttonSecondary}
 
-                onPress={() => {this.navigate("Question2",{prevScreenTitle: 'Back'}); console.log("valueee", this.state.value); console.log("clickkk")}}
+                onPress={() => {this.postPreference("gender", 2); this.navigate("Question2",{prevScreenTitle: 'Back'}); console.log("valueee", this.state.value); console.log("clickkk")}}
                 >
                 <View>
                 <Text style={this.state.selected
