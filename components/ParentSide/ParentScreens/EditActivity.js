@@ -87,8 +87,6 @@ export default class Activity extends Component {
     this.recordingSettings = JSON.parse(
       JSON.stringify(Audio.RECORDING_OPTIONS_PRESET_LOW_QUALITY)
     );
-
-    
   }
 
   async postPreference(tag, value){
@@ -121,6 +119,27 @@ export default class Activity extends Component {
     };
     try {
       let response = await fetch(Environment + "/updateActivity/1" , {
+        method: "POST",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
+      if (response.status >= 200 && response.status < 300) {
+        console.log("POSTED")
+      }
+    } catch (errors) {
+      alert(errors);
+    }
+  }
+
+  async postPref(tag, value){
+    var data = {
+      [tag]: value,
+    };
+    try {
+      let response = await fetch(Environment + "/updatePreferences/1" , {
         method: "POST",
         headers: {
           Accept: "application/json",
@@ -747,7 +766,7 @@ export default class Activity extends Component {
               margin: 15,
             }}
           >
-            <TouchableOpacity style={styles.button}>
+            <TouchableOpacity style={styles.button} onPress = { () => this.postPref("gender", 5)}>
               <Icon name="text" color="#FF6978" size={30} />
               <Text>Description</Text>
             </TouchableOpacity>
