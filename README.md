@@ -18,7 +18,6 @@ nodemon routes.js localhost 3000
 
 
 IF CAROUSEL IS BROKEN - **Only needed if working on ChildActivity.js**
-Delete node_modules folder and package-lock.json
 
 Make below changes in node_modules/react-native-carousel-view/src/carousel.js
 

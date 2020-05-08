@@ -15,11 +15,14 @@ import Ribbon4 from "../../assets/images/ribbon4.png";
 import Star from "../../assets/images/fillstar.png";
 import UnfilledStar from "../../assets/images/Star.png";
 import MaterialTabs from "react-native-material-tabs";
-const { width: WIDTH } = Dimensions.get("window");
+import Environment from "../../database/sqlEnv";
+import UserInfo from "../../state/UserInfo";
+
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 Icon.loadFont();
 
-import Environment from "../../database/sqlEnv";
+const userId = UserInfo.user_id;
+const { width: WIDTH } = Dimensions.get("window");
 
 export default class ChildRewards extends Component {
   constructor() {
@@ -30,13 +33,18 @@ export default class ChildRewards extends Component {
 
       loaded: false,
       results: false,
+      child: false,
       star: null,
     };
     this.getResults();
+    this.getChild();
   }
+  static navigationOptions = ({ navigation }) => ({
+    title: "My Rewards",
+  });
 
   getResults() {
-    fetch(Environment + "/getAllRewardsandRoutines/" + 1, {
+    fetch(Environment + "/getAllRewardsandRoutines/" + userId, {
       headers: {
         "Cache-Control": "no-cache",
       },
@@ -55,6 +63,27 @@ export default class ChildRewards extends Component {
       });
   }
 
+  getChild() {
+    fetch(Environment + "/getChildFromParent/" + userId, {
+      headers: {
+        "Cache-Control": "no-cache",
+      },
+    })
+      .then((response) => response.json())
+      .then((responseJson) => {
+        return responseJson;
+      })
+      .then((results) => {
+        results.map((item) => {
+          this.setState({ child: item });
+        });
+        console.log(this.state.child);
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+  }
+
   displayStars(activities, star) {
     var stars = [];
 
@@ -65,26 +94,56 @@ export default class ChildRewards extends Component {
     return stars;
   }
 
+  displayTokens() {
+    tokenArr = [];
+
+    for (let i = 0; i < this.state.child.routines_complete; i++) {
+      tokenArr.push(this.tokens(i));
+    }
+    
+    return tokenArr;
+  }
+
+  tokens(amt) {
+    var tokens = [];
+
+    if (amt < 2) {
+      return (
+        <View style={styles.imageContainer}>
+          <Image source={Ribbon} style={styles.imagesActive} />
+        </View>
+      );
+    } else if (amt < 5) {
+      return (
+        <View style={styles.imageContainer}>
+          <Image source={Ribbon2} style={styles.imagesActive} />
+        </View>
+      );
+    } else if (amt < 8) {
+      return (
+        <View style={styles.imageContainer}>
+          <Image source={Ribbon3} style={styles.imagesActive} />
+        </View>
+      );
+    } else {
+      return (
+        <View style={styles.imageContainer}>
+          <Image source={Ribbon4} style={styles.imagesActive} />
+        </View>
+      );
+    }
+  }
+
   displayTab1() {
     return (
       <View
         style={{
           flexDirection: "row",
           flexWrap: "wrap",
+          paddingBottom:250
         }}
       >
-        <View style={styles.imageContainer}>
-          <Image source={Ribbon} style={styles.imagesActive} />
-        </View>
-        <View style={styles.imageContainer}>
-          <Image source={Ribbon2} style={styles.imagesActive} />
-        </View>
-        <View style={styles.imageContainer}>
-          <Image source={Ribbon3} style={styles.imagesActive} />
-        </View>
-        <View style={styles.imageContainer}>
-          <Image source={Ribbon4} style={styles.imagesInactive} />
-        </View>
+        {this.displayTokens()}
       </View>
     );
   }
@@ -139,6 +198,8 @@ export default class ChildRewards extends Component {
                 onStartShouldSetResponder={() =>
                   this.props.navigation.navigate("ChildMap", {
                     prevScreenTitle: "Login",
+                    title: item.routine_name,
+                    amt: item.amount_of_activities
                   })
                 }
               >
@@ -161,6 +222,7 @@ export default class ChildRewards extends Component {
       </View>
     );
   }
+
   render() {
     return (
       <View>

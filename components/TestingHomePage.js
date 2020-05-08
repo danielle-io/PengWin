@@ -143,16 +143,6 @@ export default class TestingHomePage extends Component {
                 <Text style={styles.linkText}>Child Map</Text>
               </TouchableOpacity>
 
-              <TouchableOpacity
-                style={styles.childContainer}
-                onPress={() =>
-                  this.navigate("ChildActivity", {
-                    prevScreenTitle: "ChildRoutine",
-                  })
-                }
-              >
-                <Text style={styles.linkText}>Child Activity</Text>
-              </TouchableOpacity>
             </View>
 
             {/* <View style={{ flex: 1, justifyContent: 'center', flexDirection: 'row', flexWrap: 'wrap' }}>
