@@ -47,7 +47,7 @@ app.get('/getUnevaluatedRoutines/:parentId', function (req, res) {
   let parentId = req.params.parentId;
   connection.getConnection(function (err, connection) {
     
-    connection.query('SELECT * FROM child_notifications where parent_id =' + parentId
+    connection.query('SELECT * FROM child_notifications where parent_id = ?', [parentId]
     + ' AND is_evaluated = 0'
     + ' AND requires_approval = 1' 
     + ' AND in_progress = 0', function (error, results, fields) {
@@ -445,6 +445,19 @@ app.get('/getRoutinesByUser/:userId', function (req, res) {
   connection.getConnection(function (err, connection) {
 
     connection.query('SELECT * FROM routines where user_id=? AND routines.routine_id <> 0',[userId], function (error, results, fields) {
+      if (error) throw error;
+
+      res.json({ 'routines': results });
+    });
+  });
+});
+
+app.get('/getRoutinesByRoutineId/:routineId', function (req, res) {
+  let routineId = req.params.routineId;
+
+  connection.getConnection(function (err, connection) {
+
+    connection.query('SELECT * FROM routines where routine_id=? AND routines.routine_id <> 0 ',[routineId], function (error, results, fields) {
       if (error) throw error;
 
       res.json({ 'routines': results });

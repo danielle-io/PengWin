@@ -16,7 +16,7 @@ import ParentRoutines from './ParentSide/ParentScreens/ParentRoutines';
 import EditActivity from './ParentSide/ParentScreens/EditActivity';
 import Progress from './ParentSide/ParentScreens/Progress';
 import Notifications from './ParentSide/ParentScreens/Notifications';
-import RoutineApproval from './ParentSide/RoutineApproval';
+import RoutineApproval from './ParentSide/ParentScreens/RoutineApproval';
 
 import ChildRoutines from './ChildScreens/ChildNavigation';
 import ChildActivity from './ChildScreens/ChildActivity';
@@ -30,6 +30,7 @@ import Camera from '../components/ImageRecognition/Camera';
 import ChildCamera from '../components/ImageRecognition/ChildCamera';
 
 import TestingHomePage from './TestingHomePage';
+
 
 const Screens = createStackNavigator({
   TestingHomePage: {screen: TestingHomePage},

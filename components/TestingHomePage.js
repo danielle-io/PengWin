@@ -61,6 +61,31 @@ export default class TestingHomePage extends Component {
                 <Text style={styles.linkText}>Parent Navigation Page</Text>
               </TouchableOpacity>
 
+
+              <TouchableOpacity
+                style={styles.parentContainer}
+                onPress={() =>
+                  this.navigate("RoutineApproval", {
+                    prevScreenTitle: "TestingHomePage",
+                    initialRouteName: "RoutineApproval",
+                  })
+                }
+              >
+                <Text style={styles.linkText}>Parent Routine Approval</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={styles.parentContainer}
+                onPress={() =>
+                  this.navigate("Notifications", {
+                    prevScreenTitle: "TestingHomePage",
+                    initialRouteName: "Notifications",
+                  })
+                }
+              >
+                <Text style={styles.linkText}>Notifications</Text>
+              </TouchableOpacity>
+
               <TouchableOpacity
                 style={styles.parentContainer}
                 onPress={() =>

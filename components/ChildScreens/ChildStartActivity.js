@@ -32,7 +32,6 @@ export default class ChildStartActivity extends Component {
     ChildStartActivity.navigationOptions.headerBackTitle = this.props.navigation.state.params.currentRoutine;
   }
 
-
   //Header titles for routines
   static navigationOptions = ({ navigation }) => ({
     title: `${navigation.state.params.currentRoutine}`,
