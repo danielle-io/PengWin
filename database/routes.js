@@ -9,7 +9,7 @@ const app = express();
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
-const connection = mysql.createPool({ 
+const connection = mysql.createPool({
   host: environment.host,
   user: environment.user,
   password: environment.password,
@@ -43,6 +43,35 @@ app.get('/getChildFromParent/:userId', function (req, res) {
 });
 
 
+app.get('/getUnevaluatedRoutines/:parentId', function (req, res) {
+  let parentId = req.params.parentId;
+  connection.getConnection(function (err, connection) {
+    
+    connection.query('SELECT * FROM child_notifications where parent_id = ?', [parentId]
+    + ' AND is_evaluated = 0'
+    + ' AND requires_approval = 1' 
+    + ' AND in_progress = 0', function (error, results, fields) {
+
+
+        if (error) throw error;
+
+        res.send(results)
+      });
+  });
+});
+
+app.get('/getParentIdOfUser/:userId', function (req, res) {
+  let userId = req.params.userId;
+  connection.getConnection(function (err, connection) {
+    
+    connection.query('SELECT parent_id FROM parents where user_id =' + userId, function (error, results, fields) {
+
+        if (error) throw error;
+
+        res.send(results)
+      });
+  });
+});
 
 
 // Update the routine data
@@ -278,8 +307,24 @@ app.get('/getActivities/:userId', function (req, res) {
           console.log(error);
         }
 
-        res.send(results)
-      });
+      res.send(results)
+    });
+  });
+});
+
+app.get('/getActivitiesFromRoutine/:routineID', function (req, res) {
+  let routineID = req.params.routineID;
+
+  connection.getConnection(function (err, connection) {
+
+    connection.query('SELECT * FROM routines_activities_relationship where routine_id =' + routineID, function (error, results, fields) {
+
+      console.log(results);
+      console.log(error);
+      if (error) throw error;
+
+      res.send(results)
+    });
   });
 });
 
@@ -400,6 +445,19 @@ app.get('/getRoutinesByUser/:userId', function (req, res) {
   connection.getConnection(function (err, connection) {
 
     connection.query('SELECT * FROM routines where user_id=? AND routines.routine_id <> 0',[userId], function (error, results, fields) {
+      if (error) throw error;
+
+      res.json({ 'routines': results });
+    });
+  });
+});
+
+app.get('/getRoutinesByRoutineId/:routineId', function (req, res) {
+  let routineId = req.params.routineId;
+
+  connection.getConnection(function (err, connection) {
+
+    connection.query('SELECT * FROM routines where routine_id=? AND routines.routine_id <> 0 ',[routineId], function (error, results, fields) {
       if (error) throw error;
 
       res.json({ 'routines': results });
