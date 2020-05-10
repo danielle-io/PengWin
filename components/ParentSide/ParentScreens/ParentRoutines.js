@@ -1,7 +1,14 @@
 // TODO: move activitites page and tab over to allActivitiesDictionary
 // rather than allActivities
 import React, { Component } from "react";
-import { Dimensions, SafeAreaView, StyleSheet, View, Text } from "react-native";
+import {
+  Dimensions,
+  SafeAreaView,
+  StyleSheet,
+  View,
+  Text,
+  ScrollView,
+} from "react-native";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import { RaisedTextButton } from "react-native-material-buttons";
 import {
@@ -13,9 +20,17 @@ import {
 } from "react-native-popup-menu";
 import MaterialTabs from "react-native-material-tabs";
 import Dialog, { DialogContent } from "react-native-popup-dialog";
+import SearchableDropdown from "react-native-searchable-dropdown";
+import { AppLoading } from "expo";
+
 import Environment from "../../../database/sqlEnv";
+import UserInfo from "../../../state/UserInfo";
 
 const { width: WIDTH } = Dimensions.get("window");
+const parentId = UserInfo.parent_id;
+const childId = UserInfo.child_id;
+const userId = UserInfo.user_id;
+const pincode = UserInfo.pincode;
 
 Icon.loadFont();
 
@@ -27,19 +42,17 @@ export default class ParentRoutines extends Component {
   });
 
   constructor() {
-    // User ID hard coded for now
     super();
     this.state = {
-      loaded: false,
-      secondLoaded: false,
-      userId: 1,
+      routinesLoaded: false,
+      activitiesLoaded: false,
       results: null,
       allActivities: null,
       index: 0,
       selectedTab: 0,
       routes: [{ key: "1", title: "First" }, { key: "2", title: "Second" }],
       visible1: true,
-      allRewards: null,
+      allRewardsByIdDictionary: null,
       allActivitiesDictionary: null,
     };
   }
@@ -84,7 +97,7 @@ export default class ParentRoutines extends Component {
   }
 
   getRoutines() {
-    fetch(Environment + "/getRoutinesByUser/" + this.state.userId, {
+    fetch(Environment + "/getRoutinesByUser/" + userId, {
       headers: {
         "Cache-Control": "no-cache",
       },
@@ -95,7 +108,7 @@ export default class ParentRoutines extends Component {
       })
       .then((routines) => {
         this.setState({ results: routines });
-        this.setState({ loaded: true });
+        this.setState({ routinesLoaded: true });
       })
       .catch((error) => {
         console.error(error);
@@ -103,7 +116,7 @@ export default class ParentRoutines extends Component {
   }
 
   getAllRewardsForUser() {
-    fetch(Environment + "/getAllRewards/" + this.state.userId, {
+    fetch(Environment + "/getAllRewards/" + userId, {
       headers: {
         "Cache-Control": "no-cache",
       },
@@ -113,7 +126,7 @@ export default class ParentRoutines extends Component {
         return responseJson;
       })
       .then((results) => {
-        this.setState({ allRewards: results });
+        this.createRewardDictionary(results);
       })
       .catch((error) => {
         console.error(error);
@@ -121,24 +134,27 @@ export default class ParentRoutines extends Component {
      
   }
 
-  createActivityDictionary(){
+  createRewardDictionary(results) {
+    var tempDict = {};
+    results.map((item) => {
+      tempDict[item.reward_id] = item;
+    });
+
+    this.setState({ allRewardsByIdDictionary: tempDict });
+    console.log(this.state.allRewardsByIdDictionary);
+  }
+
+  createActivityDictionary() {
     var tempDict = {};
     this.state.allActivities.map((item) => {
       tempDict[item.activity_id] = item;
     });
-    console.log("TEMP DICT BELOW");
-    console.log(tempDict);
-
-    this.setState({ allActivitiesDictionary: tempDict }); 
-    console.log("the all activities dictionary is below");
-    console.log(this.state.allActivitiesDictionary);
-    this.setState({ secondLoaded: true });
-
+    this.setState({ allActivitiesDictionary: tempDict });
+    this.setState({ activitiesLoaded: true });
   }
 
-
   getAllActivitiesForUser() {
-    fetch(Environment + "/getActivities/" + this.state.userId, {
+    fetch(Environment + "/getActivities/" + userId, {
       headers: {
         "Cache-Control": "no-cache",
       },
@@ -180,7 +196,7 @@ export default class ParentRoutines extends Component {
         this.displayRoutines();
       }
     } catch (errors) {
-      alert(errors);
+      console.log(errors);
     }
   }
 
@@ -199,6 +215,75 @@ export default class ParentRoutines extends Component {
     return "Set Active";
   }
 
+  displayLibraryContainer(){
+    let ripple = { id: "addButton" };
+    return (
+    <View style={styles.routineContainer}>
+    <RaisedTextButton
+      style={styles.roundAddButton}
+      title="+"
+      color="#FF6978"
+      // onSelect={() =>
+      //   navigate("EditActivity", {
+      //     prevScreenTitle: "Routines",
+      //     activityName: item.activity_name,
+      //     activityId: item.activity_id,
+      //     activityTags: eval(item.tags),
+      //     activityImagePath: item.image_path,
+      //     activityDescription: item.activity_description,
+      //     activityAudioPath: item.audio_path,
+      //     activityVideoPath: item.video_path,
+      //     activityIsPublic: item.is_public,
+      //     rewardId: item.reward_id,
+      //     allRewardsByIdDictionary: this.state
+      //       .allRewardsByIdDictionary,
+      //     allActivitiesDictionary: this.state
+      //       .allActivitiesDictionary,
+      //   })
+      // }
+      ripple={ripple}
+    />
+
+    <Text style={styles.routineTitle}>Add a Public Activity</Text>
+  </View>
+    );
+  }
+
+  displayNewActivityContainer() {
+    let ripple = { id: "addButton" };
+
+    return (
+        <View style={styles.routineContainer}>
+          <RaisedTextButton
+            style={styles.roundAddButton}
+            title="+"
+            color="#FF6978"
+            onSelect={() =>
+              navigate("EditActivity", {
+                prevScreenTitle: "Routines",
+                activityName: item.activity_name,
+                activityId: item.activity_id,
+                activityTags: eval(item.tags),
+                activityImagePath: item.image_path,
+                activityDescription: item.activity_description,
+                activityAudioPath: item.audio_path,
+                activityVideoPath: item.video_path,
+                activityIsPublic: item.is_public,
+                rewardId: item.reward_id,
+                allRewardsByIdDictionary: this.state
+                  .allRewardsByIdDictionary,
+                allActivitiesDictionary: this.state
+                  .allActivitiesDictionary,
+              })
+            }
+            ripple={ripple}
+          />
+
+          <Text style={styles.routineTitle}>Create a New Activity</Text>
+        </View>
+    );
+  }
+
   displayNewRoutineContainer() {
     const { navigate } = this.props.navigation;
     let ripple = { id: "addButton" };
@@ -214,11 +299,13 @@ export default class ParentRoutines extends Component {
             () =>
               navigate("EditRoutine", {
                 prevScreenTitle: "Routines",
-                routineName: null,
                 routineId: null,
-                routineStartTime: "00:00",
-                routineEndTime: "00:00",
-                routineApproval: 0,
+                routineName: null,
+                startTime: "00:00",
+                endTime: "00:00",
+                requiresApproval: 0,
+                amount_of_activities: 0,
+                amount_of_rewards: 0,
                 monday: 0,
                 tuesday: 0,
                 wednesday: 0,
@@ -226,10 +313,11 @@ export default class ParentRoutines extends Component {
                 friday: 0,
                 saturday: 0,
                 sunday: 0,
-                reward_id: 0,
+                rewardId: 0,
                 allActivities: this.state.allActivities,
-                userId: this.state.userId,
                 allActivitiesDictionary: this.state.allActivitiesDictionary,
+                allRewardsByIdDictionary: this.state.allRewardsByIdDictionary,
+
               }))
           }
           ripple={ripple}
@@ -248,33 +336,33 @@ export default class ParentRoutines extends Component {
         <View style={styles.routineContainer}>
           <View style={styles.routineTitleAndMenu}>
             <Text style={styles.routineTitle}> {item.activity_name}</Text>
-
-            <Menu style={styles.routineMenuStyling}>
-              <MenuTrigger style={styles.ellipsis} text="..." />
-              <MenuOptions>
-                <MenuOption
-                  onSelect={() =>
-                    navigate("EditActivity", {
-                      prevScreenTitle: "Routines",
-                      activityName: item.activity_name,
-                      activityId: item.activity_id,
-                      activityTags: eval(item.tags),
-                      activityImagePath: item.image_path,
-                      activityDescription: item.activity_description,
-                      activityAudioPath: item.audio_path,
-                      activityVideoPath: item.video_path,
-                      activityIsPublic: item.is_public,
-                      userId: item.user_id,
-                      rewardId: item.reward_id,
-                      allRewards: this.state.allRewards,
-                      allActivitiesDictionary: this.state.allActivitiesDictionary,
-                    })
-                  }
-                >
-                  <Text style={{ color: "black" }}>Edit</Text>
-                </MenuOption>
-              </MenuOptions>
-            </Menu>
+            <MenuProvider>
+              <Menu style={styles.routineMenuStyling}>
+                <MenuTrigger style={styles.ellipsis} text="..." />
+                <MenuOptions>
+                  <MenuOption
+                    onSelect={() =>
+                      navigate("EditActivity", {
+                        prevScreenTitle: "Routines",
+                        activityName: item.activity_name,
+                        activityId: item.activity_id,
+                        activityTags: eval(item.tags),
+                        activityImagePath: item.image_path,
+                        activityDescription: item.activity_description,
+                        activityAudioPath: item.audio_path,
+                        activityVideoPath: item.video_path,
+                        activityIsPublic: item.is_public,
+                        rewardId: item.reward_id,
+                        allRewardsByIdDictionary: this.state.allRewardsByIdDictionary,
+                        allActivitiesDictionary: this.state.allActivitiesDictionary,
+                      })
+                    }
+                  >
+                    <Text style={{ color: "black" }}>Edit</Text>
+                  </MenuOption>
+                </MenuOptions>
+              </Menu>
+            </MenuProvider>
           </View>
         </View>
       );
@@ -309,9 +397,9 @@ export default class ParentRoutines extends Component {
                         prevScreenTitle: "Routines",
                         routineName: item.routine_name,
                         routineId: item.routine_id,
-                        routineStartTime: item.start_time,
-                        routineEndTime: item.end_time,
-                        routineApproval: item.requires_approval,
+                        startTime: item.start_time,
+                        endTime: item.end_time,
+                        requiresApproval: item.requires_approval,
                         monday: item.monday,
                         tuesday: item.tuesday,
                         wednesday: item.wednesday,
@@ -323,9 +411,10 @@ export default class ParentRoutines extends Component {
                         amount_of_rewards: item.amount_of_rewards,
                         allActivities: this.state.allActivities,
                         rewardId: item.reward_id,
-                        userId: this.state.userId,
-                        allRewards: this.state.allRewards,
-                        allActivitiesDictionary: this.state.allActivitiesDictionary,
+                        allRewardsByIdDictionary: this.state
+                          .allRewardsByIdDictionary,
+                        allActivitiesDictionary: this.state
+                          .allActivitiesDictionary,
                       })
                     }
                   >
@@ -344,6 +433,10 @@ export default class ParentRoutines extends Component {
                   <MenuOption
                     onSelect={() => alert("Duplicate")}
                     text="Duplicate"
+                  />
+                   <MenuOption
+                    onSelect={() => alert("Add Tag")}
+                    text="Add Tag"
                   />
                   <MenuOption onSelect={() => alert("Delete")}>
                     <Text style={{ color: "red" }}>Delete</Text>
@@ -369,6 +462,7 @@ export default class ParentRoutines extends Component {
   }
 
   render() {
+
     if (this.state.results !== null) {
       //  console.log(this.state.results);
     } else {
@@ -399,37 +493,50 @@ export default class ParentRoutines extends Component {
         </SafeAreaView>
 
         {/* TESTING CONTAINER
-        {!this.state.loaded && (
+        {!this.state.routinesLoaded && (
           <View style={{ marginTop: 100 }}>
-            <Text style={{ marginLeft: 50 }}>:( this.stateloaded is not true</Text>
+            <Text style={{ marginLeft: 50 }}>:( this.stateroutinesLoaded is not true</Text>
           </View>
         )} */}
+        <ScrollView>
+          {this.state.routinesLoaded && (
+            <View>
+              {this.tabIsRoutines() && (
+                <View
+                  style={{
+                    flexDirection: "row",
+                    flexWrap: "wrap",
+                  }}
+                >
+                  {this.displayRoutines()}
+                  {this.displayNewRoutineContainer()}
+                </View>
+              )}
+            </View>
+          )}
 
-        {this.state.loaded && (
+          {this.state.activitiesLoaded && (
+            <View>
+              <ScrollView>
+                {!this.tabIsRoutines() && (
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      flexWrap: "wrap",
+                    }}
+                  >
+                    {this.displayActivities()}
+                    {this.displayNewActivityContainer()}
+                    {this.displayLibraryContainer()}
+                  </View>
+                )}
+              </ScrollView>
+            </View>
+          )}
           <View>
-            {this.tabIsRoutines() && (
-              <View
-                style={{
-                  flexDirection: "row",
-                  flexWrap: "wrap",
-                }}
-              >
-                {this.displayRoutines()}
-                {this.displayNewRoutineContainer()}
-              </View>
-            )}
-          </View>
-        )}
-
-        {this.state.secondLoaded && (
-          <View>
-            {!this.tabIsRoutines() && <View>{this.displayActivities()}</View>}
-          </View>
-        )}
-        <View>
-          <View style={{ marginTop: 100 }} />
-          {/* first dialog - yes/cancel */}
-          {/* <Dialog
+            <View style={{ marginTop: 100 }} />
+            {/* first dialog - yes/cancel */}
+            {/* <Dialog
                            visible={this.state.visible1}
                            onTouchOutside={() => {
                              this.setState({
@@ -446,7 +553,7 @@ export default class ParentRoutines extends Component {
                              </Text>
                              {/* <Text>This will log you out of the child mode. If you wish to switch from child to parent mode, you will need to enter your 4 digit passcode. Do you wish to continue the switch to parent mode of the app?</Text> */}
 
-          {/* <Button
+            {/* <Button
                                onPress={() => {
                                  this.props.navigation.navigate(
                                    'Task1',
@@ -483,7 +590,8 @@ export default class ParentRoutines extends Component {
                              />
                            </DialogContent>
                          </Dialog> */}
-        </View>
+          </View>
+        </ScrollView>
       </View>
     );
   }
@@ -530,14 +638,6 @@ const styles = StyleSheet.create({
     textAlign: "center",
     flex: 1,
   },
-  routineContainterOptions: {
-    overflow: "visible",
-    zIndex: 999,
-  },
-  routineOptionsPopout: {
-    overflow: "visible",
-    zIndex: 999,
-  },
   routineMenuStyling: {
     overflow: "visible",
     zIndex: 999,
@@ -547,7 +647,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   routineDetails: {
-    fontSize: 10,
+    fontSize: 12,
     zIndex: 2,
   },
   routineDetailsPreview: {
@@ -555,14 +655,6 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     marginLeft: 5,
   },
-  selectText: {
-    fontSize: 15,
-    padding: 5,
-    marginTop: 10,
-    marginBottom: 10,
-    marginLeft: 10,
-  },
-
   routineContainer: {
     width: WIDTH * 0.3,
     height: 150,

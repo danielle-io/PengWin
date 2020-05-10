@@ -1,5 +1,3 @@
-
-
 import React, { Component } from 'react';
 
 import { createAppContainer } from 'react-navigation'
@@ -17,7 +15,8 @@ import EditRoutine from './ParentSide/ParentScreens/EditRoutine';
 import ParentRoutines from './ParentSide/ParentScreens/ParentRoutines';
 import EditActivity from './ParentSide/ParentScreens/EditActivity';
 import Progress from './ParentSide/ParentScreens/Progress';
-// import Notifications from './ParentSide/ParentScreens/Notifications';
+import Notifications from './ParentSide/ParentScreens/Notifications';
+import RoutineApproval from './ParentSide/ParentScreens/RoutineApproval';
 
 import ChildRoutines from './ChildScreens/ChildNavigation';
 import ChildActivity from './ChildScreens/ChildActivity';
@@ -25,14 +24,12 @@ import ChildPincode from './ChildScreens/ChildPincode';
 import ChildNotifScreen from './ChildScreens/ChildNotifScreen';
 import ChildRewards from './ChildScreens/ChildRewards';
 import ChildMap from './ChildScreens/ChildMap';
+import ChildStartActivity from './ChildScreens/ChildStartActivity';
 
 import Camera from '../components/ImageRecognition/Camera';
-import irDemo from '../components/ImageRecognition/irDemo';
-
-
+import ChildCamera from '../components/ImageRecognition/ChildCamera';
 
 import TestingHomePage from './TestingHomePage';
-
 
 
 const Screens = createStackNavigator({
@@ -42,7 +39,7 @@ const Screens = createStackNavigator({
   Pincode: {screen: Pincode},
   ForgotPassword: {screen: ForgotPassowrd},
   Camera: {screen:Camera},
-  irDemo: {screen: irDemo },    
+  ChildCamera: {screen: ChildCamera },    
 
   ParentNavigation: {screen: ParentNavigation},
   ParentRoutines: {screen: ParentRoutines},
@@ -52,14 +49,16 @@ const Screens = createStackNavigator({
   ParentProfile: {screen:ParentProfile},
   EditRoutine: {screen:EditRoutine},
   Progress: {screen: Progress},
-  // Notifications: {screen: Notifications},
+  Notifications: {screen: Notifications},
+  RoutineApproval: {screen: RoutineApproval},
 
   ChildPincode: {screen:ChildPincode},
   ChildNotifScreen: {screen:ChildNotifScreen},
   ChildRoutines: {screen: ChildRoutines},
   ChildActivity: {screen:ChildActivity},
   ChildMap: {screen:ChildMap},
-  ChildRewards: {screen:ChildRewards}
+  ChildRewards: {screen:ChildRewards},
+  ChildStartActivity: {screen:ChildStartActivity}
 });
 
 const App = createAppContainer(Screens);

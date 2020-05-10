@@ -19,12 +19,21 @@ import * as ImagePicker from "expo-image-picker";
 import { Audio } from "expo-av";
 import * as FileSystem from "expo-file-system";
 import * as Permissions from "expo-permissions";
+import { AppLoading } from "expo";
+
+
 import Environment from "../../../database/sqlEnv";
+import UserInfo from "../../../state/UserInfo";
+
 
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 Icon.loadFont();
 
 const mainColor = "#3ca897";
+const parentId = UserInfo.parent_id;
+const childId = UserInfo.child_id;
+const userId = UserInfo.user_id;
+const pincode = UserInfo.pincode;
 
 const { width: WIDTH } = Dimensions.get("window");
 
@@ -59,7 +68,6 @@ export default class Activity extends Component {
       activityAudioPath: this.props.navigation.state.params.activityAudioPath,
       activityVideoPath: this.props.navigation.state.params.activityVideoPath,
       activityIsPublic: this.props.navigation.state.params.activityIsPublic,
-      userId: this.props.navigation.state.params.userId,
       rewardId: this.props.navigation.state.params.rewardId,
       haveRecordingPermissions: false,
       isLoading: false,
@@ -74,12 +82,11 @@ export default class Activity extends Component {
       shouldCorrectPitch: true,
       volume: 1.0,
       rate: 1.0,
+      
     };
     this.recordingSettings = JSON.parse(
       JSON.stringify(Audio.RECORDING_OPTIONS_PRESET_LOW_QUALITY)
     );
-
-    
   }
 
   async postActivity(tag, value){
@@ -88,6 +95,27 @@ export default class Activity extends Component {
     };
     try {
       let response = await fetch(Environment + "/updateActivity/1" , {
+        method: "POST",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
+      if (response.status >= 200 && response.status < 300) {
+        console.log("POSTED")
+      }
+    } catch (errors) {
+      alert(errors);
+    }
+  }
+
+  async postPref(tag, value){
+    var data = {
+      [tag]: value,
+    };
+    try {
+      let response = await fetch(Environment + "/updatePreferences/1" , {
         method: "POST",
         headers: {
           Accept: "application/json",
@@ -713,7 +741,7 @@ export default class Activity extends Component {
               margin: 15,
             }}
           >
-            <TouchableOpacity style={styles.button}>
+            <TouchableOpacity style={styles.button} onPress = { () => this.postPref("gender", 5)}>
               <Icon name="text" color="#FF6978" size={30} />
               <Text>Description</Text>
             </TouchableOpacity>

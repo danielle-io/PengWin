@@ -19,13 +19,13 @@ import firebase from "../../database/irDb";
 
 export default class App extends React.Component {
   state = {
-    image: null,
+    activityImage: null,
     itemIsInTags: false,
     uploading: false,
     completedCheck: false,
     tagsMatched: [],
     googleResponse: null,
-    tags: ["toothbrush", "brushing", "teeth", "tooth"],
+    tags: {"toothbrush":1, "brushing":1, "teeth":1, "tooth":1}
   };
 
   async componentDidMount() {
@@ -34,16 +34,14 @@ export default class App extends React.Component {
   }
 
   render() {
-    let { image } = this.state;
+    let { activityImage } = this.state;
 
     return (
       <View style={styles.container}>
-          
         <ScrollView
           style={styles.container}
           contentContainerStyle={styles.contentContainer}
         >
-    
         
         <View style={styles.helpContainer}>
 
@@ -54,21 +52,27 @@ export default class App extends React.Component {
                 />
         }
             {this.state.googleResponse && (
+              <View>
               <FlatList
                 data={this.state.googleResponse.responses[0].labelAnnotations}
                 extraData={this.state}
                 keyExtractor={this._keyExtractor}
                 renderItem={({ item }) => (
-                  <View>{this._compareToTags(item.description)}</View>
-                )}
+                  // TODO: MODIFY THIS SO IT ONLY RUNS WHILE !this.state.itemIsInTags
+                  this._compareToTags(item.description)
+                )
+                }
+                  
               />
+                 </View>
             )}
+
+            
             {this._maybeRenderImage()}
             {this._maybeRenderUploadingOverlay()}
-            {/* {this._setCheckComplete()} */}
 
             {this.state.googleResponse && this.state.itemIsInTags && (
-              <Text>Good job!</Text>
+              <View><Text>Good job!</Text></View>
             )}
 
             {this.state.googleResponse && !this.state.itemIsInTags && (
@@ -83,28 +87,20 @@ export default class App extends React.Component {
     );
   }
 
-  organize = (array) => {
-    return array.map(function(item, i) {
-      return (
-        <View key={i}>
-          <Text>{item}</Text>
-        </View>
-      );
-    });
-  };
-
-  _setCheckComplete = () => {
-    this.setState({ completedCheck: true });
-  };
 
   _compareToTags = (description) => {
     var tagMatch = false;
-    for (let i = 0; i < this.state.tags.length; i++) {
-      console.log(this.state.tags[i]);
-      if (this.state.tags[i].toLowerCase() === description.toLowerCase()) {
-        tagMatch = true;
-      }
+
+    if (description.toLowerCase() in this.state.tags){
+      tagMatch = true;
     }
+
+    // for (let i = 0; i < this.state.tags.length; i++) {
+    //   console.log(this.state.tags[i]);
+    //   if (this.state.tags[i].toLowerCase() === description.toLowerCase()) {
+    //     
+    //   }
+    // }
     if (!this.state.itemIsInTags && tagMatch) {
       this.setState({ itemIsInTags: true });
     }
@@ -130,11 +126,11 @@ export default class App extends React.Component {
   };
 
   _maybeRenderImage = () => {
-    let { image, googleResponse } = this.state;
-    if (!image) {
+    let { activityImage, googleResponse } = this.state;
+    if (!activityImage) {
       return;
     }
-
+    console.log("in maybe render");
     return (
       <View
         style={{
@@ -144,13 +140,6 @@ export default class App extends React.Component {
           elevation: 2,
         }}
       >
-        {!this.state.itemIsInTags && (
-          <Button
-            style={{ marginBottom: 10 }}
-            onPress={() => this.submitToGoogle()}
-            title="Is this your toothbrush? Click here to submit the photo!"
-          />
-        )}
 
         <View
           style={{
@@ -164,7 +153,7 @@ export default class App extends React.Component {
           }}
         >
           {/* {!this.state.completedCheck && */}
-          <Image source={{ uri: image }} style={{ width: 250, height: 250 }} />
+          <Image source={{ uri: activityImage }} style={{ width: 250, height: 250 }} />
           {/* } */}
         </View>
       </View>
@@ -173,25 +162,10 @@ export default class App extends React.Component {
 
   _keyExtractor = (item, index) => item.id;
 
-  _renderItem = (item) => {
-    <Text>response: {JSON.stringify(item)}</Text>;
-  };
-
   _takePhoto = async () => {
     // this.setState({completedCheck : false})
 
     let pickerResult = await ImagePicker.launchCameraAsync({
-      allowsEditing: true,
-      aspect: [4, 3],
-    });
-
-    this._handleImagePicked(pickerResult);
-  };
-
-  _pickImage = async () => {
-    // this.setState({completedCheck : false})
-
-    let pickerResult = await ImagePicker.launchImageLibraryAsync({
       allowsEditing: true,
       aspect: [4, 3],
     });
@@ -205,7 +179,8 @@ export default class App extends React.Component {
 
       if (!pickerResult.cancelled) {
         uploadUrl = await uploadImageAsync(pickerResult.uri);
-        this.setState({ image: uploadUrl });
+        this.setState({ activityImage: uploadUrl });
+        this.submitToGoogle();
       }
     } catch (e) {
       console.log(e);
@@ -220,7 +195,7 @@ export default class App extends React.Component {
       this.setState({ completedCheck: false });
       this.setState({ itemIsInTags: false });
       this.setState({ uploading: true });
-      let { image } = this.state;
+      let { activityImage } = this.state;
       let body = JSON.stringify({
         requests: [
           {
@@ -238,7 +213,7 @@ export default class App extends React.Component {
             ],
             image: {
               source: {
-                imageUri: image,
+                imageUri: activityImage,
               },
             },
           },
@@ -269,6 +244,7 @@ export default class App extends React.Component {
 }
 
 async function uploadImageAsync(uri) {
+  console.log("uploading async");
   const blob = await new Promise((resolve, reject) => {
     const xhr = new XMLHttpRequest();
     xhr.onload = function() {
@@ -299,13 +275,6 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#fff",
     paddingBottom: 10,
-  },
-  developmentModeText: {
-    marginBottom: 20,
-    color: "rgba(0,0,0,0.4)",
-    fontSize: 14,
-    lineHeight: 19,
-    textAlign: "center",
   },
   contentContainer: {
     paddingTop: 30,
