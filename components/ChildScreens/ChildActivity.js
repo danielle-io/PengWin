@@ -50,7 +50,7 @@ export default class ChildActivity extends Component {
       routineId: this.props.navigation.state.params.routineId,
       rewardId: this.props.navigation.state.params.rewardId,
       requiresApproval: this.props.navigation.state.params.requiresApproval,
-      imagePathArray: this.props.navigation.state.params.imagePathArray,
+      imagePathArray: ' ',
       childNotificationsId: this.props.navigation.state.params.childNotificationsId,
       testing: this.props.navigation.state.params.testing,
       visible1: false,
@@ -105,6 +105,36 @@ export default class ChildActivity extends Component {
       .then((results) => {
         this.setState({ activities: results });
         this.setState({ activitiesLoaded: true });
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+  }
+
+  updateNotificationToNotInProgress() {
+    var data = {
+      in_progress: 0,
+    };
+
+    fetch(
+      Environment +
+        "/updateChildNotifications/" +
+        this.state.childNotificationsId,
+      {
+        method: "POST",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      }
+    )
+      .then((response) => response.json())
+      .then((responseJson) => {
+        return responseJson;
+      })
+      .then((results) => {        
+        console.log(results);
       })
       .catch((error) => {
         console.error(error);
@@ -346,6 +376,7 @@ export default class ChildActivity extends Component {
             <View style={styles.badgeContainer}>
               <Text style={styles.title}>
                 Congratulations! You receive a badge!
+                {this.updateNotificationToNotInProgress()}
               </Text>
               <View style={styles.image}>
                 {this.state.activities.map((item, key) => (

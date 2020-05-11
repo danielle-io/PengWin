@@ -115,6 +115,26 @@ export default class ParentRoutines extends Component {
       });
   }
 
+  // TODO: get each activity, sum the reward_id != null
+  getTotalRewardsInRoutine(routineId) {
+    fetch(
+      Environment +
+        "/getActivitiesWithRewardsPerRoutine/" +
+        routineId
+    )
+      .then((response) => response.json())
+      .then((responseJson) => {
+        return responseJson;
+      })
+      .then((activities) => {
+          console.log("RETURNED DATA ");
+          console.log(activities);
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+  }
+
   getAllRewardsForUser() {
     fetch(Environment + "/getAllRewards/" + userId, {
       headers: {

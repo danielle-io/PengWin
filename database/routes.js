@@ -217,7 +217,6 @@ app.post('/insertChildRoutineNotifications', function (req, res) {
 
 // Update the routine data
 app.post('/updateChildNotifications/:childNotificationsId', function (req, res) {
-  console.log("in update notifications");
   
   let childNotificationsId = req.params.childNotificationsId;
   var postData = req.body;
@@ -437,6 +436,31 @@ app.get('/joinRoutineActivityTableByRoutineId/:routineId', function (req, res) {
       + 'inner join routines_activities_relationship rar on routines.routine_id = rar.routine_id '
       + 'inner join activities a on rar.activity_id = a.activity_id '
       + 'where rar.routine_id = ? AND rar.routine_id <> 0 AND rar.deleted <> 1 '
+      + 'order by rar.order', [routineId], function (error, results, fields) {
+        // console.log('routine routes below');
+        // console.log(results);
+        // console.log(error);
+
+        if (error){
+          throw error;
+          console.log(err);
+        }
+        // console.log("RESULTS FROM JOINING");
+        // console.log(results);
+        res.send(results)
+      });
+  });
+});
+
+app.get('/getActivitiesWithRewardsPerRoutine/:routineId', function (req, res) {
+  let routineId = req.params.routineId;
+  connection.getConnection(function (err, connection) {
+
+    connection.query('select routines.*, a.*, rar.order, rar.routine_activity_id from routines '
+      + 'inner join routines_activities_relationship rar on routines.routine_id = rar.routine_id '
+      + 'inner join activities a on rar.activity_id = a.activity_id '
+      + 'where rar.routine_id = ? AND rar.routine_id <> 0 AND rar.deleted <> 1 '
+      + 'AND reward_id <> null '
       + 'order by rar.order', [routineId], function (error, results, fields) {
         // console.log('routine routes below');
         // console.log(results);
