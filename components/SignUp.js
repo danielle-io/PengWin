@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import { ScrollView } from "react-native-gesture-handler";
 import * as ImagePicker from "expo-image-picker";
 import { Image } from "react-native";
-
 import {
   Alert,
   Button,
@@ -28,9 +27,6 @@ export default class SignUp extends Component {
     this.state = {
       photos: null,
       activityImagePath: this.props.navigation.state.params.activityImagePath,
-
-
-
     }
   }
   
@@ -49,6 +45,9 @@ export default class SignUp extends Component {
       console.log(this.state.photos);
       if (this.state.photos) {
         return (
+
+
+
           <Image
             style={{ width: 300, height: 200, borderRadius: 15 }}
             source={{ uri: this.state.photos.uri }}
@@ -63,8 +62,10 @@ export default class SignUp extends Component {
     return (
      
       <View>
-      
-        <View style={{marginTop: 50}}></View>
+
+         
+
+        <View style={{marginTop: 50, height:20, width:20}}></View>
         <View style={styles.headingContainer}></View>
         
         <View style={{marginBottom: 0}}></View>
@@ -77,7 +78,7 @@ export default class SignUp extends Component {
               onPress={this._handleButtonPress}
             >
                
-              
+            
             </TouchableOpacity>
             
             <Text style={styles.headingContainer}>Add Photo
@@ -85,7 +86,7 @@ export default class SignUp extends Component {
    
           </View>
         </View>
-
+     
 
         <View style={styles.logoContainer}>
           {/* <Image source={Logo}
@@ -198,6 +199,11 @@ const styles = StyleSheet.create({
   placeholder: {
     color: 'black'
   },
+  loginContainer: {
+    marginBottom: 80,
+    marginTop: 10,
+  },
+ 
   logo: {
     alignContent: 'center'
   },
@@ -211,10 +217,6 @@ const styles = StyleSheet.create({
     width: 50,
     alignSelf: 'center'
   
-  },
-  loginContainer: {
-    marginBottom: 90,
-    marginTop: 20,
   },
   headingContainer: {
     textAlign: 'center',
