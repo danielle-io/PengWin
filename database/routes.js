@@ -60,6 +60,20 @@ app.get('/getUnevaluatedRoutines/:parentId', function (req, res) {
   });
 });
 
+app.get('/getImagePathFromNotifcations/:childNotificationsId', function (req, res) {
+  let childNotificationsId = req.params.childNotificationsId;
+  connection.getConnection(function (err, connection) {
+  
+    connection.query('SELECT * FROM child_notifications where child_notifications_id = ?', [childNotificationsId],
+    function (error, results, fields) {
+
+        if (error) throw error;
+        console.log(results);
+        res.send(results)
+      });
+  });
+});
+
 app.get('/getParentIdOfUser/:userId', function (req, res) {
   let userId = req.params.userId;
   connection.getConnection(function (err, connection) {
@@ -457,6 +471,8 @@ app.get('/joinRoutineActivityTableByRoutineId/:routineId', function (req, res) {
       });
   });
 });
+
+
 
 app.get('/getRoutinesByUser/:userId', function (req, res) {
   let userId = req.params.userId;
