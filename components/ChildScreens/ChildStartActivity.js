@@ -84,7 +84,6 @@ export default class ChildStartActivity extends Component {
           rewardId: this.state.rewardId,
           requiresApproval: this.state.requiresApproval,
           childNotificationsId: results.insertId,
-          imagePathUpdated: null,
         });
       })
       .catch((error) => {

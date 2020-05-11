@@ -45,6 +45,9 @@ const childId = UserInfo.child_id;
 const userId = UserInfo.user_id;
 const pincode = UserInfo.pincode;
 
+
+// imagePathArray: eval(this.state.imagePathArray),
+
 export default class ChildCamera extends React.Component {
   constructor(props) {
     super(props);
@@ -54,10 +57,9 @@ export default class ChildCamera extends React.Component {
     this.state = {
       prevScreenTitle: this.props.navigation.state.params.prevScreenTitle,
       currentRoutine: this.props.navigation.state.params.currentRoutine,
-      imagePathArray: this.props.navigation.state.params.imagePathArray,
+      imagePathArray: '[]',
       childNotificationsId: this.props.navigation.state.params
         .childNotificationsId,
-      tagsDictionary: null,
       tags: this.props.navigation.state.params.tags,
       activities: this.props.navigation.state.params.activities,
       key: this.props.navigation.state.params.key,
@@ -66,19 +68,15 @@ export default class ChildCamera extends React.Component {
       uploading: false,
       googleResponse: null,
       fontsLoaded: false,
+      tagsDictionary: null,
     };
   }
 
   createArray(){
-    var tempArray = [];
+    var tempArray = this.state.imagePathArray;
 
     console.log("IMAGE PATH ARRAY :: " + this.state.imagePathArray);
     console.log("this.state.activityImage :: " + this.state.activityImage);
-
-    if (this.state.imagePathArray) {
-      tempArray = this.state.imagePathArray;
-    }
-
     console.log(typeof tempArray);
 
     tempArray.push(this.state.activityImage);
@@ -89,16 +87,17 @@ export default class ChildCamera extends React.Component {
     this.updateImageArrayInDb(JSON.stringify(tempArray));
   }
 
-  async updateImageArrayInDb(tempArray) {
+ updateImageArrayInDb(tempArray) {
     
-    console.log("in update image in db");
+    console.log("in update image in db, key is " + this.state.key);
+    console.log("in update image in db, tempArray is " + tempArray);
 
     var data = {
       image_path_array: tempArray,
       activities_complete: this.state.key + 1
     };
 
-    let response = await fetch(
+    fetch(
       Environment +
         "/updateChildNotifications/" +
         this.state.childNotificationsId,
@@ -115,10 +114,28 @@ export default class ChildCamera extends React.Component {
       .then((responseJson) => {
         return responseJson;
       })
-      .then((results) => {
-        console.log("image inserted!!!");
-        
+      .then((results) => {        
         this.goBackToActivityPage(tempArray);
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+  }
+
+  async getImagePath() {
+    console.log("getting image path");
+    fetch(
+      Environment +
+        "/getImagePathFromNotifcations/" +
+        this.state.childNotificationsId
+    )
+      .then((response) => response.json())
+      .then((responseJson) => {
+        return responseJson;
+      })
+      .then((results) => {
+        console.log("RESULTS ARE " + results[0].image_path_array);
+        this.setState({ imagePathArray: eval(results[0].image_path_array) });
       })
       .catch((error) => {
         console.error(error);
@@ -129,8 +146,8 @@ export default class ChildCamera extends React.Component {
     console.log("leaving page");
     const { navigate } = this.props.navigation;
     this.navigate("ChildActivity", {
-      prevScreenTitle: "Routines",
-      imagePathUpdated: imageArray,
+      imagePathArray: imageArray,
+      testing: "::::: camera",
     });
   }
 
@@ -144,8 +161,8 @@ export default class ChildCamera extends React.Component {
   });
 
   async componentDidMount() {
-    console.log("in camera");
     this._loadFontsAsync();
+    this.getImagePath();
     await Permissions.askAsync(Permissions.CAMERA_ROLL);
     await Permissions.askAsync(Permissions.CAMERA);
     this.createTagDictionary();
@@ -163,7 +180,6 @@ export default class ChildCamera extends React.Component {
   }
 
   _compareToTags = (description) => {
-    console.log(this.state.tagsDictionary);
     var tagMatch = false;
 
     if (description.toLowerCase() in this.state.tagsDictionary) {
@@ -203,7 +219,6 @@ export default class ChildCamera extends React.Component {
     if (!activityImage) {
       return;
     }
-    console.log("in maybe render");
     return (
       <View
         style={{
@@ -258,7 +273,7 @@ export default class ChildCamera extends React.Component {
       this.setState({ uploading: true });
 
       if (!pickerResult.cancelled) {
-        uploadUrl = await this.uploadImageAsync(pickerResult.uri);
+        var uploadUrl = await this.uploadImageAsync(pickerResult.uri);
         this.setState({ activityImage: uploadUrl });
         this.submitToGoogle();
       }
@@ -271,7 +286,6 @@ export default class ChildCamera extends React.Component {
   };
 
   async uploadImageAsync(uri) {
-    console.log("uploading async");
     const blob = await new Promise((resolve, reject) => {
       const xhr = new XMLHttpRequest();
       xhr.onload = function() {
@@ -338,7 +352,6 @@ export default class ChildCamera extends React.Component {
         }
       );
       let responseJson = await response.json();
-      console.log(responseJson);
       this.setState({
         googleResponse: responseJson,
         uploading: false,
@@ -350,7 +363,6 @@ export default class ChildCamera extends React.Component {
 
   render() {
     let { activityImage } = this.state;
-    console.log(this.state.tags);
     var titleString = "Click here and take a photo of: " + this.state.tags[0];
 
     if (this.state.fontsLoaded) {
