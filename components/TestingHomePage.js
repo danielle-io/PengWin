@@ -64,6 +64,18 @@ export default class TestingHomePage extends Component {
               <TouchableOpacity
                 style={styles.parentContainer}
                 onPress={() =>
+                  this.navigate("Notifications", {
+                    prevScreenTitle: "TestingHomePage",
+                    initialRouteName: "Notifications",
+                  })
+                }
+              >
+                <Text style={styles.linkText}>Notifications</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={styles.parentContainer}
+                onPress={() =>
                   this.navigate("ParentProfile", {
                     prevScreenTitle: "TestingHomePage",
                   })
@@ -143,16 +155,6 @@ export default class TestingHomePage extends Component {
                 <Text style={styles.linkText}>Child Map</Text>
               </TouchableOpacity>
 
-              <TouchableOpacity
-                style={styles.childContainer}
-                onPress={() =>
-                  this.navigate("ChildActivity", {
-                    prevScreenTitle: "ChildRoutine",
-                  })
-                }
-              >
-                <Text style={styles.linkText}>Child Activity</Text>
-              </TouchableOpacity>
             </View>
 
             {/* <View style={{ flex: 1, justifyContent: 'center', flexDirection: 'row', flexWrap: 'wrap' }}>
@@ -171,11 +173,11 @@ export default class TestingHomePage extends Component {
             >
               <TouchableOpacity
                 onPress={() =>
-                  this.navigate("irDemo", { prevScreenTitle: "irDemo" })
+                  this.navigate("ChildCamera", { prevScreenTitle: "ChildCamera" })
                 }
                 style={styles.otherContainer}
               >
-                <Text style={styles.linkText}>irDemo</Text>
+                <Text style={styles.linkText}>ChildCamera</Text>
               </TouchableOpacity>
 
               <TouchableOpacity

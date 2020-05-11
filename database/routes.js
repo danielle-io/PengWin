@@ -47,7 +47,7 @@ app.get('/getUnevaluatedRoutines/:parentId', function (req, res) {
   let parentId = req.params.parentId;
   connection.getConnection(function (err, connection) {
     
-    connection.query('SELECT * FROM child_notifications where parent_id =' + parentId
+    connection.query('SELECT * FROM child_notifications where parent_id = ?', [parentId]
     + ' AND is_evaluated = 0'
     + ' AND requires_approval = 1' 
     + ' AND in_progress = 0', function (error, results, fields) {
@@ -96,15 +96,15 @@ app.post('/updateRoutine/:routineId', function (req, res) {
 });
 
 // Update the routine data
-app.post('/updateActivityRelationship/:routineId', function (req, res) {
-  let routineId = req.params.routineId;
+app.post('/updateActivityRelationship/:routineActivityId', function (req, res) {
+  let routineActivityId = req.params.routineActivityId;
   var postData = req.body;
 
   // console.log(postData);
   connection.getConnection(function (err, connection) {
 
-    connection.query('UPDATE routines SET ? WHERE routine_id = ?',
-      [postData, routineId],
+    connection.query('UPDATE routines_activities_relationship SET ? WHERE routine_activity_id = ?',
+      [postData, routineActivityId],
       function (error, results, fields) {
         if (error){
           throw error;
@@ -137,6 +137,25 @@ app.post('/updateUser/:userId', function (req, res) {
       });
   });
 });
+
+app.post('/incrementChildRoutines/:childID', function (req, res) {
+
+  let childID = req.params.childID;
+
+  connection.getConnection(function (err, connection) {
+
+    connection.query('UPDATE children SET routines_complete = routines_complete + 1 WHERE child_id =' + childID,
+      [postData, childID],
+      function (error, results, fields) {
+        if (error){
+          throw error;
+          console.log(err);
+        }
+        res.send(JSON.stringify(results))
+      });
+  });
+});
+
 app.post('/updateActivity/:activity_id', function (req, res) {
 
   let activity_id = req.params.activity_id;
@@ -184,11 +203,63 @@ app.post('/insertRoutine', function (req, res) {
       throw error;
       console.log(err);
     }
-    res.end(JSON.stringify(results));
+    res.send(JSON.stringify(results))
+  });
+});
+
+app.post('/insertChildRoutineNotifications', function (req, res) {
+  var postData = req.body;
+  connection.query('INSERT INTO child_notifications SET ?', postData, function (error, results, fields) {
+    if (error){
+      throw error;
+      console.log(err);
+    }
+    console.log(JSON.stringify(results));
+
+    res.send(JSON.stringify(results))
+  });
+});
+
+// Update the routine data
+app.post('/updateChildNotifications/:childNotificationsId', function (req, res) {
+  console.log("in update notifications");
+  
+  let childNotificationsId = req.params.childNotificationsId;
+  var postData = req.body;
+
+  connection.getConnection(function (err, connection) {
+    connection.query('UPDATE child_notifications SET ? WHERE child_notifications_id = ?',
+      [postData, childNotificationsId],
+      function (error, results, fields) {
+        if (error){
+          throw error;
+          console.log(err);
+        }
+        res.send(JSON.stringify(results))
+      });
   });
 });
 
 
+app.post('/updatePreferences/:user_preference_id', function (req, res) {
+
+  let user_preference_id = req.params.user_preference_id;
+  var postData = req.body;
+
+  console.log(postData);
+  connection.getConnection(function (err, connection) {
+    connection.query('UPDATE user_preferences SET ? WHERE user_preference_id =' + user_preference_id,
+      [postData, user_preference_id],
+      function (error, results, fields) {
+
+        if (error){
+          console.log(error);
+          throw error;
+        }
+        res.send(JSON.stringify(results))
+      });
+  });
+});
 
 app.post('/insertRoutineActivityRelationship', function (req, res) {
   var postData = req.body;
@@ -197,19 +268,20 @@ app.post('/insertRoutineActivityRelationship', function (req, res) {
       throw error;
       console.log(err);
     }
-    res.end(JSON.stringify(results));
+    console.log(JSON.stringify(results));
+    res.send(JSON.stringify(results));
   });
 });
 
 
 app.post('/insertRewards', function (req, res) {
   var postData = req.body;
-  connection.query('INSERT INTO rewards  SET ?', postData, function (error, results, fields) {
+  connection.query('INSERT INTO rewards SET ?', postData, function (error, results, fields) {
     if (error){
       throw error;
       console.log(err);
     } 
-    res.end(JSON.stringify(results));
+    res.send(JSON.stringify(results));
   });
 });
 
@@ -219,7 +291,7 @@ app.post('/insertRewards', function (req, res) {
 //     connection.query('SELECT * FROM users where user_id =' + userId, function (error, results, fields) {
 //       if (error) throw error;
 
-//       res.send(results)
+//       res.ssend(results)
 //     });
 //   });
 // });
@@ -276,25 +348,6 @@ app.get('/getActivitiesFromRoutine/:routineID', function (req, res) {
 });
 
 
-app.get('/routines/:userId', function (req, res) {
-  let userId = req.params.userId;
-
-  connection.getConnection(function (err, connection) {
-
-    connection.query('select routines.*, a.*, rar.order from routines '
-      + 'inner join routines_activities_relationship rar on routines.routine_id = rar.routine_id '
-      + 'inner join activities a on rar.activity_id = a.activity_id '
-      + 'where rar.user_id = ? AND rar.routine_id <> 0 '
-      + 'order by rar.routine_id, rar.order', [userId], function (error, results, fields) {
-
-        if (error){
-          throw error;
-          console.log(err);
-        }
-        res.send(results)
-      });
-  });
-});
 
 app.get('/getAllRewards/:userId', function (req, res) {
   let userId = req.params.userId;
@@ -302,6 +355,22 @@ app.get('/getAllRewards/:userId', function (req, res) {
   connection.getConnection(function (err, connection) {
 
     connection.query('SELECT * FROM rewards where user_id =' + userId, function (error, results, fields) {
+
+      if (error){
+        throw error;
+        console.log(err);
+      }
+        res.send(results)
+      });
+  });
+});
+
+app.get('/getAllRewardsandRoutines/:userId', function (req, res) {
+  let userId = req.params.userId;
+
+  connection.getConnection(function (err, connection) {
+
+    connection.query('SELECT * FROM rewards AS rew, routines AS route WHERE rew.user_id = route.user_id AND route.reward_id = rew.reward_id AND rew.user_id =' + userId, function (error, results, fields) {
 
       if (error){
         throw error;
@@ -345,14 +414,34 @@ app.get('/getActivityById/:activityId', function (req, res) {
   });
 });
 
-app.get('/joinRoutineAndActivityTable/:routineId', function (req, res) {
+// app.get('/getRoutinesJoinActivities:userId', function (req, res) {
+//   let userId = req.params.userId;
+
+//   connection.getConnection(function (err, connection) {
+
+//     connection.query('select routines.*, a.*, rar.order from routines '
+//       + 'inner join routines_activities_relationship rar on routines.routine_id = rar.routine_id '
+//       + 'inner join activities a on rar.activity_id = a.activity_id '
+//       + 'where rar.user_id = ? AND rar.routine_id <> 0 '
+//       + 'order by rar.routine_id, rar.order', [userId], function (error, results, fields) {
+
+//         if (error){
+//           throw error;
+//           console.log(err);
+//         }
+//         res.send(results)
+//       });
+//   });
+// });
+
+app.get('/joinRoutineActivityTableByRoutineId/:routineId', function (req, res) {
   let routineId = req.params.routineId;
   connection.getConnection(function (err, connection) {
 
-    connection.query('select routines.*, a.*, rar.order from routines '
+    connection.query('select routines.*, a.*, rar.order, rar.routine_activity_id from routines '
       + 'inner join routines_activities_relationship rar on routines.routine_id = rar.routine_id '
       + 'inner join activities a on rar.activity_id = a.activity_id '
-      + 'where rar.routine_id = ? AND rar.routine_id <> 0 '
+      + 'where rar.routine_id = ? AND rar.routine_id <> 0 AND rar.deleted <> 1 '
       + 'order by rar.order', [routineId], function (error, results, fields) {
         // console.log('routine routes below');
         // console.log(results);
@@ -362,6 +451,8 @@ app.get('/joinRoutineAndActivityTable/:routineId', function (req, res) {
           throw error;
           console.log(err);
         }
+        // console.log("RESULTS FROM JOINING");
+        // console.log(results);
         res.send(results)
       });
   });
@@ -373,6 +464,19 @@ app.get('/getRoutinesByUser/:userId', function (req, res) {
   connection.getConnection(function (err, connection) {
 
     connection.query('SELECT * FROM routines where user_id=? AND routines.routine_id <> 0',[userId], function (error, results, fields) {
+      if (error) throw error;
+
+      res.json({ 'routines': results });
+    });
+  });
+});
+
+app.get('/getRoutinesByRoutineId/:routineId', function (req, res) {
+  let routineId = req.params.routineId;
+
+  connection.getConnection(function (err, connection) {
+
+    connection.query('SELECT * FROM routines where routine_id=? AND routines.routine_id <> 0 ',[routineId], function (error, results, fields) {
       if (error) throw error;
 
       res.json({ 'routines': results });

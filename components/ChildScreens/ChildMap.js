@@ -11,18 +11,29 @@ import {
 import Head from "../../assets/images/rewardPenguin.png";
 import Star from "../../assets/images/roadStar.png";
 import Road from "../../assets/images/RoadMap.png";
-const { width: WIDTH, height: HEIGHT } = Dimensions.get("window");
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+
+import UserInfo from "../../state/UserInfo";
+
+const { width: WIDTH, height: HEIGHT } = Dimensions.get("window");
+const parentId = UserInfo.parent_id;
+const childId = UserInfo.child_id;
+const userId = UserInfo.user_id;
+
 Icon.loadFont();
 export default class ChildMap extends Component {
-  constructor() {
-    // User ID hard coded for now
-    super();
-    this.state = {};
+  constructor(props) {
+    super(props);
+    this.state = {
+      title: this.props.navigation.state.params.title,
+      amt: this.props.navigation.state.params.amt
+    };
   }
 
+  static navigationOptions = ({ navigation }) => ({
+    title: "My Rewards",
+  });
   render() {
-    //TODO: Figure out how this page looks
     return (
       <View>
         <View
@@ -48,9 +59,9 @@ export default class ChildMap extends Component {
             justifyContent: "center",
           }}
         >
-          <TouchableOpacity style={styles.titles}>
+          <View style={styles.titles}>
             <Text>Donuts</Text>
-          </TouchableOpacity>
+          </View>
 
           <Image
             source={Road}
@@ -105,20 +116,32 @@ export default class ChildMap extends Component {
             }}
           />
 
-          <TouchableOpacity style={styles.titles2}>
-            <Text>Morning Routine</Text>
-          </TouchableOpacity>
+          <View style={styles.titles2}>
+            <Text>{this.state.title}</Text>
+          </View>
           <View
             style={{
               flexDirection: "row",
               justifyContent: "center",
             }}
           >
-            <TouchableOpacity style={styles.button}>
+            <TouchableOpacity style={styles.button}
+            onPress={() =>
+              this.props.navigation.navigate("ChildRewards", {
+                prevScreenTitle: "My Map"
+              })
+            }>
               <Text>Back To Rewards</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.button}>
+            <TouchableOpacity style={styles.button}
+            onPress={() =>
+              this.props.navigation.navigate("ChildActivity", {
+                prevScreenTitle: "My Map",
+                currentRoutine: this.state.title,
+                userID: userId
+              })
+            }>
               <Text>Start Routine</Text>
             </TouchableOpacity>
           </View>

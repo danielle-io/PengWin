@@ -1,319 +1,302 @@
-import React from 'react';
+import React from "react";
 import {
-	ActivityIndicator,
-	Button,
-	Clipboard,
-	FlatList,
-	Image,
-	Share,
-	StyleSheet,
-	Text,
-	ScrollView,
-	View
-} from 'react-native';
-import * as ImagePicker from 'expo-image-picker';
-import * as Permissions from 'expo-permissions';
-import uuid from 'uuid';
-import Environment from '../../database/irEnv';
-import firebase from '../../database/irDb';
+  ActivityIndicator,
+  Button,
+  Clipboard,
+  FlatList,
+  Image,
+  Share,
+  StyleSheet,
+  Text,
+  ScrollView,
+  View,
+} from "react-native";
+import * as ImagePicker from "expo-image-picker";
+import * as Permissions from "expo-permissions";
+import uuid from "uuid";
+import Environment from "../../database/irEnv";
+import firebase from "../../database/irDb";
 
 export default class App extends React.Component {
-	state = {
-		image: null,
-		uploading: false,
-		googleResponse: null
-	};
+  state = {
+    activityImage: null,
+    itemIsInTags: false,
+    uploading: false,
+    completedCheck: false,
+    tagsMatched: [],
+    googleResponse: null,
+    tags: {"toothbrush":1, "brushing":1, "teeth":1, "tooth":1}
+  };
 
-	async componentDidMount() {
-		await Permissions.askAsync(Permissions.CAMERA_ROLL);
-		await Permissions.askAsync(Permissions.CAMERA);
-	}
+  async componentDidMount() {
+    await Permissions.askAsync(Permissions.CAMERA_ROLL);
+    await Permissions.askAsync(Permissions.CAMERA);
+  }
 
-	render() {
-		let { image } = this.state;
+  render() {
+    let { activityImage } = this.state;
 
-		return (
-			<View style={styles.container}>
-				<ScrollView
-					style={styles.container}
-					contentContainerStyle={styles.contentContainer}
-				>
-					<View style={styles.getStartedContainer}>
-						{image ? null : (
-							<Text style={styles.getStartedText}>Google Cloud Vision</Text>
-						)}
-					</View>
+    return (
+      <View style={styles.container}>
+        <ScrollView
+          style={styles.container}
+          contentContainerStyle={styles.contentContainer}
+        >
+        
+        <View style={styles.helpContainer}>
 
-					<View style={styles.helpContainer}>
-						<Button
-							onPress={this._pickImage}
-							title="Pick an image from camera roll"
-						/>
+        {!this.state.itemIsInTags &&
+                <Button
+                onPress={this._takePhoto}
+                title="Take a photo of your toothbrush"
+                />
+        }
+            {this.state.googleResponse && (
+              <View>
+              <FlatList
+                data={this.state.googleResponse.responses[0].labelAnnotations}
+                extraData={this.state}
+                keyExtractor={this._keyExtractor}
+                renderItem={({ item }) => (
+                  // TODO: MODIFY THIS SO IT ONLY RUNS WHILE !this.state.itemIsInTags
+                  this._compareToTags(item.description)
+                )
+                }
+                  
+              />
+                 </View>
+            )}
+            {this._maybeRenderImage()}
+            {this._maybeRenderUploadingOverlay()}
 
-						<Button onPress={this._takePhoto} title="Take a photo" />
+            {this.state.googleResponse && this.state.itemIsInTags && (
+              <View><Text>Good job!</Text></View>
+            )}
 
-						{this.state.googleResponse && (
-							<FlatList
-								data={this.state.googleResponse.responses[0].labelAnnotations}
-								extraData={this.state}
-								keyExtractor={this._keyExtractor}
-								renderItem={({ item }) => <Text>Item: {item.description}</Text>}
-							/>
-						)}
-						{this._maybeRenderImage()}
-						{this._maybeRenderUploadingOverlay()}
-					</View>
-				</ScrollView>
-			</View>
-		);
-	}
+            {this.state.googleResponse && !this.state.itemIsInTags && (
+              <Text>
+                Oh no, your photo didn't match! try again to take a photo of
+                your toothbrush
+              </Text>
+            )}
+          </View>
+        </ScrollView>
+      </View>
+    );
+  }
 
-	organize = array => {
-		return array.map(function(item, i) {
-			return (
-				<View key={i}>
-					<Text>{item}</Text>
-				</View>
-			);
-		});
-	};
 
-	_maybeRenderUploadingOverlay = () => {
-		if (this.state.uploading) {
-			return (
-				<View
-					style={[
-						StyleSheet.absoluteFill,
-						{
-							backgroundColor: 'rgba(0,0,0,0.4)',
-							alignItems: 'center',
-							justifyContent: 'center'
-						}
-					]}
-				>
-					<ActivityIndicator color="#fff" animating size="large" />
-				</View>
-			);
-		}
-	};
+  _compareToTags = (description) => {
+    var tagMatch = false;
 
-	_maybeRenderImage = () => {
-		let { image, googleResponse } = this.state;
-		if (!image) {
-			return;
-		}
+    if (description.toLowerCase() in this.state.tags){
+      tagMatch = true;
+    }
 
-		return (
-			<View
-				style={{
-					marginTop: 20,
-					width: 250,
-					borderRadius: 3,
-					elevation: 2
-				}}
-			>
-				<Button
-					style={{ marginBottom: 10 }}
-					onPress={() => this.submitToGoogle()}
-					title="Analyze!"
-				/>
+    // for (let i = 0; i < this.state.tags.length; i++) {
+    //   console.log(this.state.tags[i]);
+    //   if (this.state.tags[i].toLowerCase() === description.toLowerCase()) {
+    //     
+    //   }
+    // }
+    if (!this.state.itemIsInTags && tagMatch) {
+      this.setState({ itemIsInTags: true });
+    }
+  };
 
-				<View
-					style={{
-						borderTopRightRadius: 3,
-						borderTopLeftRadius: 3,
-						shadowColor: 'rgba(0,0,0,1)',
-						shadowOpacity: 0.2,
-						shadowOffset: { width: 4, height: 4 },
-						shadowRadius: 5,
-						overflow: 'hidden'
-					}}
-				>
-					<Image source={{ uri: image }} style={{ width: 250, height: 250 }} />
-				</View>
-				<Text
-					onPress={this._copyToClipboard}
-					onLongPress={this._share}
-					style={{ paddingVertical: 10, paddingHorizontal: 10 }}
-				/>
+  _maybeRenderUploadingOverlay = () => {
+    if (this.state.uploading) {
+      return (
+        <View
+          style={[
+            StyleSheet.absoluteFill,
+            {
+              backgroundColor: "rgba(0,0,0,0.4)",
+              alignItems: "center",
+              justifyContent: "center",
+            },
+          ]}
+        >
+          <ActivityIndicator color="#fff" animating size="large" />
+        </View>
+      );
+    }
+  };
 
-				<Text>Raw JSON:</Text>
+  _maybeRenderImage = () => {
+    let { activityImage, googleResponse } = this.state;
+    if (!activityImage) {
+      return;
+    }
+    console.log("in maybe render");
+    return (
+      <View
+        style={{
+          marginTop: 20,
+          width: 250,
+          borderRadius: 3,
+          elevation: 2,
+        }}
+      >
+        {/* {!this.state.itemIsInTags && (
 
-				{googleResponse && (
-					<Text
-						onPress={this._copyToClipboard}
-						onLongPress={this._share}
-						style={{ paddingVertical: 10, paddingHorizontal: 10 }}
-					>
-						JSON.stringify(googleResponse.responses)}
-					</Text>
-				)}
-			</View>
-		);
-	};
+          
+          <Button
+            style={{ marginBottom: 10 }}
+            onPress={() => this.submitToGoogle()}
+            title="Is this your toothbrush? Click here to submit the photo!"
+          />
+        )} */}
 
-	_keyExtractor = (item, index) => item.id;
+        <View
+          style={{
+            borderTopRightRadius: 3,
+            borderTopLeftRadius: 3,
+            shadowColor: "rgba(0,0,0,1)",
+            shadowOpacity: 0.2,
+            shadowOffset: { width: 4, height: 4 },
+            shadowRadius: 5,
+            overflow: "hidden",
+          }}
+        >
+          {/* {!this.state.completedCheck && */}
+          <Image source={{ uri: activityImage }} style={{ width: 250, height: 250 }} />
+          {/* } */}
+        </View>
+      </View>
+    );
+  };
 
-	_renderItem = item => {
-		<Text>response: {JSON.stringify(item)}</Text>;
-	};
+  _keyExtractor = (item, index) => item.id;
 
-	_share = () => {
-		Share.share({
-			message: JSON.stringify(this.state.googleResponse.responses),
-			title: 'Check it out',
-			url: this.state.image
-		});
-	};
+  _renderItem = (item) => {
+    <Text>response: {JSON.stringify(item)}</Text>;
+  };
 
-	_copyToClipboard = () => {
-		Clipboard.setString(this.state.image);
-		alert('Copied to clipboard');
-	};
+  _takePhoto = async () => {
+    // this.setState({completedCheck : false})
 
-	_takePhoto = async () => {
-		let pickerResult = await ImagePicker.launchCameraAsync({
-			allowsEditing: true,
-			aspect: [4, 3]
-		});
+    let pickerResult = await ImagePicker.launchCameraAsync({
+      allowsEditing: true,
+      aspect: [4, 3],
+    });
 
-		this._handleImagePicked(pickerResult);
-	};
+    this._handleImagePicked(pickerResult);
+  };
 
-	_pickImage = async () => {
-		let pickerResult = await ImagePicker.launchImageLibraryAsync({
-			allowsEditing: true,
-			aspect: [4, 3]
-		});
 
-		this._handleImagePicked(pickerResult);
-	};
+  // 
+  _handleImagePicked = async (pickerResult) => {
+    try {
+      this.setState({ uploading: true });
 
-	_handleImagePicked = async pickerResult => {
-		try {
-			this.setState({ uploading: true });
+      if (!pickerResult.cancelled) {
+        uploadUrl = await uploadImageAsync(pickerResult.uri);
+        this.setState({ activityImage: uploadUrl });
+        this.submitToGoogle();
+      }
+    } catch (e) {
+      console.log(e);
+      alert("Upload failed, sorry :(");
+    } finally {
+      this.setState({ uploading: false });
 
-			if (!pickerResult.cancelled) {
-				uploadUrl = await uploadImageAsync(pickerResult.uri);
-				this.setState({ image: uploadUrl });
-			}
-		} catch (e) {
-			console.log(e);
-			alert('Upload failed, sorry :(');
-		} finally {
-			this.setState({ uploading: false });
-		}
-	};
+    }
+  };
 
-	submitToGoogle = async () => {
-		try {
-			this.setState({ uploading: true });
-			let { image } = this.state;
-			let body = JSON.stringify({
-				requests: [
-					{
-						features: [
-							{ type: 'LABEL_DETECTION', maxResults: 10 },
-							{ type: 'LANDMARK_DETECTION', maxResults: 5 },
-							{ type: 'FACE_DETECTION', maxResults: 5 },
-							{ type: 'LOGO_DETECTION', maxResults: 5 },
-							{ type: 'TEXT_DETECTION', maxResults: 5 },
-							{ type: 'DOCUMENT_TEXT_DETECTION', maxResults: 5 },
-							{ type: 'SAFE_SEARCH_DETECTION', maxResults: 5 },
-							{ type: 'IMAGE_PROPERTIES', maxResults: 5 },
-							{ type: 'CROP_HINTS', maxResults: 5 },
-							{ type: 'WEB_DETECTION', maxResults: 5 }
-						],
-						image: {
-							source: {
-								imageUri: image
-							}
-						}
-					}
-				]
-			});
-			let response = await fetch(
-				'https://vision.googleapis.com/v1/images:annotate?key=' +
-					Environment['GOOGLE_CLOUD_VISION_API_KEY'],
-				{
-					headers: {
-						Accept: 'application/json',
-						'Content-Type': 'application/json'
-					},
-					method: 'POST',
-					body: body
-				}
-			);
-			let responseJson = await response.json();
-			console.log(responseJson);
-			this.setState({
-				googleResponse: responseJson,
-				uploading: false
-			});
-		} catch (error) {
-			console.log(error);
-		}
-	};
+  submitToGoogle = async () => {
+    try {
+      this.setState({ completedCheck: false });
+      this.setState({ itemIsInTags: false });
+      this.setState({ uploading: true });
+      let { activityImage } = this.state;
+      let body = JSON.stringify({
+        requests: [
+          {
+            features: [
+              { type: "LABEL_DETECTION", maxResults: 10 },
+              { type: "LANDMARK_DETECTION", maxResults: 5 },
+              { type: "FACE_DETECTION", maxResults: 5 },
+              { type: "LOGO_DETECTION", maxResults: 5 },
+              { type: "TEXT_DETECTION", maxResults: 5 },
+              { type: "DOCUMENT_TEXT_DETECTION", maxResults: 5 },
+              { type: "SAFE_SEARCH_DETECTION", maxResults: 5 },
+              { type: "IMAGE_PROPERTIES", maxResults: 5 },
+              { type: "CROP_HINTS", maxResults: 5 },
+              { type: "WEB_DETECTION", maxResults: 5 },
+            ],
+            image: {
+              source: {
+                imageUri: activityImage,
+              },
+            },
+          },
+        ],
+      });
+      let response = await fetch(
+        "https://vision.googleapis.com/v1/images:annotate?key=" +
+          Environment["GOOGLE_CLOUD_VISION_API_KEY"],
+        {
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+          method: "POST",
+          body: body,
+        }
+      );
+      let responseJson = await response.json();
+      console.log(responseJson);
+      this.setState({
+        googleResponse: responseJson,
+        uploading: false,
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  };
 }
 
 async function uploadImageAsync(uri) {
-	const blob = await new Promise((resolve, reject) => {
-		const xhr = new XMLHttpRequest();
-		xhr.onload = function() {
-			resolve(xhr.response);
-		};
-		xhr.onerror = function(e) {
-			console.log(e);
-			reject(new TypeError('Network request failed'));
-		};
-		xhr.responseType = 'blob';
-		xhr.open('GET', uri, true);
-		xhr.send(null);
-	});
+  console.log("uploading async");
+  const blob = await new Promise((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    xhr.onload = function() {
+      resolve(xhr.response);
+    };
+    xhr.onerror = function(e) {
+      console.log(e);
+      reject(new TypeError("Network request failed"));
+    };
+    xhr.responseType = "blob";
+    xhr.open("GET", uri, true);
+    xhr.send(null);
+  });
 
-	const ref = firebase
-		.storage()
-		.ref()
-		.child(uuid.v4());
-	const snapshot = await ref.put(blob);
+  const ref = firebase
+    .storage()
+    .ref()
+    .child(uuid.v4());
+  const snapshot = await ref.put(blob);
 
-	blob.close();
+  blob.close();
 
-	return await snapshot.ref.getDownloadURL();
+  return await snapshot.ref.getDownloadURL();
+
+
 }
 
 const styles = StyleSheet.create({
-	container: {
-		flex: 1,
-		backgroundColor: '#fff',
-		paddingBottom: 10
-	},
-	developmentModeText: {
-		marginBottom: 20,
-		color: 'rgba(0,0,0,0.4)',
-		fontSize: 14,
-		lineHeight: 19,
-		textAlign: 'center'
-	},
-	contentContainer: {
-		paddingTop: 30
-	},
-
-	getStartedContainer: {
-		alignItems: 'center',
-		marginHorizontal: 50
-	},
-
-	getStartedText: {
-		fontSize: 17,
-		color: 'rgba(96,100,109, 1)',
-		lineHeight: 24,
-		textAlign: 'center'
-	},
-
-	helpContainer: {
-		marginTop: 15,
-		alignItems: 'center'
-	}
+  container: {
+    flex: 1,
+    backgroundColor: "#fff",
+    paddingBottom: 10,
+  },
+  contentContainer: {
+    paddingTop: 30,
+  },
+  helpContainer: {
+    marginTop: 15,
+    alignItems: "center",
+  },
 });
-
