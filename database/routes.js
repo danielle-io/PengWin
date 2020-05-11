@@ -157,6 +157,25 @@ app.post('/updateActivity/:activity_id', function (req, res) {
   });
 });
 
+app.post('/updateRoutineRequiresApproval/:routine_id', function (req, res) {
+
+  let routine_id = req.params.routine_id;
+  var postData = req.body;
+
+  console.log(postData);
+  connection.getConnection(function (err, connection) {
+    connection.query('UPDATE child_notifications SET ? WHERE routine_id = ?',
+      [postData, routine_id],
+      function (error, results, fields) {
+
+        if (error) {
+          throw error;
+          console.log(err);
+        }
+        res.send(JSON.stringify(results))
+      });
+  });
+});
 
 app.post('/insertRoutine', function (req, res) {
   var postData = req.body;

@@ -209,10 +209,6 @@ export default class Notifications extends Component {
         const { navigate } = this.props.navigation;
 
         return (
-
-
-
-
             <View>
                 <View style={{ flex: 1 }, styles.notificationContainer}
                     onStartShouldSetResponder={() => this.props.navigation.navigate('RoutineApproval', {
@@ -222,14 +218,11 @@ export default class Notifications extends Component {
                         childFirstName: this.state.childFirstName, 
                     })}>
 
-                    <Text style={styles.text}>
-                        Check Off Routine
-                    </Text>
-
+                   
                     {this.state.firstLoaded && this.state.childLoaded && this.state.idsLoaded && (
-                        
-                        <View>         
-                         <Text style={styles.textFields}>{this.getChildsName()} has marked {this.getRoutinesName()} complete. Would you like to approve the routine to let {this.getChildsName()} claim his reward?</Text>
+                        <View>  
+                            <Text style={styles.text}>Check Off Routine</Text>
+                            <Text style={styles.textFields}>{this.getChildsName()} has marked {this.getRoutinesName()} complete. Would you like to approve the routine to let {this.getChildsName()} claim his reward?</Text>
                         </View>
                     )}
 

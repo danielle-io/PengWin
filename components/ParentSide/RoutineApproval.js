@@ -43,11 +43,9 @@ export default class RoutineApproval extends Component {
                 return responseJson;
             })
             .then(results => {
-                console.log("FUCKKKKKKKKKKKK");
                 this.setState({ childResults: results });
                 console.log("CHILD RESULTS BELOW");
                 console.log(this.state.childResults);
-                console.log("FUCKKKKKKKKKKKK 3");
                 this.setState({ childLoaded: true });
                 
             })
