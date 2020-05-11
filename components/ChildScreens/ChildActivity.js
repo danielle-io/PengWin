@@ -50,9 +50,9 @@ export default class ChildActivity extends Component {
       routineId: this.props.navigation.state.params.routineId,
       rewardId: this.props.navigation.state.params.rewardId,
       requiresApproval: this.props.navigation.state.params.requiresApproval,
-      imagePathUpdated: this.props.navigation.state.params.imagePathUpdated,
-      currentNotification: this.props.navigation.state.params.currentNotification,
-      imagePathArray: "[]",
+      imagePathArray: this.props.navigation.state.params.imagePathArray,
+      childNotificationsId: this.props.navigation.state.params.childNotificationsId,
+      testing: this.props.navigation.state.params.testing,
       visible1: false,
       visible2: false,
       fontsLoaded: false,
@@ -76,6 +76,7 @@ export default class ChildActivity extends Component {
   _onNext = () => {
     this.child._animateNextPage();
   };
+  
 
   async _loadFontsAsync() {
     await Font.loadAsync(customFonts);
@@ -320,24 +321,17 @@ export default class ChildActivity extends Component {
                     <TouchableOpacity
                       style={styles.buttonStyle}
                       onPress={() => {
-                        const { navigate } = this.props.navigation;
-                        var images = this.state.imagePathArray;
+
                         
-                        // Images have been sent back from camera page
-                        if (this.state.imagePathUpdated){
-                          images = eval(this.state.imagePathUpdated);
-                        }
-                    
                         this.navigate("ChildCamera", {
-                          prevScreenTitle: "ACTIVI  TY",
+                          prevScreenTitle: "ACTIVITY",
                           // TODO: try to process this array without eval bc
                           // it could be dangerous if the user inputs a tag
                           // that when evaluated runs something on the code
                           tags: eval(item.tags),
-                          imagePathArray: eval(images),
                           key: key,
                           activities: this.state.activities,
-                          currentNotification: this.state.currentNotification,
+                          childNotificationsId: this.state.childNotificationsId,
                         });
                         this._onNext();
                       }}
@@ -539,9 +533,6 @@ const styles = StyleSheet.create({
     marginLeft: 10,
     marginBottom: 10,
   },
-  backgroundVideo: {
-    position: "relative",
-  },
   badgeContainer: {
     flex: 1,
     alignItems: "center",
@@ -571,7 +562,6 @@ const styles = StyleSheet.create({
     fontSize: 35,
     fontWeight: "bold",
     marginBottom: 8,
-
     fontFamily: "SF",
   },
   textStyle: {
