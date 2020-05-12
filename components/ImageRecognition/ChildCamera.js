@@ -166,14 +166,20 @@ export default class ChildCamera extends React.Component {
   }
 
   // TODO: apply this function on component did mount
+  // TODO: remove to lowercase once its in the edit activity insertion code
   createTagDictionary() {
     var tempDictionary = {};
 
     for (var i in this.state.tags) {
       var word = this.state.tags[i].toLowerCase();
+
       tempDictionary[word] = 1;
+      console.log("TAGGSSS " + this.state.tags);
+      console.log("TAG " + this.state.tags[i].toLowerCase());
+
     }
     this.setState({ tagsDictionary: tempDictionary });
+
   }
 
   _compareToTags = (description) => {

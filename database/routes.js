@@ -202,6 +202,17 @@ app.post('/insertRoutine', function (req, res) {
   });
 });
 
+app.post('/insertActivity', function (req, res) {
+  var postData = req.body;
+  connection.query('INSERT INTO routines SET ?', postData, function (error, results, fields) {
+    if (error){
+      throw error;
+      console.log(err);
+    }
+    res.send(JSON.stringify(results))
+  });
+});
+
 app.post('/insertChildRoutineNotifications', function (req, res) {
   var postData = req.body;
   connection.query('INSERT INTO child_notifications SET ?', postData, function (error, results, fields) {
@@ -324,6 +335,25 @@ app.get('/getActivities/:userId', function (req, res) {
     });
   });
 });
+
+app.get('/getAllPublicActivities/:userId', function (req, res) {
+  let userId = req.params.userId;
+
+  connection.getConnection(function (err, connection) {
+
+    connection.query('SELECT * FROM activities where is_public = 1 AND user_id <> ' + userId, function (error, results, fields) {
+        console.log("get public activities call");
+        console.log(results);
+        if (error){
+          throw error;
+          console.log(error);
+        }
+
+      res.send(results)
+    });
+  });
+});
+
 
 app.get('/getActivitiesFromRoutine/:routineID', function (req, res) {
   let routineID = req.params.routineID;

@@ -24,6 +24,7 @@ import { AppLoading } from "expo";
 import Environment from "../../../database/sqlEnv";
 import UserInfo from "../../../state/UserInfo";
 
+
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 Icon.loadFont();
 
@@ -35,7 +36,7 @@ const pincode = UserInfo.pincode;
 
 const { width: WIDTH } = Dimensions.get("window");
 
-export default class Activity extends Component {
+export default class ViewPublicActivity extends Component {
   static navigationOptions = ({ navigation }) => ({
     title: "Add an Activity", //`${navigation.state.params.currentRoutine}`,
     prevScreenTitle: "Activities",
@@ -62,14 +63,10 @@ export default class Activity extends Component {
       activityId: this.props.navigation.state.params.activityId,
       activityTags: this.props.navigation.state.params.activityTags,
       activityImagePath: this.props.navigation.state.params.activityImagePath,
-      activityDescription: this.props.navigation.state.params
-        .activityDescription,
+      activityDescription: this.props.navigation.state.params.activityDescription,
       activityAudioPath: this.props.navigation.state.params.activityAudioPath,
       activityVideoPath: this.props.navigation.state.params.activityVideoPath,
       activityIsPublic: this.props.navigation.state.params.activityIsPublic,
-      rewardId: this.props.navigation.state.params.rewardId,
-      allRewardsByIdDictionary: this.props.navigation.state.params
-        .allRewardsByIdDictionary,
       haveRecordingPermissions: false,
       isLoading: false,
       isPlaybackAllowed: false,
@@ -90,12 +87,12 @@ export default class Activity extends Component {
     );
   }
 
-  async updateActivity(tag, value) {
+  async updateActivity(tag, value){
     var data = {
       [tag]: value,
     };
     try {
-      let response = await fetch(Environment + "/updateActivity/" + userId, {
+      let response = await fetch(Environment + "/updateActivity/" + userId , {
         method: "POST",
         headers: {
           Accept: "application/json",
@@ -104,7 +101,7 @@ export default class Activity extends Component {
         body: JSON.stringify(data),
       });
       if (response.status >= 200 && response.status < 300) {
-        console.log("POSTED");
+        console.log("POSTED")
       }
     } catch (errors) {
       alert(errors);
@@ -114,8 +111,7 @@ export default class Activity extends Component {
   async createNewActivity() {
     const parentId = UserInfo.parent_id;
     const childId = UserInfo.child_id;
-    const userId = UserInfo.user_id;
-    
+    const userId = UserInfo.user_id
     data = {
       activity_name: this.state.activityName,
       tags: this.state.activityTags,
@@ -123,18 +119,22 @@ export default class Activity extends Component {
       activity_description: this.state.activityDescription,
       audio_path: this.state.activityAudioPath,
       video_path: this.state.activityVideoPath,
-      reward_id: this.state.rewardId,
+    //   reward_id: this.state.rewardId,
       is_public: this.state.isPublic,
       user_id: userId,
+      
     };
-    let response = await fetch(Environment + "/insertRoutine", {
-      method: "POST",
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(data),
-    })
+      let response = await fetch(
+        Environment + "/insertRoutine" ,
+        {
+          method: "POST",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(data),
+        }
+      )
       .then((response) => response.json())
       .then((responseJson) => {
         return responseJson;
@@ -143,20 +143,20 @@ export default class Activity extends Component {
         console.log("worked!!!");
 
         // Set the new routineId
-        this.setState({ activityId: results.insertId });
+        this.setState({ routineId: results.insertId });
         this.saveAnyChanges();
       })
       .catch((error) => {
         console.error(error);
       });
-  }
+    }
 
-  async postPref(tag, value) {
+  async postPref(tag, value){
     var data = {
       [tag]: value,
     };
     try {
-      let response = await fetch(Environment + "/updatePreferences/" + userId, {
+      let response = await fetch(Environment + "/updatePreferences/" + userId , {
         method: "POST",
         headers: {
           Accept: "application/json",
@@ -165,7 +165,7 @@ export default class Activity extends Component {
         body: JSON.stringify(data),
       });
       if (response.status >= 200 && response.status < 300) {
-        console.log("POSTED");
+        console.log("POSTED")
       }
     } catch (errors) {
       alert(errors);
@@ -253,9 +253,9 @@ export default class Activity extends Component {
     recording.setOnRecordingStatusUpdate(this._updateScreenForRecordingStatus);
 
     this.recording = recording;
-    this.setState((state) => {
+    this.setState(state => {
       const recordings = [...state.recordings, recording];
-
+ 
       return {
         recordings,
       };
@@ -474,14 +474,6 @@ export default class Activity extends Component {
     }
   };
 
-  // TODO: use this when storing tags
-  storeTagsLowercaseAsString(){
-    var tagString = "";
-    for (var i = 0; i < this.state.activityTags.length; i++){
-      tagString += this.state.activityTags[i].toLowerCase();
-    }
-  }
-
   fieldRef = React.createRef();
 
   onSubmit = () => {
@@ -504,6 +496,7 @@ export default class Activity extends Component {
   };
 
   render() {
+    const { navigate } = this.props.navigation;
     return (
       <ScrollView style={{ backgroundColor: "#FFFCF9", padding: 20 }}>
         <View style={styles.textFields}>
@@ -527,17 +520,14 @@ export default class Activity extends Component {
         <View style={(styles.descriptionBox, styles.textFields)}>
           <Text style={styles.titles}>Tags</Text>
           <Text style={styles.description}>
-            Enter some words that match what this activity entails, so that the
-            camera can detect if it's been photographed. Make the first word the
-            most accurate, since it's what we will display in the instructions.
+            Enter some words that match what this activity entails, so that the camera can detect if it's been photographed. Make the first word the most accurate, since it's what we will display in the instructions.
           </Text>
-          
           <Tags
             textInputProps={{
               placeholder: "?TAGS",
             }}
             initialTags={this.state.activityTags}
-            // onChangeTags={(tags) => console.log(tags)}
+            onChangeTags={(tags) => console.log(tags)}
             onTagPress={(index, tagLabel, event, deleted) =>
               console.log(
                 index,
@@ -582,7 +572,9 @@ export default class Activity extends Component {
             <TouchableOpacity
               style={styles.camerabutton}
               onPress={this._handleButtonPress}
-            />
+            >
+            
+            </TouchableOpacity>
           </View>
         </View>
 
@@ -622,6 +614,8 @@ export default class Activity extends Component {
               margin: 15,
             }}
           >
+ 
+
             <View>
               {/* Record button */}
               <TouchableOpacity
@@ -647,13 +641,13 @@ export default class Activity extends Component {
               </View>
             </View>
 
+        
+
             <View>
               <TouchableOpacity
                 onPress={this._onPlayPausePressed}
                 // disabled={!this.state.isPlaybackAllowed || this.state.isLoading}
-                style={
-                  this.state.disabled ? styles.disabledbutton : styles.button
-                }
+                style={this.state.disabled ? styles.disabledbutton : styles.button}
               >
                 <Text>Play</Text>
               </TouchableOpacity>
@@ -661,17 +655,18 @@ export default class Activity extends Component {
           </View>
 
           <View>
-            <Slider
-              style={styles.playbackSlider}
-              value={this._getSeekSliderPosition()}
-              onValueChange={this._onSeekSliderValueChange}
-              onSlidingComplete={this._onSeekSliderSlidingComplete}
-              disabled={!this.state.isPlaybackAllowed || this.state.isLoading}
-            />
-            <Text>{this._getPlaybackTimestamp()}</Text>
-          </View>
+              <Slider
+                style={styles.playbackSlider}
+                value={this._getSeekSliderPosition()}
+                onValueChange={this._onSeekSliderValueChange}
+                onSlidingComplete={this._onSeekSliderSlidingComplete}
+                disabled={!this.state.isPlaybackAllowed || this.state.isLoading}
+              />
+              <Text>{this._getPlaybackTimestamp()}</Text>
+            </View>
 
-          {/* <TouchableOpacity
+
+                       {/* <TouchableOpacity
               disabled={this.state.disabled}
               style={
                 this.state.disabled ? styles.disabledbutton : styles.button
@@ -687,15 +682,15 @@ export default class Activity extends Component {
               <Text>Record</Text>
             </TouchableOpacity> */}
 
-          <TouchableOpacity
-            style={styles.button}
-            onPress={() => {
-              this.setState({ visible: true });
-            }}
-          >
-            <Icon name="upload" color="#FF6978" size={30} />
-            <Text>Choose from recordings</Text>
-          </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.button}
+              onPress={() => {
+                this.setState({ visible: true });
+              }}
+            >
+              <Icon name="upload" color="#FF6978" size={30} />
+              <Text>Choose from recordings</Text>
+            </TouchableOpacity>
 
           <Dialog
             visible={this.state.visible}
@@ -718,43 +713,40 @@ export default class Activity extends Component {
                 </View>
                 {this.noRecs()}
 
-                {this.state.recordings !== [] && (
-                  <View>
-                    {this.state.recordings.map((item) => {
-                      console.log(item);
-                      return (
-                        <TouchableOpacity
-                          onPress={this._playFromStart}
-                          style={{
-                            flexDirection: "row",
-                            justifyContent: "center",
-                            alignItems: "center",
-                            margin: 20,
-                            width: 250,
-                            borderRadius: 15,
-                            height: 50,
-                            backgroundColor: "#fff",
-                            shadowColor: "grey",
-                            shadowOffset: { width: 0, height: 1 },
-                            shadowOpacity: 0.4,
-                            shadowRadius: 2,
-                          }}
-                        >
-                          <Icon
-                            name="music"
-                            color="#FF6978"
-                            size={30}
-                            style={{ paddingRight: 30 }}
-                          />
-                          <Text style={{ fontSize: 20, color: "black" }}>
-                            {item._uri}
-                          </Text>
-                          <Text>{item._duration}</Text>
-                        </TouchableOpacity>
-                      );
-                    })}
-                  </View>
-                )}
+                {this.state.recordings.map((item) => {
+                  console.log(item);
+                  return (
+                    <TouchableOpacity
+                    
+                onPress={  this._playFromStart}
+                      style={{
+                        flexDirection: "row",
+                        justifyContent: "center",
+                        alignItems: "center",
+                        margin: 20,
+                        width: 250,
+                        borderRadius: 15,
+                        height: 50,
+                        backgroundColor: "#fff",
+                        shadowColor: "grey",
+                        shadowOffset: { width: 0, height: 1 },
+                        shadowOpacity: 0.4,
+                        shadowRadius: 2,
+                      }}
+                    >
+                      <Icon
+                        name="music"
+                        color="#FF6978"
+                        size={30}
+                        style={{ paddingRight: 30 }}
+                      />
+                      <Text style={{ fontSize: 20, color: "black" }}>
+                        {item._uri}
+                      </Text>
+                      <Text>{item._duration}</Text>
+                    </TouchableOpacity>
+                  );
+                })}
               </View>
             </DialogContent>
           </Dialog>
@@ -777,12 +769,7 @@ export default class Activity extends Component {
         </View>
 
         <View style={(styles.descriptionBox, styles.textFields)}>
-          <Text style={styles.titles}>Activity Reward</Text>
-          <Text style={styles.description}>
-            Positive reinforcement is amazing for kids! An image and/or a video
-            of the reward (eg: video of baby shark) might get your child pumped
-            to perform their activities.
-          </Text>
+         
           <View
             style={{
               flexDirection: "row",
@@ -790,10 +777,7 @@ export default class Activity extends Component {
               margin: 15,
             }}
           >
-            <TouchableOpacity
-              style={styles.button}
-              onPress={() => this.postPref("gender", 5)}
-            >
+            <TouchableOpacity style={styles.button} onPress = { () => this.postPref("gender", 5)}>
               <Icon name="text" color="#FF6978" size={30} />
               <Text>Description</Text>
             </TouchableOpacity>
@@ -827,10 +811,8 @@ export default class Activity extends Component {
             marginBottom: 100,
           }}
         >
-          <TouchableOpacity
-            style={styles.savebutton}
-            onPress={() => this.postActivity("audio_path", "test")}
-          >
+          <TouchableOpacity style={styles.savebutton}
+          onPress={() => this.postActivity("audio_path","test")}>
             <Text style={{ color: "#fff", fontSize: 20 }}>Save</Text>
           </TouchableOpacity>
         </View>

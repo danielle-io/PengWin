@@ -351,14 +351,12 @@ export default class ChildActivity extends Component {
                     <TouchableOpacity
                       style={styles.buttonStyle}
                       onPress={() => {
-
-                        
                         this.navigate("ChildCamera", {
                           prevScreenTitle: "ACTIVITY",
                           // TODO: try to process this array without eval bc
                           // it could be dangerous if the user inputs a tag
                           // that when evaluated runs something on the code
-                          tags: eval(item.tags),
+                          tags: item.tags.split(','),
                           key: key,
                           activities: this.state.activities,
                           childNotificationsId: this.state.childNotificationsId,
