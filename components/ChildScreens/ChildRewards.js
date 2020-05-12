@@ -199,7 +199,8 @@ export default class ChildRewards extends Component {
                   this.props.navigation.navigate("ChildMap", {
                     prevScreenTitle: "Login",
                     title: item.routine_name,
-                    amt: item.amount_of_activities
+                    amt: item.amount_of_activities,
+                    reward: item.reward_name
                   })
                 }
               >
