@@ -257,12 +257,34 @@ app.post('/insertRoutineActivityRelationship', function (req, res) {
 
 app.post('/insertRewards', function (req, res) {
   var postData = req.body;
+  console.log("i made it");
   connection.query('INSERT INTO rewards SET ?', postData, function (error, results, fields) {
     if (error){
       throw error;
       console.log(err);
     } 
+    console.log(JSON.stringify(results));
     res.send(JSON.stringify(results));
+  });
+});
+
+// Update the routine data
+app.post('/updateReward/:rewardId', function (req, res) {
+  let rewardId = req.params.rewardId;
+  var postData = req.body;
+
+  // console.log(postData);
+  connection.getConnection(function (err, connection) {
+    connection.query('UPDATE rewards SET ? WHERE reward_id = ?',
+      [postData, rewardId],
+      function (error, results, fields) {
+
+        if (error){
+          throw error;
+          console.log(err);
+        }
+        res.send(JSON.stringify(results))
+      });
   });
 });
 

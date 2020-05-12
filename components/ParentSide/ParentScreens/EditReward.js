@@ -7,8 +7,12 @@ import { Dropdown } from 'react-native-material-dropdown';
 import { Video } from "expo-av";
 import { Image } from "react-native";
 import * as ImagePicker from "expo-image-picker";
-import Environment from "../../../database/sqlEnv";
 import SearchableDropdown from "react-native-searchable-dropdown";
+import { RaisedTextButton } from "react-native-material-buttons";
+
+import Environment from "../../../database/sqlEnv";
+import UserInfo from "../../../state/UserInfo";
+
 
 const { width: WIDTH } = Dimensions.get('window')
 
@@ -18,13 +22,18 @@ export default class ParentRewards extends Component {
         prevScreenTitle: 'Rewards',
     });
 
-
     constructor(props) {
         super(props)
         const { navigate } = this.props.navigation;
         this.navigate = navigate;
         this.state = {
             prevScreenTitle: this.props.navigation.state.params.prevScreenTitle,
+            rewardId: this.props.navigation.state.params.rewardId,
+            rewardName: this.props.navigation.state.params.rewardName,
+            rewardDescription: this.props.navigation.state.params.rewardDescription,
+            rewardImage: this.props.navigation.state.params.rewardImage,
+            rewardVideo: this.props.navigation.state.params.rewardVideo,
+            //remove userID 1
             userId: 1,
             photos: null,
             video: null,
@@ -36,7 +45,9 @@ export default class ParentRewards extends Component {
             activitiesLoaded: false,
             currentActivity: null,
             routineData: null,
-            activityData: null
+            activityData: null, 
+            changedRewardFields: []
+            
 
             //prevScreenTitle: this.props.navigation.state.params.prevScreenTitle,
         };
@@ -62,28 +73,79 @@ export default class ParentRewards extends Component {
         )
     }
 
-    getAllActivitiesForRoutine() {
-        console.log("WE ARE IN GET ALL ACTIVITIES FOR ROUTINE");
-        console.log(this.state.currentRoutine)
-        var routineId = this.state.currentRoutine.id;
-        fetch(Environment + "/joinRoutineActivityTableByRoutineId/" + routineId, {
-          headers: {
-            "Cache-Control": "no-cache",
-          },
-        })
+
+    //onsubmit: call createRewards done
+    //post call 
+    //create Rewards funciton()
+
+    createNewReward() {
+        const parentId = UserInfo.parent_id;
+        const childId = UserInfo.child_id;
+        const userId = UserInfo.user_id
+        console.log("Environment :: " + Environment);
+        console.log("rewardName :: " + this.state.rewardName);
+        console.log("rewardDescription :: " + this.state.rewardDescription);
+        console.log("userId :: " + this.state.userId);
+
+        data = {
+          reward_name: this.state.rewardName, 
+          reward_description: this.state.rewardDescription,
+          reward_image: this.state.rewardImage,
+          reward_video: this.state.rewardVideo,
+          user_id: userId,
+          deleted: 0,
+        };
+          let response = fetch(
+            Environment + "/insertRewards" ,
+            {
+              method: "POST",
+              headers: {
+                Accept: "application/json",
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(data),
+            }
+          )
           .then((response) => response.json())
           .then((responseJson) => {
             return responseJson;
           })
           .then((results) => {
-            this.setState({ allActivities: results });
-            this.setState({ activitiesLoaded: true });
-            this.storeActivites();
+            console.log(results);
+            console.log("worked for rewards!");
+
+            // Set the new routineId
+            this.setState({ rewardId: results.insertId });
+            // this.saveAnyChanges();
           })
           .catch((error) => {
             console.error(error);
           });
-      }
+        }
+
+
+    getAllActivitiesForRoutine() {
+        console.log("WE ARE IN GET ALL ACTIVITIES FOR ROUTINE");
+        console.log(this.state.currentRoutine)
+        var routineId = this.state.currentRoutine.id;
+        fetch(Environment + "/joinRoutineActivityTableByRoutineId/" + routineId, {
+            headers: {
+                "Cache-Control": "no-cache",
+            },
+        })
+            .then((response) => response.json())
+            .then((responseJson) => {
+                return responseJson;
+            })
+            .then((results) => {
+                this.setState({ allActivities: results });
+                this.setState({ activitiesLoaded: true });
+                this.storeActivites();
+            })
+            .catch((error) => {
+                console.error(error);
+            });
+    }
 
 
     //Get the routines data from teh db
@@ -102,7 +164,7 @@ export default class ParentRewards extends Component {
                 this.setState({ allRoutines: results });
                 console.log(this.state.results);
                 this.setState({ routinesLoaded: true });
-                this.storeRoutines();
+                // this.storeRoutines();
             })
             .catch((error) => {
                 // console.log("AH");
@@ -110,34 +172,76 @@ export default class ParentRewards extends Component {
             });
     }
 
+    async updateRewardField(tag, value) {
+        console.log("in fetch tag is and value is " + tag + " " )
+        console.log("updating reward field");
+        var data = {
+          [tag]: value,
+        };
+        try {
+          let response = await fetch(
+            Environment + "/updateReward/" + this.state.rewardId,
+            {
+              method: "POST",
+              headers: {
+                Accept: "application/json",
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(data),
+            }
+          );
+          if (response.status >= 200 && response.status < 300) {
+            console.log("SUCCESS");
+          }
+        } catch (errors) {
+          console.log(errors);
+        }
+      }
+
     storeActivites() {
         console.log("WE ARE IN  store activities");
 
         var tempArray = [];
-        this.state.allActivities.map(item => 
+        this.state.allActivities.map(item =>
             tempArray.push({ id: item.activity_id, name: item.activity_name })
         )
         this.setState({ activityData: tempArray });
     }
 
+    pushToChangedRewardsFields(tag, value) {
+        Object.keys(this.state.changedRewardFields).map(function(keyName, keyIndex) {
+            if (keyName === tag) {
+                return;
+              }
+        });
+        console.log("TAG " + tag + " VALUE " + value)
 
-    storeRoutines() {
-        var tempArray = [];
-        this.state.allRoutines.routines.map(item => 
-            tempArray.push({ id: item.routine_id, name: item.routine_name })
-        )
-        this.setState({ routineData: tempArray });
+        let tempArray = this.state.changedRewardFields;
+        tempArray.push({ [tag]: value });
+        this.setState({ changedRewardFields: tempArray });
+        console.log("MADE A REWARDS ARRAY " + tempArray);
+      }
+
+
+      updateExistingRewardChanges() {
+        console.log("CHANGED REWARD FIELDS " + this.state.changedRewardFields);
+        for (const keyValuePair of this.state.changedRewardFields) {
+            Object.entries(keyValuePair).map(([key, val]) => {
+            this.updateRewardField(key, val);
+            });
+        }
     }
+
 
     displayForm(currentList) {
         var stateName = "";
         var placeholder = "";
         var items = [];
-        if (currentList === "activites"){
+        if (currentList === "activites") {
             placeholder = "Select an activity"
             items = this.state.activityData;
         }
-        else{
+        else {
             placeholder = "Select an routine";
             items = this.state.routineData;
 
@@ -146,37 +250,37 @@ export default class ParentRewards extends Component {
         // console.log(routineData);
         return (
             <View style={styles.drop}>
-               
+
                 <SearchableDropdown
-                onItemSelect={(item) => {
-                    if (currentList === "activity"){
-                        this.setState({ currentActivity : item });
-                    }
-                    else {
-                        this.setState({ currentRoutine: item });
-                    }
-                }}
-                containerStyle={{ padding: 5 }}
-                itemStyle={styles.dropDownItem}
-                itemTextStyle={{ color: "#222" }}
-                itemsContainerStyle={{ maxHeight: 140 }}
-                items={items}
-                resetValue={false}
-                textInputProps={{
-                  placeholder: placeholder,
-                  underlineColorAndroid: "transparent",
-                  style: {
-                    padding: 12,
-                    borderWidth: 1,
-                    borderColor: "#ccc",
-                    borderRadius: 5,
-                  },
-                }}
-                // value={this.state.currentlySelectedActivity}
-                listProps={{
-                  nestedScrollEnabled: true,
-                }}
-              />
+                    onItemSelect={(item) => {
+                        if (currentList === "activity") {
+                            this.setState({ currentActivity: item });
+                        }
+                        else {
+                            this.setState({ currentRoutine: item });
+                        }
+                    }}
+                    containerStyle={{ padding: 5 }}
+                    itemStyle={styles.dropDownItem}
+                    itemTextStyle={{ color: "#222" }}
+                    itemsContainerStyle={{ maxHeight: 140 }}
+                    items={items}
+                    resetValue={false}
+                    textInputProps={{
+                        placeholder: placeholder,
+                        underlineColorAndroid: "transparent",
+                        style: {
+                            padding: 12,
+                            borderWidth: 1,
+                            borderColor: "#ccc",
+                            borderRadius: 5,
+                        },
+                    }}
+                    // value={this.state.currentlySelectedActivity}
+                    listProps={{
+                        nestedScrollEnabled: true,
+                    }}
+                />
 
                 {/* <Dropdown
                     label="Select Routine"
@@ -255,6 +359,22 @@ export default class ParentRewards extends Component {
         console.log(field.value());
     };
 
+    _onSubmit = () => {
+        console.log("rewardId " + this.state.rewardId);
+        if (this.state.rewardId){
+            console.log("existing reward edits");
+            this.updateExistingRewardChanges();
+        //   this.saveAnyChanges();
+        //   var alr = "";
+         
+        // this.
+        } 
+        else {
+        console.log("new reward");
+        this.createNewReward();
+        }
+    }
+
 
     render() {
 
@@ -263,7 +383,7 @@ export default class ParentRewards extends Component {
         return (
             <View>
 
-              <View style={styles.rewardsContainer}>
+                <View style={styles.rewardsContainer}>
                     <View>
 
                         <Text style={styles.textFields}>
@@ -271,21 +391,40 @@ export default class ParentRewards extends Component {
                         </Text>
 
                         < TextField
-                            id="reward"
+                            id="reward_name"
                             placeholder="What's the Reward?"
-                            value={this.state.reward1}
+                            value={this.state.rewardName}
                             style={styles.textfieldWithFloatingLabel, styles.textFields}
                             textInputStyle={{ flex: 1 }}
-                            onFocus={e => console.log('Focus', !!e)}
-                            onBlur={e => console.log('Blur', !!e)}
-                            // onEndEditing={e => { this.PUT THE STATE VAR NAME HERE WE R CHANGING('parent_first_name', this.state.parent_first_name) }
-                            // }
-                            onSubmitEditing={e => console.log('SubmitEditing', !!e)}
-                            onTextChange={s => console.log('TextChange', s)}
-                            onChangeText={s => console.log('ChangeText', s)}
+                            onChangeText={(text) => this.setState({ rewardName: text })}
+                            onEndEditing={(e) => {
+                                this.pushToChangedRewardsFields(
+                                  "reward_name",
+                                  this.state.rewardName
+                                );
+                            }}
+
                         // onChangeText={(text) => this.setState({ currentRoutineName: text })}
                         ></TextField>
 
+                        <Text style={styles.textFields}>
+                            Reward Description
+                        </Text>
+
+                        < TextField
+                            id="reward_description"
+                            placeholder="Describe the Reward"
+                            value={this.state.rewardDescription}
+                            style={styles.textfieldWithFloatingLabel, styles.textFields}
+                            textInputStyle={{ flex: 1 }}
+                            onChangeText={(text) => this.setState({ rewardDescription: text })}
+                            onEndEditing={(e) => {
+                                this.pushToChangedRewardsFields(
+                                  "reward_description",
+                                  this.state.rewardDescription
+                                );
+                            }}
+                        ></TextField>
 
                         {this.state.routinesLoaded &&
                             <View>
@@ -394,9 +533,18 @@ export default class ParentRewards extends Component {
                         </TouchableOpacity> */}
                     </View>
 
-                    <TouchableOpacity style={styles.savebutton}>
+                    <RaisedTextButton
+                        onPress={() => this._onSubmit()}
+                        style={{ width: 150}, {alignItems: "center"}}
+                        titleStyle={styles.buttonstyle}
+                        title="Save Reward"
+                        titleColor={"#FF6978"}
+                        color={"white"}
+                    />
+                    {/* <TouchableOpacity style={styles.savebutton}>
+                        onPress={() => this._onSubmit()}
                         <Text style={{ color: "#FF6978", fontSize: 20 }}>Save Reward</Text>
-                    </TouchableOpacity>
+                    </TouchableOpacity> */}
 
                 </View>
 
@@ -431,7 +579,7 @@ const styles = StyleSheet.create({
     //From edit routines
     editRoutineIconAndTitle: {
         flexDirection: 'row',
-        marginTop: 20,
+        marginTop: 10,
     },
     drop: {
         marginTop: 10,
@@ -453,10 +601,10 @@ const styles = StyleSheet.create({
         marginTop: 50,
     },
     textFields: {
-        padding: 5,
+        padding: 2,
         margin: 2,
         marginLeft: 10,
-        marginTop: 10,
+        marginTop: 5,
         marginBottom: 10,
         fontSize: 20,
     },
@@ -532,8 +680,8 @@ const styles = StyleSheet.create({
     },
     camerabutton: {
         fontSize: 30,
-        height: 200,
-        width: 300,
+        height: 150,
+        width: 250,
         borderRadius: 12,
         backgroundColor: "#fff",
         justifyContent: "center",
@@ -566,6 +714,12 @@ const styles = StyleSheet.create({
         borderColor: "#bbb",
         borderWidth: 1,
         borderRadius: 5,
-      }
+    },
+    buttonstyle: {
+        fontSize: 10,
+        padding: 0,
+        margin: 0,
+        fontWeight: "bold",
+      },
 });
 

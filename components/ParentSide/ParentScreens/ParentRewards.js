@@ -32,7 +32,7 @@ export default class ParentRewards extends Component {
             allActivitiesDictionary: null,
             //don't know if need this
             reward_name: null,
-            routine_name: null
+            routine_name: null, 
             // reward1: null,
             // reward2: null,
             // reward3: null,
@@ -47,7 +47,7 @@ export default class ParentRewards extends Component {
     );
 
 
-
+    
 
 
     // fieldRef = React.createRef();
@@ -179,7 +179,12 @@ export default class ParentRewards extends Component {
                                                 currentRoutine: null,
                                                 currentActivity: null,
                                                 routineData: null,
-                                                activityData: null
+                                                activityData: null,
+                                                rewardId: item.reward_id, 
+                                                rewardName: item.reward_name,
+                                                rewardImage: null, 
+                                                rewardDescription: item.reward_description
+                                                
                                             })
                                         }
                                     >
@@ -241,8 +246,8 @@ export default class ParentRewards extends Component {
 
 
 
-                {/* New Routine Container */}
-                <View style={styles.routineContainer}>
+                {/* New Rewards Container */}
+                {/* <View style={styles.routineContainer}>
                     <View style={{ flex: 1 }} >
                         <RaisedTextButton style={styles.roundAddButton}
                             title='+'
@@ -250,12 +255,18 @@ export default class ParentRewards extends Component {
                             onPress={this._onPress, () =>
 
                                 navigate('EditReward', {
-                                    prevScreenTitle: 'Routines',
+                                    prevScreenTitle: 'Rewards',
                                     currentRoutineName: null,
                                     currentRoutineId: null,
                                     currentRoutineStartTime: null,
                                     currentRoutineEndTime: null,
                                     currentRoutineApproval: 0,
+                                    rewardId: null,
+                                    rewardName: null,
+                                    rewardDescription: null, 
+                                    rewardImage: null,
+                                    rewardVideo: null,
+
 
                                     // TO DO: set up rewards
                                     currentRewards: null
@@ -268,7 +279,7 @@ export default class ParentRewards extends Component {
                         </Text>
 
                     </View>
-                </View>
+                </View> */}
 
                 {/* <View style={styles.pageFormat}>
                     <Text style={styles.pageDescription}>
