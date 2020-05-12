@@ -90,9 +90,20 @@ export default class ParentRoutines extends Component {
   // edit routines, which allows it to display any changes made
   async componentDidMount() {
     await this.props.navigation.addListener("didFocus", (payload) => {
+      console.log("reloading items")
+      this.setState({ routinesLoaded: false });
+      this.setState({ activitiesLoaded: false });
       this.getRoutines();
       this.getAllActivitiesForUser();
       this.getAllRewardsForUser();
+      if (this.state.activitiesLoaded){
+        console.log("activities loaded again");
+        this.displayActivities();
+      }
+      if (this.state.routinesLoaded){
+        console.log("routines loaded again");
+        this.displayRoutines();
+      }
     });
   }
 
@@ -132,7 +143,7 @@ export default class ParentRoutines extends Component {
           console.log("returning 0");
           return 0;
         }
-        console.log("LENGTH IS " + activities.length)
+        console.log("LENGTH IS " + Object.keys(activities).length)
         if (activities.length !== amountOfActivities){
           this.updateAmountOfActivities(routineId, activities.length);
           console.log("returning activities.length " + activities.length);
@@ -188,9 +199,9 @@ export default class ParentRoutines extends Component {
       .then((responseJson) => {
         return responseJson;
       })
-      .then((activities) => {
-        console.log("RETURNED DATA ");
-        console.log(activities);
+      .then((rewards) => {
+        console.log("RETURNED REWARDS ");
+        console.log("LENGTH IS " + rewards.length);
       })
       .catch((error) => {
         console.error(error);

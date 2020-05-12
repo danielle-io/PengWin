@@ -173,21 +173,22 @@ app.post('/incrementChildRoutines/:childID', function (req, res) {
   });
 });
 
-app.post('/updateActivity/:activity_id', function (req, res) {
+app.post('/updateActivity/:activityId', function (req, res) {
 
-  let activity_id = req.params.activity_id;
+  let activityId = req.params.activityId;
   var postData = req.body;
-
+console.log("id is " + activityId);
   console.log(postData);
   connection.getConnection(function (err, connection) {
     connection.query('UPDATE activities SET ? WHERE activity_id = ?',
-      [postData, activity_id],
+    [postData, activityId],
       function (error, results, fields) {
 
         if (error){
           throw error;
           console.log(err);
         }
+        console.log(results);
         res.send(JSON.stringify(results))
       });
   });

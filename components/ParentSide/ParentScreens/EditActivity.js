@@ -92,21 +92,26 @@ export default class Activity extends Component {
     );
   }
 
-  async updateActivity(tag, value) {
+  updateActivity(tag, value) {
+    console.log("updating activity with " + tag + " " + value);
+    console.log("activity id is " + this.state.activityId);
     var data = {
       [tag]: value,
     };
     try {
-      let response = await fetch(Environment + "/updateActivity/" + this.state.activityId, {
-        method: "POST",
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-      });
+      let response = fetch(
+        Environment + "/updateActivity/" + this.state.activityId,
+        {
+          method: "POST",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(data),
+        }
+      );
       if (response.status >= 200 && response.status < 300) {
-        console.log("POSTED");
+        console.log("SUCCESS");
       }
     } catch (errors) {
       alert(errors);
@@ -117,7 +122,7 @@ export default class Activity extends Component {
     const parentId = UserInfo.parent_id;
     const childId = UserInfo.child_id;
     const userId = UserInfo.user_id;
-    
+
     data = {
       activity_name: this.state.activityName,
       tags: this.state.activityTags,
@@ -150,15 +155,18 @@ export default class Activity extends Component {
       });
   }
 
-  updateAllChangedAttributes(){
-    if (!this.state.activityId){
+  updateAllChangedAttributes() {
+    if (!this.state.activityId) {
+      console.log("no activity id !!");
       this.createNewActivity();
-    }
-    else{
-      for (const keyValuePair of this.state.changedValues) {
-        Object.entries(keyValuePair).map(([key, val]) => {
-          this.updateActivity(key, val);
-        });
+    } else {
+      if (this.state.changedValues) {
+        for (const keyValuePair of this.state.changedValues) {
+          console.log("updating update activity bc array not empty");
+          Object.entries(keyValuePair).map(([key, val]) => {
+            this.updateActivity(key, val);
+          });
+        }
       }
     }
   }
@@ -172,32 +180,25 @@ export default class Activity extends Component {
 
   handleApprovalSwitchChange() {
     var newSwitchValue = 1;
-    if (this.state.isPublic === 0){
+    if (this.state.isPublic === 0) {
       this.setState({ isPublic: 1 });
-    }
-    else{
+    } else {
       this.setState({ isPublic: 0 });
       newSwitchValue = 0;
     }
-    this.pushToUpdateActivityArray(
-      "is_public",
-      newSwitchValue,
-    );
+    this.pushToUpdateActivityArray("is_public", newSwitchValue);
   }
 
-
   pushToUpdateActivityArray(tag, value) {
-    Object.keys(this.state.changedValues).map(function(keyName, keyIndex) {
-      if (keyName === tag) {
-        return;
-      }
-    });
+    console.log("updating array with :: " + tag + " " + value);
     let tempArray = this.state.changedValues;
     tempArray.push({ [tag]: value });
     this.setState({ changedValues: tempArray });
-    console.log("tempArray has been updated, its not " + tempArray);
-  }
 
+    console.log(
+      "changedValues has been updated, its now" + this.state.changedValues
+    );
+  }
 
   componentDidMount() {
     this._askForPermissions();
@@ -457,6 +458,26 @@ export default class Activity extends Component {
     this.setState({ photos: pickerResult });
   };
 
+
+  newTagAdded(newTag) { 
+    console.log("IN NEW");
+    console.log("tag is " + newTag);
+    // console.log("last tag is " + this.state.activityTags[this.state.activityTags.length - 1]);
+    // if (newTag !== this.state.activityTags[this.state.activityTags.length - 1]){
+      // console.log("NEW TAGS");
+      // var newTagString = newTag[newTag.length - 1].toLowerCase();
+    console.log(typeof(newTag));
+      // var newTag = newTag.toLowerCase();
+  
+      // var tagString = tempArray.join(",");
+  
+      // var fullString = tagString.toLowerCase() + "," + tagString;
+      this.updateActivity("tags", newTag);
+      // console.log("added and updated with " + newTag.toLowerCase());
+    // }
+ 
+  }
+
   videoPicker = async () => {
     let vid = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Videos,
@@ -501,14 +522,6 @@ export default class Activity extends Component {
     }
   };
 
-  // TODO: use this when storing tags
-  storeTagsLowercaseAsString(){
-    var tagString = "";
-    for (var i = 0; i < this.state.activityTags.length; i++){
-      tagString += this.state.activityTags[i].toLowerCase();
-    }
-  }
-
   fieldRef = React.createRef();
 
   onSubmit = () => {
@@ -535,7 +548,7 @@ export default class Activity extends Component {
       <ScrollView style={{ backgroundColor: "#FFFCF9", padding: 20 }}>
         <View style={styles.textFields}>
           <Text style={styles.titles}>What is this activity called?</Text>
-          
+
           <TextField
             placeholder="(e.g. Wear Shoes)"
             value={this.state.activityName}
@@ -559,28 +572,30 @@ export default class Activity extends Component {
             Enter some words that match what this activity entails, so that the
             camera can detect if it's been photographed. Make the first word the
             most accurate, since it's what we will display in the instructions.
+            To create a tag, type in the word and use a comma or space to add it
+            to the list.
           </Text>
-          
+
           <Tags
             textInputProps={{
               placeholder: "?TAGS",
             }}
             initialTags={this.state.activityTags}
-            // onChangeTags={(tags) => console.log(tags)}
-            onTagPress={(index, tagLabel, event, deleted) =>
-              console.log(
-                index,
-                tagLabel,
-                event,
-                deleted ? "deleted" : "not deleted"
-              )
-            }
+            // onTagPress={(index, tagLabel, event, deleted) =>
+            //   this.tagWasPressed(
+            //     index,
+            //     tagLabel,
+            //     event,
+            //     deleted ? "deleted" : "not deleted"
+            //   )
+            // }
             containerStyle={{ justifyContent: "center" }}
             inputStyle={{
               backgroundColor: "#FFFCF9",
               borderBottomColor: "#c4c4c4",
               borderBottomWidth: 1,
             }}
+            onChangeTags={(tags) => this.newTagAdded(tags.join(','))}
             renderTag={({
               tag,
               index,
@@ -634,8 +649,9 @@ export default class Activity extends Component {
               );
             }}
             multiline={true}
-            onChangeText={(text) => this.setState({ activityDescription: text })}
-
+            onChangeText={(text) =>
+              this.setState({ activityDescription: text })
+            }
           />
         </View>
 
@@ -851,7 +867,6 @@ export default class Activity extends Component {
           </View>
         </View>
 
-
         <View>
           <View style={styles.editRoutineIconAndTitle}>
             <Icon style={styles.routineDetailsIcon} name="check-all" />
@@ -859,7 +874,8 @@ export default class Activity extends Component {
           </View>
           <View style={styles.editRoutineIconAndTitle}>
             <Text style={styles.editRoutinesInstructionsText}>
-              Would you like this activity to be added to the public library, so other families can access a copy of it for their own use?
+              Would you like this activity to be added to the public library, so
+              other families can access a copy of it for their own use?
             </Text>
             <Switch
               style={{ padding: 10 }}
@@ -868,7 +884,7 @@ export default class Activity extends Component {
               onValueChange={() => this.handleApprovalSwitchChange()}
             />
           </View>
-      </View>
+        </View>
 
         <View
           style={{
@@ -880,8 +896,7 @@ export default class Activity extends Component {
         >
           <TouchableOpacity
             style={styles.savebutton}
-            onPress={() => 
-              this.updateAllChangedAttributes()}
+            onPress={() => this.updateAllChangedAttributes()}
           >
             <Text style={{ color: "#fff", fontSize: 20 }}>Save</Text>
           </TouchableOpacity>
