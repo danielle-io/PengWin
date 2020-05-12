@@ -5,6 +5,7 @@ import {
   ScrollView,
   View,
   Slider,
+  Switch,
   TouchableOpacity,
   TouchableHighlight,
   Text,
@@ -70,6 +71,8 @@ export default class Activity extends Component {
       rewardId: this.props.navigation.state.params.rewardId,
       allRewardsByIdDictionary: this.props.navigation.state.params
         .allRewardsByIdDictionary,
+      isPublic: this.props.navigation.state.params.isPublic,
+      changedValues: [],
       haveRecordingPermissions: false,
       isLoading: false,
       isPlaybackAllowed: false,
@@ -83,7 +86,6 @@ export default class Activity extends Component {
       shouldCorrectPitch: true,
       volume: 1.0,
       rate: 1.0,
-      isPublic: 0,
     };
     this.recordingSettings = JSON.parse(
       JSON.stringify(Audio.RECORDING_OPTIONS_PRESET_LOW_QUALITY)
@@ -95,7 +97,7 @@ export default class Activity extends Component {
       [tag]: value,
     };
     try {
-      let response = await fetch(Environment + "/updateActivity/" + userId, {
+      let response = await fetch(Environment + "/updateActivity/" + this.state.activityId, {
         method: "POST",
         headers: {
           Accept: "application/json",
@@ -127,7 +129,7 @@ export default class Activity extends Component {
       is_public: this.state.isPublic,
       user_id: userId,
     };
-    let response = await fetch(Environment + "/insertRoutine", {
+    let response = await fetch(Environment + "/insertActivity", {
       method: "POST",
       headers: {
         Accept: "application/json",
@@ -140,37 +142,62 @@ export default class Activity extends Component {
         return responseJson;
       })
       .then((results) => {
-        console.log("worked!!!");
-
-        // Set the new routineId
+        console.log("new insert!!!");
         this.setState({ activityId: results.insertId });
-        this.saveAnyChanges();
       })
       .catch((error) => {
         console.error(error);
       });
   }
 
-  async postPref(tag, value) {
-    var data = {
-      [tag]: value,
-    };
-    try {
-      let response = await fetch(Environment + "/updatePreferences/" + userId, {
-        method: "POST",
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-      });
-      if (response.status >= 200 && response.status < 300) {
-        console.log("POSTED");
+  updateAllChangedAttributes(){
+    if (!this.state.activityId){
+      this.createNewActivity();
+    }
+    else{
+      for (const keyValuePair of this.state.changedValues) {
+        Object.entries(keyValuePair).map(([key, val]) => {
+          this.updateActivity(key, val);
+        });
       }
-    } catch (errors) {
-      alert(errors);
     }
   }
+
+  getCurrentSwitchState() {
+    if (this.state.isPublic === 1) {
+      return true;
+    }
+    return false;
+  }
+
+  handleApprovalSwitchChange() {
+    var newSwitchValue = 1;
+    if (this.state.isPublic === 0){
+      this.setState({ isPublic: 1 });
+    }
+    else{
+      this.setState({ isPublic: 0 });
+      newSwitchValue = 0;
+    }
+    this.pushToUpdateActivityArray(
+      "is_public",
+      newSwitchValue,
+    );
+  }
+
+
+  pushToUpdateActivityArray(tag, value) {
+    Object.keys(this.state.changedValues).map(function(keyName, keyIndex) {
+      if (keyName === tag) {
+        return;
+      }
+    });
+    let tempArray = this.state.changedValues;
+    tempArray.push({ [tag]: value });
+    this.setState({ changedValues: tempArray });
+    console.log("tempArray has been updated, its not " + tempArray);
+  }
+
 
   componentDidMount() {
     this._askForPermissions();
@@ -508,7 +535,7 @@ export default class Activity extends Component {
       <ScrollView style={{ backgroundColor: "#FFFCF9", padding: 20 }}>
         <View style={styles.textFields}>
           <Text style={styles.titles}>What is this activity called?</Text>
-
+          
           <TextField
             placeholder="(e.g. Wear Shoes)"
             value={this.state.activityName}
@@ -516,10 +543,12 @@ export default class Activity extends Component {
             textInputStyle={{ flex: 1 }}
             onFocus={(e) => console.log("Focus", !!e)}
             onBlur={(e) => console.log("Blur", !!e)}
-            onEndEditing={(e) => console.log("EndEditing", !!e)}
-            onSubmitEditing={(e) => console.log("SubmitEditing", !!e)}
-            onTextChange={(s) => console.log("TextChange", s)}
-            onChangeText={(s) => console.log("ChangeText", s)}
+            onEndEditing={(e) => {
+              this.pushToUpdateActivityArray(
+                "activity_name",
+                this.state.activityName
+              );
+            }}
             onChangeText={(text) => this.setState({ activityName: text })}
           />
         </View>
@@ -598,13 +627,15 @@ export default class Activity extends Component {
               styles.descriptionLines)
             }
             textInputStyle={{ flex: 1 }}
-            onFocus={(e) => console.log("Focus", !!e)}
-            onBlur={(e) => console.log("Blur", !!e)}
-            onEndEditing={(e) => console.log("EndEditing", !!e)}
-            onSubmitEditing={(e) => console.log("SubmitEditing", !!e)}
-            onTextChange={(s) => console.log("TextChange", s)}
-            onChangeText={(s) => console.log("ChangeText", s)}
+            onEndEditing={(e) => {
+              this.pushToUpdateActivityArray(
+                "activity_description",
+                this.state.activityDescription
+              );
+            }}
             multiline={true}
+            onChangeText={(text) => this.setState({ activityDescription: text })}
+
           />
         </View>
 
@@ -792,7 +823,7 @@ export default class Activity extends Component {
           >
             <TouchableOpacity
               style={styles.button}
-              onPress={() => this.postPref("gender", 5)}
+              onPress={() => console.log("pressed image button")}
             >
               <Icon name="text" color="#FF6978" size={30} />
               <Text>Description</Text>
@@ -819,6 +850,26 @@ export default class Activity extends Component {
             </TouchableOpacity>
           </View>
         </View>
+
+
+        <View>
+          <View style={styles.editRoutineIconAndTitle}>
+            <Icon style={styles.routineDetailsIcon} name="check-all" />
+            <Text style={styles.editRoutineSectionName}>Set Public</Text>
+          </View>
+          <View style={styles.editRoutineIconAndTitle}>
+            <Text style={styles.editRoutinesInstructionsText}>
+              Would you like this activity to be added to the public library, so other families can access a copy of it for their own use?
+            </Text>
+            <Switch
+              style={{ padding: 10 }}
+              trackColor={{ false: "#767577", true: "#FF6978" }}
+              value={this.getCurrentSwitchState()}
+              onValueChange={() => this.handleApprovalSwitchChange()}
+            />
+          </View>
+      </View>
+
         <View
           style={{
             flexDirection: "row",
@@ -829,7 +880,8 @@ export default class Activity extends Component {
         >
           <TouchableOpacity
             style={styles.savebutton}
-            onPress={() => this.postActivity("audio_path", "test")}
+            onPress={() => 
+              this.updateAllChangedAttributes()}
           >
             <Text style={{ color: "#fff", fontSize: 20 }}>Save</Text>
           </TouchableOpacity>
