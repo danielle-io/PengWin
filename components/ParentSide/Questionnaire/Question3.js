@@ -5,6 +5,7 @@ import * as Font from "expo-font";
 import StepIndicator from 'react-native-step-indicator';
 import MobileStepper from '@material-ui/core/MobileStepper';
 import { AppLoading } from "expo";
+import Environment from "../../../database/sqlEnv";
 
 import RadioForm, {RadioButton, RadioButtonInput, RadioButtonLabel} from 'react-native-simple-radio-button';
 
@@ -50,6 +51,28 @@ export default class Question3 extends Component {
     // onContinueClicked = () => {
     //     this.props.navigation.navigate("Question2");
     // }
+    
+    async postPreference(tag, value){
+        var data = {
+          [tag]: value,
+        };
+        try {
+          let response = await fetch(Environment + "/updatePreferences/1" , {
+            method: "POST",
+            headers: {
+              Accept: "application/json",
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(data),
+          });
+          
+          if (response.status >= 200 && response.status < 300) {
+            console.log("POSTED")
+          }
+        } catch (errors) {
+          alert(errors);
+        }
+      }
 
     async _loadFontsAsync() {
         await Font.loadAsync(customFonts);
@@ -98,7 +121,7 @@ export default class Question3 extends Component {
                         // labelWrapStyle ={{lineHeight: 5}}
                         labelColor={'#352D39'}
                         selectedButtonColor={'#352D39'}
-                        onPress={(choice) => {this.setState({value:choice}); this.state.selected = true} }
+                        onPress={(choice) => {this.setState({value:choice}); this.state.selected = true; this.postPreference("reading_ability",choice)} }
                         //it shows the value of previously selected choice. don't know why¯\_(ツ)_/¯
                         />
                     </View>

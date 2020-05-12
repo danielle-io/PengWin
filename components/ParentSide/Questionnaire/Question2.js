@@ -5,6 +5,7 @@ import * as Font from "expo-font";
 import StepIndicator from 'react-native-step-indicator';
 import MobileStepper from '@material-ui/core/MobileStepper';
 import { AppLoading } from "expo";
+import Environment from "../../../database/sqlEnv";
 
 import RadioForm, {RadioButton, RadioButtonInput, RadioButtonLabel} from 'react-native-simple-radio-button';
 
@@ -26,10 +27,10 @@ var radio_props = [
 export default class Question2 extends Component {
     constructor(props) {
         super(props);
-        const { navigate } = this.props.navigation;
-        this.navigate = navigate;
+        // const { navigate } = this.props.navigation;
+        // this.navigate = navigate;
         this.state = {
-        prevScreenTitle: this.props.navigation.state.params.prevScreenTitle,
+        // prevScreenTitle: this.props.navigation.state.params.prevScreenTitle,
         fontsLoaded: false,
         currentPosition: 1,
         selected: false,
@@ -51,6 +52,28 @@ export default class Question2 extends Component {
     //     this.props.navigation.navigate("Question2");
     // }
 
+    async postPreference(tag, value){
+        var data = {
+          [tag]: value,
+        };
+        try {
+          let response = await fetch(Environment + "/updatePreferences/1" , {
+            method: "POST",
+            headers: {
+              Accept: "application/json",
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(data),
+          });
+          
+          if (response.status >= 200 && response.status < 300) {
+            console.log("POSTED")
+          }
+        } catch (errors) {
+          alert(errors);
+        }
+      }
+
     async _loadFontsAsync() {
         await Font.loadAsync(customFonts);
         this.setState({ fontsLoaded: true });
@@ -63,7 +86,8 @@ export default class Question2 extends Component {
     render () {
         // if (this.state.fontsLoaded) {
             return (
-                // console.log("radio button options", radio_props[1].value),
+                console.log("date", new Date()),
+                console.log("date", new Date().getDate()),
 
                 <View style={{backgroundColor:"#FFFCF9"}}>
                     <Text style={styles.pageHeader}>Create your child's profile</Text>
@@ -105,7 +129,16 @@ export default class Question2 extends Component {
                 style={this.state.selected
                         ? styles.buttonPrimary
                         : styles.buttonSecondary}
-                onPress={() => {this.navigate("Question3",{prevScreenTitle: 'Back'}); console.log("valueee", this.state.chosenDate); console.log("clickkk")}}
+                onPress={() => {
+                    // this.navigate("Question3",{prevScreenTitle: 'Back'}); 
+                                console.log("type", typeof(this.state.chosenDate)); 
+                                console.log("valueee", String(Number(this.state.chosenDate.getMonth() + 1))
+                                ); console.log("clickkk");
+                                this.postPreference("birthdate",
+                                this.state.chosenDate.getFullYear()+ '-' +
+                                String(Number(this.state.chosenDate.getMonth() + 1)) + '-' + 
+                                this.state.chosenDate.getDate()
+                                )}}
                 >
                 <View>
                 <Text style={this.state.selected

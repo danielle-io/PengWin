@@ -6,8 +6,6 @@ import StepIndicator from 'react-native-step-indicator';
 import Carousel from "react-native-carousel-view";
 import MobileStepper from '@material-ui/core/MobileStepper';
 import { AppLoading } from "expo";
-import * as FileSystem from "expo-file-system";
-import * as Permissions from "expo-permissions";
 import Environment from "../../../database/sqlEnv";
 import UserInfo from "../../../state/UserInfo";
 
@@ -34,10 +32,12 @@ export default class Question1 extends Component {
 
         // this.postPreference("gender", 2);
 
-        const { navigate } = this.props.navigation;
-        this.navigate = navigate;
+        // const { navigate } = this.props.navigation;
+        // this.navigate = navigate;
+
+        // const navigation = useNavigation();
         this.state = {
-        prevScreenTitle: this.props.navigation.state.params.prevScreenTitle,
+        // prevScreenTitle: this.props.navigation.state.params.prevScreenTitle,
         fontsLoaded: false,
         currentPosition: 0,
         selected: false
@@ -50,13 +50,12 @@ export default class Question1 extends Component {
         prevScreenTitle: 'Back'
     });
 
+
     async postPreference(tag, value){
-      console.log("IN PREFERENCES")
         var data = {
           [tag]: value,
         };
         try {
-          console.log("IN TRY")
           let response = await fetch(Environment + "/updatePreferences/1" , {
             method: "POST",
             headers: {
@@ -128,7 +127,7 @@ export default class Question1 extends Component {
                         // labelWrapStyle ={{lineHeight: 5}}
                         labelColor={'#352D39'}
                         selectedButtonColor={'#352D39'}
-                        onPress={(choice) => {this.setState({value:choice}); this.state.selected = true; this.postPreference("gender",2)} }
+                        onPress={(choice) => {this.setState({value:choice}); this.state.selected = true; this.postPreference("gender",choice)} }
                         //it shows the value of previously selected choice. don't know why¯\_(ツ)_/¯
                         />
                     </View>
@@ -142,14 +141,13 @@ export default class Question1 extends Component {
                         ? styles.buttonPrimary
                         : styles.buttonSecondary}
 
-                onPress={() => { this.navigate("Question2",{prevScreenTitle: 'Back'}); console.log("valueee", this.state.value); console.log("clickkk")}}
+                // onPress={() => { this.navigation.navigate("Question2"); console.log("valueee", this.state.value); console.log("clickkk")}}
                 >
                 <View>
                 <Text style={this.state.selected
                         ? styles.buttonPrimaryText
                         : styles.buttonSecondaryText}>Continue</Text>
                 </View>
-                
                 
                 </TouchableOpacity>
                 

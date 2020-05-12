@@ -22,6 +22,7 @@ import Question1 from './ParentSide/Questionnaire/Question1';
 import Question2 from './ParentSide/Questionnaire/Question2';
 import Question3 from './ParentSide/Questionnaire/Question3';
 import Question4 from './ParentSide/Questionnaire/Question4';
+import Questionnaire from './ParentSide/Questionnaire/Main';
 
 import ChildRoutines from './ChildScreens/ChildNavigation';
 import ChildActivity from './ChildScreens/ChildActivity';
@@ -54,7 +55,7 @@ const Screens = createStackNavigator({
   EditRoutine: {screen:EditRoutine},
   Progress: {screen: Progress},
   // Notifications: {screen: Notifications},
-
+  Questionnaire: {screen:Questionnaire},
   Question1: {screen:Question1},
   Question2: {screen:Question2},
   Question3: {screen:Question3},

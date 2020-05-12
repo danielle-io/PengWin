@@ -766,7 +766,7 @@ export default class Activity extends Component {
               margin: 15,
             }}
           >
-            <TouchableOpacity style={styles.button} onPress = { () => this.postPref("gender", 5)}>
+            <TouchableOpacity style={styles.button} onPress = { () => this.postPref("gender", 6)}>
               <Icon name="text" color="#FF6978" size={30} />
               <Text>Description</Text>
             </TouchableOpacity>

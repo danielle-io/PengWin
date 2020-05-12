@@ -97,7 +97,7 @@ export default class TestingHomePage extends Component {
             <TouchableOpacity
               style={styles.parentContainer}
               onPress={() =>
-                this.navigate("Question1", {
+                this.navigate("Questionnaire", {
                   prevScreenTitle: "TestingHomePage",
                 })
               }
