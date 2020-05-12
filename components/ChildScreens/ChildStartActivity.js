@@ -32,7 +32,6 @@ export default class ChildStartActivity extends Component {
     ChildStartActivity.navigationOptions.headerBackTitle = this.props.navigation.state.params.currentRoutine;
   }
 
-
   //Header titles for routines
   static navigationOptions = ({ navigation }) => ({
     title: `${navigation.state.params.currentRoutine}`,
@@ -58,7 +57,6 @@ export default class ChildStartActivity extends Component {
         amount_of_activities: this.state.amountOfActivities,
         reward_id: this.state.rewardId,
         activities_complete: 0,
-        image_path_array: "[]",
         quick_start_activity_id: 0
       };
       let response = await fetch(
@@ -85,7 +83,7 @@ export default class ChildStartActivity extends Component {
           rewardId: this.state.rewardId,
           requiresApproval: this.state.requiresApproval,
           childNotificationsId: results.insertId,
-          imagePathUpdated: null,
+          image_path_array: ' ',
         });
       })
       .catch((error) => {

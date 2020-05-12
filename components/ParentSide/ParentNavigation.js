@@ -48,9 +48,9 @@ const makeProgressScreenConfig = navigation => {
     };
   }
 
-  const makeActivityScreenConfig = navigation => {
+  const makeNotificationScreenConfig = navigation => {
     return {
-      title: 'Settings',
+      title: 'Notifications',
       initialRouteName: 'ParentRoutines'
     };
   }
@@ -89,7 +89,7 @@ function AppTabView(props) {
     label: 'Notifications',
     barColor: '#FFFCF9',
     pressColor: 'rgba(255, 255, 255, .1)',
-    title: 'Rewards'
+    title: 'Notifications'
   },
   {
     key: 'ParentProfile',
@@ -97,7 +97,7 @@ function AppTabView(props) {
     label: 'Settings',
     barColor: '#FFFCF9',
     pressColor: 'rgba(255, 255, 255, 0.1)',
-    title: 'Profile'
+    title: 'Settings'
   },
 ]
 
@@ -179,13 +179,14 @@ const AppNavigator = createNavigator(AppTabView, AppTabRouter, {
             return makeRoutineScreenConfig(navigation)
         }
 
-        if (routeName === 'Notifications') {
-          return makeActivityScreenConfig(navigation)
-      }
+        
 
       if (routeName === 'ParentRewards') {
         return makeRewardsScreenConfig(navigation)
     }
+      if (routeName === 'Notifications') {
+        return makeNotificationScreenConfig(navigation);
+      }
 
         
 }})

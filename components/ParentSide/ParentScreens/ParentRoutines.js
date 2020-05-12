@@ -55,6 +55,7 @@ export default class ParentRoutines extends Component {
       allRewardsByIdDictionary: null,
       allActivitiesDictionary: null,
     };
+    
   }
 
   _renderScene = ({ route }) => {
@@ -115,6 +116,26 @@ export default class ParentRoutines extends Component {
       });
   }
 
+  // TODO: get each activity, sum the reward_id != null
+  getTotalRewardsInRoutine(routineId) {
+    fetch(
+      Environment +
+        "/getActivitiesWithRewardsPerRoutine/" +
+        routineId
+    )
+      .then((response) => response.json())
+      .then((responseJson) => {
+        return responseJson;
+      })
+      .then((activities) => {
+          console.log("RETURNED DATA ");
+          console.log(activities);
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+  }
+
   getAllRewardsForUser() {
     fetch(Environment + "/getAllRewards/" + userId, {
       headers: {
@@ -153,6 +174,7 @@ export default class ParentRoutines extends Component {
   }
 
   getAllActivitiesForUser() {
+
     fetch(Environment + "/getActivities/" + userId, {
       headers: {
         "Cache-Control": "no-cache",
@@ -222,24 +244,11 @@ export default class ParentRoutines extends Component {
       style={styles.roundAddButton}
       title="+"
       color="#FF6978"
-      // onSelect={() =>
-      //   navigate("EditActivity", {
-      //     prevScreenTitle: "Routines",
-      //     activityName: item.activity_name,
-      //     activityId: item.activity_id,
-      //     activityTags: eval(item.tags),
-      //     activityImagePath: item.image_path,
-      //     activityDescription: item.activity_description,
-      //     activityAudioPath: item.audio_path,
-      //     activityVideoPath: item.video_path,
-      //     activityIsPublic: item.is_public,
-      //     rewardId: item.reward_id,
-      //     allRewardsByIdDictionary: this.state
-      //       .allRewardsByIdDictionary,
-      //     allActivitiesDictionary: this.state
-      //       .allActivitiesDictionary,
-      //   })
-      // }
+      onSelect={() =>
+        this.props.navigation.navigate("PublicActivities", {
+          prevScreenTitle: "Routines",
+        })
+      }
       ripple={ripple}
     />
 
@@ -257,34 +266,35 @@ export default class ParentRoutines extends Component {
             style={styles.roundAddButton}
             title="+"
             color="#FF6978"
-            onSelect={() =>
-              navigate("EditActivity", {
+            onPress={
+              (this._onPress,
+              () =>
+              this.props.navigation.navigate("EditActivity", {
                 prevScreenTitle: "Routines",
-                activityName: item.activity_name,
-                activityId: item.activity_id,
-                activityTags: eval(item.tags),
-                activityImagePath: item.image_path,
-                activityDescription: item.activity_description,
-                activityAudioPath: item.audio_path,
-                activityVideoPath: item.video_path,
-                activityIsPublic: item.is_public,
-                rewardId: item.reward_id,
+                activityName: null,
+                activityId: null,
+                activityTags: null,
+                activityImagePath: null,
+                activityDescription: null,
+                activityAudioPath: null,
+                activityVideoPath: null,
+                activityIsPublic: null,
+                rewardId: null,
+                activityTags: [],
                 allRewardsByIdDictionary: this.state
                   .allRewardsByIdDictionary,
                 allActivitiesDictionary: this.state
                   .allActivitiesDictionary,
-              })
-            }
-            ripple={ripple}
-          />
-
+                }))
+              }
+              ripple={ripple}
+            />
           <Text style={styles.routineTitle}>Create a New Activity</Text>
         </View>
     );
   }
 
   displayNewRoutineContainer() {
-    const { navigate } = this.props.navigation;
     let ripple = { id: "addButton" };
 
     return (
@@ -296,7 +306,7 @@ export default class ParentRoutines extends Component {
           onPress={
             (this._onPress,
             () =>
-              navigate("EditRoutine", {
+            this.props.navigation.navigate("EditRoutine", {
                 prevScreenTitle: "Routines",
                 routineId: null,
                 routineName: null,
@@ -316,7 +326,6 @@ export default class ParentRoutines extends Component {
                 allActivities: this.state.allActivities,
                 allActivitiesDictionary: this.state.allActivitiesDictionary,
                 allRewardsByIdDictionary: this.state.allRewardsByIdDictionary,
-
               }))
           }
           ripple={ripple}
@@ -328,7 +337,8 @@ export default class ParentRoutines extends Component {
   }
 
   displayActivities() {
-    const { navigate } = this.props.navigation;
+    let ripple = { id: "addButton" };
+
 
     return this.state.allActivities.map((item) => {
       return (
@@ -341,11 +351,11 @@ export default class ParentRoutines extends Component {
                 <MenuOptions>
                   <MenuOption
                     onSelect={() =>
-                      navigate("EditActivity", {
+                      this.props.navigation.navigate("EditActivity", {
                         prevScreenTitle: "Routines",
                         activityName: item.activity_name,
                         activityId: item.activity_id,
-                        activityTags: eval(item.tags),
+                        activityTags: item.tags.split(','),
                         activityImagePath: item.image_path,
                         activityDescription: item.activity_description,
                         activityAudioPath: item.audio_path,
@@ -353,9 +363,9 @@ export default class ParentRoutines extends Component {
                         activityIsPublic: item.is_public,
                         rewardId: item.reward_id,
                         allRewardsByIdDictionary: this.state.allRewardsByIdDictionary,
-                        allActivitiesDictionary: this.state.allActivitiesDictionary,
                       })
                     }
+                    ripple={ripple}
                   >
                     <Text style={{ color: "black" }}>Edit</Text>
                   </MenuOption>
@@ -369,7 +379,6 @@ export default class ParentRoutines extends Component {
   }
 
   displayRoutines() {
-    const { navigate } = this.props.navigation;
     var containerName;
 
     // parse out the db objects returned from the routines call
@@ -390,7 +399,7 @@ export default class ParentRoutines extends Component {
                 <MenuOptions>
                   <MenuOption
                     onSelect={() =>
-                      navigate("EditRoutine", {
+                      this.props.navigation.navigate("EditRoutine", {
                         prevScreenTitle: "Routines",
                         routineName: item.routine_name,
                         routineId: item.routine_id,
@@ -467,7 +476,6 @@ export default class ParentRoutines extends Component {
     }
 
     let ripple = { id: "addButton" };
-    const { navigate } = this.props.navigation;
 
     return (
       <View>

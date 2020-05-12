@@ -12,11 +12,14 @@ import ParentNavigation from './ParentSide/ParentNavigation';
 import ParentRewards from './ParentSide/ParentScreens/ParentRewards';
 import EditReward from './ParentSide/ParentScreens/EditReward';
 import ParentProfile from './ParentSide/ParentScreens/ParentProfile';
+import PublicActivities from './ParentSide/ParentScreens/PublicActivities';
+import ViewPublicActivity from './ParentSide/ParentScreens/ViewPublicActivity';
 import EditRoutine from './ParentSide/ParentScreens/EditRoutine';
 import ParentRoutines from './ParentSide/ParentScreens/ParentRoutines';
 import EditActivity from './ParentSide/ParentScreens/EditActivity';
 import Progress from './ParentSide/ParentScreens/Progress';
-// import Notifications from './ParentSide/ParentScreens/Notifications';
+import Notifications from './ParentSide/ParentScreens/Notifications';
+import RoutineApproval from './ParentSide/ParentScreens/RoutineApproval';
 
 import Question1 from './ParentSide/Questionnaire/Question1';
 import Question2 from './ParentSide/Questionnaire/Question2';
@@ -37,6 +40,7 @@ import ChildCamera from '../components/ImageRecognition/ChildCamera';
 
 import TestingHomePage from './TestingHomePage';
 
+
 const Screens = createStackNavigator({
   TestingHomePage: {screen: TestingHomePage},
   Login: {screen: Login},
@@ -50,6 +54,9 @@ const Screens = createStackNavigator({
   ParentRoutines: {screen: ParentRoutines},
   EditActivity: {screen: EditActivity},
   ParentRewards : {screen:ParentRewards},
+  PublicActivities : {screen:PublicActivities},
+  ViewPublicActivity : {screen:ViewPublicActivity},
+
   EditReward: {screen:EditReward},
   ParentProfile: {screen:ParentProfile},
   EditRoutine: {screen:EditRoutine},
@@ -60,6 +67,9 @@ const Screens = createStackNavigator({
   Question2: {screen:Question2},
   Question3: {screen:Question3},
   Question4: {screen:Question4},
+  
+  Notifications: {screen: Notifications},
+  RoutineApproval: {screen: RoutineApproval},
 
   ChildPincode: {screen:ChildPincode},
   ChildNotifScreen: {screen:ChildNotifScreen},
