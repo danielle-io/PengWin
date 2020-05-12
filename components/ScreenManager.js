@@ -11,6 +11,8 @@ import ParentNavigation from './ParentSide/ParentNavigation';
 import ParentRewards from './ParentSide/ParentScreens/ParentRewards';
 import EditReward from './ParentSide/ParentScreens/EditReward';
 import ParentProfile from './ParentSide/ParentScreens/ParentProfile';
+import PublicActivities from './ParentSide/ParentScreens/PublicActivities';
+import ViewPublicActivity from './ParentSide/ParentScreens/ViewPublicActivity';
 import EditRoutine from './ParentSide/ParentScreens/EditRoutine';
 import ParentRoutines from './ParentSide/ParentScreens/ParentRoutines';
 import EditActivity from './ParentSide/ParentScreens/EditActivity';
@@ -45,6 +47,9 @@ const Screens = createStackNavigator({
   ParentRoutines: {screen: ParentRoutines},
   EditActivity: {screen: EditActivity},
   ParentRewards : {screen:ParentRewards},
+  PublicActivities : {screen:PublicActivities},
+  ViewPublicActivity : {screen:ViewPublicActivity},
+
   EditReward: {screen:EditReward},
   ParentProfile: {screen:ParentProfile},
   EditRoutine: {screen:EditRoutine},

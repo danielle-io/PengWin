@@ -221,6 +221,17 @@ app.post('/insertRoutine', function (req, res) {
   });
 });
 
+app.post('/insertActivity', function (req, res) {
+  var postData = req.body;
+  connection.query('INSERT INTO routines SET ?', postData, function (error, results, fields) {
+    if (error){
+      throw error;
+      console.log(err);
+    }
+    res.send(JSON.stringify(results))
+  });
+});
+
 app.post('/insertChildRoutineNotifications', function (req, res) {
   var postData = req.body;
   connection.query('INSERT INTO child_notifications SET ?', postData, function (error, results, fields) {
@@ -236,7 +247,6 @@ app.post('/insertChildRoutineNotifications', function (req, res) {
 
 // Update the routine data
 app.post('/updateChildNotifications/:childNotificationsId', function (req, res) {
-  console.log("in update notifications");
   
   let childNotificationsId = req.params.childNotificationsId;
   var postData = req.body;
@@ -344,6 +354,25 @@ app.get('/getActivities/:userId', function (req, res) {
     });
   });
 });
+
+app.get('/getAllPublicActivities/:userId', function (req, res) {
+  let userId = req.params.userId;
+
+  connection.getConnection(function (err, connection) {
+
+    connection.query('SELECT * FROM activities where is_public = 1 AND user_id <> ' + userId, function (error, results, fields) {
+        console.log("get public activities call");
+        console.log(results);
+        if (error){
+          throw error;
+          console.log(error);
+        }
+
+      res.send(results)
+    });
+  });
+});
+
 
 app.get('/getActivitiesFromRoutine/:routineID', function (req, res) {
   let routineID = req.params.routineID;
@@ -456,6 +485,31 @@ app.get('/joinRoutineActivityTableByRoutineId/:routineId', function (req, res) {
       + 'inner join routines_activities_relationship rar on routines.routine_id = rar.routine_id '
       + 'inner join activities a on rar.activity_id = a.activity_id '
       + 'where rar.routine_id = ? AND rar.routine_id <> 0 AND rar.deleted <> 1 '
+      + 'order by rar.order', [routineId], function (error, results, fields) {
+        // console.log('routine routes below');
+        // console.log(results);
+        // console.log(error);
+
+        if (error){
+          throw error;
+          console.log(err);
+        }
+        // console.log("RESULTS FROM JOINING");
+        // console.log(results);
+        res.send(results)
+      });
+  });
+});
+
+app.get('/getActivitiesWithRewardsPerRoutine/:routineId', function (req, res) {
+  let routineId = req.params.routineId;
+  connection.getConnection(function (err, connection) {
+
+    connection.query('select routines.*, a.*, rar.order, rar.routine_activity_id from routines '
+      + 'inner join routines_activities_relationship rar on routines.routine_id = rar.routine_id '
+      + 'inner join activities a on rar.activity_id = a.activity_id '
+      + 'where rar.routine_id = ? AND rar.routine_id <> 0 AND rar.deleted <> 1 '
+      + 'AND reward_id <> null '
       + 'order by rar.order', [routineId], function (error, results, fields) {
         // console.log('routine routes below');
         // console.log(results);
