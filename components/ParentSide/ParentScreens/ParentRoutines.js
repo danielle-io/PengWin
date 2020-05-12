@@ -344,17 +344,14 @@ export default class ParentRoutines extends Component {
                 prevScreenTitle: "Routines",
                 activityName: null,
                 activityId: null,
-                activityTags: null,
                 activityImagePath: null,
                 activityDescription: null,
                 activityAudioPath: null,
                 activityVideoPath: null,
-                activityIsPublic: null,
                 rewardId: null,
                 activityTags: [],
                 isPublic: 0,
                 allRewardsByIdDictionary: this.state.allRewardsByIdDictionary,
-                allActivitiesDictionary: this.state.allActivitiesDictionary,
               }))
           }
           ripple={ripple}

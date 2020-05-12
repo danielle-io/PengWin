@@ -177,7 +177,6 @@ app.post('/updateActivity/:activityId', function (req, res) {
 
   let activityId = req.params.activityId;
   var postData = req.body;
-console.log("id is " + activityId);
   console.log(postData);
   connection.getConnection(function (err, connection) {
     connection.query('UPDATE activities SET ? WHERE activity_id = ?',
@@ -207,12 +206,14 @@ app.post('/insertRoutine', function (req, res) {
 });
 
 app.post('/insertActivity', function (req, res) {
+  console.log("inserting");
   var postData = req.body;
-  connection.query('INSERT INTO routines SET ?', postData, function (error, results, fields) {
+  connection.query('INSERT INTO activities SET ?', postData, function (error, results, fields) {
     if (error){
       throw error;
       console.log(err);
     }
+    console.log(results);
     res.send(JSON.stringify(results))
   });
 });

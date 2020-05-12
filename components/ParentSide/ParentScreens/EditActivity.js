@@ -67,7 +67,6 @@ export default class Activity extends Component {
         .activityDescription,
       activityAudioPath: this.props.navigation.state.params.activityAudioPath,
       activityVideoPath: this.props.navigation.state.params.activityVideoPath,
-      activityIsPublic: this.props.navigation.state.params.activityIsPublic,
       rewardId: this.props.navigation.state.params.rewardId,
       allRewardsByIdDictionary: this.props.navigation.state.params
         .allRewardsByIdDictionary,
@@ -93,8 +92,6 @@ export default class Activity extends Component {
   }
 
   updateActivity(tag, value) {
-    console.log("updating activity with " + tag + " " + value);
-    console.log("activity id is " + this.state.activityId);
     var data = {
       [tag]: value,
     };
@@ -119,13 +116,13 @@ export default class Activity extends Component {
   }
 
   async createNewActivity() {
+    console.log("creating new activity");
     const parentId = UserInfo.parent_id;
     const childId = UserInfo.child_id;
     const userId = UserInfo.user_id;
-
-    data = {
+    let data = {
       activity_name: this.state.activityName,
-      tags: this.state.activityTags,
+      tags: this.state.activityTags.join(','),
       image_path: this.state.activityImagePath,
       activity_description: this.state.activityDescription,
       audio_path: this.state.activityAudioPath,
@@ -133,6 +130,7 @@ export default class Activity extends Component {
       reward_id: this.state.rewardId,
       is_public: this.state.isPublic,
       user_id: userId,
+      deleted: 0,
     };
     let response = await fetch(Environment + "/insertActivity", {
       method: "POST",
@@ -156,13 +154,13 @@ export default class Activity extends Component {
   }
 
   updateAllChangedAttributes() {
-    if (!this.state.activityId) {
+    if (this.state.activityId === null) {
       console.log("no activity id !!");
       this.createNewActivity();
+
     } else {
       if (this.state.changedValues) {
         for (const keyValuePair of this.state.changedValues) {
-          console.log("updating update activity bc array not empty");
           Object.entries(keyValuePair).map(([key, val]) => {
             this.updateActivity(key, val);
           });
@@ -190,14 +188,9 @@ export default class Activity extends Component {
   }
 
   pushToUpdateActivityArray(tag, value) {
-    console.log("updating array with :: " + tag + " " + value);
     let tempArray = this.state.changedValues;
     tempArray.push({ [tag]: value });
     this.setState({ changedValues: tempArray });
-
-    console.log(
-      "changedValues has been updated, its now" + this.state.changedValues
-    );
   }
 
   componentDidMount() {
@@ -460,22 +453,13 @@ export default class Activity extends Component {
 
 
   newTagAdded(newTag) { 
-    console.log("IN NEW");
-    console.log("tag is " + newTag);
-    // console.log("last tag is " + this.state.activityTags[this.state.activityTags.length - 1]);
-    // if (newTag !== this.state.activityTags[this.state.activityTags.length - 1]){
-      // console.log("NEW TAGS");
-      // var newTagString = newTag[newTag.length - 1].toLowerCase();
-    console.log(typeof(newTag));
-      // var newTag = newTag.toLowerCase();
-  
-      // var tagString = tempArray.join(",");
-  
-      // var fullString = tagString.toLowerCase() + "," + tagString;
-      this.updateActivity("tags", newTag);
-      // console.log("added and updated with " + newTag.toLowerCase());
-    // }
- 
+    console.log("tag is " + newTag);     
+    this.setState({ activityTags: newTag.toLowerCase() });
+    if (this.state.activityId){
+      console.log("activity id exists");
+      this.updateActivity("tags", newTag.toLowerCase());
+    }
+    console.log("state is " + this.state.activityTags);
   }
 
   videoPicker = async () => {
