@@ -95,9 +95,11 @@ app.get('/getParentIdOfUser/:userId', function (req, res) {
 
 // Update the routine data
 app.post('/updateRoutine/:routineId', function (req, res) {
-
   let routineId = req.params.routineId;
   var postData = req.body;
+
+  console.log("updating routine, routine id is " + routineId + " data is " + postData);
+
 
   // console.log(postData);
   connection.getConnection(function (err, connection) {
@@ -109,6 +111,7 @@ app.post('/updateRoutine/:routineId', function (req, res) {
           throw error;
           console.log(err);
         }
+        console.log("RESULTS ARE " + results);
         res.send(JSON.stringify(results))
       });
   });
@@ -175,21 +178,21 @@ app.post('/incrementChildRoutines/:childID', function (req, res) {
   });
 });
 
-app.post('/updateActivity/:activity_id', function (req, res) {
+app.post('/updateActivity/:activityId', function (req, res) {
 
-  let activity_id = req.params.activity_id;
+  let activityId = req.params.activityId;
   var postData = req.body;
-
   console.log(postData);
   connection.getConnection(function (err, connection) {
     connection.query('UPDATE activities SET ? WHERE activity_id = ?',
-      [postData, activity_id],
+    [postData, activityId],
       function (error, results, fields) {
 
         if (error){
           throw error;
           console.log(err);
         }
+        console.log(results);
         res.send(JSON.stringify(results))
       });
   });
@@ -208,12 +211,14 @@ app.post('/insertRoutine', function (req, res) {
 });
 
 app.post('/insertActivity', function (req, res) {
+  console.log("inserting");
   var postData = req.body;
-  connection.query('INSERT INTO routines SET ?', postData, function (error, results, fields) {
+  connection.query('INSERT INTO activities SET ?', postData, function (error, results, fields) {
     if (error){
       throw error;
       console.log(err);
     }
+    console.log(results);
     res.send(JSON.stringify(results))
   });
 });
@@ -319,8 +324,6 @@ app.get('/getActivities/:userId', function (req, res) {
   connection.getConnection(function (err, connection) {
 
     connection.query('SELECT * FROM activities where user_id =' + userId, function (error, results, fields) {
-        console.log("get activities call");
-        console.log(results);
         if (error){
           throw error;
           console.log(error);
@@ -494,6 +497,24 @@ app.get('/joinRoutineActivityTableByRoutineId/:routineId', function (req, res) {
       });
   });
 });
+
+
+
+app.get('/getAmountOfActivitiesInRoutine/:routineId', function (req, res) {
+  let routineId = req.params.routineId;
+
+  connection.getConnection(function (err, connection) {
+
+    connection.query('SELECT * FROM routines_activities_relationship where routine_id=? AND deleted <> 1 ',[routineId], function (error, results, fields) {
+      if (error) throw error;
+
+      res.send(results);
+    });
+  });
+});
+
+
+
 
 app.get('/getActivitiesWithRewardsPerRoutine/:routineId', function (req, res) {
   let routineId = req.params.routineId;

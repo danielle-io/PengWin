@@ -5,6 +5,7 @@ import {
   ScrollView,
   View,
   Slider,
+  Switch,
   TouchableOpacity,
   TouchableHighlight,
   Text,
@@ -20,9 +21,11 @@ import { Audio } from "expo-av";
 import * as FileSystem from "expo-file-system";
 import * as Permissions from "expo-permissions";
 import { AppLoading } from "expo";
+import uuid from "uuid";
 
 import Environment from "../../../database/sqlEnv";
 import UserInfo from "../../../state/UserInfo";
+import firebase from "../../../database/irDb";
 
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 Icon.loadFont();
@@ -53,7 +56,6 @@ export default class Activity extends Component {
     this.shouldPlayAtEndOfSeek = false;
     this.state = {
       // disabled: false,
-      photos: null,
       video: null,
       prevScreenTitle: this.props.navigation.state.params.prevScreenTitle,
       recordings: [],
@@ -66,10 +68,11 @@ export default class Activity extends Component {
         .activityDescription,
       activityAudioPath: this.props.navigation.state.params.activityAudioPath,
       activityVideoPath: this.props.navigation.state.params.activityVideoPath,
-      activityIsPublic: this.props.navigation.state.params.activityIsPublic,
       rewardId: this.props.navigation.state.params.rewardId,
       allRewardsByIdDictionary: this.props.navigation.state.params
         .allRewardsByIdDictionary,
+      isPublic: this.props.navigation.state.params.isPublic,
+      changedValues: [],
       haveRecordingPermissions: false,
       isLoading: false,
       isPlaybackAllowed: false,
@@ -83,28 +86,30 @@ export default class Activity extends Component {
       shouldCorrectPitch: true,
       volume: 1.0,
       rate: 1.0,
-      isPublic: 0,
     };
     this.recordingSettings = JSON.parse(
       JSON.stringify(Audio.RECORDING_OPTIONS_PRESET_LOW_QUALITY)
     );
   }
 
-  async updateActivity(tag, value) {
+  updateActivity(tag, value) {
     var data = {
       [tag]: value,
     };
     try {
-      let response = await fetch(Environment + "/updateActivity/" + userId, {
-        method: "POST",
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-      });
+      let response = fetch(
+        Environment + "/updateActivity/" + this.state.activityId,
+        {
+          method: "POST",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(data),
+        }
+      );
       if (response.status >= 200 && response.status < 300) {
-        console.log("POSTED");
+        console.log("SUCCESS");
       }
     } catch (errors) {
       alert(errors);
@@ -112,13 +117,13 @@ export default class Activity extends Component {
   }
 
   async createNewActivity() {
+    console.log("creating new activity");
     const parentId = UserInfo.parent_id;
     const childId = UserInfo.child_id;
     const userId = UserInfo.user_id;
-    
-    data = {
+    let data = {
       activity_name: this.state.activityName,
-      tags: this.state.activityTags,
+      tags: this.state.activityTags.join(','),
       image_path: this.state.activityImagePath,
       activity_description: this.state.activityDescription,
       audio_path: this.state.activityAudioPath,
@@ -126,8 +131,9 @@ export default class Activity extends Component {
       reward_id: this.state.rewardId,
       is_public: this.state.isPublic,
       user_id: userId,
+      deleted: 0,
     };
-    let response = await fetch(Environment + "/insertRoutine", {
+    let response = await fetch(Environment + "/insertActivity", {
       method: "POST",
       headers: {
         Accept: "application/json",
@@ -140,36 +146,52 @@ export default class Activity extends Component {
         return responseJson;
       })
       .then((results) => {
-        console.log("worked!!!");
-
-        // Set the new routineId
+        console.log("new insert!!!");
         this.setState({ activityId: results.insertId });
-        this.saveAnyChanges();
       })
       .catch((error) => {
         console.error(error);
       });
   }
 
-  async postPref(tag, value) {
-    var data = {
-      [tag]: value,
-    };
-    try {
-      let response = await fetch(Environment + "/updatePreferences/" + userId, {
-        method: "POST",
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-      });
-      if (response.status >= 200 && response.status < 300) {
-        console.log("POSTED");
+  updateAllChangedAttributes() {
+    if (this.state.activityId === null) {
+      console.log("no activity id !!");
+      this.createNewActivity();
+
+    } else {
+      if (this.state.changedValues) {
+        for (const keyValuePair of this.state.changedValues) {
+          Object.entries(keyValuePair).map(([key, val]) => {
+            this.updateActivity(key, val);
+          });
+        }
       }
-    } catch (errors) {
-      alert(errors);
     }
+  }
+
+  getCurrentSwitchState() {
+    if (this.state.isPublic === 1) {
+      return true;
+    }
+    return false;
+  }
+
+  handleApprovalSwitchChange() {
+    var newSwitchValue = 1;
+    if (this.state.isPublic === 0) {
+      this.setState({ isPublic: 1 });
+    } else {
+      this.setState({ isPublic: 0 });
+      newSwitchValue = 0;
+    }
+    this.pushToUpdateActivityArray("is_public", newSwitchValue);
+  }
+
+  pushToUpdateActivityArray(tag, value) {
+    let tempArray = this.state.changedValues;
+    tempArray.push({ [tag]: value });
+    this.setState({ changedValues: tempArray });
   }
 
   componentDidMount() {
@@ -225,6 +247,55 @@ export default class Activity extends Component {
     }
   };
 
+  _handleImagePicked = async (pickerResult) => {
+    try {
+      this.setState({ uploading: true });
+
+      if (!pickerResult.cancelled) {
+        var uploadUrl = await this.uploadImageAsync(pickerResult.uri);
+        console.log("Upload URL is " + uploadUrl);
+
+        this.setState({ activityImagePath: uploadUrl });
+        this.pushToUpdateActivityArray(
+          "image_path",
+          this.state.activityImagePath
+        );
+      }
+    } catch (e) {
+      console.log(e);
+      alert("Upload failed, sorry :(");
+    } finally {
+      this.setState({ uploading: false });
+    }
+  };
+
+  async uploadImageAsync(uri) {
+    console.log("uploading image");
+    const blob = await new Promise((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+      xhr.onload = function() {
+        resolve(xhr.response);
+      };
+      xhr.onerror = function(e) {
+        console.log(e);
+        reject(new TypeError("Network request failed"));
+      };
+      xhr.responseType = "blob";
+      xhr.open("GET", uri, true);
+      xhr.send(null);
+    });
+
+    const ref = firebase
+      .storage()
+      .ref()
+      .child(uuid.v4());
+    const snapshot = await ref.put(blob);
+
+    blob.close();
+
+    return await snapshot.ref.getDownloadURL();
+  }
+  
   async _stopPlaybackAndBeginRecording() {
     this.setState({
       isLoading: true,
@@ -421,14 +492,28 @@ export default class Activity extends Component {
   //   }, 3000);
   // }
 
-  _handleButtonPress = async () => {
+  imagePicker = async () => {
     let pickerResult = await ImagePicker.launchImageLibraryAsync({
       allowsEditing: true,
       aspect: [4, 3],
     });
-
-    this.setState({ photos: pickerResult });
+    if (pickerResult){
+      console.log("picker result is here " + pickerResult);
+      this._handleImagePicked(pickerResult);
+      // this.setState({ activityImagePath: pickerResult });
+    }
   };
+
+
+  newTagAdded(newTag) { 
+    console.log("tag is " + newTag);     
+    this.setState({ activityTags: newTag.toLowerCase() });
+    if (this.state.activityId){
+      console.log("activity id exists");
+      this.updateActivity("tags", newTag.toLowerCase());
+    }
+    console.log("state is " + this.state.activityTags);
+  }
 
   videoPicker = async () => {
     let vid = await ImagePicker.launchImageLibraryAsync({
@@ -436,19 +521,18 @@ export default class Activity extends Component {
     });
 
     this.setState({ video: vid });
-    console.log("VIDEO");
-    console.log(vid);
+    console.log("VIDEO " + vid);
   };
 
   returnImage = () => {
-    console.log(this.state.photos);
-    if (this.state.photos) {
+    if (this.state.activityImagePath) {
       return (
         <Image
           style={{ width: 300, height: 200, borderRadius: 15 }}
-          source={{ uri: this.state.photos.uri }}
+          source={{ uri: this.state.activityImagePath }}
         />
       );
+      
     } else {
       return <Icon name="camera-enhance" color="#DADADA" size={100} />;
     }
@@ -473,14 +557,6 @@ export default class Activity extends Component {
       return <Icon name="camera-enhance" color="#DADADA" size={100} />;
     }
   };
-
-  // TODO: use this when storing tags
-  storeTagsLowercaseAsString(){
-    var tagString = "";
-    for (var i = 0; i < this.state.activityTags.length; i++){
-      tagString += this.state.activityTags[i].toLowerCase();
-    }
-  }
 
   fieldRef = React.createRef();
 
@@ -516,10 +592,12 @@ export default class Activity extends Component {
             textInputStyle={{ flex: 1 }}
             onFocus={(e) => console.log("Focus", !!e)}
             onBlur={(e) => console.log("Blur", !!e)}
-            onEndEditing={(e) => console.log("EndEditing", !!e)}
-            onSubmitEditing={(e) => console.log("SubmitEditing", !!e)}
-            onTextChange={(s) => console.log("TextChange", s)}
-            onChangeText={(s) => console.log("ChangeText", s)}
+            onEndEditing={(e) => {
+              this.pushToUpdateActivityArray(
+                "activity_name",
+                this.state.activityName
+              );
+            }}
             onChangeText={(text) => this.setState({ activityName: text })}
           />
         </View>
@@ -530,28 +608,30 @@ export default class Activity extends Component {
             Enter some words that match what this activity entails, so that the
             camera can detect if it's been photographed. Make the first word the
             most accurate, since it's what we will display in the instructions.
+            To create a tag, type in the word and use a comma or space to add it
+            to the list.
           </Text>
-          
+
           <Tags
             textInputProps={{
               placeholder: "?TAGS",
             }}
             initialTags={this.state.activityTags}
-            // onChangeTags={(tags) => console.log(tags)}
-            onTagPress={(index, tagLabel, event, deleted) =>
-              console.log(
-                index,
-                tagLabel,
-                event,
-                deleted ? "deleted" : "not deleted"
-              )
-            }
+            // onTagPress={(index, tagLabel, event, deleted) =>
+            //   this.tagWasPressed(
+            //     index,
+            //     tagLabel,
+            //     event,
+            //     deleted ? "deleted" : "not deleted"
+            //   )
+            // }
             containerStyle={{ justifyContent: "center" }}
             inputStyle={{
               backgroundColor: "#FFFCF9",
               borderBottomColor: "#c4c4c4",
               borderBottomWidth: 1,
             }}
+            onChangeTags={(tags) => this.newTagAdded(tags.join(','))}
             renderTag={({
               tag,
               index,
@@ -581,8 +661,10 @@ export default class Activity extends Component {
           <View style={{ margin: 20, alignItems: "center" }}>
             <TouchableOpacity
               style={styles.camerabutton}
-              onPress={this._handleButtonPress}
-            />
+              onPress={this.imagePicker}
+            >
+            {this.returnImage()}
+            </TouchableOpacity>
           </View>
         </View>
 
@@ -598,13 +680,16 @@ export default class Activity extends Component {
               styles.descriptionLines)
             }
             textInputStyle={{ flex: 1 }}
-            onFocus={(e) => console.log("Focus", !!e)}
-            onBlur={(e) => console.log("Blur", !!e)}
-            onEndEditing={(e) => console.log("EndEditing", !!e)}
-            onSubmitEditing={(e) => console.log("SubmitEditing", !!e)}
-            onTextChange={(s) => console.log("TextChange", s)}
-            onChangeText={(s) => console.log("ChangeText", s)}
+            onEndEditing={(e) => {
+              this.pushToUpdateActivityArray(
+                "activity_description",
+                this.state.activityDescription
+              );
+            }}
             multiline={true}
+            onChangeText={(text) =>
+              this.setState({ activityDescription: text })
+            }
           />
         </View>
 
@@ -792,7 +877,7 @@ export default class Activity extends Component {
           >
             <TouchableOpacity
               style={styles.button}
-              onPress={() => this.postPref("gender", 5)}
+              onPress={() => console.log("pressed image button")}
             >
               <Icon name="text" color="#FF6978" size={30} />
               <Text>Description</Text>
@@ -819,6 +904,26 @@ export default class Activity extends Component {
             </TouchableOpacity>
           </View>
         </View>
+
+        <View>
+          <View style={styles.editRoutineIconAndTitle}>
+            <Icon style={styles.routineDetailsIcon} name="check-all" />
+            <Text style={styles.editRoutineSectionName}>Set Public</Text>
+          </View>
+          <View style={styles.editRoutineIconAndTitle}>
+            <Text style={styles.editRoutinesInstructionsText}>
+              Would you like this activity to be added to the public library, so
+              other families can access a copy of it for their own use?
+            </Text>
+            <Switch
+              style={{ padding: 10 }}
+              trackColor={{ false: "#767577", true: "#FF6978" }}
+              value={this.getCurrentSwitchState()}
+              onValueChange={() => this.handleApprovalSwitchChange()}
+            />
+          </View>
+        </View>
+
         <View
           style={{
             flexDirection: "row",
@@ -829,7 +934,7 @@ export default class Activity extends Component {
         >
           <TouchableOpacity
             style={styles.savebutton}
-            onPress={() => this.postActivity("audio_path", "test")}
+            onPress={() => this.updateAllChangedAttributes()}
           >
             <Text style={{ color: "#fff", fontSize: 20 }}>Save</Text>
           </TouchableOpacity>

@@ -501,7 +501,6 @@ export default class EditRoutine extends Component {
         console.log("loadedAfterDeletion is " + this.state.loadedAfterDeletion);
 
         if (!this.state.loadedAfterDeletion) {
-          console.log("Going to display activities");
           this.displayList("activities");
         }
       })
@@ -553,13 +552,6 @@ export default class EditRoutine extends Component {
     }
     this.setState({ [tag]: 1 });
     return 1;
-  }
-
-  getCurrentSwitchState() {
-    if (this.state.requiresApproval === 1) {
-      return true;
-    }
-    return false;
   }
 
   displayList(listName) {
@@ -675,12 +667,28 @@ export default class EditRoutine extends Component {
     this.reRenderList("activity");
   }
 
+  getCurrentSwitchState() {
+    if (this.state.requiresApproval === 1) {
+      return true;
+    }
+    return false;
+  }
+
   handleApprovalSwitchChange() {
-    this.setState({ requiresApproval: !this.state.requiresApproval });
+    console.log("Switch is " + this.state.requiresApproval)
+    var newSwitchValue = 1;
+    if (this.state.requiresApproval === 0){
+      this.setState({ requiresApproval: 1 });
+    }
+    else{
+      this.setState({ requiresApproval: 0 });
+      newSwitchValue = 0;
+    }
     this.pushToUpdateRoutineArray(
       "requires_approval",
-      this.state.requiresApproval
+      newSwitchValue,
     );
+    this.getCurrentSwitchState();
   }
 
   // ReRender the components on the click of the new button
