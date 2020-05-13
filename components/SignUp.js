@@ -1,44 +1,92 @@
 import React, { Component } from 'react';
 import { ScrollView } from "react-native-gesture-handler";
+import * as ImagePicker from "expo-image-picker";
+import { Image } from "react-native";
 import {
   Alert,
   Button,
+  TouchableOpacity,
   View,
   Text,
   heading,
   ImageBackground,
-  Image,
   TextInput,
   Dimensions,
   StyleSheet,
-
 } from 'react-native';
-
-// import {
-//   Header,
-//   LearnMoreLinks,
-//   Colors,
-//   DebugInstructions,
-//   ReloadInstructions,
-// } from 'react-native/Libraries/NewAppScreen';
+import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+Icon.loadFont();
 
 const { width: WIDTH } = Dimensions.get('window')
-
 
 // import Background from '../images/background.png'
 
 export default class SignUp extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      photos: null,
+      activityImagePath: this.props.navigation.state.params.activityImagePath,
+    }
+  }
+  
 
+  _handleButtonPress = async () => {
+    let pickerResult = await ImagePicker.launchImageLibraryAsync({
+      allowsEditing: true,
+      aspect: [4, 3],
+    });
 
+    this.setState({ photos: pickerResult });
+  };
   render() {
+
+  returnImage = () => {
+      console.log(this.state.photos);
+      if (this.state.photos) {
+        return (
+
+
+
+          <Image
+            style={{ width: 300, height: 200, borderRadius: 15 }}
+            source={{ uri: this.state.photos.uri }}
+          />
+        );
+      } else {
+        return <Icon name="camera-enhance" color="#DADADA" size={100} />;
+      }
+    };
+    
+
     return (
      
       <View>
-      
-        <View style={{marginTop: 50}}></View>
+
+         
+
+        <View style={{marginTop: 50, height:20, width:20}}></View>
         <View style={styles.headingContainer}></View>
-        <Text style={styles.headingContainer}>PengWin</Text>
+        
         <View style={{marginBottom: 0}}></View>
+        
+        <View style={(styles.descriptionBox, styles.textFields)}>
+        
+          <View style={{ margin: 20, alignItems: "center" }}>
+            <TouchableOpacity
+              style={styles.camerabutton}
+              onPress={this._handleButtonPress}
+            >
+               
+            
+            </TouchableOpacity>
+            
+            <Text style={styles.headingContainer}>Add Photo
+            </Text>
+   
+          </View>
+        </View>
+     
 
         <View style={styles.logoContainer}>
           {/* <Image source={Logo}
@@ -151,26 +199,30 @@ const styles = StyleSheet.create({
   placeholder: {
     color: 'black'
   },
+  loginContainer: {
+    marginBottom: 80,
+    marginTop: 10,
+  },
+ 
   logo: {
     alignContent: 'center'
   },
   buttonContainer: {
     marginTop: 100,
     fontSize: 200,
+    
   },
   loginButton: {
     marginTop: 20,
     width: 50,
     alignSelf: 'center'
-  },
-  loginContainer: {
-    marginBottom: 90,
-    marginTop: 20,
+  
   },
   headingContainer: {
     textAlign: 'center',
     fontSize: 25,
     fontWeight: 'bold',
+    marginTop: 15
   },
   loginIcons: {
     padding: 12,
@@ -236,7 +288,7 @@ const styles = StyleSheet.create({
     marginTop: 20 ,
     marginBottom: 5,
     borderWidth: 2,
-    borderRadius: 5,
+    borderRadius: 60,
     backgroundColor: 'pink',
     shadowOffset:{  width: 5,  height: 5,  },
     shadowColor: 'black',
@@ -257,5 +309,30 @@ routineTitle: {
     textAlign: 'center',
     color: '#223a7a',
     textDecorationLine: 'underline',
+  },
+  camerabutton: {
+    fontSize: 30,
+    height: 200,
+    width: 200,
+    borderRadius: 100,
+    backgroundColor: "#fff",
+    justifyContent: "center",
+    alignItems: "center",
+    flexDirection: "row",
+    margin: 5,
+    shadowColor: "grey",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.4,
+    shadowRadius: 2,
+  },
+  textFields: {
+    padding: 2,
+    margin: 2,
+    marginLeft: 10,
+  },
+  descriptionBox: {
+    borderColor: "#e8e8e8",
+    borderWidth: 1,
+    borderRadius: 15,
   },
 });

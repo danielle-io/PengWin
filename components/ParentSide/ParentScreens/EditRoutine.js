@@ -22,10 +22,8 @@ import SearchableDropdown from "react-native-searchable-dropdown";
 import Environment from "../../../database/sqlEnv";
 import UserInfo from "../../../state/UserInfo";
 
-
 const { width: WIDTH } = Dimensions.get("window");
 const changedDates = {};
-
 
 Icon.loadFont();
 
@@ -177,7 +175,14 @@ export default class EditRoutine extends Component {
 
   // Update the activity routine db table w/ changes
   async updateActivityRelationship(routine_activity_id, tag, value) {
-    console.log("TAG IS " + tag + " ROUTINE_ACTIVITY_ID IS " + routine_activity_id + " VALUE IS " + value);
+    console.log(
+      "TAG IS " +
+        tag +
+        " ROUTINE_ACTIVITY_ID IS " +
+        routine_activity_id +
+        " VALUE IS " +
+        value
+    );
     var data = {
       [tag]: value,
     };
@@ -242,59 +247,58 @@ export default class EditRoutine extends Component {
     }
   }
 
-  async createNewRoutine() {
-    const parentId = UserInfo.parent_id;
-    const childId = UserInfo.child_id;
-    const userId = UserInfo.user_id
-    data = {
-      routine_name: this.state.routineName,
-      start_time: this.state.startTime,
-      end_time: this.state.endTime,
-      requiresApproval: this.state.requires_approval,
-      user_id: userId,
-      amount_of_activities: Object.keys(this.state.routineActivitiesByOrder).length,
-      amount_of_rewards: this.state.amount_of_rewards,
-      is_active: 1,
-      skip_once: 0,
-      monday: this.state.monday,
-      tuesday: this.state.tuesday,
-      wednesday: this.state.wednesday,
-      thursday: this.state.thursday,
-      friday: this.state.friday,
-      saturday: this.state.saturday,
-      sunday: this.state.sunday,
-      reward_id: this.state.reward_id,
-      parent_id: parentId,
-      child_id: childId,
-      deleted: 0,
-    };
-      let response = await fetch(
-        Environment + "/insertRoutine" ,
-        {
-          method: "POST",
-          headers: {
-            Accept: "application/json",
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(data),
-        }
-      )
-      .then((response) => response.json())
-      .then((responseJson) => {
-        return responseJson;
+  createNewRoutine() {
+    if (this.state.routineName) {
+      const parentId = UserInfo.parent_id;
+      const childId = UserInfo.child_id;
+      const userId = UserInfo.user_id;
+      data = {
+        routine_name: this.state.routineName,
+        start_time: this.state.startTime,
+        end_time: this.state.endTime,
+        requiresApproval: this.state.requires_approval,
+        user_id: userId,
+        amount_of_activities: Object.keys(this.state.routineActivitiesByOrder)
+          .length,
+        amount_of_rewards: this.state.amount_of_rewards,
+        is_active: 1,
+        skip_once: 0,
+        monday: this.state.monday,
+        tuesday: this.state.tuesday,
+        wednesday: this.state.wednesday,
+        thursday: this.state.thursday,
+        friday: this.state.friday,
+        saturday: this.state.saturday,
+        sunday: this.state.sunday,
+        reward_id: this.state.reward_id,
+        parent_id: parentId,
+        child_id: childId,
+        deleted: 0,
+      };
+      let response = fetch(Environment + "/insertRoutine", {
+        method: "POST",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
       })
-      .then((results) => {
-        console.log("worked!!!");
+        .then((response) => response.json())
+        .then((responseJson) => {
+          return responseJson;
+        })
+        .then((results) => {
+          console.log("worked!!!");
 
-        // Set the new routineId
-        this.setState({ routineId: results.insertId });
-        this.saveAnyChanges();
-      })
-      .catch((error) => {
-        console.error(error);
-      });
+          // Set the new routineId
+          this.setState({ routineId: results.insertId });
+          this.saveAnyChanges();
+        })
+        .catch((error) => {
+          console.error(error);
+        });
     }
-
+  }
   // Update the array of columns to change and
   // the values to update them with
   pushToUpdateRoutineArray(tag, value) {
@@ -397,8 +401,14 @@ export default class EditRoutine extends Component {
     // this.setState({ activityChangeLoad: false});
 
     console.log(
-      "RaID, ordr, itmId, list " + routineActivityId + " " + order +
-        " " + itemId + " " + listName
+      "RaID, ordr, itmId, list " +
+        routineActivityId +
+        " " +
+        order +
+        " " +
+        itemId +
+        " " +
+        listName
     );
 
     if (listName === "activity") {
@@ -414,8 +424,8 @@ export default class EditRoutine extends Component {
       this.setState({
         amount_of_rewards: 0,
       });
-      this.setState({ rewardId: 0 })
-      this.setState({ currentlySelectedReward: null});
+      this.setState({ rewardId: 0 });
+      this.setState({ currentlySelectedReward: null });
       this.changeRoutineComponent("reward_id", 0);
     }
   }
@@ -431,7 +441,7 @@ export default class EditRoutine extends Component {
       var arrLength = Object.keys(this.state.routineActivitiesByOrder).length;
       for (var i = order; i < arrLength; i++) {
         var currentActivity = this.state.routineActivitiesByOrder[i];
-        
+
         // console.log("changing the order of " + currentActivity.routine_name);
 
         this.updateActivityRelationship(
@@ -453,14 +463,13 @@ export default class EditRoutine extends Component {
 
   async componentDidMount() {
     await this.props.navigation.addListener("didFocus", (payload) => {
-     // If there is a reward for the routine, store it
-      if (this.routineId !== null){
+      // If there is a reward for the routine, store it
+      if (this.routineId !== null) {
         this.getRoutineReward();
         this.getActivityRoutineJoinTable();
-      }
-      else{
-        this.setState({ activitiesLoaded: true })
-        this.setState({ rewardLoaded: true })
+      } else {
+        this.setState({ activitiesLoaded: true });
+        this.setState({ rewardLoaded: true });
       }
 
       // Put all the reward names in an array since those
@@ -468,7 +477,7 @@ export default class EditRoutine extends Component {
       if (this.allRewardsByIdDictionary) {
         this.getAllRewardNames();
       }
-    });   
+    });
   }
 
   getActivityRoutineJoinTable() {
@@ -490,9 +499,8 @@ export default class EditRoutine extends Component {
         this.removeAlreadyAddedActivitiesFromOptions();
         this.setState({ activityChangeLoad: true });
         console.log("loadedAfterDeletion is " + this.state.loadedAfterDeletion);
-        
+
         if (!this.state.loadedAfterDeletion) {
-          console.log("Going to display activities");
           this.displayList("activities");
         }
       })
@@ -546,13 +554,6 @@ export default class EditRoutine extends Component {
     return 1;
   }
 
-  getCurrentSwitchState() {
-    if (this.state.requiresApproval === 1) {
-      return true;
-    }
-    return false;
-  }
-
   displayList(listName) {
     var itemNumCounter = 0;
     var mappingVal = [];
@@ -574,8 +575,7 @@ export default class EditRoutine extends Component {
       ) {
         mappingVal.push(this.state.routineActivitiesByOrder[i]);
       }
-    }
-    else {
+    } else {
       return;
     }
 
@@ -667,12 +667,28 @@ export default class EditRoutine extends Component {
     this.reRenderList("activity");
   }
 
+  getCurrentSwitchState() {
+    if (this.state.requiresApproval === 1) {
+      return true;
+    }
+    return false;
+  }
+
   handleApprovalSwitchChange() {
-    this.setState({ requiresApproval: !this.state.requiresApproval });
+    console.log("Switch is " + this.state.requiresApproval)
+    var newSwitchValue = 1;
+    if (this.state.requiresApproval === 0){
+      this.setState({ requiresApproval: 1 });
+    }
+    else{
+      this.setState({ requiresApproval: 0 });
+      newSwitchValue = 0;
+    }
     this.pushToUpdateRoutineArray(
       "requires_approval",
-      this.state.requiresApproval
+      newSwitchValue,
     );
+    this.getCurrentSwitchState();
   }
 
   // ReRender the components on the click of the new button
@@ -1006,15 +1022,13 @@ export default class EditRoutine extends Component {
   };
 
   _onSubmit = () => {
-    if (this.state.routineId !== null){
+    if (this.state.routineId !== null) {
       this.saveAnyChanges();
       var alr = "";
-    } 
-    else {
+    } else {
       console.log("new routine");
       this.createNewRoutine();
     }
-  
 
     // if (this.state.routineName === "" || !this.state.routineName) {
     //   alr += "Must have a routine name\n";
@@ -1045,8 +1059,7 @@ export default class EditRoutine extends Component {
     } else {
       console.log("RETURNING NULL");
       console.log(
-        "this.state.activitiesLoaded :: " +
-        this.state.activitiesLoaded
+        "this.state.activitiesLoaded :: " + this.state.activitiesLoaded
       );
       console.log("this.state.rewardLoaded :: " + this.state.rewardLoaded);
 
@@ -1057,7 +1070,6 @@ export default class EditRoutine extends Component {
       <View style={styles.textFields}>
         <ScrollView keyboardShouldPersistTaps="always">
           <View style={styles.editRoutineFormContainer}>
-
             {this.state.activitiesLoaded && this.state.rewardLoaded && (
               <View>
                 <TextField
@@ -1089,7 +1101,7 @@ export default class EditRoutine extends Component {
                 </Text>
 
                 {/* Call the displayActivities function to loop over the returned activities */}
-           
+
                 {/* {this.checkThatListItemsExist("activity")} */}
                 {this.displayList("activity")}
                 {this.addRow(

@@ -52,8 +52,6 @@ export default class RoutineApproval extends Component {
       .then((results) => {
         this.setState({ activities: results });
         this.setState({ activitiesLoaded: true });
-        console.log("ACTIVITEZ");
-
         console.log(results);
       })
       .catch((error) => {
@@ -73,9 +71,10 @@ export default class RoutineApproval extends Component {
 
   getImage(key) {
     console.log("KEY " + key);
-    var imageArray = eval(this.state.currentNotification.image_path_array);
-    console.log("imagearray " + imageArray);
+    var images = this.state.currentNotification.image_path_array;
+    var imageArray = images.split(',');
 
+    console.log("imagearray " + imageArray);
     console.log("at key " + imageArray);
 
     if (key > imageArray.length - 1) {
