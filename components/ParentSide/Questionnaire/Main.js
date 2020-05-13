@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { View, Button, StyleSheet, Text, TouchableOpacity} from 'react-native';
+import { Dimensions,View, Button, StyleSheet, Text, TouchableOpacity} from 'react-native';
 // import MobileStepper from "@bit/mui-org.material-ui.mobile-stepper";
 // import * as Font from "expo-font";
 import StepIndicator from 'react-native-step-indicator';
@@ -12,16 +12,16 @@ import RadioForm, {RadioButton, RadioButtonInput, RadioButtonLabel} from 'react-
 import Question1 from './Question1';
 import Question2 from './Question2';
 
+const { width: WIDTH, height: HEIGHT } = Dimensions.get("window");
+
 export default class Questionnaire extends Component {
     constructor(props) {
         super(props);
-
-        // this.postPreference("gender", 2);
-
         const { navigate } = this.props.navigation;
         this.navigate = navigate;
         this.state = {
             prevScreenTitle: this.props.navigation.state.params.prevScreenTitle}
+            questions: ["abc","efg","def"]
       }
 
     static navigationOptions = ({ navigation }) => ({
@@ -29,31 +29,35 @@ export default class Questionnaire extends Component {
         prevScreenTitle: 'Back'
     });
 
+    _onNext = () => {
+        this.child._animateNextPage();
+      };
     
 
     render () {
         return (
-            <View>
-            <Question1/>
 
-            {/* <TouchableOpacity
-                style= {Question1.state.selected
-                        ? styles.buttonPrimary
-                        : styles.buttonSecondary}
+            <Carousel
+            height={HEIGHT * 0.9}
+            hideIndicators={true}
+            indicatorSize={20}
+            animate={false}
+            onRef={(ref) => (this.child = ref)}
+          >
 
-                // onPress={() => { this.navigation.navigate("Question2"); console.log("valueee", this.state.value); console.log("clickkk")}}
-                >
-                <View>
-                <Text style={Question1.state.selected
-                        ? styles.buttonPrimaryText
-                        : styles.buttonSecondaryText}>Continue</Text>
-                </View>
-                
-            </TouchableOpacity> */}
+          {this.state.questions.map((key) => (
+              <View
+              key={key}>
 
-            <Question2/>
+              <Text>SOME CRAP TO TEST</Text>
 
-            </View>
+              </View>
+          ))
+          }
+
+          </Carousel>
+
+           
             
         )
     }
