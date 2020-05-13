@@ -364,6 +364,7 @@ export default class ParentRoutines extends Component {
       amount_of_rewards: item.amount_of_rewards,
       reward_id: item.reward_id,
       skip_once: 0,
+      is_active: 0,
       deleted: 0,
     };
     let response = fetch(Environment + "/insertRoutine", {
@@ -380,7 +381,7 @@ export default class ParentRoutines extends Component {
       })
       .then((results) => {
         // Set the activities inside the new routine
-        addActivityRelationshipsToDuplicateRoutine(item.insertId);
+        this.addActivityRelationshipsToDuplicateRoutine(item.routine_id, results.insertId);
         this.setState({ routinesLoaded: false });
 
         console.log("duplicate worked");
@@ -396,31 +397,27 @@ export default class ParentRoutines extends Component {
       });
   }
 
-  // addActivityRelationshipsToDuplicateRoutine(routineId){
-  //   this.getActivityRoutineJoinTable(routineId);
-  // }
+  addActivityRelationshipsToDuplicateRoutine(oldId, newId) {
+    console.log("addActivityRelationshipsToDuplicateRoutine  old id is " + oldId);
 
-  addActivityRelationshipsToDuplicateRoutine(routineId) {
-    console.log("addActivityRelationshipsToDuplicateRoutine");
-
-    fetch(Environment + "/joinRoutineActivityTableByRoutineId/" + routineId)
+    fetch(Environment + "/joinRoutineActivityTableByRoutineId/" + oldId)
       .then((response) => response.json())
       .then((responseJson) => {
         return responseJson;
       })
       .then((activities) => {
-        this.copyActivityDataForDuplicates(activities);
+        this.copyActivityDataForDuplicates(activities, newId);
       })
       .catch((error) => {
         console.error(error);
       });
   }
 
-  copyActivityDataForDuplicates(activities) {
-    console.log("copyActivityDataForDuplicates")
+  copyActivityDataForDuplicates(activities, newId) {
+    console.log("copyActivityDataForDuplicates");
     
     activities.map((item) => {
-      this.insertActivityRelationship(item.activity_id, item.order, item.routine_id);
+      this.insertActivityRelationship(item.activity_id, item.order, newId);
     });
   }
 
@@ -449,6 +446,14 @@ export default class ParentRoutines extends Component {
     } catch (errors) {
       console.log(errors);
     }
+  }
+
+  deleteActivity(item){
+
+  }
+
+  deleteRoutine(item){
+
   }
 
   displayLibraryContainer() {
@@ -591,7 +596,7 @@ export default class ParentRoutines extends Component {
                       text="Duplicate"
                     />
                     {/* TODO: set up delete activity method */}
-                    <MenuOption onSelect={() => alert("Delete")}>
+                    <MenuOption onSelect={() => this.deleteActivity(item)}>
                       <Text style={{ color: "red" }}>Delete</Text>
                     </MenuOption>
                   </MenuOptions>
@@ -674,8 +679,8 @@ export default class ParentRoutines extends Component {
                     onSelect={() => alert("Add Tag")}
                     text="Add Tag"
                   />
-                  {/* TODO: set up delete routine method */}
-                  <MenuOption onSelect={() => alert("Delete")}>
+
+                  <MenuOption onSelect={() => this.deleteRoutine(item)}>
                     <Text style={{ color: "red" }}>Delete</Text>
                   </MenuOption>
                 </MenuOptions>
