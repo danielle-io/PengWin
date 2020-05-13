@@ -46,7 +46,7 @@ export default class ParentRoutines extends Component {
     this.state = {
       routinesLoaded: false,
       activitiesLoaded: false,
-      results: null,
+      routines: null,
       allActivities: null,
       index: 0,
       selectedTab: 0,
@@ -55,7 +55,6 @@ export default class ParentRoutines extends Component {
       allRewardsByIdDictionary: null,
       allActivitiesDictionary: null,
     };
-    
   }
 
   _renderScene = ({ route }) => {
@@ -91,9 +90,20 @@ export default class ParentRoutines extends Component {
   // edit routines, which allows it to display any changes made
   async componentDidMount() {
     await this.props.navigation.addListener("didFocus", (payload) => {
+      console.log("reloading items")
+      this.setState({ routinesLoaded: false });
+      this.setState({ activitiesLoaded: false });
       this.getRoutines();
       this.getAllActivitiesForUser();
       this.getAllRewardsForUser();
+      if (this.state.activitiesLoaded){
+        console.log("activities loaded again");
+        this.displayActivities();
+      }
+      if (this.state.routinesLoaded){
+        console.log("routines loaded again");
+        this.displayRoutines();
+      }
     });
   }
 
@@ -107,8 +117,8 @@ export default class ParentRoutines extends Component {
       .then((responseJson) => {
         return responseJson;
       })
-      .then((routines) => {
-        this.setState({ results: routines });
+      .then((routineResults) => {
+        this.setState({ routines: routineResults });
         this.setState({ routinesLoaded: true });
       })
       .catch((error) => {
@@ -116,20 +126,82 @@ export default class ParentRoutines extends Component {
       });
   }
 
-  // TODO: get each activity, sum the reward_id != null
-  getTotalRewardsInRoutine(routineId) {
-    fetch(
-      Environment +
-        "/getActivitiesWithRewardsPerRoutine/" +
-        routineId
-    )
+  checkActivityAmount(routineId, amountOfActivities){
+    console.log("routine id is " + routineId);
+    fetch(Environment + "/getAmountOfActivitiesInRoutine/" + routineId, {
+      headers: {
+        "Cache-Control": "no-cache",
+      },
+    })
       .then((response) => response.json())
       .then((responseJson) => {
         return responseJson;
       })
       .then((activities) => {
-          console.log("RETURNED DATA ");
-          console.log(activities);
+        console.log(activities)
+        if (activities === []){
+          console.log("returning 0");
+          return 0;
+        }
+        console.log("LENGTH IS " + Object.keys(activities).length)
+        if (activities.length !== amountOfActivities){
+          this.updateAmountOfActivities(routineId, activities.length);
+          console.log("returning activities.length " + activities.length);
+          return activities.length;
+        }
+        else{
+          console.log("returning amount of activities " + amountOfActivities);
+          return amountOfActivities;
+        }
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+  }
+
+  // Having issues with this. might move to on login.
+  confirmAmountOfActivities(routineId, amountOfActivities) {
+    return this.checkActivityAmount(routineId, amountOfActivities);
+  }
+
+
+  updateAmountOfActivities(routineId, value) {
+    console.log("updating amount of activities in " + routineId + " to " + value);
+    var data = {
+      amount_of_activities: value,
+    };
+    try {
+      let response = fetch(
+        Environment + "/updateRoutine/" + routineId,
+        {
+          method: "POST",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(data),
+        }
+      );
+      if (response.status >= 200 && response.status < 300) {
+        console.log("SUCCESS: updated amount of activities");
+        return value;
+      }
+    } catch (errors) {
+      console.log(errors);
+    }
+  }
+
+
+  // TODO: get each activity, sum the reward_id != null
+  getTotalRewardsInRoutine(routineId) {
+    fetch(Environment + "/getActivitiesWithRewardsPerRoutine/" + routineId)
+      .then((response) => response.json())
+      .then((responseJson) => {
+        return responseJson;
+      })
+      .then((rewards) => {
+        console.log("RETURNED REWARDS ");
+        console.log("LENGTH IS " + rewards.length);
       })
       .catch((error) => {
         console.error(error);
@@ -146,17 +218,17 @@ export default class ParentRoutines extends Component {
       .then((responseJson) => {
         return responseJson;
       })
-      .then((results) => {
-        this.createRewardDictionary(results);
+      .then((rewardsResults) => {
+        this.createRewardDictionary(rewardsResults);
       })
       .catch((error) => {
         console.error(error);
       });
   }
 
-  createRewardDictionary(results) {
+  createRewardDictionary(rewardsResults) {
     var tempDict = {};
-    results.map((item) => {
+    rewardsResults.map((item) => {
       tempDict[item.reward_id] = item;
     });
 
@@ -174,7 +246,6 @@ export default class ParentRoutines extends Component {
   }
 
   getAllActivitiesForUser() {
-
     fetch(Environment + "/getActivities/" + userId, {
       headers: {
         "Cache-Control": "no-cache",
@@ -184,8 +255,8 @@ export default class ParentRoutines extends Component {
       .then((responseJson) => {
         return responseJson;
       })
-      .then((results) => {
-        this.setState({ allActivities: results });
+      .then((activitiesResults) => {
+        this.setState({ allActivities: activitiesResults });
         this.createActivityDictionary();
       })
       .catch((error) => {
@@ -236,24 +307,24 @@ export default class ParentRoutines extends Component {
     return "Set Active";
   }
 
-  displayLibraryContainer(){
+  displayLibraryContainer() {
     let ripple = { id: "addButton" };
     return (
-    <View style={styles.routineContainer}>
-    <RaisedTextButton
-      style={styles.roundAddButton}
-      title="+"
-      color="#FF6978"
-      onSelect={() =>
-        this.props.navigation.navigate("PublicActivities", {
-          prevScreenTitle: "Routines",
-        })
-      }
-      ripple={ripple}
-    />
+      <View style={styles.routineContainer}>
+        <RaisedTextButton
+          style={styles.roundAddButton}
+          title="+"
+          color="#FF6978"
+          onSelect={() =>
+            this.props.navigation.navigate("PublicActivities", {
+              prevScreenTitle: "Routines",
+            })
+          }
+          ripple={ripple}
+        />
 
-    <Text style={styles.routineTitle}>Add a Public Activity</Text>
-  </View>
+        <Text style={styles.routineTitle}>Add a Public Activity</Text>
+      </View>
     );
   }
 
@@ -261,36 +332,32 @@ export default class ParentRoutines extends Component {
     let ripple = { id: "addButton" };
 
     return (
-        <View style={styles.routineContainer}>
-          <RaisedTextButton
-            style={styles.roundAddButton}
-            title="+"
-            color="#FF6978"
-            onPress={
-              (this._onPress,
-              () =>
+      <View style={styles.routineContainer}>
+        <RaisedTextButton
+          style={styles.roundAddButton}
+          title="+"
+          color="#FF6978"
+          onPress={
+            (this._onPress,
+            () =>
               this.props.navigation.navigate("EditActivity", {
                 prevScreenTitle: "Routines",
                 activityName: null,
                 activityId: null,
-                activityTags: null,
                 activityImagePath: null,
                 activityDescription: null,
                 activityAudioPath: null,
                 activityVideoPath: null,
-                activityIsPublic: null,
                 rewardId: null,
                 activityTags: [],
-                allRewardsByIdDictionary: this.state
-                  .allRewardsByIdDictionary,
-                allActivitiesDictionary: this.state
-                  .allActivitiesDictionary,
-                }))
-              }
-              ripple={ripple}
-            />
-          <Text style={styles.routineTitle}>Create a New Activity</Text>
-        </View>
+                isPublic: 0,
+                allRewardsByIdDictionary: this.state.allRewardsByIdDictionary,
+              }))
+          }
+          ripple={ripple}
+        />
+        <Text style={styles.routineTitle}>Create a New Activity</Text>
+      </View>
     );
   }
 
@@ -306,7 +373,7 @@ export default class ParentRoutines extends Component {
           onPress={
             (this._onPress,
             () =>
-            this.props.navigation.navigate("EditRoutine", {
+              this.props.navigation.navigate("EditRoutine", {
                 prevScreenTitle: "Routines",
                 routineId: null,
                 routineName: null,
@@ -339,38 +406,53 @@ export default class ParentRoutines extends Component {
   displayActivities() {
     let ripple = { id: "addButton" };
 
-
     return this.state.allActivities.map((item) => {
       return (
         <View style={styles.routineContainer}>
           <View style={styles.routineTitleAndMenu}>
             <Text style={styles.routineTitle}> {item.activity_name}</Text>
             <MenuProvider>
-              <Menu style={styles.routineMenuStyling}>
-                <MenuTrigger style={styles.ellipsis} text="..." />
-                <MenuOptions>
-                  <MenuOption
-                    onSelect={() =>
-                      this.props.navigation.navigate("EditActivity", {
-                        prevScreenTitle: "Routines",
-                        activityName: item.activity_name,
-                        activityId: item.activity_id,
-                        activityTags: item.tags.split(','),
-                        activityImagePath: item.image_path,
-                        activityDescription: item.activity_description,
-                        activityAudioPath: item.audio_path,
-                        activityVideoPath: item.video_path,
-                        activityIsPublic: item.is_public,
-                        rewardId: item.reward_id,
-                        allRewardsByIdDictionary: this.state.allRewardsByIdDictionary,
-                      })
-                    }
-                    ripple={ripple}
-                  >
-                    <Text style={{ color: "black" }}>Edit</Text>
-                  </MenuOption>
-                </MenuOptions>
-              </Menu>
+              <View style={styles.routineTitleAndMenu}>
+                <Text style={styles.routineTitle}> {item.routine_name}</Text>
+                <Menu style={styles.routineMenuStyling}>
+                  <MenuTrigger style={styles.ellipsis} text="..." />
+                  <MenuOptions>
+                    <MenuOption
+                      onSelect={() =>
+                        this.props.navigation.navigate("EditActivity", {
+                          prevScreenTitle: "Routines",
+                          activityName: item.activity_name,
+                          activityId: item.activity_id,
+                          activityTags: item.tags.split(","),
+                          activityImagePath: item.image_path,
+                          activityDescription: item.activity_description,
+                          activityAudioPath: item.audio_path,
+                          activityVideoPath: item.video_path,
+                          activityIsPublic: item.is_public,
+                          rewardId: item.reward_id,
+                          allRewardsByIdDictionary: this.state
+                            .allRewardsByIdDictionary,
+                        })
+                      }
+                      ripple={ripple}
+                    >
+                      <Text style={{ color: "black" }}>Edit</Text>
+                    </MenuOption>
+                    <MenuOption
+                      onSelect={() => alert("QuickStart")}
+                      text="Quick Start"
+                    />
+                      <MenuOption
+                      onSelect={() => alert("Duplicate")}
+                      text="Duplicate"
+                    />
+                    {/* TODO: set up delete activity method */}
+                    <MenuOption onSelect={() => alert("Delete")}>
+                      <Text style={{ color: "red" }}>Delete</Text>
+                    </MenuOption>
+                  </MenuOptions>
+                </Menu>
+              </View>
             </MenuProvider>
           </View>
         </View>
@@ -382,7 +464,8 @@ export default class ParentRoutines extends Component {
     var containerName;
 
     // parse out the db objects returned from the routines call
-    return this.state.results.routines.map((item) => {
+    return this.state.routines.routines.map((item) => {
+
       if (item.is_active === 0) {
         containerName = "inactiveRoutineContainer";
       } else {
@@ -440,10 +523,15 @@ export default class ParentRoutines extends Component {
                     onSelect={() => alert("Duplicate")}
                     text="Duplicate"
                   />
-                   <MenuOption
+                  <MenuOption
+                    onSelect={() => alert("QuickStart")}
+                    text="Quick Start"
+                  />
+                  <MenuOption
                     onSelect={() => alert("Add Tag")}
                     text="Add Tag"
                   />
+                  {/* TODO: set up delete routine method */}
                   <MenuOption onSelect={() => alert("Delete")}>
                     <Text style={{ color: "red" }}>Delete</Text>
                   </MenuOption>
@@ -454,7 +542,11 @@ export default class ParentRoutines extends Component {
             <View style={styles.routineDetailsPreview}>
               <Text style={styles.routineDetails}>
                 <Icon name="playlist-check" style={styles.routineDetailsIcon} />{" "}
-                Activities: {item.amount_of_activities}{" "}
+                
+                {/* TODO: move the routines activity amount check somewhere else */}
+                {/* {console.log("ITS " + this.confirmAmountOfActivities(item.routine_id, item.amount_of_activities))} */}
+                {/* Activities:{" "}{this.confirmAmountOfActivities(item.routine_id, item.amount_of_activities)}{" "} */}
+                Activities:{" "}{item.amount_of_activities}{" "}
               </Text>
               <Text style={styles.routineDetails}>
                 <Icon name="gift" style={styles.routineDetailsIcon} /> Rewards:{" "}
@@ -468,11 +560,9 @@ export default class ParentRoutines extends Component {
   }
 
   render() {
-
-    if (this.state.results !== null) {
-      //  console.log(this.state.results);
+    if (this.state.routines !== null) {
     } else {
-      console.log("this.state.results is null :( ");
+      console.log("this.state.routines is null :( ");
     }
 
     let ripple = { id: "addButton" };
