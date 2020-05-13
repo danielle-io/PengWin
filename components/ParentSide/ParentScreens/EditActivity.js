@@ -21,9 +21,11 @@ import { Audio } from "expo-av";
 import * as FileSystem from "expo-file-system";
 import * as Permissions from "expo-permissions";
 import { AppLoading } from "expo";
+import uuid from "uuid";
 
 import Environment from "../../../database/sqlEnv";
 import UserInfo from "../../../state/UserInfo";
+import firebase from "../../../database/irDb";
 
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 Icon.loadFont();
@@ -54,7 +56,6 @@ export default class Activity extends Component {
     this.shouldPlayAtEndOfSeek = false;
     this.state = {
       // disabled: false,
-      photos: null,
       video: null,
       prevScreenTitle: this.props.navigation.state.params.prevScreenTitle,
       recordings: [],
@@ -246,6 +247,55 @@ export default class Activity extends Component {
     }
   };
 
+  _handleImagePicked = async (pickerResult) => {
+    try {
+      this.setState({ uploading: true });
+
+      if (!pickerResult.cancelled) {
+        var uploadUrl = await this.uploadImageAsync(pickerResult.uri);
+        console.log("Upload URL is " + uploadUrl);
+
+        this.setState({ activityImagePath: uploadUrl });
+        this.pushToUpdateActivityArray(
+          "image_path",
+          this.state.activityImagePath
+        );
+      }
+    } catch (e) {
+      console.log(e);
+      alert("Upload failed, sorry :(");
+    } finally {
+      this.setState({ uploading: false });
+    }
+  };
+
+  async uploadImageAsync(uri) {
+    console.log("uploading image");
+    const blob = await new Promise((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+      xhr.onload = function() {
+        resolve(xhr.response);
+      };
+      xhr.onerror = function(e) {
+        console.log(e);
+        reject(new TypeError("Network request failed"));
+      };
+      xhr.responseType = "blob";
+      xhr.open("GET", uri, true);
+      xhr.send(null);
+    });
+
+    const ref = firebase
+      .storage()
+      .ref()
+      .child(uuid.v4());
+    const snapshot = await ref.put(blob);
+
+    blob.close();
+
+    return await snapshot.ref.getDownloadURL();
+  }
+  
   async _stopPlaybackAndBeginRecording() {
     this.setState({
       isLoading: true,
@@ -442,13 +492,16 @@ export default class Activity extends Component {
   //   }, 3000);
   // }
 
-  _handleButtonPress = async () => {
+  imagePicker = async () => {
     let pickerResult = await ImagePicker.launchImageLibraryAsync({
       allowsEditing: true,
       aspect: [4, 3],
     });
-
-    this.setState({ photos: pickerResult });
+    if (pickerResult){
+      console.log("picker result is here " + pickerResult);
+      this._handleImagePicked(pickerResult);
+      // this.setState({ activityImagePath: pickerResult });
+    }
   };
 
 
@@ -468,19 +521,18 @@ export default class Activity extends Component {
     });
 
     this.setState({ video: vid });
-    console.log("VIDEO");
-    console.log(vid);
+    console.log("VIDEO " + vid);
   };
 
   returnImage = () => {
-    console.log(this.state.photos);
-    if (this.state.photos) {
+    if (this.state.activityImagePath) {
       return (
         <Image
           style={{ width: 300, height: 200, borderRadius: 15 }}
-          source={{ uri: this.state.photos.uri }}
+          source={{ uri: this.state.activityImagePath }}
         />
       );
+      
     } else {
       return <Icon name="camera-enhance" color="#DADADA" size={100} />;
     }
@@ -609,8 +661,10 @@ export default class Activity extends Component {
           <View style={{ margin: 20, alignItems: "center" }}>
             <TouchableOpacity
               style={styles.camerabutton}
-              onPress={this._handleButtonPress}
-            />
+              onPress={this.imagePicker}
+            >
+            {this.returnImage()}
+            </TouchableOpacity>
           </View>
         </View>
 
