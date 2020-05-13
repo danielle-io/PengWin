@@ -247,7 +247,7 @@ export default class ParentRewards extends Component {
 
 
                 {/* New Rewards Container */}
-                {/* <View style={styles.routineContainer}>
+                <View style={styles.routineContainer}>
                     <View style={{ flex: 1 }} >
                         <RaisedTextButton style={styles.roundAddButton}
                             title='+'
@@ -279,7 +279,7 @@ export default class ParentRewards extends Component {
                         </Text>
 
                     </View>
-                </View> */}
+                </View>
 
                 {/* <View style={styles.pageFormat}>
                     <Text style={styles.pageDescription}>
