@@ -134,14 +134,14 @@ export default class Question1 extends Component {
                 </View>
                     
                     
-                <View style={styles.buttonContainer}>
+                {/* <View style={styles.buttonContainer}>
 
                 <TouchableOpacity
                 style= {this.state.selected
                         ? styles.buttonPrimary
                         : styles.buttonSecondary}
 
-                // onPress={() => { this.navigation.navigate("Question2"); console.log("valueee", this.state.value); console.log("clickkk")}}
+                onPress={() => { this.navigation.navigate("Question2"); console.log("valueee", this.state.value); console.log("clickkk")}}
                 >
                 <View>
                 <Text style={this.state.selected
@@ -151,7 +151,7 @@ export default class Question1 extends Component {
                 
                 </TouchableOpacity>
                 
-                </View>
+                </View> */}
                 
                     
            </View>

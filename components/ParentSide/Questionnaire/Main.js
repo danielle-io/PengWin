@@ -1,5 +1,11 @@
 import React, { Component } from "react";
-import { Dimensions,View, Button, StyleSheet, Text, TouchableOpacity} from 'react-native';
+import { Dimensions,
+  View, 
+  Button, 
+  StyleSheet, 
+  Text, 
+  TouchableOpacity,
+  ScrollView} from 'react-native';
 // import MobileStepper from "@bit/mui-org.material-ui.mobile-stepper";
 // import * as Font from "expo-font";
 import StepIndicator from 'react-native-step-indicator';
@@ -13,15 +19,53 @@ import Question1 from './Question1';
 import Question2 from './Question2';
 
 const { width: WIDTH, height: HEIGHT } = Dimensions.get("window");
+// var questions = ["abc","efg","def"]
+
+
+var radio_props = [
+    {label: 'Male', value: 0 },
+    {label: 'Female', value: 1 },
+    {label: 'NonBinary', value: 2 },
+    {label: 'Other', value: 3 }
+  ];
 
 export default class Questionnaire extends Component {
     constructor(props) {
         super(props);
         const { navigate } = this.props.navigation;
         this.navigate = navigate;
+        // questions = ["abc","efg","def"]
         this.state = {
-            prevScreenTitle: this.props.navigation.state.params.prevScreenTitle}
-            questions: ["abc","efg","def"]
+            questions: ["1. What is your child's gender?","efg","def"],
+            quesComponents:[Question1,Question2],
+            questionsLoaded: false,
+            prevScreenTitle: this.props.navigation.state.params.prevScreenTitle,
+            selected: false,
+            currentPosition: 0
+        };
+            
+    }
+
+    async postPreference(tag, value){
+        var data = {
+          [tag]: value,
+        };
+        try {
+          let response = await fetch(Environment + "/updatePreferences/1" , {
+            method: "POST",
+            headers: {
+              Accept: "application/json",
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(data),
+          });
+          
+          if (response.status >= 200 && response.status < 300) {
+            console.log("POSTED")
+          }
+        } catch (errors) {
+          alert(errors);
+        }
       }
 
     static navigationOptions = ({ navigation }) => ({
@@ -29,40 +73,149 @@ export default class Questionnaire extends Component {
         prevScreenTitle: 'Back'
     });
 
+    // async componentDidMount() {
+
+    //     this.props.navigation.addListener("didFocus", (payload) => {
+    //         this.getQuestions();
+    //       });
+    //     // this.getQuestions();
+    // }
+
+    getQuestions() {
+        this.setState({questions: ["abc","efg","def"]});
+        this.setState({questionsLoaded: true})
+    }
+
     _onNext = () => {
+        // key = key+1
         this.child._animateNextPage();
       };
     
-
+    
     render () {
-        return (
+        // this.getQuestions();
+        // if (this.state.questionsLoaded=true) {
+            return (
 
-            <Carousel
-            height={HEIGHT * 0.9}
-            hideIndicators={true}
-            indicatorSize={20}
-            animate={false}
-            onRef={(ref) => (this.child = ref)}
-          >
+                // console.log("SAWAAL" + this.state.questions),
+                // console.log("SAWAAL" + this.state.questionsLoaded),
+                console.log("SAWAAL LOAD" + this.state.questions),
 
-          {this.state.questions.map((key) => (
-              <View
-              key={key}>
+                // <View>
+                // <Text>HEllo, why aren't you working?</Text>
+                //         {/* {this.state.questions.map((key)=>(
+                //         <Text key={key} style={styles.pageBodyText}> KYAAA </Text>)
+                //         )}
+                //     )} */}
+                // </View>
+                // {this.state.questions.map(key) => (
+                //     <Text>{key}</Text>
+                // )}
+    
+                // <View>
+                //     <Text>CAN YOU WORK PLEASE</Text>
+                // </View>
+                <ScrollView style={{backgroundColor:"#FFFCF9"}}>
+                <View >
+                    <Text style={styles.pageHeader}>Create your child's profile</Text>
+                </View>
 
-              <Text>SOME CRAP TO TEST</Text>
+                <StepIndicator
+                        customStyles={customStyles}
+                        stepCount= {4}
+                        currentPosition={this.state.currentPosition}
+                        // labels={labels}
+                    />
+                <Carousel
+                height={HEIGHT * 0.9}
+                hideIndicators={true}
+                indicatorSize={20}
+                animate={false}
+                onRef={(ref) => (this.child = ref)}
+              >
 
+              {/* <View>
+                  <Text key={key}>{this.state.questions[1]}</Text>
               </View>
-          ))
-          }
 
-          </Carousel>
+              <View>
+                  <Text>Page 2</Text>
+              </View> */}
+    
+              {this.state.questions.map((item, key) => (
+                  console.log("key " + key),
+                  <View>
+                  {/* <ScrollView> */}
+                  <View
+                  key={key}>
+                  {/* <Question ques={item}/> */}
+                  {/* <Question1/> */}
+                  <Text style={styles.pageBodyText}>{item}</Text>
+                  </View>
+                  {/* </ScrollView> */}
 
-           
-            
-        )
+                  <View style={styles.radioButtons}>
+
+                  <RadioForm 
+                  radio_props={radio_props}
+                  initial={0}
+                  buttonColor={'#352D39'}
+                  labelStyle={{margin: 8, fontSize: 22, color: '#352D39'}}
+                  // labelWrapStyle ={{lineHeight: 5}}
+                  labelColor={'#352D39'}
+                  selectedButtonColor={'#352D39'}
+                  onPress={(choice) => {this.setState({value:choice}); this.state.selected = true; this.postPreference("gender",choice)} }
+                  //it shows the value of previously selected choice. don't know why¯\_(ツ)_/¯
+                  />
+                  </View>
+                  {/* Continue Button */}
+                  <View style={styles.buttonContainer}>
+                    <TouchableOpacity
+                    style= {this.state.selected
+                            ? styles.buttonPrimary
+                            : styles.buttonSecondary}
+
+                    onPress={() => { 
+                        console.log("valueee", this.state.value); 
+                        console.log("clickkk")
+                        key = key + 1;
+                        this._onNext();
+                        console.log("key changed: " + key)
+                        // this.navigation.navigate("Question2"); 
+                        
+                        }}
+                    >
+               
+                    <Text style={this.state.selected
+                            ? styles.buttonPrimaryText
+                            : styles.buttonSecondaryText}>Continue</Text>
+                    
+                    </TouchableOpacity>
+                    </View>
+
+                  </View>
+
+                  
+                  
+                
+
+                
+              ))
+              }
+    
+              </Carousel>
+              </ScrollView>
+    
+               
+                
+            )
+        }
+        
     }
 
-}
+// }
+
+const Question = (props) => <Text>{props.item}</Text>
 
 const pastelRed = '#FF6978';
 const spaceBlack = '#352D39';
