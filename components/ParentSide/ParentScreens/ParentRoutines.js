@@ -592,15 +592,17 @@ export default class ParentRoutines extends Component {
           style={styles.roundAddButton}
           title="+"
           color="#FF6978"
-          onSelect={() =>
-            this.props.navigation.navigate("PublicActivities", {
-              prevScreenTitle: "Routines",
-            })
+          onPress={
+            (this._onPress,
+            () =>
+              this.props.navigation.navigate("PublicActivities", {
+                prevScreenTitle: "Routines",
+              }))
           }
           ripple={ripple}
         />
 
-        <Text style={styles.routineTitle}>Add a Public Activity</Text>
+        <Text style={styles.routineTitle}>Add From Public Activities</Text>
       </View>
     );
   }
@@ -915,7 +917,7 @@ export default class ParentRoutines extends Component {
           >
             <Text style={styles.dialogTitle}>Delete Routine</Text>
             <Text style={styles.dialogSubtext}>
-              Are you sure you would like to delete this {" "}
+              Are you sure you would like to delete this{" "}
               {this.state.typeToDelete}?
             </Text>
             <DialogFooter style={styles.deletionFooter}>

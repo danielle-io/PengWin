@@ -345,12 +345,12 @@ app.get('/getAllRelationshipsForActivity/:activityId', function (req, res) {
   });
 });
 
-app.get('/getAllPublicActivities/:userId', function (req, res) {
+app.get('/getPublicActivities/:userId', function (req, res) {
   let userId = req.params.userId;
 
   connection.getConnection(function (err, connection) {
 
-    connection.query('SELECT * FROM activities where is_public = 1 AND user_id <> ' + userId, function (error, results, fields) {
+    connection.query('SELECT * FROM activities where is_public = 1 AND deleted <> 1 AND user_id <> ' + userId, function (error, results, fields) {
         console.log("get public activities call");
         console.log(results);
         if (error){
