@@ -90,17 +90,17 @@ export default class ParentRoutines extends Component {
   // edit routines, which allows it to display any changes made
   async componentDidMount() {
     await this.props.navigation.addListener("didFocus", (payload) => {
-      console.log("reloading items")
+      console.log("reloading items");
       this.setState({ routinesLoaded: false });
       this.setState({ activitiesLoaded: false });
       this.getRoutines();
       this.getAllActivitiesForUser();
       this.getAllRewardsForUser();
-      if (this.state.activitiesLoaded){
+      if (this.state.activitiesLoaded) {
         console.log("activities loaded again");
         this.displayActivities();
       }
-      if (this.state.routinesLoaded){
+      if (this.state.routinesLoaded) {
         console.log("routines loaded again");
         this.displayRoutines();
       }
@@ -126,7 +126,7 @@ export default class ParentRoutines extends Component {
       });
   }
 
-  checkActivityAmount(routineId, amountOfActivities){
+  checkActivityAmount(routineId, amountOfActivities) {
     console.log("routine id is " + routineId);
     fetch(Environment + "/getAmountOfActivitiesInRoutine/" + routineId, {
       headers: {
@@ -138,18 +138,17 @@ export default class ParentRoutines extends Component {
         return responseJson;
       })
       .then((activities) => {
-        console.log(activities)
-        if (activities === []){
+        console.log(activities);
+        if (activities === []) {
           console.log("returning 0");
           return 0;
         }
-        console.log("LENGTH IS " + Object.keys(activities).length)
-        if (activities.length !== amountOfActivities){
+        console.log("LENGTH IS " + Object.keys(activities).length);
+        if (activities.length !== amountOfActivities) {
           this.updateAmountOfActivities(routineId, activities.length);
           console.log("returning activities.length " + activities.length);
           return activities.length;
-        }
-        else{
+        } else {
           console.log("returning amount of activities " + amountOfActivities);
           return amountOfActivities;
         }
@@ -164,24 +163,22 @@ export default class ParentRoutines extends Component {
     return this.checkActivityAmount(routineId, amountOfActivities);
   }
 
-
   updateAmountOfActivities(routineId, value) {
-    console.log("updating amount of activities in " + routineId + " to " + value);
+    console.log(
+      "updating amount of activities in " + routineId + " to " + value
+    );
     var data = {
       amount_of_activities: value,
     };
     try {
-      let response = fetch(
-        Environment + "/updateRoutine/" + routineId,
-        {
-          method: "POST",
-          headers: {
-            Accept: "application/json",
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(data),
-        }
-      );
+      let response = fetch(Environment + "/updateRoutine/" + routineId, {
+        method: "POST",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
       if (response.status >= 200 && response.status < 300) {
         console.log("SUCCESS: updated amount of activities");
         return value;
@@ -190,7 +187,6 @@ export default class ParentRoutines extends Component {
       console.log(errors);
     }
   }
-
 
   // TODO: get each activity, sum the reward_id != null
   getTotalRewardsInRoutine(routineId) {
@@ -305,6 +301,154 @@ export default class ParentRoutines extends Component {
       return "Set Inactive";
     }
     return "Set Active";
+  }
+
+  duplicateActivity(item) {
+    let data = {
+      user_id: userId,
+      activity_name: item.activity_name,
+      tags: item.tags,
+      image_path: item.image_path,
+      activity_description: item.activity_description,
+      audio_path: item.audio_path,
+      video_path: item.video_path,
+      reward_id: item.reward_id,
+      is_public: item.is_public,
+      deleted: 0,
+    };
+    let response = fetch(Environment + "/insertActivity", {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    })
+      .then((response) => response.json())
+      .then((responseJson) => {
+        return responseJson;
+      })
+      .then((results) => {
+        console.log("new insert!!!");
+        this.setState({ activitiesLoaded: false });
+
+        this.getAllActivitiesForUser();
+
+        if (this.state.activitiesLoaded) {
+          console.log("activities loaded again");
+          this.displayActivities();
+        }
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+  }
+
+  duplicateRoutine(item) {
+    let data = {
+      parent_id: parentId,
+      child_id: childId,
+      user_id: userId,
+      routine_name: item.routine_name + " (copy)",
+      start_time: item.start_time,
+      end_time: item.end_time,
+      requires_approval: item.requires_approval,
+      monday: item.monday,
+      tuesday: item.tuesday,
+      wednesday: item.wednesday,
+      thursday: item.thursday,
+      friday: item.friday,
+      saturday: item.saturday,
+      sunday: item.sunday,
+      amount_of_activities: item.amount_of_activities,
+      amount_of_rewards: item.amount_of_rewards,
+      reward_id: item.reward_id,
+      skip_once: 0,
+      deleted: 0,
+    };
+    let response = fetch(Environment + "/insertRoutine", {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    })
+      .then((response) => response.json())
+      .then((responseJson) => {
+        return responseJson;
+      })
+      .then((results) => {
+        // Set the activities inside the new routine
+        addActivityRelationshipsToDuplicateRoutine(item.insertId);
+        this.setState({ routinesLoaded: false });
+
+        console.log("duplicate worked");
+        this.getRoutines();
+
+        if (this.state.routinesLoaded) {
+          console.log("routines loaded again");
+          this.displayRoutines();
+        }
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+  }
+
+  // addActivityRelationshipsToDuplicateRoutine(routineId){
+  //   this.getActivityRoutineJoinTable(routineId);
+  // }
+
+  addActivityRelationshipsToDuplicateRoutine(routineId) {
+    console.log("addActivityRelationshipsToDuplicateRoutine");
+
+    fetch(Environment + "/joinRoutineActivityTableByRoutineId/" + routineId)
+      .then((response) => response.json())
+      .then((responseJson) => {
+        return responseJson;
+      })
+      .then((activities) => {
+        this.copyActivityDataForDuplicates(activities);
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+  }
+
+  copyActivityDataForDuplicates(activities) {
+    console.log("copyActivityDataForDuplicates")
+    
+    activities.map((item) => {
+      this.insertActivityRelationship(item.activity_id, item.order, item.routine_id);
+    });
+  }
+
+  async insertActivityRelationship(activityId, order, routineId) {
+    console.log("inserting activity relationship")
+    var data = {
+      routine_id: routineId,
+      activity_id: activityId,
+      order: order,
+    };
+    try {
+      let response = await fetch(
+        Environment + "/insertRoutineActivityRelationship/",
+        {
+          method: "POST",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(data),
+        }
+      );
+      if (response.status >= 200 && response.status < 300) {
+        console.log("insertion worked !");
+      }
+    } catch (errors) {
+      console.log(errors);
+    }
   }
 
   displayLibraryContainer() {
@@ -439,11 +583,11 @@ export default class ParentRoutines extends Component {
                       <Text style={{ color: "black" }}>Edit</Text>
                     </MenuOption>
                     <MenuOption
-                      onSelect={() => alert("QuickStart")}
+                      onSelect={() => console.log("quick start")}
                       text="Quick Start"
                     />
-                      <MenuOption
-                      onSelect={() => alert("Duplicate")}
+                    <MenuOption
+                      onSelect={() => this.duplicateActivity(item)}
                       text="Duplicate"
                     />
                     {/* TODO: set up delete activity method */}
@@ -465,7 +609,6 @@ export default class ParentRoutines extends Component {
 
     // parse out the db objects returned from the routines call
     return this.state.routines.routines.map((item) => {
-
       if (item.is_active === 0) {
         containerName = "inactiveRoutineContainer";
       } else {
@@ -520,7 +663,7 @@ export default class ParentRoutines extends Component {
                     text={this.setActiveText(item.is_active, item.routine_id)}
                   />
                   <MenuOption
-                    onSelect={() => alert("Duplicate")}
+                    onSelect={() => this.duplicateRoutine(item)}
                     text="Duplicate"
                   />
                   <MenuOption
@@ -542,11 +685,10 @@ export default class ParentRoutines extends Component {
             <View style={styles.routineDetailsPreview}>
               <Text style={styles.routineDetails}>
                 <Icon name="playlist-check" style={styles.routineDetailsIcon} />{" "}
-                
                 {/* TODO: move the routines activity amount check somewhere else */}
                 {/* {console.log("ITS " + this.confirmAmountOfActivities(item.routine_id, item.amount_of_activities))} */}
                 {/* Activities:{" "}{this.confirmAmountOfActivities(item.routine_id, item.amount_of_activities)}{" "} */}
-                Activities:{" "}{item.amount_of_activities}{" "}
+                Activities: {item.amount_of_activities}{" "}
               </Text>
               <Text style={styles.routineDetails}>
                 <Icon name="gift" style={styles.routineDetailsIcon} /> Rewards:{" "}

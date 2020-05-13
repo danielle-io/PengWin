@@ -196,6 +196,7 @@ export default class Activity extends Component {
 
   componentDidMount() {
     this._askForPermissions();
+    console.log(this.state.activityTags);
   }
 
   _askForPermissions = async () => {
@@ -506,11 +507,12 @@ export default class Activity extends Component {
 
 
   newTagAdded(newTag) { 
+    console.log("newTagAdded");
     console.log("tag is " + newTag);     
-    this.setState({ activityTags: newTag.toLowerCase() });
+    this.setState({ activityTags: newTag.split(',')});
     if (this.state.activityId){
       console.log("activity id exists");
-      this.updateActivity("tags", newTag.toLowerCase());
+      this.updateActivity("tags", newTag.toLowerCase().replace(/\s+/g, ''));
     }
     console.log("state is " + this.state.activityTags);
   }
