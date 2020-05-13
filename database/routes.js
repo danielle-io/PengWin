@@ -106,7 +106,7 @@ app.post('/updateRoutine/:routineId', function (req, res) {
           throw error;
           console.log(err);
         }
-        console.log("RESULTS ARE " + results);
+        console.log("RESULTS ARE " + JSON.stringify(results));
         res.send(JSON.stringify(results))
       });
   });
@@ -296,18 +296,6 @@ app.post('/insertRewards', function (req, res) {
 });
 
 
-// app.get('/user', function (req, res) {
-//   connection.getConnection(function (err, connection) {
-//     connection.query('SELECT * FROM users where user_id =' + userId, function (error, results, fields) {
-//       if (error) throw error;
-
-//       res.ssend(results)
-//     });
-//   });
-// });
-
-
-
 app.get('/getUser/:userId', function (req, res) {
   let userId = req.params.userId;
   connection.getConnection(function (err, connection) {
@@ -334,6 +322,23 @@ app.get('/getActivities/:userId', function (req, res) {
           console.log(error);
         }
 
+      res.send(results)
+    });
+  });
+});
+
+app.get('/getAllRelationshipsForActivity/:activityId', function (req, res) {
+  console.log("looking at relationship")
+  let activityId = req.params.activityId;
+
+  connection.getConnection(function (err, connection) {
+
+    connection.query('SELECT * FROM routine_activity_relationship where activity_id =' + activityId, function (error, results, fields) {
+        if (error){
+          throw error;
+          console.log(error);
+        }
+      console.log(results);
       res.send(results)
     });
   });
@@ -535,7 +540,7 @@ app.get('/getRoutinesByUser/:userId', function (req, res) {
 
   connection.getConnection(function (err, connection) {
 
-    connection.query('SELECT * FROM routines where user_id=? AND routines.routine_id <> 0',[userId], function (error, results, fields) {
+    connection.query('SELECT * FROM routines where user_id=? AND routines.routine_id <> 0 AND routines.deleted <> 1 ',[userId], function (error, results, fields) {
       if (error) throw error;
 
       res.json({ 'routines': results });

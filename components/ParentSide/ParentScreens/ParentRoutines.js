@@ -2,6 +2,7 @@
 // rather than allActivities
 import React, { Component } from "react";
 import {
+  Button,
   Dimensions,
   SafeAreaView,
   StyleSheet,
@@ -19,7 +20,7 @@ import {
   MenuTrigger,
 } from "react-native-popup-menu";
 import MaterialTabs from "react-native-material-tabs";
-import Dialog, { DialogContent } from "react-native-popup-dialog";
+import Dialog, { DialogContent, DialogFooter } from "react-native-popup-dialog";
 import SearchableDropdown from "react-native-searchable-dropdown";
 import { AppLoading } from "expo";
 
@@ -51,9 +52,10 @@ export default class ParentRoutines extends Component {
       index: 0,
       selectedTab: 0,
       routes: [{ key: "1", title: "First" }, { key: "2", title: "Second" }],
-      visible1: true,
+      deleteModalVisible: false,
       allRewardsByIdDictionary: null,
       allActivitiesDictionary: null,
+      typeToDelete: null,
     };
   }
 
@@ -143,7 +145,11 @@ export default class ParentRoutines extends Component {
         }
         console.log("LENGTH IS " + Object.keys(activities).length);
         if (activities.length !== amountOfActivities) {
-          this.updateAmountOfActivities(routineId, activities.length);
+          this.updateRoutine(
+            routineId,
+            "amount_of_activities",
+            activities.length
+          );
           console.log("returning activities.length " + activities.length);
           return activities.length;
         } else {
@@ -161,14 +167,12 @@ export default class ParentRoutines extends Component {
     return this.checkActivityAmount(routineId, amountOfActivities);
   }
 
-  updateAmountOfActivities(routineId, value) {
-    console.log(
-      "updating amount of activities in " + routineId + " to " + value
-    );
+  updateRoutine(routineId, tag, value) {
+    console.log("updating " + tag + " for id " + routineId + " to " + value);
     var data = {
-      amount_of_activities: value,
+      [tag]: value,
     };
-    try {
+     {
       let response = fetch(Environment + "/updateRoutine/" + routineId, {
         method: "POST",
         headers: {
@@ -176,10 +180,60 @@ export default class ParentRoutines extends Component {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(data),
-      });
-      if (response.status >= 200 && response.status < 300) {
+      })
+      .then((response) => response.json())
+      .then((responseJson) => {
+        return responseJson;
+      })
+      .then((routineResults) => {
+
         console.log("SUCCESS: updated amount of activities");
-        return value;
+        this.setState({ routinesLoaded: false });
+
+        console.log("duplicate worked");
+        this.getRoutines();
+
+        if (this.state.routinesLoaded) {
+          console.log("routines loaded again");
+          this.displayRoutines();
+        }
+      })
+      // if (response.status >= 200 && response.status < 300) {
+        
+        // return value;
+      // }
+    // } catch (errors) {
+    //   console.log(errors);
+    }
+  }
+
+  async updateActivityRelationship(routine_activity_id, tag, value) {
+    console.log(
+      "TAG IS " +
+        tag +
+        " ROUTINE_ACTIVITY_ID IS " +
+        routine_activity_id +
+        " VALUE IS " +
+        value
+    );
+    var data = {
+      [tag]: value,
+    };
+    try {
+      let response = await fetch(
+        Environment + "/updateActivityRelationship/" + routine_activity_id,
+        {
+          method: "POST",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(data),
+        }
+      );
+      console.log(response.status);
+      if (response.status >= 200 && response.status < 300) {
+        console.log("status is 200");
       }
     } catch (errors) {
       console.log(errors);
@@ -193,8 +247,7 @@ export default class ParentRoutines extends Component {
       .then((responseJson) => {
         return responseJson;
       })
-      .then((rewards) => {
-      })
+      .then((rewards) => {})
       .catch((error) => {
         console.error(error);
       });
@@ -229,11 +282,13 @@ export default class ParentRoutines extends Component {
 
   createActivityDictionary() {
     var tempDict = {};
-    this.state.allActivities.map((item) => {
-      tempDict[item.activity_id] = item;
-    });
-    this.setState({ allActivitiesDictionary: tempDict });
-    this.setState({ activitiesLoaded: true });
+    if (this.state.allActivities) {
+      this.state.allActivities.map((item) => {
+        tempDict[item.activity_id] = item;
+      });
+      this.setState({ allActivitiesDictionary: tempDict });
+      this.setState({ activitiesLoaded: true });
+    }
   }
 
   getAllActivitiesForUser() {
@@ -376,7 +431,10 @@ export default class ParentRoutines extends Component {
       })
       .then((results) => {
         // Set the activities inside the new routine
-        this.addActivityRelationshipsToDuplicateRoutine(item.routine_id, results.insertId);
+        this.addActivityRelationshipsToDuplicateRoutine(
+          item.routine_id,
+          results.insertId
+        );
         this.setState({ routinesLoaded: false });
 
         console.log("duplicate worked");
@@ -393,7 +451,9 @@ export default class ParentRoutines extends Component {
   }
 
   addActivityRelationshipsToDuplicateRoutine(oldId, newId) {
-    console.log("addActivityRelationshipsToDuplicateRoutine  old id is " + oldId);
+    console.log(
+      "addActivityRelationshipsToDuplicateRoutine  old id is " + oldId
+    );
 
     fetch(Environment + "/joinRoutineActivityTableByRoutineId/" + oldId)
       .then((response) => response.json())
@@ -408,10 +468,44 @@ export default class ParentRoutines extends Component {
       });
   }
 
-  copyActivityDataForDuplicates(activities, newId) {    
+  copyActivityDataForDuplicates(activities, newId) {
     activities.map((item) => {
       this.insertActivityRelationship(item.activity_id, item.order, newId);
     });
+  }
+
+  getActivityRelationshipsForDeletion(activityId) {
+    console.log("getActivityRelationshipsForDeletion id is " + activityId);
+
+    fetch(Environment + "/getAllRelationshipsForActivity/" + activityId)
+      .then((response) => response.json())
+      .then((responseJson) => {
+        return responseJson;
+      })
+      .then((activityRoutineItems) => {
+        console.log();
+        this.removeActivityOrders(activityRoutineItems);
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+  }
+
+  removeActivityOrders(activityRoutineItems) {
+    for (var i = 0; i < activityRoutineItems.length; i++) {
+      this.updateActivityRelationship(
+        activityRoutineItems[i].routine_activity_id,
+        "order",
+        -1
+      );
+      this.updateActivityRelationship(
+        activityRoutineItems[i].routine_activity_id,
+        "deleted",
+        1
+      );
+    }
+    this.setState({ typeToDelete: null });
+    this.setState({ itemToDelete: null });
   }
 
   async insertActivityRelationship(activityId, order, routineId) {
@@ -439,12 +533,29 @@ export default class ParentRoutines extends Component {
     }
   }
 
-  deleteActivity(item){
-
+  itemDeletionModal(item, type) {
+    this.setState({ itemToDelete: item });
+    this.setState({ typeToDelete: type });
+    this.setState({ deleteModalVisible: true });
   }
 
-  deleteRoutine(item){
+  deleteItem() {
+    console.log("deleteItem()");
+    this.setState({ deleteModalVisible: false });
+    if (this.state.typeToDelete === "activity") {
+      this.getActivityRelationshipsForDeletion(
+        this.state.itemToDelete.activity_id
+      );
+    }
+    if (this.state.typeToDelete === "routine") {
+      this.updateRoutine(this.state.itemToDelete.routine_id, "deleted", 1);
+    }
+  }
 
+  cancelDelete() {
+    this.setState({ deleteModalVisible: false });
+    this.setState({ typeToDelete: null });
+    this.setState({ itemToDelete: null });
   }
 
   displayLibraryContainer() {
@@ -491,6 +602,7 @@ export default class ParentRoutines extends Component {
                 rewardId: null,
                 activityTags: [],
                 isPublic: 0,
+                deletingRoutine: null,
                 allRewardsByIdDictionary: this.state.allRewardsByIdDictionary,
               }))
           }
@@ -587,7 +699,9 @@ export default class ParentRoutines extends Component {
                       text="Duplicate"
                     />
                     {/* TODO: set up delete activity method */}
-                    <MenuOption onSelect={() => this.deleteActivity(item)}>
+                    <MenuOption
+                      onSelect={() => this.itemDeletionModal(item, "activity")}
+                    >
                       <Text style={{ color: "red" }}>Delete</Text>
                     </MenuOption>
                   </MenuOptions>
@@ -666,17 +780,53 @@ export default class ParentRoutines extends Component {
                     onSelect={() => alert("QuickStart")}
                     text="Quick Start"
                   />
-                  <MenuOption
+                  {/* <MenuOption
                     onSelect={() => alert("Add Tag")}
                     text="Add Tag"
-                  />
+                  /> */}
 
-                  <MenuOption onSelect={() => this.deleteRoutine(item)}>
+                  <MenuOption
+                    onSelect={() => this.itemDeletionModal(item, "routine")}
+                  >
                     <Text style={{ color: "red" }}>Delete</Text>
                   </MenuOption>
                 </MenuOptions>
               </Menu>
             </View>
+
+            {/* Deletion modal */}
+            <Dialog
+              style={styles.deletionModal}
+              hasOverlay={true}
+              overlayOpacity={0.1}
+              visible={this.state.deleteModalVisible}
+              onTouchOutside={() => {
+                this.cancelDelete();
+              }}
+            >
+              <Text style={styles.dialogTitle}>Delete Routine</Text>
+              <Text style={styles.dialogSubtext}>
+                Are you sure you would like to delete this {this.state.typeToDelete}?
+              </Text>
+              <DialogFooter style={styles.deletionFooter}>
+                <Button
+                  onPress={() => {
+                    this.deleteItem();
+                  }}
+                  title="Yes, Delete it"
+                  color="red"
+                  accessibilityLabel="Yes Button"
+                />
+                <Button
+                  onPress={() => {
+                    this.cancelDelete();
+                  }}
+                  title="No, Cancel"
+                  // color="#841584"
+                  accessibilityLabel="Cancel Button"
+                />
+              </DialogFooter>
+            </Dialog>
 
             <View style={styles.routineDetailsPreview}>
               <Text style={styles.routineDetails}>
@@ -725,12 +875,6 @@ export default class ParentRoutines extends Component {
           />
         </SafeAreaView>
 
-        {/* TESTING CONTAINER
-        {!this.state.routinesLoaded && (
-          <View style={{ marginTop: 100 }}>
-            <Text style={{ marginLeft: 50 }}>:( this.stateroutinesLoaded is not true</Text>
-          </View>
-        )} */}
         <ScrollView>
           {this.state.routinesLoaded && (
             <View>
@@ -766,64 +910,6 @@ export default class ParentRoutines extends Component {
               </ScrollView>
             </View>
           )}
-          <View>
-            <View style={{ marginTop: 100 }} />
-            {/* first dialog - yes/cancel */}
-            {/* <Dialog
-                           visible={this.state.visible1}
-                           onTouchOutside={() => {
-                             this.setState({
-                               visible1: false,
-                             });
-                           }}>
-                           <DialogContent style={styles.dialog}>
-                             <Text style={styles.text}>
-                               Check Off Routine
-                             </Text>
-                             <Text style={styles.subtext}>
-                               Alex has marked his 'Before School' routine complete. 
-                               Would you like to approve the routine to let Alex claim his reward?
-                             </Text>
-                             {/* <Text>This will log you out of the child mode. If you wish to switch from child to parent mode, you will need to enter your 4 digit passcode. Do you wish to continue the switch to parent mode of the app?</Text> */}
-
-            {/* <Button
-                               onPress={() => {
-                                 this.props.navigation.navigate(
-                                   'Task1',
-                                   {
-                                     prevScreenTitle:
-                                       'ParentRoutines',
-                                   },
-                                 );
-                                 this.setState( {visible1: false,},
-                                 );
-                               }}
-                               title="Review Tasks"
-                               color="#841584"
-                               accessibilityLabel="Yes Button"
-                             />
-                             <Button
-                               onPress={() => {
-                                 Alert.alert('Task Approved!');
-                               }}
-                               title="Approve Task"
-                               
-                               color="#841584"
-                               accessibilityLabel="Cancel Button"
-                             />
-                             <Button
-                               onPress={() => {
-                                 this.setState({
-                                   visible1: false,
-                                 });
-                               }}
-                               title="Cancel"
-                               color="#841584"
-                               accessibilityLabel="Cancel Button"
-                             />
-                           </DialogContent>
-                         </Dialog> */}
-          </View>
         </ScrollView>
       </View>
     );
@@ -835,22 +921,43 @@ const styles = StyleSheet.create({
   topContainer: {
     zIndex: 999,
   },
-  text: {
-    marginTop: 7,
-    fontSize: 24,
+  dialogTitle: {
+    marginTop: 14,
+    fontSize: 20,
     textAlign: "center",
     height: 100,
   },
-  subtext: {
-    marginTop: -40,
-    fontSize: 20,
-    textAlign: "center",
+  dialogSubtext: {
+    marginTop: -45,
+    fontSize: 16,
     textAlignVertical: "auto",
     width: 220,
-    marginBottom: 25,
+    marginBottom: 10,
+    marginLeft: 18,
+    marginRight: 18,
   },
-  dialog: {
-    backgroundColor: "#e1d8ff",
+  deletionModal: {
+    margin: 12,
+    backgroundColor: "#f7f7f7",
+    padding: 28,
+    width: "80%",
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 1,
+      height: 2,
+    },
+    shadowOpacity: 0.65,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+  deletionFooter: {
+    fontSize: 16,
+    marginBottom: 10,
+    marginTop: 14,
+    paddingTop: 8,
+    marginLeft: 10, 
+    marginRight: 10,
   },
   routineTitleAndMenu: {
     flexDirection: "row",
