@@ -97,11 +97,9 @@ export default class ParentRoutines extends Component {
       this.getAllActivitiesForUser();
       this.getAllRewardsForUser();
       if (this.state.activitiesLoaded) {
-        console.log("activities loaded again");
         this.displayActivities();
       }
       if (this.state.routinesLoaded) {
-        console.log("routines loaded again");
         this.displayRoutines();
       }
     });
@@ -196,8 +194,6 @@ export default class ParentRoutines extends Component {
         return responseJson;
       })
       .then((rewards) => {
-        console.log("RETURNED REWARDS ");
-        console.log("LENGTH IS " + rewards.length);
       })
       .catch((error) => {
         console.error(error);
@@ -229,7 +225,6 @@ export default class ParentRoutines extends Component {
     });
 
     this.setState({ allRewardsByIdDictionary: tempDict });
-    console.log(this.state.allRewardsByIdDictionary);
   }
 
   createActivityDictionary() {
@@ -306,7 +301,7 @@ export default class ParentRoutines extends Component {
   duplicateActivity(item) {
     let data = {
       user_id: userId,
-      activity_name: item.activity_name,
+      activity_name: item.activity_name + " (copy)",
       tags: item.tags,
       image_path: item.image_path,
       activity_description: item.activity_description,
@@ -413,16 +408,13 @@ export default class ParentRoutines extends Component {
       });
   }
 
-  copyActivityDataForDuplicates(activities, newId) {
-    console.log("copyActivityDataForDuplicates");
-    
+  copyActivityDataForDuplicates(activities, newId) {    
     activities.map((item) => {
       this.insertActivityRelationship(item.activity_id, item.order, newId);
     });
   }
 
   async insertActivityRelationship(activityId, order, routineId) {
-    console.log("inserting activity relationship")
     var data = {
       routine_id: routineId,
       activity_id: activityId,
@@ -441,7 +433,6 @@ export default class ParentRoutines extends Component {
         }
       );
       if (response.status >= 200 && response.status < 300) {
-        console.log("insertion worked !");
       }
     } catch (errors) {
       console.log(errors);
