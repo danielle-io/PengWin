@@ -56,6 +56,7 @@ export default class ParentRoutines extends Component {
       allRewardsByIdDictionary: null,
       allActivitiesDictionary: null,
       typeToDelete: null,
+      itemToDelete: null,
     };
   }
 
@@ -172,7 +173,7 @@ export default class ParentRoutines extends Component {
     var data = {
       [tag]: value,
     };
-     {
+    {
       let response = fetch(Environment + "/updateRoutine/" + routineId, {
         method: "POST",
         headers: {
@@ -181,29 +182,28 @@ export default class ParentRoutines extends Component {
         },
         body: JSON.stringify(data),
       })
-      .then((response) => response.json())
-      .then((responseJson) => {
-        return responseJson;
-      })
-      .then((routineResults) => {
+        .then((response) => response.json())
+        .then((responseJson) => {
+          return responseJson;
+        })
+        .then((routineResults) => {
+          console.log("SUCCESS: updated amount of activities");
+          this.setState({ routinesLoaded: false });
 
-        console.log("SUCCESS: updated amount of activities");
-        this.setState({ routinesLoaded: false });
+          console.log("duplicate worked");
+          this.getRoutines();
 
-        console.log("duplicate worked");
-        this.getRoutines();
-
-        if (this.state.routinesLoaded) {
-          console.log("routines loaded again");
-          this.displayRoutines();
-        }
-      })
+          if (this.state.routinesLoaded) {
+            console.log("routines loaded again");
+            this.displayRoutines();
+          }
+        });
       // if (response.status >= 200 && response.status < 300) {
-        
-        // return value;
+
+      // return value;
       // }
-    // } catch (errors) {
-    //   console.log(errors);
+      // } catch (errors) {
+      //   console.log(errors);
     }
   }
 
@@ -269,6 +269,31 @@ export default class ParentRoutines extends Component {
       .catch((error) => {
         console.error(error);
       });
+  }
+
+  updateActivity(tag, value, activityId) {
+    var data = {
+      [tag]: value,
+    };
+    let response = fetch(Environment + "/updateActivity/" + activityId, {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    }).then((results) => {
+      console.log("SUCCESS: updated amount of activities");
+      this.setState({ activitiesLoaded: false });
+
+      console.log("delete worked");
+      this.getAllActivitiesForUser();
+
+      if (this.state.activitiesLoaded) {
+        console.log("routines loaded again");
+        this.displayActivities();
+      }
+    });
   }
 
   createRewardDictionary(rewardsResults) {
@@ -504,6 +529,7 @@ export default class ParentRoutines extends Component {
         1
       );
     }
+    this.updateActivity("deleted", 1, this.state.itemToDelete.activity_id);
     this.setState({ typeToDelete: null });
     this.setState({ itemToDelete: null });
   }
@@ -794,40 +820,6 @@ export default class ParentRoutines extends Component {
               </Menu>
             </View>
 
-            {/* Deletion modal */}
-            <Dialog
-              style={styles.deletionModal}
-              hasOverlay={true}
-              overlayOpacity={0.1}
-              visible={this.state.deleteModalVisible}
-              onTouchOutside={() => {
-                this.cancelDelete();
-              }}
-            >
-              <Text style={styles.dialogTitle}>Delete Routine</Text>
-              <Text style={styles.dialogSubtext}>
-                Are you sure you would like to delete this {this.state.typeToDelete}?
-              </Text>
-              <DialogFooter style={styles.deletionFooter}>
-                <Button
-                  onPress={() => {
-                    this.deleteItem();
-                  }}
-                  title="Yes, Delete it"
-                  color="red"
-                  accessibilityLabel="Yes Button"
-                />
-                <Button
-                  onPress={() => {
-                    this.cancelDelete();
-                  }}
-                  title="No, Cancel"
-                  // color="#841584"
-                  accessibilityLabel="Cancel Button"
-                />
-              </DialogFooter>
-            </Dialog>
-
             <View style={styles.routineDetailsPreview}>
               <Text style={styles.routineDetails}>
                 <Icon name="playlist-check" style={styles.routineDetailsIcon} />{" "}
@@ -910,6 +902,41 @@ export default class ParentRoutines extends Component {
               </ScrollView>
             </View>
           )}
+
+          {/* Deletion modal */}
+          <Dialog
+            style={styles.deletionModal}
+            hasOverlay={true}
+            overlayOpacity={0.1}
+            visible={this.state.deleteModalVisible}
+            onTouchOutside={() => {
+              this.cancelDelete();
+            }}
+          >
+            <Text style={styles.dialogTitle}>Delete Routine</Text>
+            <Text style={styles.dialogSubtext}>
+              Are you sure you would like to delete this {" "}
+              {this.state.typeToDelete}?
+            </Text>
+            <DialogFooter style={styles.deletionFooter}>
+              <Button
+                onPress={() => {
+                  this.deleteItem();
+                }}
+                title="Yes, Delete it"
+                color="red"
+                accessibilityLabel="Yes Button"
+              />
+              <Button
+                onPress={() => {
+                  this.cancelDelete();
+                }}
+                title="No, Cancel"
+                // color="#841584"
+                accessibilityLabel="Cancel Button"
+              />
+            </DialogFooter>
+          </Dialog>
         </ScrollView>
       </View>
     );
@@ -956,7 +983,7 @@ const styles = StyleSheet.create({
     marginBottom: 6,
     marginTop: 12,
     paddingTop: 4,
-    marginLeft: 10, 
+    marginLeft: 10,
     marginRight: 10,
   },
   routineTitleAndMenu: {

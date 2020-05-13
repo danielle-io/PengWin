@@ -316,7 +316,7 @@ app.get('/getActivities/:userId', function (req, res) {
 
   connection.getConnection(function (err, connection) {
 
-    connection.query('SELECT * FROM activities where user_id =' + userId, function (error, results, fields) {
+    connection.query('SELECT * FROM activities where deleted <> 1 AND user_id =' + userId, function (error, results, fields) {
         if (error){
           throw error;
           console.log(error);
@@ -328,18 +328,19 @@ app.get('/getActivities/:userId', function (req, res) {
 });
 
 app.get('/getAllRelationshipsForActivity/:activityId', function (req, res) {
-  console.log("looking at relationship")
   let activityId = req.params.activityId;
+  console.log("looking at relationship activity id is " + activityId)
+
 
   connection.getConnection(function (err, connection) {
 
-    connection.query('SELECT * FROM routine_activity_relationship where activity_id =' + activityId, function (error, results, fields) {
+    connection.query('SELECT * FROM routines_activities_relationship where activity_id =' + activityId, function (error, results, fields) {
         if (error){
           throw error;
           console.log(error);
         }
-      console.log(results);
-      res.send(results)
+      console.log(JSON.stringify(results))
+      res.send(JSON.stringify(results));
     });
   });
 });
