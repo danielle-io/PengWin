@@ -200,7 +200,10 @@ export default class ChildRewards extends Component {
                     prevScreenTitle: "Login",
                     title: item.routine_name,
                     amt: item.amount_of_activities,
-                    reward: item.reward_name
+                    reward: item.reward_name,
+                    routineId: item.routine_id,
+                    rewardId: item.reward_id,
+                    requiresApproval: item.requires_approval
                   })
                 }
               >

@@ -29,9 +29,9 @@ export default class ChildMap extends Component {
       title: this.props.navigation.state.params.title,
       amt: this.props.navigation.state.params.amt,
       reward: this.props.navigation.state.params.reward,
+      routineId: this.props.navigation.state.params.routineId,
     };
   }
- 
 
   static navigationOptions = ({ navigation }) => ({
     title: "My Rewards",
@@ -49,7 +49,7 @@ export default class ChildMap extends Component {
               width: 100,
               height: 100,
               bottom: 500 + HEIGHT * 0.6 * (i / this.state.amt),
-              right: WIDTH * 0.3 + (i*20),
+              right: WIDTH * 0.3 + i * 20,
               resizeMode: "contain",
             }}
           />
@@ -63,7 +63,7 @@ export default class ChildMap extends Component {
               width: 100,
               height: 100,
               bottom: 500 + HEIGHT * 0.6 * (i / this.state.amt),
-              right: WIDTH * 0.6  - (i*20),
+              right: WIDTH * 0.6 - i * 20,
               resizeMode: "contain",
             }}
           />
@@ -75,6 +75,7 @@ export default class ChildMap extends Component {
   }
 
   render() {
+    console.log(this.state.routineId);
     return (
       <View style={{ backgroundColor: "#2ca3ca", height: HEIGHT }}>
         <View
@@ -110,12 +111,11 @@ export default class ChildMap extends Component {
             style={{
               top: -200,
               marginTop: 100,
-              width: WIDTH ,
-              height: HEIGHT ,
-              resizeMode: "contain",
+              width: WIDTH,
+              height: HEIGHT,
+              resizeMode: "cover",
               zIndex: -10,
-              position:'relative'
-              
+              position: "relative",
             }}
           />
 
@@ -149,7 +149,7 @@ export default class ChildMap extends Component {
                 this.props.navigation.navigate("ChildActivity", {
                   prevScreenTitle: "My Map",
                   currentRoutine: this.state.title,
-                  userID: userId,
+                  routineId: this.state.routineId,
                 })
               }
             >

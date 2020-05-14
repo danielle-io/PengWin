@@ -1,16 +1,8 @@
 import React, { Component } from "react";
-import {
-  Dimensions,
-  Text,
-  View,
-  Vibration,
-  Platform,
-  Button,
-} from "react-native";
+import { Dimensions, Text, View, Vibration } from "react-native";
 import { ScrollView, PinchGestureHandler } from "react-native-gesture-handler";
 const { width: WIDTH } = Dimensions.get("window");
 
-// import {Notifications} from 'react-native-notifications';
 import { Notifications } from "expo";
 
 import * as Permissions from "expo-permissions";
@@ -42,9 +34,7 @@ export default class ChildRoutines extends Component {
     this.navigate = navigate;
 
     this.notif = false;
-    this.getChild();
-  
-  }  
+  }
 
   // Get the routines data from the db
   getRoutines() {
@@ -64,37 +54,33 @@ export default class ChildRoutines extends Component {
       .then((results) => {
         this.setState({ routines: results });
         this.setState({ loaded: true });
-        console.log(this.state.routines)
+
+        this.setNotifs();
       })
       .catch((error) => {
         console.error(error);
       });
   }
 
-  getChild() {
-    const parentId = UserInfo.parent_id;
-    const childId = UserInfo.child_id;
-    const userId = UserInfo.user_id;
-
-    fetch(Environment + "/getChildFromParent/" + parentId, {
-      headers: {
-        "Cache-Control": "no-cache",
-      },
-    })
-      .then((response) => response.json())
-      .then((responseJson) => {
-        return responseJson;
-      })
-      .then((results) => { 
-        results.map(item => {
-          this.setState({ child: item });
-        });
-
-        console.log(this.state.child.first_name)
-      })
-      .catch((error) => {
-        console.error(error);
+  updateRoutine(tag, value, routineId) {
+    var data = {
+      [tag]: value,
+    };
+    try {
+      let response = fetch(Environment + "/updateRoutine/" + routineId, {
+        method: "POST",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
       });
+      if (response.status >= 200 && response.status < 300) {
+        console.log("SUCCESS");
+      }
+    } catch (errors) {
+      alert(errors);
+    }
   }
 
   componentDidMount() {
@@ -102,7 +88,6 @@ export default class ChildRoutines extends Component {
 
     this.props.navigation.addListener("didFocus", (payload) => {
       this.getRoutines();
-      this.getChild();
     });
 
     this._notificationSubscription = Notifications.addListener(
@@ -126,8 +111,7 @@ export default class ChildRoutines extends Component {
         alert("Failed to get push token for push notification!");
         return;
       }
-      token = await Notifications.getExpoPushTokenAsync();
-      console.log(token);
+      token = await Notifications.getExpoPushTokenAsync(); //store tokens if needed
       this.setState({ expoPushToken: token });
     } else {
       alert("Must use physical device for Push Notifications");
@@ -136,60 +120,102 @@ export default class ChildRoutines extends Component {
 
   _handleNotification = (notification) => {
     Vibration.vibrate();
-    console.log(notification);
     this.setState({ notification: notification });
 
-    if (notification.origin === "received") {
-      // after receive push notification code
-    } else if (notification.origin === "selected") {
-      // after click code
+    if (notification.origin === "selected") {
+      this.updateRoutine("push_set", 0, notification.data.routine.routine_id);
       this.props.navigation.navigate("ChildNotifScreen", {
-        prevScreenTitle: "My Routines"
-      })
+        prevScreenTitle: "My Routines",
+        routineId: notification.data.routine.routine_id,
+        routineTime: notification.data.routine.start_time,
+        routineName: notification.data.routine.routine_name,
+        activities: notification.data.routine.amount_of_activities,
+        rewards: notification.data.routine.amount_of_rewards,
+      });
     }
   };
 
-  message() {
-    return message = {
-      to: this.state.expoPushToken,
-      sound: "default",
-      title: this.state.child.first_name,
-      body: "And here is the body!",
-      data: { data: "goes here" },
-      _displayInForeground: true,
-    };
-  }
   // Can use this function below, OR use Expo's Push Notification Tool-> https://expo.io/dashboard/notifications
-  sendPushNotification = async () => {
-   
-    const message = {
-      to: this.state.expoPushToken,
-      sound: "default",
-      title: "Hello",
-      body: "It's time to start your routine!",
-      data: { data: "goes here" },
-      _displayInForeground: true,
-    };
-    const response = await fetch("https://exp.host/--/api/v2/push/send", {
-      method: "POST",
-      headers: {
-        Accept: "application/json",
-        "Accept-encoding": "gzip, deflate",
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(message),
-    });
+  sendPushNotification = async (item) => {
+    try {
+      await Notifications.scheduleLocalNotificationAsync(
+        {
+          to: this.state.expoPushToken,
+          sound: "default",
+          title: "Hello",
+          body: "It's time to start your routine!",
+          data: { routine: item },
+          _displayInForeground: true,
+        },
+        {
+          time: new Date(Date.now() + 3000),
+        }
+      );
+      this.updateRoutine("push_set", 1, item.routine_id);
+    } catch (e) {
+      alert(e);
+    }
   };
+
+  setDays(daytoset, date) {
+    var currentDay = date.getDay();
+    var distance = (daytoset + 7 - currentDay) % 7;
+    date.setDate(date.getDate() + distance);
+    return date;
+  }
+
+  setNotifs() {
+    this.state.routines.routines.map((item) => {
+      if (item.routine_id === 3) {
+        let time = item.start_time.split(":");
+        let date = new Date();
+        date.setHours(time[0]);
+        date.setMinutes(time[1]);
+        
+        if (item.sunday === 1)
+        { 
+          let newDate = this.setDays(0, date);
+          console.log(newDate);
+        }
+        if (item.monday === 1){ 
+          let newDate =this.setDays(1, date);
+          console.log(newDate);
+        }
+        if (item.tuesday === 1){ 
+          let newDate =this.setDays(2, date);
+          console.log(newDate);
+        }
+        if (item.wednesday === 1) { 
+          let newDate =this.setDays(3, date);
+          console.log(newDate);
+        }
+        if (item.thursday === 1) { 
+          let newDate =this.setDays(4, date);
+          console.log(newDate);
+        }
+        if (item.friday === 1) { 
+          let newDate =this.setDays(5, date);
+          console.log(newDate);
+        }
+        if (item.saturday === 1) { 
+          let newDate =this.setDays(6, date);
+          console.log(newDate);
+        }
+
+
+        // this.sendPushNotification(item);
+      }
+    });
+  }
 
   renderRoutines() {
     return this.state.routines.routines.map((item) => {
-      // console.log(item);
       if (item.is_active == 1) {
         return (
           <View
             style={({ flex: 1 }, styles.routines)}
             onStartShouldSetResponder={() =>
-              this.props.navigation.navigate("ChildStartActivity", {
+              this.props.navigation.navigate("ChildActivity", {
                 prevScreenTitle: "My Routines",
                 currentRoutine: item.routine_name,
                 routineId: item.routine_id,
@@ -222,7 +248,6 @@ export default class ChildRoutines extends Component {
   render() {
     return (
       <View>
-        <Button title = {"HELLO"}onPress={() => this.sendPushNotification()}/>
         {this.state.loaded && (
           <View
             style={{
@@ -252,18 +277,20 @@ const styles = {
     marginLeft: 10,
   },
   routines: {
-    paddingLeft: 3,
-    textAlignVertical: "center",
     width: WIDTH * 0.3,
-    height: 120,
-    margin: 10,
-    borderWidth: 3,
-    borderRadius: 15,
-    backgroundColor: "white",
+    height: 150,
+    marginTop: 20,
+    marginBottom: 5,
+    borderRadius: 10,
+    backgroundColor: "#FFFFFF",
     shadowOffset: { width: 5, height: 5 },
     shadowColor: "black",
     shadowOpacity: 0.1,
     borderWidth: 0,
+    paddingTop: 10,
+    overflow: "visible",
+    marginLeft: 10,
+    marginRight: 10,
   },
   routineTitle: {
     paddingLeft: 5,
