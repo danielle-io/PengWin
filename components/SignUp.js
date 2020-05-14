@@ -78,7 +78,7 @@ export default class SignUp extends Component {
               onPress={this._handleButtonPress}
             >
                
-            
+            {this.returnImage}
             </TouchableOpacity>
             
             <Text style={styles.headingContainer}>Add Photo

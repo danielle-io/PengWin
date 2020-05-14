@@ -532,7 +532,7 @@ export default class Activity extends Component {
               style={styles.camerabutton}
               onPress={this._handleButtonPress}
             >
-            
+            {this.returnImage}
             </TouchableOpacity>
           </View>
         </View>
