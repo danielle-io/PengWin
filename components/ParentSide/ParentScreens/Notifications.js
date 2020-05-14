@@ -90,7 +90,7 @@ export default class Notifications extends Component {
       .then((results) => {
         this.setState({ childResults: results });
         this.setState({ childLoaded: true });
-        this.setState({ childsName: results[0].first_name });
+        //this.setState({ childsName: results[0].first_name });
       })
       .catch((error) => {
         console.error(error);
