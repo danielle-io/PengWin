@@ -12,6 +12,7 @@ import {
 } from "react-native";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import { RaisedTextButton } from "react-native-material-buttons";
+import { TextField } from "react-native-material-textfield";
 import {
   MenuProvider,
   Menu,
@@ -20,8 +21,8 @@ import {
   MenuTrigger,
 } from "react-native-popup-menu";
 import MaterialTabs from "react-native-material-tabs";
+import {Dropdown} from "react-native-material-dropdown";
 import Dialog, { DialogContent, DialogFooter } from "react-native-popup-dialog";
-import SearchableDropdown from "react-native-searchable-dropdown";
 import { AppLoading } from "expo";
 
 import Environment from "../../../database/sqlEnv";
@@ -108,6 +109,7 @@ export default class ParentRoutines extends Component {
     });
   }
 
+  
   getRoutines() {
     fetch(Environment + "/getRoutinesByUser/" + userId, {
       headers: {
@@ -823,17 +825,22 @@ export default class ParentRoutines extends Component {
             </View>
 
             <View style={styles.routineDetailsPreview}>
-              <Text style={styles.routineDetails}>
-                <Icon name="playlist-check" style={styles.routineDetailsIcon} />{" "}
-                {/* TODO: move the routines activity amount check somewhere else */}
-                {/* {console.log("ITS " + this.confirmAmountOfActivities(item.routine_id, item.amount_of_activities))} */}
-                {/* Activities:{" "}{this.confirmAmountOfActivities(item.routine_id, item.amount_of_activities)}{" "} */}
-                Activities: {item.amount_of_activities}{" "}
-              </Text>
-              <Text style={styles.routineDetails}>
-                <Icon name="gift" style={styles.routineDetailsIcon} /> Rewards:{" "}
-                {item.amount_of_rewards}{" "}
-              </Text>
+              <View style={{ float: "left" }}>
+                <Text style={styles.routineDetails}>
+                  <Icon
+                    name="playlist-check"
+                    style={styles.routineDetailsIcon}
+                  />{" "}
+                  {/* TODO: move the routines activity amount check somewhere else */}
+                  {/* {console.log("ITS " + this.confirmAmountOfActivities(item.routine_id, item.amount_of_activities))} */}
+                  {/* Activities:{" "}{this.confirmAmountOfActivities(item.routine_id, item.amount_of_activities)}{" "} */}
+                  Activities: {item.amount_of_activities}{" "}
+                </Text>
+                <Text style={styles.routineDetails}>
+                  <Icon name="gift" style={styles.routineDetailsIcon} />{" "}
+                  Rewards: {item.amount_of_rewards}{" "}
+                </Text>
+              </View>
             </View>
           </MenuProvider>
         </View>
@@ -869,20 +876,20 @@ export default class ParentRoutines extends Component {
           />
         </SafeAreaView>
 
-        <ScrollView>
-          {this.state.routinesLoaded && (
+        <ScrollView keyboardShouldPersistTaps="always">
+          {this.tabIsRoutines() && this.state.routinesLoaded && (
             <View>
-              {this.tabIsRoutines() && (
-                <View
-                  style={{
-                    flexDirection: "row",
-                    flexWrap: "wrap",
-                  }}
-                >
-                  {this.displayRoutines()}
-                  {this.displayNewRoutineContainer()}
-                </View>
-              )}
+              <View
+                style={{
+                  flexDirection: "row",
+                  flexWrap: "wrap",
+                  marginLeft: 8,
+                  marginRight: 8,
+                }}
+              >
+                {this.displayRoutines()}
+                {this.displayNewRoutineContainer()}
+              </View>
             </View>
           )}
 
@@ -947,6 +954,39 @@ export default class ParentRoutines extends Component {
 
 const styles = StyleSheet.create({
   // RoutinesPage
+  tagNameContainer: {
+    padding: 0,
+    marginTop: 0,
+    // margin:0,
+    width: "100%",
+    borderColor: "grey",
+    borderStyle: "solid",
+    borderWidth: 1,
+  },
+  colorSelectionContainer: {
+    // padding: 1,
+    marginTop: 0,
+    width: "100%",
+    borderColor: "grey",
+    borderStyle: "solid",
+    borderWidth: 1,
+    // margin: 0,
+  },
+  tagsContainer: {
+    marginTop: 10,
+    marginLeft: 8,
+    marginRight: 10,
+    flexDirection: "row",
+    justifyContent: "space-evenly",
+  },
+  dropDownItem: {
+    padding: 5,
+    marginTop: 2,
+    backgroundColor: "#ddd",
+    borderColor: "#bbb",
+    borderWidth: 1,
+    borderRadius: 5,
+  },
   topContainer: {
     zIndex: 999,
   },
@@ -955,6 +995,20 @@ const styles = StyleSheet.create({
     fontSize: 20,
     textAlign: "center",
     height: 100,
+  },
+  savebutton: {
+    fontSize: 30,
+    minWidth: 150,
+    minHeight: 40,
+    borderRadius: 20,
+    backgroundColor: "#FF6978",
+    borderColor: "#fff",
+    borderWidth: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    flexDirection: "row",
+    margin: 5,
+    padding: 2,
   },
   dialogSubtext: {
     marginTop: -45,
@@ -1020,15 +1074,23 @@ const styles = StyleSheet.create({
     zIndex: 2,
   },
   routineDetailsPreview: {
+    flexDirection: "row",
     zIndex: 2,
     marginBottom: 10,
     marginLeft: 5,
+  },
+  tagContainer: {
+    flexDirection: "row",
+    zIndex: 999,
+    justifyContent: "flex-end",
   },
   routineContainer: {
     width: WIDTH * 0.3,
     height: 150,
     marginTop: 20,
     marginBottom: 5,
+    marginLeft: 10,
+    marginRight: 10,
     borderRadius: 10,
     backgroundColor: "#FFFFFF",
     shadowOffset: { width: 5, height: 5 },
@@ -1037,8 +1099,6 @@ const styles = StyleSheet.create({
     borderWidth: 0,
     paddingTop: 10,
     overflow: "visible",
-    marginLeft: 10,
-    marginRight: 10,
   },
   inactiveRoutineContainer: {
     width: WIDTH * 0.3,
