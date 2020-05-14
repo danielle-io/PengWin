@@ -61,6 +61,20 @@ export default class TestingHomePage extends Component {
                 <Text style={styles.linkText}>Parent Navigation Page</Text>
               </TouchableOpacity>
 
+
+              <TouchableOpacity
+                style={styles.parentContainer}
+                onPress={() =>
+                  this.navigate("PublicActivities", {
+                    prevScreenTitle: "ParentNavigation",
+                    initialRouteName: "PublicActivities",
+                  })
+                }
+              >
+                <Text style={styles.linkText}>Public Activities</Text>
+              </TouchableOpacity>
+
+
               <TouchableOpacity
                 style={styles.parentContainer}
                 onPress={() =>
@@ -70,7 +84,8 @@ export default class TestingHomePage extends Component {
                   })
                 }
               >
-                <Text style={styles.linkText}>Notifications</Text>
+              
+              <Text style={styles.linkText}>Notifications</Text>
               </TouchableOpacity>
 
               <TouchableOpacity
@@ -118,9 +133,7 @@ export default class TestingHomePage extends Component {
               </TouchableOpacity>
             </View>
 
-            {/* <View style={{ flex: 1, justifyContent: 'center', flexDirection: 'row', flexWrap: 'wrap' }}> */}
-            {/* <Text style={styles.testingh2}>CHILD SCREENS</Text> */}
-            {/* </View> */}
+
 
             <View
               style={{

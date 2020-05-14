@@ -1,29 +1,33 @@
 import React, { Component } from "react";
 import {
+  Button,
   Dimensions,
   StyleSheet,
   ScrollView,
   View,
   Slider,
+  Switch,
   TouchableOpacity,
   TouchableHighlight,
   Text,
 } from "react-native";
+import { RaisedTextButton } from "react-native-material-buttons";
 import { Video } from "expo-av";
 import { TextField } from "react-native-material-textfield";
 import { Image } from "react-native";
 import Tags from "react-native-tags";
 import { Player } from "@react-native-community/audio-toolkit";
-import Dialog, { DialogContent } from "react-native-popup-dialog";
+import Dialog, { DialogContent, DialogFooter } from "react-native-popup-dialog";
 import * as ImagePicker from "expo-image-picker";
 import { Audio } from "expo-av";
 import * as FileSystem from "expo-file-system";
 import * as Permissions from "expo-permissions";
 import { AppLoading } from "expo";
+import uuid from "uuid";
 
 import Environment from "../../../database/sqlEnv";
 import UserInfo from "../../../state/UserInfo";
-
+import firebase from "../../../database/irDb";
 
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 Icon.loadFont();
@@ -36,9 +40,9 @@ const pincode = UserInfo.pincode;
 
 const { width: WIDTH } = Dimensions.get("window");
 
-export default class ViewPublicActivity extends Component {
+export default class ViewPublicActiviy extends Component {
   static navigationOptions = ({ navigation }) => ({
-    title: "Add an Activity", //`${navigation.state.params.currentRoutine}`,
+    title: "View Activity", //`${navigation.state.params.currentRoutine}`,
     prevScreenTitle: "Activities",
     headerTitleStyle: { textAlign: "center", alignSelf: "center" },
     headerStyle: {
@@ -53,8 +57,6 @@ export default class ViewPublicActivity extends Component {
     this.isSeeking = false;
     this.shouldPlayAtEndOfSeek = false;
     this.state = {
-      // disabled: false,
-      photos: null,
       video: null,
       prevScreenTitle: this.props.navigation.state.params.prevScreenTitle,
       recordings: [],
@@ -63,10 +65,12 @@ export default class ViewPublicActivity extends Component {
       activityId: this.props.navigation.state.params.activityId,
       activityTags: this.props.navigation.state.params.activityTags,
       activityImagePath: this.props.navigation.state.params.activityImagePath,
-      activityDescription: this.props.navigation.state.params.activityDescription,
+      activityDescription: this.props.navigation.state.params
+        .activityDescription,
       activityAudioPath: this.props.navigation.state.params.activityAudioPath,
       activityVideoPath: this.props.navigation.state.params.activityVideoPath,
-      activityIsPublic: this.props.navigation.state.params.activityIsPublic,
+      copyModalVisible: false,
+      copyButtonDisabled: false,
       haveRecordingPermissions: false,
       isLoading: false,
       isPlaybackAllowed: false,
@@ -80,108 +84,58 @@ export default class ViewPublicActivity extends Component {
       shouldCorrectPitch: true,
       volume: 1.0,
       rate: 1.0,
-      isPublic: 0,
     };
     this.recordingSettings = JSON.parse(
       JSON.stringify(Audio.RECORDING_OPTIONS_PRESET_LOW_QUALITY)
     );
   }
 
-  async updateActivity(tag, value){
-    var data = {
-      [tag]: value,
-    };
-    try {
-      let response = await fetch(Environment + "/updateActivity/" + userId , {
-        method: "POST",
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-      });
-      if (response.status >= 200 && response.status < 300) {
-        console.log("POSTED")
-      }
-    } catch (errors) {
-      alert(errors);
-    }
-  }
+  copyActivity() {
+    console.log("userId " + userId);
+    console.log("activity name " + this.state.activityName);
+    console.log("activity tags " + this.state.activityTags);
+    console.log("activity desc " + this.state.activityDescription);
+    console.log("activity image " + this.state.activityImagePath);
+    console.log("activity video " + this.state.activityVideoPath);
+    console.log("activity audio " + this.state.activityAudioPath);
 
-  async createNewActivity() {
-    const parentId = UserInfo.parent_id;
-    const childId = UserInfo.child_id;
-    const userId = UserInfo.user_id
-    data = {
-      activity_name: this.state.activityName,
+    let data = {
+      user_id: userId,
+      activity_name: this.state.activityName + " (Private Copy)",
       tags: this.state.activityTags,
       image_path: this.state.activityImagePath,
       activity_description: this.state.activityDescription,
       audio_path: this.state.activityAudioPath,
       video_path: this.state.activityVideoPath,
-    //   reward_id: this.state.rewardId,
-      is_public: this.state.isPublic,
-      user_id: userId,
-      
+      is_public: 0,
+      deleted: 0,
+      reward_id: null,
     };
-      let response = await fetch(
-        Environment + "/insertRoutine" ,
-        {
-          method: "POST",
-          headers: {
-            Accept: "application/json",
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(data),
-        }
-      )
+    let response = fetch(Environment + "/insertActivity", {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    })
       .then((response) => response.json())
       .then((responseJson) => {
         return responseJson;
       })
       .then((results) => {
-        console.log("worked!!!");
-
-        // Set the new routineId
-        this.setState({ routineId: results.insertId });
-        this.saveAnyChanges();
-      })
+        this.setState({copyButtonDisabled: true})
+        this.setState({
+          copyModalVisible: true
+        }
+        )})
+        
       .catch((error) => {
         console.error(error);
       });
-    }
-
-  async postPref(tag, value){
-    var data = {
-      [tag]: value,
-    };
-    try {
-      let response = await fetch(Environment + "/updatePreferences/" + userId , {
-        method: "POST",
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-      });
-      if (response.status >= 200 && response.status < 300) {
-        console.log("POSTED")
-      }
-    } catch (errors) {
-      alert(errors);
-    }
   }
 
-  componentDidMount() {
-    this._askForPermissions();
-  }
-
-  _askForPermissions = async () => {
-    const response = await Permissions.askAsync(Permissions.AUDIO_RECORDING);
-    this.setState({
-      haveRecordingPermissions: response.status === "granted",
-    });
-  };
+  componentDidMount() {}
 
   _updateScreenForSoundStatus = (status) => {
     if (status.isLoaded) {
@@ -225,6 +179,29 @@ export default class ViewPublicActivity extends Component {
     }
   };
 
+  _handleImagePicked = async (pickerResult) => {
+    try {
+      this.setState({ uploading: true });
+
+      if (!pickerResult.cancelled) {
+        var uploadUrl = await this.uploadImageAsync(pickerResult.uri);
+        console.log("Upload URL is " + uploadUrl);
+
+        this.setState({ activityImagePath: uploadUrl });
+        this.pushToUpdateActivityArray(
+          "image_path",
+          this.state.activityImagePath
+        );
+      }
+    } catch (e) {
+      console.log(e);
+      alert("Upload failed, sorry :(");
+    } finally {
+      this.setState({ uploading: false });
+    }
+  };
+
+
   async _stopPlaybackAndBeginRecording() {
     this.setState({
       isLoading: true,
@@ -253,9 +230,9 @@ export default class ViewPublicActivity extends Component {
     recording.setOnRecordingStatusUpdate(this._updateScreenForRecordingStatus);
 
     this.recording = recording;
-    this.setState(state => {
+    this.setState((state) => {
       const recordings = [...state.recordings, recording];
- 
+
       return {
         recordings,
       };
@@ -300,14 +277,6 @@ export default class ViewPublicActivity extends Component {
       isLoading: false,
     });
   }
-
-  _onRecordPressed = () => {
-    if (this.state.isRecording) {
-      this._stopRecordingAndEnablePlayback();
-    } else {
-      this._stopPlaybackAndBeginRecording();
-    }
-  };
 
   _onPlayPausePressed = () => {
     if (this.sound != null) {
@@ -421,14 +390,28 @@ export default class ViewPublicActivity extends Component {
   //   }, 3000);
   // }
 
-  _handleButtonPress = async () => {
+
+
+  imagePicker = async () => {
     let pickerResult = await ImagePicker.launchImageLibraryAsync({
       allowsEditing: true,
       aspect: [4, 3],
     });
-
-    this.setState({ photos: pickerResult });
+    if (pickerResult) {
+      console.log("picker result is here " + pickerResult);
+      this._handleImagePicked(pickerResult);
+    }
   };
+
+  closeModal(){
+    console.log("close");
+    this.setState({
+      copyModalVisible: false,
+    })
+    this.props.navigation.navigate("PublicActivities");
+
+  }
+
 
   videoPicker = async () => {
     let vid = await ImagePicker.launchImageLibraryAsync({
@@ -436,17 +419,15 @@ export default class ViewPublicActivity extends Component {
     });
 
     this.setState({ video: vid });
-    console.log("VIDEO");
-    console.log(vid);
+    console.log("VIDEO " + vid);
   };
 
   returnImage = () => {
-    console.log(this.state.photos);
-    if (this.state.photos) {
+    if (this.state.activityImagePath) {
       return (
         <Image
           style={{ width: 300, height: 200, borderRadius: 15 }}
-          source={{ uri: this.state.photos.uri }}
+          source={{ uri: this.state.activityImagePath }}
         />
       );
     } else {
@@ -455,7 +436,6 @@ export default class ViewPublicActivity extends Component {
   };
 
   returnVideo = () => {
-    console.log(this.state.video);
     if (this.state.video) {
       return (
         <Video
@@ -496,46 +476,27 @@ export default class ViewPublicActivity extends Component {
   };
 
   render() {
-    const { navigate } = this.props.navigation;
+    let ripple = { id: "addButton" };
+
+  
     return (
       <ScrollView style={{ backgroundColor: "#FFFCF9", padding: 20 }}>
         <View style={styles.textFields}>
-          <Text style={styles.titles}>What is this activity called?</Text>
+          <Text style={styles.titles}>Activity Title</Text>
 
-          <TextField
-            placeholder="(e.g. Wear Shoes)"
-            value={this.state.activityName}
-            style={(styles.textfieldWithFloatingLabel, styles.textFields)}
-            textInputStyle={{ flex: 1 }}
-            onFocus={(e) => console.log("Focus", !!e)}
-            onBlur={(e) => console.log("Blur", !!e)}
-            onEndEditing={(e) => console.log("EndEditing", !!e)}
-            onSubmitEditing={(e) => console.log("SubmitEditing", !!e)}
-            onTextChange={(s) => console.log("TextChange", s)}
-            onChangeText={(s) => console.log("ChangeText", s)}
-            onChangeText={(text) => this.setState({ activityName: text })}
-          />
+          <Text style={styles.viewOnlyTextFields}>
+            {this.state.activityName}
+          </Text>
         </View>
 
         <View style={(styles.descriptionBox, styles.textFields)}>
           <Text style={styles.titles}>Tags</Text>
-          <Text style={styles.description}>
-            Enter some words that match what this activity entails, so that the camera can detect if it's been photographed. Make the first word the most accurate, since it's what we will display in the instructions.
-          </Text>
           <Tags
             textInputProps={{
               placeholder: "?TAGS",
             }}
-            initialTags={this.state.activityTags}
-            onChangeTags={(tags) => console.log(tags)}
-            onTagPress={(index, tagLabel, event, deleted) =>
-              console.log(
-                index,
-                tagLabel,
-                event,
-                deleted ? "deleted" : "not deleted"
-              )
-            }
+            readonly={true}
+            initialTags={this.state.activityTags.split(",")}
             containerStyle={{ justifyContent: "center" }}
             inputStyle={{
               backgroundColor: "#FFFCF9",
@@ -554,255 +515,210 @@ export default class ViewPublicActivity extends Component {
                 <TouchableOpacity
                   style={{ paddingLeft: 19 }}
                   key={`${tag}-${index}`}
-                  onPress={onPress}
-                >
-                  <Text style={styles.text}>X</Text>
-                </TouchableOpacity>
+                />
               </View>
             )}
           />
         </View>
 
-        <View style={(styles.descriptionBox, styles.textFields)}>
-          <Text style={styles.titles}>Activity Image</Text>
-          <Text style={styles.description}>
-            Upload an image your child can scan to show activity completion.
-          </Text>
-          <View style={{ margin: 20, alignItems: "center" }}>
-            <TouchableOpacity
-              style={styles.camerabutton}
-              onPress={this._handleButtonPress}
-            >
-            
-            </TouchableOpacity>
-          </View>
-        </View>
-
-        <View style={(styles.descriptionBox, styles.textFields)}>
-          <Text style={styles.titles}>Description</Text>
-          <TextField
-            placeholder="Explain steps that would help your child complete the activity."
-            value={this.state.activityDescription}
-            // labelOffset={10}
-            style={
-              (styles.textfieldWithFloatingLabel,
-              styles.textFields,
-              styles.descriptionLines)
-            }
-            textInputStyle={{ flex: 1 }}
-            onFocus={(e) => console.log("Focus", !!e)}
-            onBlur={(e) => console.log("Blur", !!e)}
-            onEndEditing={(e) => console.log("EndEditing", !!e)}
-            onSubmitEditing={(e) => console.log("SubmitEditing", !!e)}
-            onTextChange={(s) => console.log("TextChange", s)}
-            onChangeText={(s) => console.log("ChangeText", s)}
-            multiline={true}
-          />
-        </View>
-
-        <View style={(styles.descriptionBox, styles.textFields)}>
-          <Text style={styles.titles}>Audio</Text>
-          <Text style={styles.description}>
-            Is your child an auditory learner? They might like to hear you
-            explain the activity to them.
-          </Text>
-
-          <View
-            style={{
-              flexDirection: "row",
-              justifyContent: "center",
-              margin: 15,
-            }}
-          >
- 
-
-            <View>
-              {/* Record button */}
-              <TouchableOpacity
-                // disabled={this.state.isLoading}
-                // disabled={this.state.disabled}
-                style={
-                  this.state.isRecording ? styles.disabledbutton : styles.button
-                }
-                onPress={() => this._onRecordPressed()}
-              >
-                <Icon
-                  name="microphone"
-                  color={this.state.isRecording ? "#c4c4c4" : "#FF6978"}
-                  size={30}
-                  style={{ marginRight: 10 }}
-                />
-                <Text>Record</Text>
-              </TouchableOpacity>
-
-              <Text>{this.state.isRecording ? "LIVE" : ""}</Text>
-              <View>
-                <Text>{this._getRecordingTimestamp()}</Text>
+        <View>
+          {this.state.activityImagePath && (
+            <View style={(styles.descriptionBox, styles.textFields)}>
+              <Text style={styles.titles}>Activity Image</Text>
+              <Text style={styles.description} />
+              <View style={{ margin: 20, alignItems: "center" }}>
+                <TouchableOpacity
+                  style={styles.camerabutton}
+                  onPress={this.imagePicker}
+                >
+                  {this.returnImage()}
+                </TouchableOpacity>
               </View>
             </View>
+          )}
+        </View>
 
-        
+        <View>
+          {this.state.activityDescription && (
+            <View style={(styles.descriptionBox, styles.textFields)}>
+              <Text style={styles.titles}>Description</Text>
+              <Text style={styles.viewOnlyTextFields}>
+                {this.state.activityDescription}{" "}
+              </Text>
+            </View>
+          )}
+        </View>
 
-            <View>
-              <TouchableOpacity
-                onPress={this._onPlayPausePressed}
-                // disabled={!this.state.isPlaybackAllowed || this.state.isLoading}
-                style={this.state.disabled ? styles.disabledbutton : styles.button}
+        <View>
+          {this.state.activityAudioPath && (
+            <View style={(styles.descriptionBox, styles.textFields)}>
+              <Text style={styles.titles}>Audio</Text>
+              <View
+                style={{
+                  flexDirection: "row",
+                  justifyContent: "center",
+                  margin: 15,
+                }}
               >
-                <Text>Play</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-
-          <View>
-              <Slider
-                style={styles.playbackSlider}
-                value={this._getSeekSliderPosition()}
-                onValueChange={this._onSeekSliderValueChange}
-                onSlidingComplete={this._onSeekSliderSlidingComplete}
-                disabled={!this.state.isPlaybackAllowed || this.state.isLoading}
-              />
-              <Text>{this._getPlaybackTimestamp()}</Text>
-            </View>
-
-
-                       {/* <TouchableOpacity
-              disabled={this.state.disabled}
-              style={
-                this.state.disabled ? styles.disabledbutton : styles.button
-              }
-              onPress={() => this._onRecordPressed()}
-            >
-              <Icon
-                name="microphone"
-                color={this.state.disabled ? "#c4c4c4" : "#FF6978"}
-                size={30}
-                style={{ marginRight: 10 }}
-              />
-              <Text>Record</Text>
-            </TouchableOpacity> */}
-
-            <TouchableOpacity
-              style={styles.button}
-              onPress={() => {
-                this.setState({ visible: true });
-              }}
-            >
-              <Icon name="upload" color="#FF6978" size={30} />
-              <Text>Choose from recordings</Text>
-            </TouchableOpacity>
-
-          <Dialog
-            visible={this.state.visible}
-            onTouchOutside={() => {
-              this.setState({ visible: false });
-            }}
-          >
-            <DialogContent style={{ backgroundColor: "#FFFCF9", padding: 20 }}>
-              <View>
-                <View style={{ margin: 10 }}>
-                  <Text
-                    style={{
-                      color: "#FF6978",
-                      fontSize: 30,
-                      alignContent: "center",
-                    }}
+                <View>
+                  {/* Record button */}
+                  <TouchableOpacity
+                    // disabled={this.state.isLoading}
+                    // disabled={this.state.disabled}
+                    style={
+                      this.state.isRecording
+                        ? styles.disabledbutton
+                        : styles.button
+                    }
+                    onPress={() => this._onRecordPressed()}
                   >
-                    Previous Recordings
-                  </Text>
+                    <Icon
+                      name="microphone"
+                      color={this.state.isRecording ? "#c4c4c4" : "#FF6978"}
+                      size={30}
+                      style={{ marginRight: 10 }}
+                    />
+                  </TouchableOpacity>
+
+                  <Text>{this.state.isRecording ? "LIVE" : ""}</Text>
+                  <View>
+                    <Text>{this._getRecordingTimestamp()}</Text>
+                  </View>
                 </View>
-                {this.noRecs()}
 
-                {this.state.recordings.map((item) => {
-                  console.log(item);
-                  return (
-                    <TouchableOpacity
-                    
-                onPress={  this._playFromStart}
-                      style={{
-                        flexDirection: "row",
-                        justifyContent: "center",
-                        alignItems: "center",
-                        margin: 20,
-                        width: 250,
-                        borderRadius: 15,
-                        height: 50,
-                        backgroundColor: "#fff",
-                        shadowColor: "grey",
-                        shadowOffset: { width: 0, height: 1 },
-                        shadowOpacity: 0.4,
-                        shadowRadius: 2,
-                      }}
-                    >
-                      <Icon
-                        name="music"
-                        color="#FF6978"
-                        size={30}
-                        style={{ paddingRight: 30 }}
-                      />
-                      <Text style={{ fontSize: 20, color: "black" }}>
-                        {item._uri}
-                      </Text>
-                      <Text>{item._duration}</Text>
-                    </TouchableOpacity>
-                  );
-                })}
+                <View>
+                  <TouchableOpacity
+                    onPress={this._onPlayPausePressed}
+                    // disabled={!this.state.isPlaybackAllowed || this.state.isLoading}
+                    style={
+                      this.state.disabled
+                        ? styles.disabledbutton
+                        : styles.button
+                    }
+                  >
+                    <Text>Play</Text>
+                  </TouchableOpacity>
+                </View>
               </View>
-            </DialogContent>
-          </Dialog>
+
+              <View>
+                <Slider
+                  style={styles.playbackSlider}
+                  value={this._getSeekSliderPosition()}
+                  onValueChange={this._onSeekSliderValueChange}
+                  onSlidingComplete={this._onSeekSliderSlidingComplete}
+                  disabled={
+                    !this.state.isPlaybackAllowed || this.state.isLoading
+                  }
+                />
+                <Text>{this._getPlaybackTimestamp()}</Text>
+              </View>
+
+              <Dialog
+                visible={this.state.visible}
+                onTouchOutside={() => {
+                  this.setState({ visible: false });
+                }}
+              >
+                <DialogContent
+                  style={{ backgroundColor: "#FFFCF9", padding: 20 }}
+                >
+                  <View>
+                    <View style={{ margin: 10 }}>
+                      <Text
+                        style={{
+                          color: "#FF6978",
+                          fontSize: 30,
+                          alignContent: "center",
+                        }}
+                      >
+                        Previous Recordings
+                      </Text>
+                    </View>
+                    {this.noRecs()}
+
+                    {this.state.recordings !== [] && (
+                      <View>
+                        {this.state.recordings.map((item) => {
+                          console.log(item);
+                          return (
+                            <TouchableOpacity
+                              onPress={this._playFromStart}
+                              style={{
+                                flexDirection: "row",
+                                justifyContent: "center",
+                                alignItems: "center",
+                                margin: 20,
+                                width: 250,
+                                borderRadius: 15,
+                                height: 50,
+                                backgroundColor: "#fff",
+                                shadowColor: "grey",
+                                shadowOffset: { width: 0, height: 1 },
+                                shadowOpacity: 0.4,
+                                shadowRadius: 2,
+                              }}
+                            >
+                              <Icon
+                                name="music"
+                                color="#FF6978"
+                                size={30}
+                                style={{ paddingRight: 30 }}
+                              />
+                              <Text style={{ fontSize: 20, color: "black" }}>
+                                {item._uri}
+                              </Text>
+                              <Text>{item._duration}</Text>
+                            </TouchableOpacity>
+                          );
+                        })}
+                      </View>
+                    )}
+                  </View>
+                </DialogContent>
+              </Dialog>
+            </View>
+          )}
         </View>
 
-        <View style={(styles.descriptionBox, styles.textFields)}>
-          <Text style={styles.titles}>Video</Text>
-          <Text style={styles.description}>
-            Is your child a visual learner? A video might help your child learn
-            how to do the activity step-by-step.
-          </Text>
-          <View style={{ margin: 20, alignItems: "center" }}>
-            <TouchableOpacity
-              style={styles.camerabutton}
-              onPress={() => this.videoPicker()}
-            >
-              {this.returnVideo()}
-            </TouchableOpacity>
-          </View>
-        </View>
-
-        <View style={(styles.descriptionBox, styles.textFields)}>
-         
-          <View
-            style={{
-              flexDirection: "row",
-              justifyContent: "center",
-              margin: 15,
+         {/* Copy modal */}
+         <Dialog
+            style={styles.copyCreatedModal}
+            hasOverlay={true}
+            overlayOpacity={0.3}
+            visible={this.state.copyModalVisible}
+            onTouchOutside={() => {
+              this.closeModal();
             }}
           >
-            <TouchableOpacity style={styles.button} onPress = { () => this.postPref("gender", 5)}>
-              <Icon name="text" color="#FF6978" size={30} />
-              <Text>Description</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity style={styles.button}>
-              <Icon
-                name="camera"
-                color="#FF6978"
-                size={30}
-                style={{ marginRight: 10 }}
+            <Text style={styles.dialogTitle}>Copy Added</Text>
+            <Text style={styles.dialogSubtext}>
+              A copy of this activity can now be found and edited in your activities library.   
+            </Text>
+            <Button
+              style={styles.copyCreatedFooter}
+                onPress={() => {
+                  this.closeModal();
+                }}
+                title="Continue"
+                accessibilityLabel="Continue Button"
               />
-              <Text>Image</Text>
-            </TouchableOpacity>
+          </Dialog>
 
-            <TouchableOpacity style={styles.button}>
-              <Icon
-                name="video"
-                color="#FF6978"
-                size={30}
-                style={{ marginRight: 10 }}
-              />
-              <Text>Video</Text>
-            </TouchableOpacity>
+        {this.state.activityVideoPath && (
+          <View style={(styles.descriptionBox, styles.textFields)}>
+            <Text style={styles.titles}>Video</Text>
+            <View style={{ margin: 20, alignItems: "center" }}>
+              <TouchableOpacity
+                style={styles.camerabutton}
+                onPress={() => this.videoPicker()}
+              >
+                {this.returnVideo()}
+              </TouchableOpacity>
+            </View>
           </View>
-        </View>
+        )}
+
         <View
           style={{
             flexDirection: "row",
@@ -811,17 +727,63 @@ export default class ViewPublicActivity extends Component {
             marginBottom: 100,
           }}
         >
-          <TouchableOpacity style={styles.savebutton}
-          onPress={() => this.postActivity("audio_path","test")}>
-            <Text style={{ color: "#fff", fontSize: 20 }}>Save</Text>
+          <TouchableOpacity
+            style={  this.state.copyButtonDisabled
+              ? styles.disabledButtonStyle
+              : styles.buttonStyle }
+            onPress={() => this.copyActivity()}
+            ripple={ripple}
+          >
+            <Text style={{ color: "#fff", fontSize: 20, paddingLeft: 10, paddingRight: 10, paddingTop: 6, paddingBottom: 6 }}>
+              Add a Copy To Your Activities
+            </Text>
           </TouchableOpacity>
         </View>
+
       </ScrollView>
     );
   }
 }
 
 const styles = StyleSheet.create({
+  dialogTitle: {
+    marginTop: 14,
+    fontSize: 20,
+    textAlign: "center",
+    height: 100,
+    marginBottom: 12, 
+  },
+  dialogSubtext: {
+    marginTop: -80,
+    fontSize: 16,
+    textAlignVertical: "auto",
+    width: 220,
+    marginBottom: 12,
+    marginLeft: 18,
+    marginRight: 18,
+  },
+  copyCreatedModal: {
+    margin: 18,
+    backgroundColor: "#f7f7f7",
+    padding: 28,
+    width: "80%",
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 1,
+      height: 2,
+    },
+    shadowOpacity: 0.65,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+  copyCreatedFooter: {
+    textAlign: "center",
+    justifyContent: "center",
+    fontSize: 14,
+    paddingBottom: 20,
+    marginTop: 20,
+  },
   addImageButton: {
     color: "grey",
     fontSize: 65,
@@ -840,9 +802,11 @@ const styles = StyleSheet.create({
     marginTop: 50,
     marginLeft: 100,
   },
-  textFields: {
+  viewOnlyTextFields: {
+    fontSize: 18,
     padding: 2,
-    margin: 2,
+    marginTop: 20,
+    marginBottom: 40,
     marginLeft: 10,
   },
   descriptionBox: {
@@ -931,7 +895,7 @@ const styles = StyleSheet.create({
     margin: 5,
     padding: 2,
   },
-  savebutton: {
+  buttonStyle: {
     fontSize: 30,
     minWidth: 150,
     minHeight: 40,
@@ -951,7 +915,7 @@ const styles = StyleSheet.create({
     minHeight: 40,
     borderRadius: 20,
     backgroundColor: "#ffff",
-    borderColor: "#c4c4c4",
+    borderColor: "#fff",
     borderWidth: 1,
     justifyContent: "center",
     alignItems: "center",

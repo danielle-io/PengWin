@@ -256,7 +256,7 @@ export default class EditRoutine extends Component {
         routine_name: this.state.routineName,
         start_time: this.state.startTime,
         end_time: this.state.endTime,
-        requiresApproval: this.state.requires_approval,
+        requires_approval: this.state.requires_approval,
         user_id: userId,
         amount_of_activities: Object.keys(this.state.routineActivitiesByOrder)
           .length,
