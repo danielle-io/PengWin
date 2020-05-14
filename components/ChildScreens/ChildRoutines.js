@@ -269,6 +269,7 @@ export default class ChildRoutines extends Component {
     return this.state.routines.routines.map((item) => {
       // console.log(item);
       if (item.is_active == 1) {
+        
         return (
           <View
             style={({ flex: 1 }, styles.routines)}
