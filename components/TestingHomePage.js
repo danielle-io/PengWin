@@ -53,7 +53,6 @@ export default class TestingHomePage extends Component {
                 style={styles.parentContainer}
                 onPress={() =>
                   this.navigate("ParentNavigation", {
-                    prevScreenTitle: "TestingHomePage",
                     initialRouteName: "ParentRoutines",
                   })
                 }

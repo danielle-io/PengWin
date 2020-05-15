@@ -60,6 +60,7 @@ export default class ForgotPassword extends Component {
       routines: null,
       routinesLoaded: false,
       selectedContainer: null,
+      selectedDeletion: null,
     };
   }
 
@@ -95,7 +96,6 @@ export default class ForgotPassword extends Component {
         console.log(containerRoutineResults);
         this.storeContainerRoutineInfo(containerRoutineResults);
         this.displayRoutines();
-
       })
       .catch((error) => {
         console.error(error);
@@ -123,26 +123,53 @@ export default class ForgotPassword extends Component {
 
   updateRoutineTagRelationship(containerRoutineId, tag, value) {
     var data = {
-        [tag]: value,
+      [tag]: value,
     };
     {
-      let response = fetch(Environment + "/updateRoutineTagTable/" + containerRoutineId, {
-        method: "POST",
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-      })
+      let response = fetch(
+        Environment + "/updateRoutineTagTable/" + containerRoutineId,
+        {
+          method: "POST",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(data),
+        }
+      )
         .then((response) => response.json())
         .then((responseJson) => {
           return responseJson;
         })
         .then((results) => {
-            this.setState({ routinesLoaded: false });
-            this.getContainers();
-            this.getRoutines();
+          this.getContainers();
+          this.setState({ routinesLoaded: false });
+          this.getRoutines();
         });
+    }
+  }
+
+  updateContainer(containerRoutineId, tag, value) {
+    var data = {
+      [tag]: value,
+    };
+    {
+      let response = fetch(
+        Environment + "/updateContainer/" + containerRoutineId,
+        {
+          method: "POST",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(data),
+        }
+      )
+        .then((response) => response.json())
+        .then((responseJson) => {
+          return responseJson;
+        })
+        .then((results) => {});
     }
   }
 
@@ -154,28 +181,26 @@ export default class ForgotPassword extends Component {
       user_id: userId,
     };
 
-    let response = fetch(
-      Environment + "/insertContainerRoutineRelationship/",
-      {
-        method: "POST",
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
+    let response = fetch(Environment + "/insertContainerRoutineRelationship/", {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    })
+      .then((response) => response.json())
+      .then((responseJson) => {
+        return responseJson;
       })
-        .then((response) => response.json())
-        .then((responseJson) => {
-          return responseJson;
-        })
-        .then((routineResults) => {
-          this.setState({ routinesLoaded: false });
-          this.getContainers();
-          this.getRoutines();
-        })
-        .catch((error) => {
-          console.error(error);
-        });
+      .then((routineResults) => {
+        this.getContainers();
+        this.setState({ routinesLoaded: false });
+        this.getRoutines();
+      })
+      .catch((error) => {
+        console.error(error);
+      });
   }
 
   insertNewContainer() {
@@ -186,44 +211,42 @@ export default class ForgotPassword extends Component {
       user_id: userId,
     };
 
-    let response = fetch(
-      Environment + "/insertNewContainer/",
-      {
-        method: "POST",
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
+    let response = fetch(Environment + "/insertNewContainer/", {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    })
+      .then((response) => response.json())
+      .then((responseJson) => {
+        return responseJson;
       })
-        .then((response) => response.json())
-        .then((responseJson) => {
-          return responseJson;
-        })
-        .then((routineResults) => {
-          this.setState({ routinesLoaded: false });
-          this.getContainers();
-          this.getRoutines();
-        })
-        .catch((error) => {
-          console.error(error);
-        })
+      .then((routineResults) => {
+        this.getContainers();
+        this.setState({ routinesLoaded: false });
+        this.getRoutines();
+      })
+      .catch((error) => {
+        console.error(error);
+      });
   }
 
-//   Dictionary of key as routine id, then valie contains all the details
+  //   Dictionary of key as routine id, then valie contains all the details
   storeContainerRoutineInfo(containerRoutineResults) {
     var tempContainerRoutineDict = {};
-   
+
     for (var i = 0; i < containerRoutineResults.length; i++) {
       var containerId = containerRoutineResults[i].container_id;
-      var contRoutineId = containerRoutineResults[i].conatiner_routine_id
+      var contRoutineId = containerRoutineResults[i].container_routine_id;
 
       tempContainerRoutineDict[containerRoutineResults[i].routine_id] = {
         color: this.state.containerDict[containerId].color,
         name: this.state.containerDict[containerId].name,
         containerId: containerId,
-        containerRoutineId: contRoutineId
-      }
+        containerRoutineId: contRoutineId,
+      };
     }
     console.log("containerRoutineDict");
     console.log(tempContainerRoutineDict);
@@ -254,7 +277,7 @@ export default class ForgotPassword extends Component {
       });
     }
 
-    console.log("containerNames " + tempContainerNamesArray)
+    console.log("containerNames " + tempContainerNamesArray);
     this.setState({ containerNames: tempContainerNamesArray });
     this.setState({ containerDict: tempContainerDict });
     this.getContainersPerRoutines();
@@ -265,6 +288,34 @@ export default class ForgotPassword extends Component {
       this.getContainers();
       this.getRoutines();
     });
+  }
+
+  deleteContainer() {
+    if (this.state.containerRoutineDict !== null) {
+      if (this.state.selectedDeletion) {
+        this.updateContainer(this.state.selectedDeletion, "deleted", 1);
+
+        return Object.keys(this.state.containerRoutineDict).map((item) => {
+          console.log(
+            "ITEM " + this.state.containerRoutineDict[item].containerId
+          );
+          console.log(
+            "this.state.selectedDeletion " + this.state.selectedDeletion
+          );
+
+          if (
+            this.state.containerRoutineDict[item].containerId ===
+            this.state.selectedDeletion
+          ) {
+            this.updateRoutineTagRelationship(
+              this.state.containerRoutineDict[item].containerRoutineId,
+              "deleted",
+              1
+            );
+          }
+        });
+      }
+    }
   }
 
   displayRoutines() {
@@ -287,7 +338,6 @@ export default class ForgotPassword extends Component {
           </View>
 
           <View style={styles.routineDetailsPreview}>
-                       
             <View style={{ alignItems: "left" }}>
               <Text style={styles.routineDetails}>
                 <Icon name="playlist-check" style={styles.routineDetailsIcon} />{" "}
@@ -299,24 +349,28 @@ export default class ForgotPassword extends Component {
               </Text>
             </View>
 
-            <View
-            >
-              {this.getRoutineTags(item)}
-            </View>
+            <View>{this.getRoutineTags(item)}</View>
           </View>
         </View>
       );
     });
   }
 
-  deleteTag(routineId){
-    var containerRoutineId = this.state.containerRoutineDict[routineId].containerRoutineId;
-    this.updateRoutineTagRelationship(containerRoutineId, "deleted", 1)
+  deleteTag(routineId) {
+    console.log(
+      "deleting tag from routine id " +
+        routineId +
+        " and tag id is " +
+        this.state.containerRoutineDict[routineId]
+    );
+    var containerRoutineId = this.state.containerRoutineDict[routineId]
+      .containerRoutineId;
+    this.updateRoutineTagRelationship(containerRoutineId, "deleted", 1);
   }
 
-  selectedContainer(id){
-      console.log(id);
-      this.setState({ selectedContainer: id })
+  selectedContainer(id) {
+    console.log(id);
+    this.setState({ selectedContainer: id });
   }
 
   getRoutineTags(item) {
@@ -332,36 +386,34 @@ export default class ForgotPassword extends Component {
             alignSelf: "flex-end",
             alignItems: "flex-end",
             right: 0,
-            justifyContent: 'flex-end'
+            justifyContent: "flex-end",
             // position: "absolute",
           }}
         >
-        <Tags
-          textInputProps={{
-            placeholder: "?TAGS",
-          }}
-          readonly={true}
-          containerStyle={{ justifyContent: "center" }}
-          inputStyle={{
-            backgroundColor: "#FFFCF9",
-            borderBottomColor: "#c4c4c4",
-            borderBottomWidth: 1,
-          }}
-          initialTags={[this.state.containerRoutineDict[item.routine_id].name]}
-          renderTag={({ tag, index, onPress, deleteTagOnPress, readonly }) => (
-            <View style={styles[colorClass]}>
-              <Text style={styles.text}>{tag} </Text>
+          <Tags
+            readonly={true}
+            containerStyle={{ justifyContent: "center" }}
+            inputStyle={{
+              backgroundColor: "none",
+              borderWidth: "none",
+              borderStyle: "none",
+            }}
+            initialTags={[
+              this.state.containerRoutineDict[item.routine_id].name,
+            ]}
+            renderTag={({ tag, index }) => (
               <TouchableOpacity
                 onPress={() => {
-                  this.deleteTag(item.routine_id)
+                  this.deleteTag(item.routine_id);
                 }}
-                
-                
-                key={`${tag}-${index}`}
-              />
-            </View>
-          )}
-        />
+                style={styles[colorClass]}
+              >
+                <Text style={styles.text}>{tag} </Text>
+
+                <TouchableOpacity key={`${tag}-${index}`} />
+              </TouchableOpacity>
+            )}
+          />
         </View>
       );
     } else {
@@ -370,9 +422,9 @@ export default class ForgotPassword extends Component {
   }
 
   saveNewContainer() {
-      console.log(this.state.newContainerName);
-      console.log(this.state.selectedColor);
-        
+    console.log(this.state.newContainerName);
+    console.log(this.state.selectedColor);
+
     if (
       this.state.selectedColor !== null &&
       this.state.newContainerName !== null
@@ -384,13 +436,16 @@ export default class ForgotPassword extends Component {
   renderPage() {
     let colors = [
       {
-        value: "grey",
+        value: "green",
       },
       {
         value: "blue",
       },
       {
         value: "orange",
+      },
+      {
+        value: "purple",
       },
     ];
     return (
@@ -412,38 +467,39 @@ export default class ForgotPassword extends Component {
           )}
         </View>
 
-        <View style={(styles.descriptionBox, styles.textFields)}>
+        <View style={styles.textFields}>
           <Text style={styles.titles}>Apply Routine Tags</Text>
-          <Text style={styles.description}>
-            To add a tag to a routine for easier organization, select the tag then click the
-            container to apply it. Tags can be created below.
-          </Text>
+          <View style={{ width: "80%" }}>
+            {/* <Text style={styles.description}>
+              Select a tag then click a routine to apply it.
+            </Text> */}
+          </View>
 
           <View style={{ flexDirection: "row" }}>
-            <View style={styles.tagsContainer}>
-              <Dropdown
-                containerStyle={{ padding: 1, width: "60%" }}
-                label="Select a Container Tag"
-                data={this.state.containerNames}
-                onChangeText={(id) =>
-                    this.selectedContainer(id)
-               }
-              />
-            </View>
+            {/* <View style={styles.tagsContainer}> */}
+            <Dropdown
+              containerStyle={{ width: "42%" }}
+              label="Select a tag then click a routine to apply it"
+              data={this.state.containerNames}
+              onChangeText={(id) => this.selectedContainer(id)}
+            />
+            {/* </View> */}
           </View>
 
           <Text style={styles.titles}>Create New Container Tags</Text>
-          <Text style={styles.description}>
-            Enter a container name, select a color, and click the add button to
-            create a new container tag.
-          </Text>
+          <View style={{ width: "80%" }}>
+            {/* <Text style={styles.description}>
+              Enter a container name, select a color, and click the add button
+              to create a new container tag.
+            </Text> */}
+          </View>
+
           <View style={{ flexDirection: "row" }}>
             <TextInput
+              inputStyle={{ paddingLeft: 4, fontSize: 12 }}
               style={styles.tagNameContainer}
               placeholder="Container Name"
               onChangeText={(text) => this.setState({ newContainerName: text })}
-              //   onSubmitEditing={this.onSubmit}
-              //   ref={this.fieldRef}
             />
 
             <Dropdown
@@ -460,13 +516,40 @@ export default class ForgotPassword extends Component {
               <Text style={{ color: "#fff" }}>Save</Text>
             </TouchableOpacity>
           </View>
+
+          <Text style={styles.titles}>Delete Containers</Text>
+          <View style={{ width: "80%" }}>
+            <Text style={styles.description}>
+              To remove a tag from a single routine, just click the tag.
+            </Text>
+          </View>
+
+          <View style={{ flexDirection: "row", marginTop: 0 }}>
+            <Dropdown
+              containerStyle={{ padding: 1, width: "30%" }}
+              label="Select a Container to Delete"
+              data={this.state.containerNames}
+              onChangeText={(id) => this.selectDeletion(id)}
+            />
+
+            <TouchableOpacity
+              style={styles.deleteButton}
+              onPress={() => this.deleteContainer()}
+            >
+              <Text style={{ color: "#fff" }}>Delete</Text>
+            </TouchableOpacity>
+          </View>
         </View>
       </View>
     );
   }
 
+  selectDeletion(id) {
+    this.setState({ selectedDeletion: id });
+  }
+
   selectedColor(value) {
-    this.setState({ selectedColor: value});
+    this.setState({ selectedColor: value });
   }
 
   render() {
@@ -499,8 +582,24 @@ const styles = StyleSheet.create({
     paddingLeft: 8,
     paddingRight: 8,
   },
+  deleteButton: {
+    marginLeft: 14,
+    fontSize: 14,
+    height: 38,
+    borderRadius: 8,
+    backgroundColor: "#FF6978",
+    borderColor: "#fff",
+    borderWidth: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    // flexDirection: "row",
+    marginTop: 30,
+    paddingLeft: 8,
+    paddingRight: 8,
+  },
   tagNameContainer: {
-    padding: 12,
+    // padding: 12,
+    paddingLeft: 6,
     height: "45%",
     width: "30%",
     fontSize: 12,
@@ -525,6 +624,7 @@ const styles = StyleSheet.create({
     // margin: 0,
   },
   tagsContainer: {
+    marginTop: 0,
     // flexWrap: 'wrap',
     flexDirection: "row",
     // width: "100%",
@@ -621,21 +721,19 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     marginLeft: 5,
   },
-  greyTag: {
+  greenTag: {
     fontSize: 8,
     height: 25,
     minWidth: 50,
     width: 100,
     borderRadius: 20,
-    backgroundColor: "#d7cbd2",
-    borderColor: "#d7cbd2",
+    backgroundColor: "#8dd993",
     borderWidth: 1,
     alignItems: "center",
     flexDirection: "row",
     justifyContent: "center",
     marginRight: 6,
-    opacity: .5,
-
+    opacity: 0.5,
   },
   blueTag: {
     color: "white",
@@ -645,30 +743,41 @@ const styles = StyleSheet.create({
     width: 100,
     borderRadius: 20,
     backgroundColor: "#B1EDE8",
-    borderColor: "#B1EDE8",
-    borderWidth: 1,
+    // borderWidth: 1,
     alignItems: "center",
     flexDirection: "row",
     justifyContent: "center",
     marginRight: 6,
-    opacity: .5,
+    opacity: 0.5,
   },
-  orangeTag:{
+  purpleTag: {
+    fontSize: 8,
+    height: 25,
+    minWidth: 50,
+    width: 100,
+    borderRadius: 20,
+    backgroundColor: "#d7b9f0",
+    // borderWidth: 1,
+    alignItems: "center",
+    flexDirection: "row",
+    justifyContent: "center",
+    marginRight: 6,
+    opacity: 0.5,
+  },
+  orangeTag: {
     color: "white",
     fontSize: 8,
     height: 25,
     minWidth: 50,
     width: 100,
     borderRadius: 20,
-    backgroundColor: "#FF7F50",
-    borderColor: "#B1EDE8",
-    borderWidth: 1,
+    backgroundColor: "#fce2b8",
+    // borderWidth: 1,
     alignItems: "center",
     flexDirection: "row",
     justifyContent: "center",
     marginRight: 6,
-    opacity: .5,
-
+    opacity: 0.4,
   },
   tagsbutton: {
     fontSize: 10,
@@ -738,17 +847,19 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   titles: {
-    fontSize: 18,
+    // fontWeight: "bold",
+    fontSize: 15,
     padding: 5,
-    marginTop: 12,
+    marginTop: 15,
   },
   textFields: {
     padding: 2,
-    margin: 2,
     marginLeft: 15,
   },
   description: {
-    fontSize: 14,
+    fontSize: 12,
     padding: 5,
+    marginBottom: 0,
+    paddingBottom: 0,
   },
 });

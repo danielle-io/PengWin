@@ -296,6 +296,29 @@ app.post('/insertContainerRoutineRelationship', function (req, res) {
   });
 });
 
+// Update the routine data
+app.post('/updateContainer/:containerId', function (req, res) {
+  let containerId = req.params.containerId;
+  var postData = req.body;
+
+  console.log("updating container, container id is " + containerId);
+
+  connection.getConnection(function (err, connection) {
+    connection.query('UPDATE containers SET ? WHERE container_id = ?',
+      [postData, containerId],
+      function (error, results, fields) {
+
+        if (error){
+          throw error;
+          console.log(err);
+        }
+        console.log("RESULTS ARE " + JSON.stringify(results));
+        res.send(JSON.stringify(results))
+      });
+  });
+});
+
+
 app.post('/updateRoutineTagTable/:containerRoutineId', function (req, res) {
   let containerRoutineId = req.params.containerRoutineId;
   var postData = req.body;
@@ -370,6 +393,7 @@ app.get('/getContainers/:userId', function (req, res) {
     });
   });
 });
+
 
 app.get('/getContainersPerRoutines/:userId', function (req, res) {
   let userId = req.params.userId;
