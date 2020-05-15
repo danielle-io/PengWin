@@ -36,6 +36,9 @@ import TestingHomePage from './TestingHomePage';
 
 const Screens = createStackNavigator({
   TestingHomePage: {screen: TestingHomePage},
+
+  ParentNavigation: {screen: ParentNavigation},
+
   Login: {screen: Login},
   SignUp: {screen: SignUp},
   Pincode: {screen: Pincode},
@@ -43,7 +46,6 @@ const Screens = createStackNavigator({
   Camera: {screen:Camera},
   ChildCamera: {screen: ChildCamera },    
 
-  ParentNavigation: {screen: ParentNavigation},
   ParentRoutines: {screen: ParentRoutines},
   EditActivity: {screen: EditActivity},
   ParentRewards : {screen:ParentRewards},
