@@ -900,7 +900,6 @@ export default class Activity extends Component {
 
         <View>
           <View style={styles.editRoutineIconAndTitle}>
-            <Icon style={styles.routineDetailsIcon} name="check-all" />
             <Text style={styles.editRoutineSectionName}>Set Public</Text>
           </View>
           <View style={styles.editRoutineIconAndTitle}>

@@ -104,15 +104,19 @@ export default class ParentRoutines extends Component {
   // This allows this page to refresh when you come back from
   // edit routines, which allows it to display any changes made
   async componentDidMount() {
+    console.log("in mount");
+    this.setState({ containersLoaded: false });
+
+    this.getAllRewardsForUser();
+    this.getContainers();
+
     await this.props.navigation.addListener("didFocus", (payload) => {
       console.log("reloading items");
-      this.getContainers();
-      this.setState({ containersLoaded: false });
       this.setState({ routinesLoaded: false });
       this.setState({ activitiesLoaded: false });
+
       this.getRoutines();
       this.getAllActivitiesForUser();
-      this.getAllRewardsForUser();
       if (this.state.activitiesLoaded) {
         this.displayActivities();
       }
@@ -123,6 +127,7 @@ export default class ParentRoutines extends Component {
   }
 
   getRoutines() {
+    console.log("get routines");
     fetch(Environment + "/getRoutinesByUser/" + userId, {
       headers: {
         "Cache-Control": "no-cache",
@@ -252,7 +257,6 @@ export default class ParentRoutines extends Component {
         return responseJson;
       })
       .then((routineResults) => {
-
         this.getContainers();
         this.getRoutines();
       })
@@ -317,10 +321,8 @@ export default class ParentRoutines extends Component {
     console.log("IN SET CONTAINER " + routineId);
 
     if (this.state.selectedContainer) {
-
       this.setState({ containersLoaded: false });
       this.insertToRoutineContainerTable(routineId);
-
     }
   }
 
@@ -549,6 +551,8 @@ export default class ParentRoutines extends Component {
     });
 
     this.setState({ allRewardsByIdDictionary: tempDict });
+    console.log("on parent routine, rewards dict is below");
+    console.log(this.state.allRewardsByIdDictionary);
   }
 
   createActivityDictionary() {
@@ -563,6 +567,8 @@ export default class ParentRoutines extends Component {
   }
 
   getAllActivitiesForUser() {
+    console.log("get activities");
+
     fetch(Environment + "/getActivities/" + userId, {
       headers: {
         "Cache-Control": "no-cache",
@@ -666,6 +672,8 @@ export default class ParentRoutines extends Component {
   }
 
   duplicateRoutine(item) {
+    console.log("duplicating " + item);
+
     let data = {
       parent_id: parentId,
       child_id: childId,
@@ -1154,8 +1162,8 @@ export default class ParentRoutines extends Component {
                 <Text style={styles.routineDetails}>
                   <Icon
                     name="playlist-check"
-                    style={styles.routineDetailsIcon}
-                  />{" "}
+                    style={styles.routineDetailsIcon}></Icon>
+    
                   {/* TODO: move the routines activity amount check somewhere else */}
                   {/* {console.log("ITS " + this.confirmAmountOfActivities(item.routine_id, item.amount_of_activities))} */}
                   {/* Activities:{" "}{this.confirmAmountOfActivities(item.routine_id, item.amount_of_activities)}{" "} */}
@@ -1184,6 +1192,7 @@ export default class ParentRoutines extends Component {
   }
 
   render() {
+    
     if (this.state.routines !== null) {
     } else {
       console.log("this.state.routines is null :( ");
@@ -1231,6 +1240,7 @@ export default class ParentRoutines extends Component {
             this.state.routinesLoaded &&
             this.state.containersLoaded && (
               <View>
+                {/* <Icon name="tag" style={styles.tagMenuIcons}><Text>Apply Tags</Text></Icon> */}
                 <View
                   style={{
                     flexDirection: "row",
@@ -1242,7 +1252,6 @@ export default class ParentRoutines extends Component {
                   {this.displayRoutines()}
                   {this.displayNewRoutineContainer()}
                 </View>
-
                 {/* Tag options */}
                 <View style={styles.textFields}>
                   <Text style={styles.titles}>Apply a Routine Tag</Text>
@@ -1481,6 +1490,13 @@ const styles = StyleSheet.create({
   routineDetailsIcon: {
     color: "#355C7D",
     fontSize: 14,
+  },
+  tagMenuIcons: {
+    color: "#FF6978",
+    fontSize: 18,
+    paddingTop: 5,
+    marginLeft: 30,
+    marginTop: 10,
   },
   routineDetails: {
     fontSize: 12,
