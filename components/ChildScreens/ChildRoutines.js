@@ -136,7 +136,7 @@ export default class ChildRoutines extends Component {
   };
 
   // Can use this function below, OR use Expo's Push Notification Tool-> https://expo.io/dashboard/notifications
-  sendPushNotification = async (item) => {
+  sendPushNotification = async (item, date) => {
     try {
       await Notifications.scheduleLocalNotificationAsync(
         {
@@ -148,7 +148,7 @@ export default class ChildRoutines extends Component {
           _displayInForeground: true,
         },
         {
-          time: new Date(Date.now() + 3000),
+          time: date,
         }
       );
       this.updateRoutine("push_set", 1, item.routine_id);
@@ -166,7 +166,7 @@ export default class ChildRoutines extends Component {
 
   setNotifs() {
     this.state.routines.routines.map((item) => {
-      if (item.routine_id === 3) {
+      if (item.push_item === 0) {
         let time = item.start_time.split(":");
         let date = new Date();
         date.setHours(time[0]);
@@ -175,35 +175,33 @@ export default class ChildRoutines extends Component {
         if (item.sunday === 1)
         { 
           let newDate = this.setDays(0, date);
-          console.log(newDate);
+          this.sendPushNotification(newDate, item);
         }
         if (item.monday === 1){ 
           let newDate =this.setDays(1, date);
-          console.log(newDate);
+          this.sendPushNotification(newDate, item);
         }
         if (item.tuesday === 1){ 
           let newDate =this.setDays(2, date);
-          console.log(newDate);
+          this.sendPushNotification(newDate, item);
         }
         if (item.wednesday === 1) { 
           let newDate =this.setDays(3, date);
-          console.log(newDate);
+          this.sendPushNotification(newDate, item);
         }
         if (item.thursday === 1) { 
           let newDate =this.setDays(4, date);
-          console.log(newDate);
+          this.sendPushNotification(newDate, item);
         }
         if (item.friday === 1) { 
           let newDate =this.setDays(5, date);
-          console.log(newDate);
+          this.sendPushNotification(newDate, item);
         }
         if (item.saturday === 1) { 
           let newDate =this.setDays(6, date);
-          console.log(newDate);
+          this.sendPushNotification(newDate, item);
         }
 
-
-        // this.sendPushNotification(item);
       }
     });
   }
