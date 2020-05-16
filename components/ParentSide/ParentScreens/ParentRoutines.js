@@ -61,7 +61,6 @@ export default class ParentRoutines extends Component {
       allActivitiesDictionary: null,
       typeToDelete: null,
       itemToDelete: null,
-
       containerNames: null,
       containerDict: null,
       containerRoutineDict: null,
@@ -157,7 +156,9 @@ export default class ParentRoutines extends Component {
         return responseJson;
       })
       .then((containerRoutineResults) => {
-        this.storeContainerRoutineInfo(containerRoutineResults);
+        if (containerRoutineResults){
+          this.storeContainerRoutineInfo(containerRoutineResults);
+        }
         this.displayRoutines();
       })
       .catch((error) => {
@@ -818,6 +819,8 @@ export default class ParentRoutines extends Component {
         <RaisedTextButton
           style={styles.roundAddButton}
           title="+"
+          titleColor="white"
+          titleStyle={{fontSize: 18}}
           color="#FF6978"
           onPress={
             (this._onPress,
@@ -842,6 +845,8 @@ export default class ParentRoutines extends Component {
         <RaisedTextButton
           style={styles.roundAddButton}
           title="+"
+          titleColor="white"
+          titleStyle={{fontSize: 18}}
           color="#FF6978"
           onPress={
             (this._onPress,
@@ -877,6 +882,8 @@ export default class ParentRoutines extends Component {
         <RaisedTextButton
           style={styles.roundAddButton}
           title="+"
+          titleStyle={{fontSize: 18}}
+          titleColor="white"
           color="#FF6978"
           onPress={
             (this._onPress,
@@ -1051,6 +1058,7 @@ export default class ParentRoutines extends Component {
   displayRoutines() {
     var containerName;
 
+    if (this.state.routines){
     // parse out the db objects returned from the routines call
     return this.state.routines.routines.map((item) => {
       if (item.is_active === 0) {
@@ -1144,14 +1152,16 @@ export default class ParentRoutines extends Component {
                   Rewards: {item.amount_of_rewards}{" "}
                 </Text>
               </View>
+              <View style={{marginTop: 12}}>{this.getRoutineTags(item)}</View>
 
-              <View>{this.getRoutineTags(item)}</View>
             </View>
+
           </MenuProvider>
         </View>
       );
     });
   }
+}
 
   selectedColor(value) {
     this.setState({ selectedColor: value });
@@ -1192,7 +1202,8 @@ export default class ParentRoutines extends Component {
             selectedIndex={this.state.selectedTab}
             barColor="white"
             // barColor="#D7CBD2"
-            indicatorColor="#B1EDE8"
+            activeBackgroundColor="#FF6978"
+            indicatorColor="#FF6978"
             activeTextColor="black"
             inactiveTextColor="grey"
             onChange={(index) =>
@@ -1208,7 +1219,7 @@ export default class ParentRoutines extends Component {
             this.state.routinesLoaded &&
             this.state.containersLoaded && (
               <View>
-                <View style={{ flexDirection: "row" }}>
+                <View style={{ flexDirection: "row", marginTop: 6}}>
                   {!this.state.addTagModal && (
                     <TouchableOpacity
                       onPress={() => {
@@ -1216,7 +1227,7 @@ export default class ParentRoutines extends Component {
                       }}
                       style={{ flexDirection: "row" }}
                     >
-                      <Icon name="tag" style={styles.tagMenuIcons} />
+                      <Icon name="tag" style={styles.tagMenuIconsTwo} />
                       <Text style={styles.tagMenuIconText}>Apply Tags</Text>
                     </TouchableOpacity>
                   )}
@@ -1396,6 +1407,13 @@ export default class ParentRoutines extends Component {
               onPress={() => {
                 this.deleteItem();
               }}
+              style={{ 
+                minWidth: 50,
+                width: 100,
+                borderRadius: 20,
+                borderWidth: 1,
+                borderColor: "#FF6978"
+              }}
               title="Yes, Delete it"
               color="red"
               accessibilityLabel="Yes Button"
@@ -1529,13 +1547,18 @@ const styles = StyleSheet.create({
     overflow: "visible",
     zIndex: 999,
   },
-  routineDetailsIcon: {
-    color: "#355C7D",
-    fontSize: 14,
-  },
   tagMenuIcons: {
     color: "#FF6978",
     fontSize: 18,
+    paddingTop: 5,
+    marginLeft: 30,
+    marginTop: 10,
+    flexDirection: "row",
+    fontWeight: "bold",
+  },
+  tagMenuIconsTwo: {
+    color: "#FF6978",
+    fontSize: 20,
     paddingTop: 5,
     marginLeft: 30,
     marginTop: 10,
@@ -1549,7 +1572,8 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   routineDetails: {
-    fontSize: 12,
+    marginLeft: 4,
+    fontSize: 16,
     zIndex: 2,
   },
   routineDetailsPreview: {
@@ -1705,14 +1729,14 @@ const styles = StyleSheet.create({
   ellipsis: {
     flexDirection: "row",
     alignSelf: "flex-end",
-    fontSize: 30,
+    fontSize: 34,
     marginRight: 10,
     overflow: "visible",
   },
   routineTitle: {
     marginLeft: 4,
     marginTop: 2,
-    fontSize: 14,
+    fontSize: 15,
     textAlign: "center",
     flex: 1,
   },
@@ -1721,12 +1745,15 @@ const styles = StyleSheet.create({
     zIndex: 999,
   },
   routineDetailsIcon: {
-    color: "#355C7D",
-    fontSize: 14,
+    color: "#FF6978",
+    fontSize: 16,
+    marginTop: 12,
   },
   routineDetails: {
-    fontSize: 12,
+    fontSize: 16,
     zIndex: 2,
+    marginTop: 12,
+    marginLeft: 5,
   },
   routineDetailsPreview: {
     flexDirection: "row",
@@ -1747,7 +1774,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "center",
     marginRight: 6,
-    opacity: 0.5,
+    // opacity: 0.5,
   },
   blueTag: {
     color: "white",
@@ -1762,7 +1789,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "center",
     marginRight: 6,
-    opacity: 0.5,
+    // opacity: 0.5,
   },
   purpleTag: {
     fontSize: 8,
@@ -1776,7 +1803,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "center",
     marginRight: 6,
-    opacity: 0.5,
+    // opacity: 0.5,
   },
   orangeTag: {
     color: "white",
@@ -1791,7 +1818,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "center",
     marginRight: 6,
-    opacity: 0.4,
+    // opacity: 0.4,
   },
   tagsbutton: {
     fontSize: 10,
@@ -1848,7 +1875,7 @@ const styles = StyleSheet.create({
   },
   roundAddButton: {
     marginLeft: 6,
-    fontSize: 30,
+    fontSize: 35,
     height: 50,
     minWidth: 50,
     width: 50,
