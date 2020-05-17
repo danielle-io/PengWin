@@ -154,6 +154,7 @@ export default class Activity extends Component {
       .then((results) => {
         console.log("new insert!!!");
         this.setState({ activityId: results.insertId });
+        this.props.navigation.navigate("Routines")
       })
       .catch((error) => {
         console.error(error);
@@ -173,7 +174,10 @@ export default class Activity extends Component {
         }
       }
     }
+    console.log("should navigate here");
+    this.props.navigation.navigate("ParentRoutines");
   }
+
 
   getCurrentSwitchState() {
     if (this.state.isPublic === 1) {
