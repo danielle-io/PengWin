@@ -10,12 +10,13 @@ import {
   Text,
   ScrollView,
   View,
+  TouchableOpacity,
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import * as Permissions from "expo-permissions";
 import uuid from "uuid";
 import Environment from "../../database/irEnv";
-import firebase from "../../database/irDb";
+import firebase from "../../database/irDb"; 
 
 export default class App extends React.Component {
   state = {
@@ -46,11 +47,30 @@ export default class App extends React.Component {
         <View style={styles.helpContainer}>
 
         {!this.state.itemIsInTags &&
-                <Button
-                onPress={this._takePhoto}
-                title="Take a photo of your toothbrush"
-                />
+                
+             <TouchableOpacity
+              style={styles.buttonStyle}
+              onPress={this._takePhoto}
+              >
+              <Text>Take a photo of your toothbrush</Text>
+            </TouchableOpacity> 
         }
+            <View>
+              {this._maybeRenderImage()}
+              {this._maybeRenderUploadingOverlay()}
+            </View>
+
+            {this.state.googleResponse && this.state.itemIsInTags && (
+              <View><Text style={styles.goodJobText}>Good job!</Text></View>
+            )}
+
+            {this.state.googleResponse && !this.state.itemIsInTags && (
+              <Text style={styles.badJobText}>
+                Oh no, your photo didn't match! try again to take a photo of
+                your toothbrush
+              </Text>
+            )}
+          </View>
             {this.state.googleResponse && (
               <View>
               <FlatList
@@ -66,20 +86,7 @@ export default class App extends React.Component {
               />
                  </View>
             )}
-            {this._maybeRenderImage()}
-            {this._maybeRenderUploadingOverlay()}
-
-            {this.state.googleResponse && this.state.itemIsInTags && (
-              <View><Text>Good job!</Text></View>
-            )}
-
-            {this.state.googleResponse && !this.state.itemIsInTags && (
-              <Text>
-                Oh no, your photo didn't match! try again to take a photo of
-                your toothbrush
-              </Text>
-            )}
-          </View>
+            
         </ScrollView>
       </View>
     );
@@ -132,8 +139,8 @@ export default class App extends React.Component {
     return (
       <View
         style={{
-          marginTop: 20,
-          width: 250,
+          //marginTop: 20,
+          width: 500,
           borderRadius: 3,
           elevation: 2,
         }}
@@ -160,7 +167,7 @@ export default class App extends React.Component {
           }}
         >
           {/* {!this.state.completedCheck && */}
-          <Image source={{ uri: activityImage }} style={{ width: 250, height: 250 }} />
+          <Image source={{ uri: activityImage }} style={{ width: 500, height: 500 }} />
           {/* } */}
         </View>
       </View>
@@ -298,5 +305,23 @@ const styles = StyleSheet.create({
   helpContainer: {
     marginTop: 15,
     alignItems: "center",
+  },
+  buttonStyle: {
+    padding: 10,
+    marginBottom: 50,
+    margin: 50,
+    backgroundColor: "#FF6978",
+    borderRadius: 5,
+  },
+  goodJobText: {
+    marginTop: 10,
+    fontWeight: "700",
+    fontSize: 30,
+    
+  },
+  badJobText: {
+    marginTop: 10,
+    fontWeight: "400",
+    
   },
 });

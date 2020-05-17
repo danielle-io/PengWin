@@ -47,11 +47,10 @@ app.get('/getUnevaluatedRoutines/:parentId', function (req, res) {
   let parentId = req.params.parentId;
   connection.getConnection(function (err, connection) {
     
-    connection.query('SELECT * FROM child_notifications where parent_id = ?', [parentId]
+    connection.query('SELECT * FROM child_notifications where parent_id = ?'
     + ' AND is_evaluated = 0'
     + ' AND requires_approval = 1' 
-    + ' AND in_progress = 0', function (error, results, fields) {
-
+    + ' AND in_progress = 0', [parentId], function (error, results, fields) {
 
         if (error) throw error;
 
@@ -100,6 +99,28 @@ app.post('/updateRoutine/:routineId', function (req, res) {
   connection.getConnection(function (err, connection) {
     connection.query('UPDATE routines SET ? WHERE routine_id = ?',
       [postData, routineId],
+      function (error, results, fields) {
+
+        if (error){
+          throw error;
+          console.log(err);
+        }
+        console.log("RESULTS ARE " + results);
+        res.send(JSON.stringify(results))
+      });
+  });
+});
+
+// Update the routine data
+app.post('/updateChildNotificationsTable/:childNotificationId', function (req, res) {
+  let childNotificationId = req.params.childNotificationId;
+  var postData = req.body;
+
+  console.log("updating child notifs, id is " + childNotificationId);
+
+  connection.getConnection(function (err, connection) {
+    connection.query('UPDATE child_notifications SET ? WHERE child_notifications_id = ?',
+      [postData, childNotificationId],
       function (error, results, fields) {
 
         if (error){
@@ -554,7 +575,7 @@ app.get('/getRoutinesByUser/:userId', function (req, res) {
 
   connection.getConnection(function (err, connection) {
 
-    connection.query('SELECT * FROM routines where user_id=? AND routines.routine_id <> 0',[userId], function (error, results, fields) {
+    connection.query('SELECT * FROM routines where user_id=? AND deleted<> 1 AND routine_id <> 0',[userId], function (error, results, fields) {
       if (error) throw error;
 
       res.json({ 'routines': results });
@@ -567,7 +588,7 @@ app.get('/getRoutinesByRoutineId/:routineId', function (req, res) {
 
   connection.getConnection(function (err, connection) {
 
-    connection.query('SELECT * FROM routines where routine_id=? AND routines.routine_id <> 0 ',[routineId], function (error, results, fields) {
+    connection.query('SELECT * FROM routines where routine_id=? ',[routineId], function (error, results, fields) {
       if (error) throw error;
 
       res.json({ 'routines': results });

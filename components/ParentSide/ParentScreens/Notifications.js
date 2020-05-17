@@ -32,224 +32,6 @@ export default class Notifications extends Component {
       this.getChildInfo();
       this.getNotifications();
     });
-<<<<<<< HEAD
-
-    constructor(props) {
-        super(props);
-        this.state = {
-            userId: 1,
-            firstLoaded: false,
-            loaded: false,
-            childLoaded: false,
-            childResults: null,
-            routines: null,
-            results: null,
-            id: null,
-            idsLoaded: false,
-
-            childFirstName: null,
-            childUserId: null,
-            prevScreenTitle: this.props.navigation.state.params.prevScreenTitle,
-            parentId: null,
-            needsApproval: [],
-        };
-    }
-
-
-    // This allows this page to refresh when you come back from
-    // edit routines, which allows it to display any changes made
-    componentDidMount() {
-        this.getParentId();
-
-        this.props.navigation.addListener('didFocus', payload => {
-            this.getUserInfo(),
-            this.getChildInfo();
-            // this.getRoutines();
-        });
-    }
-    
-    getParentId(){
-        fetch( Environment + '/getParentIdOfUser/' + this.state.userId, {
-            headers: {
-                'Cache-Control': 'no-cache',
-            },
-        })
-        .then(response => response.json())
-        .then(responseJson => {
-            return responseJson;
-        })
-        .then(results => {
-            results = results[0];
-
-            // console.log("WTFFFF");
-            // console.log(results);
-
-            var id = results.parent_id;
-            this.setState({ parentId : id });
-            this.getRoutinesAwaitingApproval();
-        })
-        .catch(error => {
-            console.error(error);
-        });
-    }
-
-    getRoutineById(routineId) {
-        console.log("ROUTINE BY ID");
-    
-        fetch(Environment + "/joinRoutineAndActivityTable/" + routineId)
-          .then((response) => response.json())
-          .then((responseJson) => {
-            return responseJson;
-          })
-          .then((results) => {
-            // var rewardItem = results;
-            this.setState({ routines: results });
-            this.setState({ idsLoaded: true });
-            console.log("RESULTS FOR ROUTINE BY ID BELOW");
-            console.log(results);
-          })
-          .catch((error) => {
-            console.error(error);
-          });
-
-      }
-
-
-    getRoutinesAwaitingApproval(){
-        fetch( Environment + '/getUnevaluatedRoutines/' + this.state.parentId, {
-            headers: {
-                'Cache-Control': 'no-cache',
-            },
-        })
-        .then(response => response.json())
-        .then(responseJson => {
-            return responseJson;
-        })
-        .then(results => {
-            this.setState({needsApproval: results});
-            console.log("UIEBUORFIOUWEABDIUNWAIUC");
-            console.log(results);
-
-            this.getRoutines();
-        })
-        .catch(error => {
-            console.error(error);
-        });
-    }
-
-    getChildInfo() {
-        // Get the routines data from the db
-        fetch( Environment + '/getChildFromParent/' + this.state.userId, {
-            headers: {
-                'Cache-Control': 'no-cache',
-            },
-        })
-            .then(response => response.json())
-            .then(responseJson => {
-                return responseJson;
-            })
-            .then(results => {
-                this.setState({ childResults: results });
-                console.log(this.state.childResults);
-                this.setState({ childLoaded: true });
-            })
-            .catch(error => {
-                console.error(error);
-            });
-    }
-
-    getUserInfo() {
-        // Get the routines data from the db
-        fetch(Environment + '/getUser/' + this.state.userId, {
-            headers: {
-                'Cache-Control': 'no-cache',
-            },
-        })
-            .then(response => response.json())
-            .then(responseJson => {
-                return responseJson;
-            })
-            .then(results => {
-                this.setState({ results: results });
-                console.log(this.state.results);
-                this.setState({ firstLoaded: true });
-            })
-            .catch(error => {
-                console.error(error);
-            });
-    }
-
-    getChildsName() {
-        // console.log("LOK HEREEEEEE")
-        // console.log(this.state.childResults[0].first_name);
-        //this.setState({ childFirstName: this.state.childResults[0].first_name });
-
-        return this.state.childResults.map(itemValue => {
-            
-            return (
-                <Text>
-                    {itemValue.first_name}
-                </Text>
-            );
-        });
-    }
-
-    getRoutines(){
-        console.log("need approval below");
-        console.log(this.state.needsApproval);
-
-        this.state.needsApproval.map((item) => {
-            var id = item.routine_id;
-            this.setState({id: item.routine_id});
-            console.log("SHOULD BE ! BELOW");
-            console.log(id);
-            this.getRoutineById(id);
-        });  
-    }
-
-    getRoutinesName() {
-        // for (var i; i < this.state.needsApproval.length; i++){
-        //     needsApproval[i]
-        // }
-        console.log("R WE IN ROUTINESNAME");
-        return(
-            <Text>{this.state.routines[0].routine_name}</Text>
-        );
-    }
-    //     return this.state.routines.map((item) => {
-    //         console.log(item.routine_name);
-    //         return (
-    //             <Text>{item.routine_name}</Text>
-    //         );
-    //     });     
-    // }
-
-    fieldRef = React.createRef();
-    //fix hard coding in the navigation below
-    render() {
-        const { navigate } = this.props.navigation;
-
-        return (
-            <View>
-                <View style={{ flex: 1 }, styles.notificationContainer}
-                    onStartShouldSetResponder={() => this.props.navigation.navigate('RoutineApproval', {
-                        prevScreenTitle: 'Notifications',
-                        routineName: 'Morning Routine',
-                        routineID: this.state.id,
-                        childFirstName: this.state.childFirstName, 
-                    })}>
-
-                   
-                    {this.state.firstLoaded && this.state.childLoaded && this.state.idsLoaded && (
-                        <View>  
-                            <Text style={styles.text}>Check Off Routine</Text>
-                            <Text style={styles.textFields}>{this.getChildsName()} has marked {this.getRoutinesName()} complete. Would you like to approve the routine to let {this.getChildsName()} claim his reward?</Text>
-                        </View>
-                    )}
-
-
-                </View>
-=======
   }
 
   getRoutineById(routineId) {
@@ -259,15 +41,11 @@ export default class Notifications extends Component {
         return responseJson;
       })
       .then((results) => {
-        var tempRoutines = [];
-
-        if (this.state.routines !== []) {
-          tempRoutines = this.state.routines;
-        }
+        var tempRoutines = this.state.routines;
 
         tempRoutines.push(results.routines[0]);
-
         this.setState({ routines: tempRoutines });
+        
       })
       .catch((error) => {
         console.error(error);
@@ -315,15 +93,65 @@ export default class Notifications extends Component {
       });
   }
 
+updateChildNotification(childNotificationId, data) {
+  console.log(childNotificationId);
+  
+      let response = fetch(
+        Environment + "/updateChildNotificationsTable/" + childNotificationId,
+        {
+          method: "POST",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(data),
+        })
+          .then((response) => response.json())
+          .then((responseJson) => {
+            return responseJson;
+          })
+          .then((results) => {
+            console.log(results);
+            
+            this.setState({ notificationsLoaded: false });
+            this.getNotifications();
+          })
+          .catch((error) => {
+            console.error(error);
+          });
+      }
+
+  evaluateRoutineNotification(childNotificationId, value){
+    console.log("childNotificationId.child_notifications_id" + childNotificationId.child_notifications_id);
+    
+    var data = {
+      "is_approved":  value,
+      "is_evaluated": 1
+    };
+    this.setState({ routines: [] });
+    this.updateChildNotification(childNotificationId.child_notifications_id, data);
+  }
+
+
   loopOverNotificationRoutines() {
-    this.state.childNotifications.map((item) => {
-      var id = item.routine_id;
-      this.getRoutineById(id);
-    });
-    this.setState({ notificationsLoaded: true });
+    console.log("in loop notifications");
+    if (this.state.childNotifications){
+
+      this.state.childNotifications.map((item) => {
+
+        console.log("CHILD NOTIFS ID IS " + item.child_notifications_id);
+        var id = item.routine_id;
+        this.getRoutineById(id);
+
+      });
+      this.setState({ childLoaded: true });
+      this.setState({ notificationsLoaded: true });
+      this.displayNotifications();
+    }
   }
 
   getCurrentNotification(key){
+    console.log(this.state.childNotifications[key].child)
     console.log("KEY " + key);
     console.log("CHILD NOTIFS BELOW");
     console.log(this.state.childNotifications);
@@ -331,8 +159,8 @@ export default class Notifications extends Component {
     return this.state.childNotifications[key];
   }
 
-  displayRoutines() {
-
+  displayNotifications() {
+    console.log("routines length is " + this.state.routines.length);
     return this.state.routines.map((item, key) => {
       return (
             <View
@@ -347,19 +175,27 @@ export default class Notifications extends Component {
                 })
               }
             >
-              <Icon  name={this.state.icon} color="#848484" style={{left:1}}color="#F32D2D" size={25} />
+              <Icon name={this.state.icon} color="#848484" style={{left:1}}color="#F32D2D" size={25} />
               <Text style={styles.text}>Check Off Routine</Text>
-              <Text style={styles.routineTitle}>{this.state.childsName} has marked his {item.routine_name} complete.</Text>
-              <Text style={styles.routineTitle}>Would you like to approve the routine to let {this.state.childsName} claim his reward?</Text>
-              <Text style={styles.routineTitle}> claim his reward?</Text>
+              <Text style={styles.routineTitle}>{this.state.childsName} has marked {item.routine_name} complete.</Text>
+              <Text style={styles.routineTitle}>Would you like to approve the routine to let {this.state.childsName} claim the reward?</Text>
+              
 
               <TouchableOpacity style={styles.button}>
-              <Icon  name="check" color="#FF6978" size={33}/>
+              <Icon name="check" 
+              onPress={() => {
+                this.evaluateRoutineNotification(this.getCurrentNotification(key), 1);                  
+              }}
+                color="#FF6978" 
+                size={33}/>
             </TouchableOpacity>
             <TouchableOpacity style={styles.button2}>
-              <Icon  name="window-close" color="#FF6978" size={33}/>
+              <Icon name="window-close" color="#FF6978" 
+               onPress={() => {
+                this.evaluateRoutineNotification(this.getCurrentNotification(key), 0);                  
+              }}
+              size={33}/>
             </TouchableOpacity>
->>>>>>> origin
             </View>
           
       );
@@ -373,9 +209,8 @@ export default class Notifications extends Component {
 
     return (
       <View>
-        
-        {this.state.childLoaded && this.state.notificationsLoaded && (
-          <View style={styles.textfields}>{this.displayRoutines()} 
+        {this.state.childLoaded && this.state.notificationsLoaded && this.state.routines.length > 0 &&(
+          <View style={styles.textfields}>{this.displayNotifications()} 
           </View>
         )}
       </View>
