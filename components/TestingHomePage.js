@@ -20,7 +20,20 @@ export default class TestingHomePage extends Component {
     headerVisible: false,
   };
 
+  
+
   render() {
+    const chartConfig = {
+      backgroundGradientFrom: "#1E2923",
+      backgroundGradientFromOpacity: 0,
+      backgroundGradientTo: "#08130D",
+      backgroundGradientToOpacity: 0.5,
+      color: (opacity = 1) => `rgba(26, 255, 146, ${opacity})`,
+      strokeWidth: 2, // optional, default 3
+      barPercentage: 0.5,
+      useShadowColorFromDataset: false // optional
+    };
+    
     let ripple = { id: "submitButton" };
     return (
       <View>
@@ -38,16 +51,6 @@ export default class TestingHomePage extends Component {
                 flexWrap: "wrap",
               }}
             >
-              <TouchableOpacity
-                style={styles.parentContainer}
-                onPress={() =>
-                  this.navigate("ParentRoutines", {
-                    prevScreenTitle: "TestingHomePage",
-                  })
-                }
-              >
-                <Text style={styles.linkText}>Parent / Routines Page</Text>
-              </TouchableOpacity>
 
               <TouchableOpacity
                 style={styles.parentContainer}
