@@ -605,7 +605,9 @@ export default class ParentRoutines extends Component {
       activity_description: item.activity_description,
       audio_path: item.audio_path,
       video_path: item.video_path,
-      reward_id: item.reward_id,
+      reward_image: item.reward_image,
+      reward_description: item.reward_description,
+      reward_video: item.reward_video,
       is_public: item.is_public,
       deleted: 0,
     };
@@ -622,13 +624,10 @@ export default class ParentRoutines extends Component {
         return responseJson;
       })
       .then((results) => {
-        console.log("new insert!!!");
         this.setState({ activitiesLoaded: false });
-
         this.getAllActivitiesForUser();
 
         if (this.state.activitiesLoaded) {
-          console.log("activities loaded again");
           this.displayActivities();
         }
       })
@@ -638,8 +637,6 @@ export default class ParentRoutines extends Component {
   }
 
   duplicateRoutine(item) {
-    console.log("duplicating " + item);
-
     let data = {
       parent_id: parentId,
       child_id: childId,
@@ -859,11 +856,13 @@ export default class ParentRoutines extends Component {
                 activityDescription: null,
                 activityAudioPath: null,
                 activityVideoPath: null,
-                rewardId: null,
                 activityTags: [],
                 isPublic: 0,
                 deletingRoutine: null,
                 containersLoaded: null,
+                rewardImage: null,
+                rewardVideo: null,
+                rewardDescription: null,
                 allRewardsByIdDictionary: this.state.allRewardsByIdDictionary,
               }))
           }
@@ -945,9 +944,9 @@ export default class ParentRoutines extends Component {
                           activityAudioPath: item.audio_path,
                           activityVideoPath: item.video_path,
                           activityIsPublic: item.is_public,
-                          rewardId: item.reward_id,
-                          allRewardsByIdDictionary: this.state
-                            .allRewardsByIdDictionary,
+                          rewardImage: item.reward_image,
+                          rewardVideo: item.reward_video,
+                          rewardDescription: item.reward_description,
                         })
                       }
                       ripple={ripple}
@@ -1335,6 +1334,7 @@ export default class ParentRoutines extends Component {
                       flexDirection: "row",
                       justifyContent: "center",
                       marginTop: 0,
+                      marginBottom: 22,
                     }}
                   >
                     <Dropdown
@@ -1440,8 +1440,8 @@ const styles = StyleSheet.create({
     // marginTop: 0,
     // margin:0,
     // width: "100%",
-    borderColor: "grey",
-    borderStyle: "solid",
+    // borderColor: "grey",
+    // borderStyle: "solid",
     borderWidth: 1,
     height: 30,
     marginRight: 12,
@@ -1611,7 +1611,7 @@ const styles = StyleSheet.create({
     // minHeight: 20,
     width: "10%",
     height: 34,
-    borderRadius: 8,
+    borderRadius: 20,
     backgroundColor: "#FF6978",
     borderColor: "#fff",
     borderWidth: 1,
@@ -1626,7 +1626,7 @@ const styles = StyleSheet.create({
     marginLeft: 30,
     fontSize: 14,
     height: 38,
-    borderRadius: 8,
+    borderRadius: 20,
     backgroundColor: "#FF6978",
     borderColor: "#fff",
     borderWidth: 1,
