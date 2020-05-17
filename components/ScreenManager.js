@@ -42,6 +42,7 @@ const Screens = createStackNavigator({
   ForgotPassword: {screen: ForgotPassowrd},
   Camera: {screen:Camera},
   ChildCamera: {screen: ChildCamera },    
+ 
 
   ParentNavigation: {screen: ParentNavigation},
   ParentRoutines: {screen: ParentRoutines},

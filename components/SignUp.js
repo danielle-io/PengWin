@@ -39,31 +39,22 @@ export default class SignUp extends Component {
 
     this.setState({ photos: pickerResult });
   };
-  render() {
 
   returnImage = () => {
-      console.log(this.state.photos);
-      if (this.state.photos) {
-        return (
-
-
-
-          <Image
-            style={{ width: 300, height: 200, borderRadius: 15 }}
-            source={{ uri: this.state.photos.uri }}
-          />
-        );
-      } else {
-        return <Icon name="camera-enhance" color="#DADADA" size={100} />;
-      }
-    };
-    
-
+    if (this.state.activityImagePath) {
+      return (
+        <Image
+          style={{ width: 300, height: 200, borderRadius: 15 }}
+          source={{ uri: this.state.activityImagePath }}
+        />
+      );
+    } else {
+    }
+  };
+  render() {
     return (
      
       <View>
-
-         
 
         <View style={{marginTop: 50, height:20, width:20}}></View>
         <View style={styles.headingContainer}></View>
@@ -78,7 +69,7 @@ export default class SignUp extends Component {
               onPress={this._handleButtonPress}
             >
                
-            {this.returnImage}
+               {this.returnImage}
             </TouchableOpacity>
             
             <Text style={styles.headingContainer}>Add Photo
@@ -89,7 +80,7 @@ export default class SignUp extends Component {
      
 
         <View style={styles.logoContainer}>
-          {/* <Image source={Logo}
+          {/* < source={Logo}
           style={styles.logo}>
           </Image> */}
           {/* Please use the profile default avatar here */}

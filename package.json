@@ -21,7 +21,7 @@
     "@unimodules/react-native-adapter": "^5.1.0",
     "body-parser": "^1.19.0",
     "clarifai": "^2.9.1",
-    "expo": "^37.0.8",
+    "expo": "^37.0.10",
     "expo-av": "~8.1.0",
     "expo-document-picker": "~8.1.0",
     "expo-font": "~8.1.0",
