@@ -106,16 +106,6 @@ export default class TestingHomePage extends Component {
                 <Text style={styles.linkText}>Parent Rewards Page</Text>
               </TouchableOpacity>
 
-              <TouchableOpacity
-                style={styles.parentContainer}
-                onPress={() =>
-                  this.navigate("EditActivity", {
-                    prevScreenTitle: "TestingHomePage",
-                  })
-                }
-              >
-                <Text style={styles.linkText}>Parent Activity</Text>
-              </TouchableOpacity>
 
               <TouchableOpacity
                 style={styles.parentContainer}
@@ -191,7 +181,7 @@ export default class TestingHomePage extends Component {
                 flexWrap: "wrap",
               }}
             >
-              <TouchableOpacity
+              {/* <TouchableOpacity
                 onPress={() =>
                   this.navigate("ChildCamera", {
                     prevScreenTitle: "ChildCamera",
@@ -200,7 +190,7 @@ export default class TestingHomePage extends Component {
                 style={styles.otherContainer}
               >
                 <Text style={styles.linkText}>ChildCamera</Text>
-              </TouchableOpacity>
+              </TouchableOpacity> */}
 
               <TouchableOpacity
                 onPress={() =>

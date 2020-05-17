@@ -69,6 +69,8 @@ export default class ParentRoutines extends Component {
       selectedContainer: null,
       selectedDeletion: null,
       addTagClicked: false,
+      confirmedAmountOfActivities: false,
+      currentActivitiesAmount : 0,
     };
   }
 
@@ -156,7 +158,7 @@ export default class ParentRoutines extends Component {
         return responseJson;
       })
       .then((containerRoutineResults) => {
-        if (containerRoutineResults){
+        if (containerRoutineResults) {
           this.storeContainerRoutineInfo(containerRoutineResults);
         }
         this.displayRoutines();
@@ -366,7 +368,7 @@ export default class ParentRoutines extends Component {
   }
 
   checkActivityAmount(routineId, amountOfActivities) {
-    fetch(Environment + "/getAmountOfActivitiesInRoutine/" + routineId, {
+   fetch(Environment + "/getAmountOfActivitiesInRoutine/" + routineId, {
       headers: {
         "Cache-Control": "no-cache",
       },
@@ -394,15 +396,27 @@ export default class ParentRoutines extends Component {
           return amountOfActivities;
         }
       })
-      .catch((error) => {
-        console.error(error);
-      });
+    .catch((error) => {
+      console.error(error);
+    });
   }
 
   // Having issues with this. might move to on login.
-  confirmAmountOfActivities(routineId, amountOfActivities) {
-    return this.checkActivityAmount(routineId, amountOfActivities);
-  }
+  // confirmAmountOfActivities(routineId, amountOfActivities) {
+  //   //  TODO: Set up a check later so that this only runs one time, on original page load
+  //   // if (this.state.confirmedAmountOfActivities){
+  //   //   return this.state.confirmedAmountOfActivities
+  //   // }
+  //   // else{
+  //   //   return this.checkActivityAmount(routineId, amountOfActivities);
+  //   // }
+  //   var activitiesAmount = this.checkActivityAmount(routineId, amountOfActivities);
+    
+  //   console.log("activitiesAmount " + activitiesAmount);
+  //   if (activitiesAmount){
+  //     return activitiesAmount;
+  //   }
+  // }
 
   updateRoutine(routineId, tag, value) {
     var data = {
@@ -817,7 +831,7 @@ export default class ParentRoutines extends Component {
           style={styles.roundAddButton}
           title="+"
           titleColor="white"
-          titleStyle={{fontSize: 18}}
+          titleStyle={{ fontSize: 18 }}
           color="#FF6978"
           onPress={
             (this._onPress,
@@ -843,7 +857,7 @@ export default class ParentRoutines extends Component {
           style={styles.roundAddButton}
           title="+"
           titleColor="white"
-          titleStyle={{fontSize: 18}}
+          titleStyle={{ fontSize: 18 }}
           color="#FF6978"
           onPress={
             (this._onPress,
@@ -881,7 +895,7 @@ export default class ParentRoutines extends Component {
         <RaisedTextButton
           style={styles.roundAddButton}
           title="+"
-          titleStyle={{fontSize: 18}}
+          titleStyle={{ fontSize: 18 }}
           titleColor="white"
           color="#FF6978"
           onPress={
@@ -1057,110 +1071,114 @@ export default class ParentRoutines extends Component {
   displayRoutines() {
     var containerName;
 
-    if (this.state.routines){
-    // parse out the db objects returned from the routines call
-    return this.state.routines.routines.map((item) => {
-      if (item.is_active === 0) {
-        containerName = "inactiveRoutineContainer";
-      } else {
-        containerName = "routineContainer";
-      }
+    if (this.state.routines) {
+      // parse out the db objects returned from the routines call
+      return this.state.routines.routines.map((item) => {
+        if (item.is_active === 0) {
+          containerName = "inactiveRoutineContainer";
+        } else {
+          containerName = "routineContainer";
+        }
 
-      return (
-        <View
-          onStartShouldSetResponder={() => this.setContainer(item.routine_id)}
-          style={styles[containerName]}
-        >
-          <MenuProvider>
-            <View style={styles.routineTitleAndMenu}>
-              <Text style={styles.routineTitle}> {item.routine_name}</Text>
-              <Menu style={styles.routineMenuStyling}>
-                <MenuTrigger style={styles.ellipsis} text="..." />
-                <MenuOptions>
-                  <MenuOption
-                    onSelect={() =>
-                      this.props.navigation.navigate("EditRoutine", {
-                        prevScreenTitle: "Routines",
-                        routineName: item.routine_name,
-                        routineId: item.routine_id,
-                        startTime: item.start_time,
-                        endTime: item.end_time,
-                        requiresApproval: item.requires_approval,
-                        monday: item.monday,
-                        tuesday: item.tuesday,
-                        wednesday: item.wednesday,
-                        thursday: item.thursday,
-                        friday: item.friday,
-                        saturday: item.saturday,
-                        sunday: item.sunday,
-                        amount_of_activities: item.amount_of_activities,
-                        amount_of_rewards: item.amount_of_rewards,
-                        allActivities: this.state.allActivities,
-                        rewardId: item.reward_id,
-                        allRewardsByIdDictionary: this.state
-                          .allRewardsByIdDictionary,
-                        allActivitiesDictionary: this.state
-                          .allActivitiesDictionary,
-                      })
-                    }
-                  >
-                    <Text style={{ color: "black" }}>Edit</Text>
-                  </MenuOption>
-                  <MenuOption
-                    onSelect={() =>
-                      this.changeActiveStatus(
-                        item.routine_id,
-                        "is_active",
-                        item.is_active
-                      )
-                    }
-                    text={this.setActiveText(item.is_active, item.routine_id)}
-                  />
-                  <MenuOption
-                    onSelect={() => this.duplicateRoutine(item)}
-                    text="Duplicate"
-                  />
-                  <MenuOption
-                    onSelect={() => alert("QuickStart")}
-                    text="Quick Start"
-                  />
+        return (
+          <View
+            onStartShouldSetResponder={() => this.setContainer(item.routine_id)}
+            style={styles[containerName]}
+          >
+            <MenuProvider>
+              <View style={styles.routineTitleAndMenu}>
+                <Text style={styles.routineTitle}> {item.routine_name}</Text>
+                <Menu style={styles.routineMenuStyling}>
+                  <MenuTrigger style={styles.ellipsis} text="..." />
+                  <MenuOptions>
+                    <MenuOption
+                      onSelect={() =>
+                        this.props.navigation.navigate("EditRoutine", {
+                          prevScreenTitle: "Routines",
+                          routineName: item.routine_name,
+                          routineId: item.routine_id,
+                          startTime: item.start_time,
+                          endTime: item.end_time,
+                          requiresApproval: item.requires_approval,
+                          monday: item.monday,
+                          tuesday: item.tuesday,
+                          wednesday: item.wednesday,
+                          thursday: item.thursday,
+                          friday: item.friday,
+                          saturday: item.saturday,
+                          sunday: item.sunday,
+                          amount_of_activities: item.amount_of_activities,
+                          amount_of_rewards: item.amount_of_rewards,
+                          allActivities: this.state.allActivities,
+                          rewardId: item.reward_id,
+                          allRewardsByIdDictionary: this.state
+                            .allRewardsByIdDictionary,
+                          allActivitiesDictionary: this.state
+                            .allActivitiesDictionary,
+                        })
+                      }
+                    >
+                      <Text style={{ color: "black" }}>Edit</Text>
+                    </MenuOption>
+                    <MenuOption
+                      onSelect={() =>
+                        this.changeActiveStatus(
+                          item.routine_id,
+                          "is_active",
+                          item.is_active
+                        )
+                      }
+                      text={this.setActiveText(item.is_active, item.routine_id)}
+                    />
+                    <MenuOption
+                      onSelect={() => this.duplicateRoutine(item)}
+                      text="Duplicate"
+                    />
+                    <MenuOption
+                      onSelect={() => alert("QuickStart")}
+                      text="Quick Start"
+                    />
 
-                  <MenuOption
-                    onSelect={() => this.itemDeletionModal(item, "routine")}
-                  >
-                    <Text style={{ color: "red" }}>Delete</Text>
-                  </MenuOption>
-                </MenuOptions>
-              </Menu>
-            </View>
-
-            <View style={styles.routineDetailsPreview}>
-              <View style={{ float: "left" }}>
-                <Text style={styles.routineDetails}>
-                  <Icon
-                    name="playlist-check"
-                    style={styles.routineDetailsIcon}
-                  />
-                  {/* TODO: move the routines activity amount check somewhere else */}
-                  {/* {console.log("ITS " + this.confirmAmountOfActivities(item.routine_id, item.amount_of_activities))} */}
-                  {/* Activities:{" "}{this.confirmAmountOfActivities(item.routine_id, item.amount_of_activities)}{" "} */}
-                  Activities: {item.amount_of_activities}{" "}
-                </Text>
-                <Text style={styles.routineDetails}>
-                  <Icon name="gift" style={styles.routineDetailsIcon} />{" "}
-                  Rewards: {item.amount_of_rewards}{" "}
-                </Text>
+                    <MenuOption
+                      onSelect={() => this.itemDeletionModal(item, "routine")}
+                    >
+                      <Text style={{ color: "red" }}>Delete</Text>
+                    </MenuOption>
+                  </MenuOptions>
+                </Menu>
               </View>
-              <View style={{marginTop: 12}}>{this.getRoutineTags(item)}</View>
 
-            </View>
-
-          </MenuProvider>
-        </View>
-      );
-    });
+              <View style={styles.routineDetailsPreview}>
+                <View style={{ float: "left" }}>
+                  <Text style={styles.routineDetails}>
+                    <Icon
+                      name="playlist-check"
+                      style={styles.routineDetailsIcon}
+                    />
+                    {/* TODO: move the routines activity amount check somewhere else */}
+                    {/* {console.log("ITS " + this.confirmAmountOfActivities(item.routine_id, item.amount_of_activities))} */}
+                    Activities:{" "}{item.amount_of_activities}
+                    {/* {this.confirmAmountOfActivities(
+                      item.routine_id,
+                      item.amount_of_activities
+                    )} */}
+                    {/* Activities: {item.amount_of_activities}{" "} */}
+                  </Text>
+                  <Text style={styles.routineDetails}>
+                    <Icon name="gift" style={styles.routineDetailsIcon} />{" "}
+                    Rewards: {item.amount_of_rewards}{" "}
+                  </Text>
+                </View>
+                <View style={{ marginTop: 12 }}>
+                  {this.getRoutineTags(item)}
+                </View>
+              </View>
+            </MenuProvider>
+          </View>
+        );
+      });
+    }
   }
-}
 
   selectedColor(value) {
     this.setState({ selectedColor: value });
@@ -1218,7 +1236,7 @@ export default class ParentRoutines extends Component {
             this.state.routinesLoaded &&
             this.state.containersLoaded && (
               <View>
-                <View style={{ flexDirection: "row", marginTop: 6}}>
+                <View style={{ flexDirection: "row", marginTop: 6 }}>
                   {!this.state.addTagModal && (
                     <TouchableOpacity
                       onPress={() => {
@@ -1407,12 +1425,12 @@ export default class ParentRoutines extends Component {
               onPress={() => {
                 this.deleteItem();
               }}
-              style={{ 
+              style={{
                 minWidth: 50,
                 width: 100,
                 borderRadius: 20,
                 borderWidth: 1,
-                borderColor: "#FF6978"
+                borderColor: "#FF6978",
               }}
               title="Yes, Delete it"
               color="red"
@@ -1572,7 +1590,7 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   routineDetails: {
-    marginLeft: 4,
+    marginLeft: 6,
     fontSize: 16,
     zIndex: 2,
   },
@@ -1769,12 +1787,13 @@ const styles = StyleSheet.create({
     width: 100,
     borderRadius: 20,
     backgroundColor: "#8dd993",
-    borderWidth: 1,
+
+    // borderWidth: 1,
     alignItems: "center",
     flexDirection: "row",
     justifyContent: "center",
     marginRight: 6,
-    // opacity: 0.5,
+    opacity: 0.8,
   },
   blueTag: {
     color: "white",

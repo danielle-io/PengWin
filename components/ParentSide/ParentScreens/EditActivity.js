@@ -174,7 +174,6 @@ export default class Activity extends Component {
         }
       }
     }
-    console.log("should navigate here");
     this.props.navigation.navigate("ParentRoutines");
   }
 
