@@ -256,7 +256,7 @@ export default class EditRoutine extends Component {
         routine_name: this.state.routineName,
         start_time: this.state.startTime,
         end_time: this.state.endTime,
-        requiresApproval: this.state.requires_approval,
+        requires_approval: this.state.requires_approval,
         user_id: userId,
         amount_of_activities: Object.keys(this.state.routineActivitiesByOrder)
           .length,
@@ -338,6 +338,7 @@ export default class EditRoutine extends Component {
       clicked = this.state.addRewardButtonClicked;
       placeholderText = "Select a reward";
       dropdownItems = this.state.allRewardNames;
+      console.log("ALL REWARD NAMES " + this.state.allRewardNames);
     }
     return (
       <View>
@@ -345,6 +346,7 @@ export default class EditRoutine extends Component {
           <View style={styles.formIndent}>
             <View style={styles.editRoutineButtonAndList}>
               <Text style={styles.redNumbers}>{rowNum}</Text>
+              
               <SearchableDropdown
                 onItemSelect={(item) => {
                   if (listName === "activity") {
@@ -474,7 +476,7 @@ export default class EditRoutine extends Component {
 
       // Put all the reward names in an array since those
       // will be displayed in the dropdown
-      if (this.allRewardsByIdDictionary) {
+      if (this.state.allRewardsByIdDictionary) {
         this.getAllRewardNames();
       }
     });
