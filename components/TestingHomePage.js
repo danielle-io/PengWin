@@ -60,7 +60,6 @@ export default class TestingHomePage extends Component {
                 <Text style={styles.linkText}>Parent Navigation Page</Text>
               </TouchableOpacity>
 
-
               <TouchableOpacity
                 style={styles.parentContainer}
                 onPress={() =>
@@ -73,7 +72,6 @@ export default class TestingHomePage extends Component {
                 <Text style={styles.linkText}>Public Activities</Text>
               </TouchableOpacity>
 
-
               <TouchableOpacity
                 style={styles.parentContainer}
                 onPress={() =>
@@ -83,8 +81,7 @@ export default class TestingHomePage extends Component {
                   })
                 }
               >
-              
-              <Text style={styles.linkText}>Notifications</Text>
+                <Text style={styles.linkText}>Notifications</Text>
               </TouchableOpacity>
 
               <TouchableOpacity
@@ -132,8 +129,6 @@ export default class TestingHomePage extends Component {
               </TouchableOpacity>
             </View>
 
-
-
             <View
               style={{
                 flex: 1,
@@ -161,12 +156,25 @@ export default class TestingHomePage extends Component {
               <TouchableOpacity
                 style={styles.childContainer}
                 onPress={() =>
-                  this.navigate("ChildNotifScreen", { prevScreenTitle: "Login" })
+                  this.navigate("ChildHurray", {
+                    activityId: 1,
+                    key: 2,
+                    length: 3,
+                  })
+                }
+              >
+                <Text style={styles.linkText}>Child Activity Reward</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.childContainer}
+                onPress={() =>
+                  this.navigate("ChildNotifScreen", {
+                    prevScreenTitle: "Login",
+                  })
                 }
               >
                 <Text style={styles.linkText}>Child Push Notif</Text>
               </TouchableOpacity>
-
             </View>
 
             {/* <View style={{ flex: 1, justifyContent: 'center', flexDirection: 'row', flexWrap: 'wrap' }}>
@@ -185,7 +193,9 @@ export default class TestingHomePage extends Component {
             >
               <TouchableOpacity
                 onPress={() =>
-                  this.navigate("ChildCamera", { prevScreenTitle: "ChildCamera" })
+                  this.navigate("ChildCamera", {
+                    prevScreenTitle: "ChildCamera",
+                  })
                 }
                 style={styles.otherContainer}
               >

@@ -136,7 +136,7 @@ export default class ChildRoutines extends Component {
   };
 
   // Can use this function below, OR use Expo's Push Notification Tool-> https://expo.io/dashboard/notifications
-  sendPushNotification = async (item, date) => {
+  sendPushNotification = async (date, item) => {
     try {
       await Notifications.scheduleLocalNotificationAsync(
         {
@@ -166,42 +166,41 @@ export default class ChildRoutines extends Component {
 
   setNotifs() {
     this.state.routines.routines.map((item) => {
-      if (item.push_item === 0) {
+      if (item.push_set === 0) {
         let time = item.start_time.split(":");
+        console.log(time);
         let date = new Date();
         date.setHours(time[0]);
         date.setMinutes(time[1]);
-        
-        if (item.sunday === 1)
-        { 
+
+        if (item.sunday === 1) {
           let newDate = this.setDays(0, date);
           this.sendPushNotification(newDate, item);
         }
-        if (item.monday === 1){ 
-          let newDate =this.setDays(1, date);
+        if (item.monday === 1) {
+          let newDate = this.setDays(1, date);
           this.sendPushNotification(newDate, item);
         }
-        if (item.tuesday === 1){ 
-          let newDate =this.setDays(2, date);
+        if (item.tuesday === 1) {
+          let newDate = this.setDays(2, date);
           this.sendPushNotification(newDate, item);
         }
-        if (item.wednesday === 1) { 
-          let newDate =this.setDays(3, date);
+        if (item.wednesday === 1) {
+          let newDate = this.setDays(3, date);
           this.sendPushNotification(newDate, item);
         }
-        if (item.thursday === 1) { 
-          let newDate =this.setDays(4, date);
+        if (item.thursday === 1) {
+          let newDate = this.setDays(4, date);
           this.sendPushNotification(newDate, item);
         }
-        if (item.friday === 1) { 
-          let newDate =this.setDays(5, date);
+        if (item.friday === 1) {
+          let newDate = this.setDays(5, date);
           this.sendPushNotification(newDate, item);
         }
-        if (item.saturday === 1) { 
-          let newDate =this.setDays(6, date);
+        if (item.saturday === 1) {
+          let newDate = this.setDays(6, date);
           this.sendPushNotification(newDate, item);
         }
-
       }
     });
   }
@@ -209,7 +208,6 @@ export default class ChildRoutines extends Component {
   renderRoutines() {
     return this.state.routines.routines.map((item) => {
       if (item.is_active == 1) {
-        
         return (
           <View
             style={({ flex: 1 }, styles.routines)}
