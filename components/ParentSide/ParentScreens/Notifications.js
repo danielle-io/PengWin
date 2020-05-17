@@ -17,7 +17,7 @@ export default class Notifications extends Component {
     super(props);
     this.state = {
       icon: 'check-all',
-      prevScreenTitle: this.props.navigation.state.params.prevScreenTitle,
+      //prevScreenTitle: this.props.navigation.state.params.prevScreenTitle,
       childNotifications: null,
       childLoaded: false,
       childResults: null,
