@@ -21,21 +21,63 @@ const childId = UserInfo.child_id;
 const userId = UserInfo.user_id;
 
 Icon.loadFont();
+
 export default class ChildMap extends Component {
   constructor(props) {
     super(props);
     this.state = {
       title: this.props.navigation.state.params.title,
-      amt: this.props.navigation.state.params.amt
+      amt: this.props.navigation.state.params.amt,
+      reward: this.props.navigation.state.params.reward,
+      routineId: this.props.navigation.state.params.routineId,
     };
   }
 
   static navigationOptions = ({ navigation }) => ({
     title: "My Rewards",
   });
+
+  stars() {
+    star = [];
+    for (let i = 0; i < this.state.amt; i++) {
+      if (i % 2 === 0) {
+        star.push(
+          <Image
+            source={Star}
+            style={{
+              position: "absolute",
+              width: 100,
+              height: 100,
+              bottom: 500 + HEIGHT * 0.6 * (i / this.state.amt),
+              right: WIDTH * 0.3 + i * 20,
+              resizeMode: "contain",
+            }}
+          />
+        );
+      } else {
+        star.push(
+          <Image
+            source={Star}
+            style={{
+              position: "absolute",
+              width: 100,
+              height: 100,
+              bottom: 500 + HEIGHT * 0.6 * (i / this.state.amt),
+              right: WIDTH * 0.6 - i * 20,
+              resizeMode: "contain",
+            }}
+          />
+        );
+      }
+    }
+
+    return star;
+  }
+
   render() {
+    console.log(this.state.routineId);
     return (
-      <View>
+      <View style={{ backgroundColor: "#2ca3ca", height: HEIGHT }}>
         <View
           style={{
             shadowColor: "grey",
@@ -49,6 +91,7 @@ export default class ChildMap extends Component {
             paddingBottom: 10,
             flexDirection: "row",
             justifyContent: "center",
+            zIndex: 10,
           }}
         >
           <Image source={Head} style={{ width: 140, height: 115 }} />
@@ -60,88 +103,56 @@ export default class ChildMap extends Component {
           }}
         >
           <View style={styles.titles}>
-            <Text>Donuts</Text>
+            <Text>{this.state.reward}</Text>
           </View>
 
           <Image
             source={Road}
             style={{
-              width: WIDTH * 0.5,
-              height: HEIGHT * 0.7,
-              resizeMode: "contain",
+              top: -200,
+              marginTop: 100,
+              width: WIDTH,
+              height: HEIGHT,
+              resizeMode: "cover",
+              zIndex: -10,
+              position: "relative",
             }}
           />
 
-          <Image
-            source={Star}
-            style={{
-              width: 100,
-              height: 100,
-              top: -180,
-              right: -200,
-              resizeMode: "contain",
-            }}
-          />
-
-          <Image
-            source={Star}
-            style={{
-              width: 100,
-              height: 100,
-              top: -500,
-              right: 200,
-              resizeMode: "contain",
-            }}
-          />
-
-          <Image
-            source={Star}
-            style={{
-              width: 100,
-              height: 100,
-              top: -750,
-              right: -200,
-              resizeMode: "contain",
-            }}
-          />
-
-          <Image
-            source={Star}
-            style={{
-              width: 100,
-              height: 100,
-              top: -975,
-              right: 190,
-              resizeMode: "contain",
-            }}
-          />
+          {this.stars()}
 
           <View style={styles.titles2}>
             <Text>{this.state.title}</Text>
           </View>
           <View
             style={{
+              bottom: -HEIGHT * 0.08,
+              position: "absolute",
               flexDirection: "row",
               justifyContent: "center",
             }}
           >
-            <TouchableOpacity style={styles.button}
-            onPress={() =>
-              this.props.navigation.navigate("ChildRewards", {
-                prevScreenTitle: "My Map"
-              })
-            }>
+            <TouchableOpacity
+              style={styles.button}
+              onPress={() =>
+                this.props.navigation.navigate("ChildRewards", {
+                  prevScreenTitle: "My Map",
+                })
+              }
+            >
               <Text>Back To Rewards</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.button}
-            onPress={() =>
-              this.props.navigation.navigate("ChildActivity", {
-                prevScreenTitle: "My Map",
-                currentRoutine: this.state.title,
-                userID: userId
-              })
-            }>
+            <TouchableOpacity
+              style={styles.button}
+              onPress={() =>
+                this.props.navigation.navigate("ChildActivity", {
+                  prevScreenTitle: "My Map",
+                  currentRoutine: this.state.title,
+                  routineId: this.state.routineId,
+                })
+              }
+            >
               <Text>Start Routine</Text>
             </TouchableOpacity>
           </View>
@@ -160,10 +171,11 @@ styles = {
     borderRadius: 15,
     alignItems: "center",
     justifyContent: "center",
-    top: 20,
+    top: 80,
     zIndex: 1,
   },
   titles2: {
+    top: -500,
     height: 60,
     width: 300,
     backgroundColor: "white",
@@ -171,7 +183,6 @@ styles = {
     borderRadius: 15,
     alignItems: "center",
     justifyContent: "center",
-    top: -450,
   },
   button: {
     height: 60,

@@ -2,12 +2,15 @@
 // rather than allActivities
 import React, { Component } from "react";
 import {
+  Button,
   Dimensions,
   SafeAreaView,
   StyleSheet,
   View,
   Text,
   ScrollView,
+  TouchableHighlight,
+  TouchableOpacity,
 } from "react-native";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import { RaisedTextButton } from "react-native-material-buttons";
@@ -36,8 +39,8 @@ Icon.loadFont();
 
 export default class PublicActivities extends Component {
   static navigationOptions = ({ navigation }) => ({
-    title: "Routines",
-    prevScreenTitle: "Routines",
+    title: "Public Activities",
+    prevScreenTitle: "Activities",
     activeTab: 2,
   });
 
@@ -55,7 +58,7 @@ export default class PublicActivities extends Component {
   }
 
   getAllPublicActivities() {
-    fetch(Environment + "/getAllPublicActivities/" + userId, {
+    fetch(Environment + "/getPublicActivities/" + userId, {
       headers: {
         "Cache-Control": "no-cache",
       },
@@ -66,6 +69,8 @@ export default class PublicActivities extends Component {
       })
       .then((results) => {
         this.setState({ allActivities: results });
+        this.setState({ activitiesLoaded: true });
+        this.displayActivities();
       })
       .catch((error) => {
         console.error(error);
@@ -77,63 +82,48 @@ export default class PublicActivities extends Component {
 
     return this.state.allActivities.map((item) => {
       return (
-        <View style={styles.routineContainer}>
-          <View style={styles.routineTitleAndMenu}>
-            <Text style={styles.routineTitle}> {item.activity_name}</Text>
-            <MenuProvider>
-              <Menu style={styles.routineMenuStyling}>
-                <MenuTrigger style={styles.ellipsis} text="..." />
-                <MenuOptions>
-                  <MenuOption
-                    onSelect={() =>
-                      navigate("ViewPublicActivity", {
-                        prevScreenTitle: "PublicActivities",
-                        activityName: item.activity_name,
-                        activityId: item.activity_id,
-                        activityTags: eval(item.tags),
-                        activityImagePath: item.image_path,
-                        activityDescription: item.activity_description,
-                        activityAudioPath: item.audio_path,
-                        activityVideoPath: item.video_path,
-                      })
-                    }
-                  >
-                    <Text style={{ color: "black" }}>Edit</Text>
-                  </MenuOption>
-                </MenuOptions>
-              </Menu>
-            </MenuProvider>
-          </View>
+        <View
+          style={({ flex: 1 }, styles.routineContainer)}
+          onStartShouldSetResponder={() =>
+            navigate("ViewPublicActivity", {
+              prevScreenTitle: "Public Activities",
+              activityName: item.activity_name,
+              activityId: item.activity_id,
+              activityTags: item.tags,
+              activityImagePath: item.image_path,
+              activityDescription: item.activity_description,
+              activityAudioPath: item.audio_path,
+              activityVideoPath: item.video_path,
+              rewardId: item.reward_id,
+            })
+          }
+        >
+          <Text style={styles.routineTitle}> {item.activity_name}</Text>
         </View>
       );
     });
   }
 
   render() {
-    if (this.state.results !== null) {
-      //  console.log(this.state.results);
-    } else {
-      console.log("this.state.results is null :( ");
-    }
-
     let ripple = { id: "addButton" };
     const { navigate } = this.props.navigation;
 
     return (
       <View>
         {this.state.activitiesLoaded && (
-          <View>
-            <ScrollView>
-              <View
-                style={{
-                  flexDirection: "row",
-                  flexWrap: "wrap",
-                }}
-              >
-                {this.displayActivities()}
-              </View>
-            </ScrollView>
-          </View>
+          <ScrollView>
+            <View
+              style={{
+                marginLeft: 10,
+                marginRight: 10,
+                flex: 1,
+                flexDirection: "row",
+                flexWrap: "wrap",
+              }}
+            >
+              {this.displayActivities()}
+            </View>
+          </ScrollView>
         )}
         <View>
           <View style={{ marginTop: 100 }} />
@@ -170,13 +160,6 @@ const styles = StyleSheet.create({
     flex: 1,
     overflow: "visible",
   },
-  ellipsis: {
-    flexDirection: "row",
-    alignSelf: "flex-end",
-    fontSize: 30,
-    marginRight: 10,
-    overflow: "visible",
-  },
   routineTitle: {
     marginLeft: 4,
     marginTop: 2,
@@ -193,8 +176,9 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   routineDetails: {
-    fontSize: 12,
-    zIndex: 2,
+    fontSize: 15,
+    paddingTop: 10,
+    paddingLeft: 2,
   },
   routineDetailsPreview: {
     zIndex: 2,

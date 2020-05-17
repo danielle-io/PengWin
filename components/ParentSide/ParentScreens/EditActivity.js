@@ -196,6 +196,7 @@ export default class Activity extends Component {
 
   componentDidMount() {
     this._askForPermissions();
+    console.log(this.state.activityTags);
   }
 
   _askForPermissions = async () => {
@@ -506,11 +507,12 @@ export default class Activity extends Component {
 
 
   newTagAdded(newTag) { 
+    console.log("newTagAdded");
     console.log("tag is " + newTag);     
-    this.setState({ activityTags: newTag.toLowerCase() });
+    this.setState({ activityTags: newTag.split(',')});
     if (this.state.activityId){
       console.log("activity id exists");
-      this.updateActivity("tags", newTag.toLowerCase());
+      this.updateActivity("tags", newTag.toLowerCase().replace(/\s+/g, ''));
     }
     console.log("state is " + this.state.activityTags);
   }
@@ -607,8 +609,7 @@ export default class Activity extends Component {
           <Text style={styles.description}>
             Enter some words that match what this activity entails, so that the
             camera can detect if it's been photographed. Make the first word the
-            most accurate, since it's what we will display in the instructions.
-            To create a tag, type in the word and use a comma or space to add it
+            most accurate. To create a tag, type in the word and use a comma or space to add it
             to the list.
           </Text>
 
@@ -617,14 +618,6 @@ export default class Activity extends Component {
               placeholder: "?TAGS",
             }}
             initialTags={this.state.activityTags}
-            // onTagPress={(index, tagLabel, event, deleted) =>
-            //   this.tagWasPressed(
-            //     index,
-            //     tagLabel,
-            //     event,
-            //     deleted ? "deleted" : "not deleted"
-            //   )
-            // }
             containerStyle={{ justifyContent: "center" }}
             inputStyle={{
               backgroundColor: "#FFFCF9",
@@ -907,7 +900,6 @@ export default class Activity extends Component {
 
         <View>
           <View style={styles.editRoutineIconAndTitle}>
-            <Icon style={styles.routineDetailsIcon} name="check-all" />
             <Text style={styles.editRoutineSectionName}>Set Public</Text>
           </View>
           <View style={styles.editRoutineIconAndTitle}>
