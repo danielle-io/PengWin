@@ -349,9 +349,11 @@ export default class ChildActivity extends Component {
                       </View>
                     )}
 
-                    <View
+                    
+                  </ScrollView>
+                  <View
                       style={{
-                        top: 100,
+                        bottom: 100,
                         justifyContent: "center",
                         alignItems: "center",
                       }}
@@ -381,7 +383,6 @@ export default class ChildActivity extends Component {
                         <Text style={styles.textStyle}>Take A Picture!</Text>
                       </TouchableOpacity>
                     </View>
-                  </ScrollView>
                 </View>
               );
             })}
@@ -525,7 +526,7 @@ const styles = StyleSheet.create({
     zIndex: 99,
   },
   headerLeftText: {
-    fontFamily: "SF",
+    fontFamily: "Gaegu",
     borderColor: "#B1EDE8",
     borderWidth: 2,
     height: 40,
