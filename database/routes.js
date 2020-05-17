@@ -35,7 +35,6 @@ app.get("/getChildFromParent/:userId", function(req, res) {
       [userId],
       function(error, results, fields) {
         connection.release();
-        // console.log(error);
         if (error) {
           throw error;
           console.log(err);

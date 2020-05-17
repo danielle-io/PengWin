@@ -1,7 +1,27 @@
-import React, { Component } from 'react';
-import { StyleSheet, TouchableOpacity, Alert, ScrollView, View, Text } from 'react-native';
-import { Table, TableWrapper, Row, Cell, Col, Cols } from 'react-native-table-component';
 
+import React, { Component } from "react";
+import {
+  Button,
+  Dimensions,
+  Picker,
+  SafeAreaView,
+  StyleSheet,
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  ScrollView,
+  Switch,
+} from "react-native";
+import { Table, TableWrapper, Row, Cell, Col, Cols } from 'react-native-table-component';
+import {
+  LineChart,
+  BarChart,
+  PieChart,
+  ProgressChart,
+  ContributionGraph,
+  StackedBarChart
+} from "react-native-chart-kit";
 export default class Progress extends Component {
 
 
@@ -34,26 +54,63 @@ export default class Progress extends Component {
 
         const state = this.state;
         return (
+
+
           <View style={styles.container}>
-            <Table style={{flexDirection: 'row'}} borderStyle={{borderWidth: 1}}>
-              {/* Left Wrapper */}
-              <TableWrapper style={{width: 80}}>
-                <Cell data="" style={styles.singleHead}/>
-                <TableWrapper style={{flexDirection: 'row'}}>
-                  <Col data={['H1', 'H2']} style={styles.head} heightArr={[60, 60]} textStyle={styles.text} />
-                  <Col data={state.tableTitle} style={styles.title} heightArr={[30, 30, 30, 30]} textStyle={styles.titleText}></Col>
-                </TableWrapper>
-              </TableWrapper>
-    
-              {/* Right Wrapper */}
-              <TableWrapper style={{flex:1}}>
-                <Cols data={state.tableData} heightArr={[40, 30, 30, 30, 30]} textStyle={styles.text}/>
-              </TableWrapper>
-            </Table>
-          </View>
-        )
+
+<View>
+  <Text>Bezier Line Chart</Text>
+  <LineChart
+    data={{
+      labels: ["January", "February", "March", "April", "May", "June"],
+      datasets: [
+        {
+          data: [
+            Math.random() * 100,
+            Math.random() * 100,
+            Math.random() * 100,
+            Math.random() * 100,
+            Math.random() * 100,
+            Math.random() * 100
+          ]
+          
+        }
+      ]
+    }}
+    width={Dimensions.get("window").width} // from react-native
+    height={220}
+    yAxisLabel="$"
+    yAxisSuffix="k"
+    yAxisInterval={1} // optional, defaults to 1
+    chartConfig={{
+      backgroundColor: "#e26a00",
+      backgroundGradientFrom: "#fb8c00",
+      backgroundGradientTo: "#ffa726",
+      decimalPlaces: 2, // optional, defaults to 2dp
+      color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
+      labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
+      style: {
+        borderRadius: 16
+      },
+      propsForDots: {
+        r: "6",
+        strokeWidth: "2",
+        stroke: "#ffa726"
       }
-    }
+    }}
+    bezier
+    style={{
+      marginVertical: 8,
+      borderRadius: 16
+    }}
+  />
+</View>
+
+        
+      </View>
+      
+        )}
+}
     
     const styles = StyleSheet.create({
       container: { flex: 1, padding: 16, paddingTop: 30, backgroundColor: '#fff' },

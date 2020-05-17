@@ -61,7 +61,6 @@ export default class ParentRoutines extends Component {
       allActivitiesDictionary: null,
       typeToDelete: null,
       itemToDelete: null,
-
       containerNames: null,
       containerDict: null,
       containerRoutineDict: null,
@@ -69,6 +68,7 @@ export default class ParentRoutines extends Component {
       newContainerName: null,
       selectedContainer: null,
       selectedDeletion: null,
+      addTagClicked: false,
     };
   }
 
@@ -127,7 +127,6 @@ export default class ParentRoutines extends Component {
   }
 
   getRoutines() {
-    console.log("get routines");
     fetch(Environment + "/getRoutinesByUser/" + userId, {
       headers: {
         "Cache-Control": "no-cache",
@@ -157,9 +156,10 @@ export default class ParentRoutines extends Component {
         return responseJson;
       })
       .then((containerRoutineResults) => {
-        console.log(containerRoutineResults);
-        this.storeContainerRoutineInfo(containerRoutineResults);
-        // this.displayRoutines();
+        if (containerRoutineResults){
+          this.storeContainerRoutineInfo(containerRoutineResults);
+        }
+        this.displayRoutines();
       })
       .catch((error) => {
         console.error(error);
@@ -177,7 +177,6 @@ export default class ParentRoutines extends Component {
         return responseJson;
       })
       .then((containerResults) => {
-        console.log(containerResults);
         this.storeContainerInfo(containerResults);
       })
       .catch((error) => {
@@ -207,7 +206,8 @@ export default class ParentRoutines extends Component {
         })
         .then((results) => {
           this.getContainers();
-          this.displayRoutines();
+          this.setState({ routinesLoaded: false });
+          this.getRoutines();
         });
     }
   }
@@ -310,16 +310,11 @@ export default class ParentRoutines extends Component {
         containerRoutineId: contRoutineId,
       };
     }
-    console.log("containerRoutineDict");
-    console.log(tempContainerRoutineDict);
-
     this.setState({ containerRoutineDict: tempContainerRoutineDict });
     this.setState({ containersLoaded: true });
   }
 
   setContainer(routineId) {
-    console.log("IN SET CONTAINER " + routineId);
-
     if (this.state.selectedContainer) {
       this.setState({ containersLoaded: false });
       this.insertToRoutineContainerTable(routineId);
@@ -327,18 +322,15 @@ export default class ParentRoutines extends Component {
   }
 
   deleteContainer() {
+    this.setState({ selectedContainer: null });
+    this.setState({ editTagModal: false });
+
     if (this.state.containerRoutineDict !== null) {
       if (this.state.selectedDeletion) {
+        console.log("deletion");
         this.updateContainer(this.state.selectedDeletion, "deleted", 1);
 
         return Object.keys(this.state.containerRoutineDict).map((item) => {
-          console.log(
-            "ITEM " + this.state.containerRoutineDict[item].containerId
-          );
-          console.log(
-            "this.state.selectedDeletion " + this.state.selectedDeletion
-          );
-
           if (
             this.state.containerRoutineDict[item].containerId ===
             this.state.selectedDeletion
@@ -368,15 +360,12 @@ export default class ParentRoutines extends Component {
         value: containerResults[i].container_id,
       });
     }
-
-    console.log("containerNames " + tempContainerNamesArray);
     this.setState({ containerNames: tempContainerNamesArray });
     this.setState({ containerDict: tempContainerDict });
     this.getContainersPerRoutines();
   }
 
   checkActivityAmount(routineId, amountOfActivities) {
-    console.log("routine id is " + routineId);
     fetch(Environment + "/getAmountOfActivitiesInRoutine/" + routineId, {
       headers: {
         "Cache-Control": "no-cache",
@@ -387,7 +376,6 @@ export default class ParentRoutines extends Component {
         return responseJson;
       })
       .then((activities) => {
-        console.log(activities);
         if (activities === []) {
           console.log("returning 0");
           return 0;
@@ -417,7 +405,6 @@ export default class ParentRoutines extends Component {
   }
 
   updateRoutine(routineId, tag, value) {
-    console.log("updating " + tag + " for id " + routineId + " to " + value);
     var data = {
       [tag]: value,
     };
@@ -435,35 +422,17 @@ export default class ParentRoutines extends Component {
           return responseJson;
         })
         .then((routineResults) => {
-          console.log("SUCCESS: updated amount of activities");
           this.setState({ routinesLoaded: false });
-
-          console.log("duplicate worked");
           this.getRoutines();
 
           if (this.state.routinesLoaded) {
-            console.log("routines loaded again");
             this.displayRoutines();
           }
         });
-      // if (response.status >= 200 && response.status < 300) {
-
-      // return value;
-      // }
-      // } catch (errors) {
-      //   console.log(errors);
     }
   }
 
   async updateActivityRelationship(routine_activity_id, tag, value) {
-    console.log(
-      "TAG IS " +
-        tag +
-        " ROUTINE_ACTIVITY_ID IS " +
-        routine_activity_id +
-        " VALUE IS " +
-        value
-    );
     var data = {
       [tag]: value,
     };
@@ -480,9 +449,6 @@ export default class ParentRoutines extends Component {
         }
       );
       console.log(response.status);
-      if (response.status >= 200 && response.status < 300) {
-        console.log("status is 200");
-      }
     } catch (errors) {
       console.log(errors);
     }
@@ -838,6 +804,14 @@ export default class ParentRoutines extends Component {
     this.setState({ itemToDelete: null });
   }
 
+  cancelEditTag() {
+    this.setState({ editTagModal: false });
+  }
+
+  cancelAddTag() {
+    this.setState({ addTagModal: false });
+  }
+
   displayLibraryContainer() {
     let ripple = { id: "addButton" };
     return (
@@ -845,6 +819,8 @@ export default class ParentRoutines extends Component {
         <RaisedTextButton
           style={styles.roundAddButton}
           title="+"
+          titleColor="white"
+          titleStyle={{fontSize: 18}}
           color="#FF6978"
           onPress={
             (this._onPress,
@@ -869,6 +845,8 @@ export default class ParentRoutines extends Component {
         <RaisedTextButton
           style={styles.roundAddButton}
           title="+"
+          titleColor="white"
+          titleStyle={{fontSize: 18}}
           color="#FF6978"
           onPress={
             (this._onPress,
@@ -904,6 +882,8 @@ export default class ParentRoutines extends Component {
         <RaisedTextButton
           style={styles.roundAddButton}
           title="+"
+          titleStyle={{fontSize: 18}}
+          titleColor="white"
           color="#FF6978"
           onPress={
             (this._onPress,
@@ -925,6 +905,7 @@ export default class ParentRoutines extends Component {
                 saturday: 0,
                 sunday: 0,
                 rewardId: 0,
+                editTagModal: false,
                 allActivities: this.state.allActivities,
                 allActivitiesDictionary: this.state.allActivitiesDictionary,
                 allRewardsByIdDictionary: this.state.allRewardsByIdDictionary,
@@ -997,20 +978,21 @@ export default class ParentRoutines extends Component {
     });
   }
 
+  clickedAddTag() {
+    this.setState({ addTagModal: !this.state.addTagModal });
+  }
+
+  clickedEditTag() {
+    this.setState({ editTagModal: !this.state.editTagModal });
+  }
+
   deleteTag(routineId) {
-    console.log(
-      "deleting tag from routine id " +
-        routineId +
-        " and tag id is " +
-        this.state.containerRoutineDict[routineId]
-    );
     var containerRoutineId = this.state.containerRoutineDict[routineId]
       .containerRoutineId;
     this.updateRoutineTagRelationship(containerRoutineId, "deleted", 1);
   }
 
   selectedContainer(id) {
-    console.log(id);
     this.setState({ selectedContainer: id });
   }
 
@@ -1063,9 +1045,8 @@ export default class ParentRoutines extends Component {
   }
 
   saveNewContainer() {
-    console.log(this.state.newContainerName);
-    console.log(this.state.selectedColor);
-
+    this.setState({ editTagModal: !this.state.editTagModal });
+    this.setState({ selectedContainer: null });
     if (
       this.state.selectedColor !== null &&
       this.state.newContainerName !== null
@@ -1077,6 +1058,7 @@ export default class ParentRoutines extends Component {
   displayRoutines() {
     var containerName;
 
+    if (this.state.routines){
     // parse out the db objects returned from the routines call
     return this.state.routines.routines.map((item) => {
       if (item.is_active === 0) {
@@ -1143,10 +1125,6 @@ export default class ParentRoutines extends Component {
                     onSelect={() => alert("QuickStart")}
                     text="Quick Start"
                   />
-                  {/* <MenuOption
-                    onSelect={() => alert("Add Tag")}
-                    text="Add Tag"
-                  /> */}
 
                   <MenuOption
                     onSelect={() => this.itemDeletionModal(item, "routine")}
@@ -1162,8 +1140,8 @@ export default class ParentRoutines extends Component {
                 <Text style={styles.routineDetails}>
                   <Icon
                     name="playlist-check"
-                    style={styles.routineDetailsIcon}></Icon>
-    
+                    style={styles.routineDetailsIcon}
+                  />
                   {/* TODO: move the routines activity amount check somewhere else */}
                   {/* {console.log("ITS " + this.confirmAmountOfActivities(item.routine_id, item.amount_of_activities))} */}
                   {/* Activities:{" "}{this.confirmAmountOfActivities(item.routine_id, item.amount_of_activities)}{" "} */}
@@ -1174,14 +1152,16 @@ export default class ParentRoutines extends Component {
                   Rewards: {item.amount_of_rewards}{" "}
                 </Text>
               </View>
+              <View style={{marginTop: 12}}>{this.getRoutineTags(item)}</View>
 
-              <View>{this.getRoutineTags(item)}</View>
             </View>
+
           </MenuProvider>
         </View>
       );
     });
   }
+}
 
   selectedColor(value) {
     this.setState({ selectedColor: value });
@@ -1192,7 +1172,6 @@ export default class ParentRoutines extends Component {
   }
 
   render() {
-    
     if (this.state.routines !== null) {
     } else {
       console.log("this.state.routines is null :( ");
@@ -1217,14 +1196,14 @@ export default class ParentRoutines extends Component {
 
     return (
       <View>
-        {/* Routines and Activities tabs */}
         <SafeAreaView>
           <MaterialTabs
             items={["Routines", "Activities"]}
             selectedIndex={this.state.selectedTab}
             barColor="white"
             // barColor="#D7CBD2"
-            indicatorColor="#B1EDE8"
+            activeBackgroundColor="#FF6978"
+            indicatorColor="#FF6978"
             activeTextColor="black"
             inactiveTextColor="grey"
             onChange={(index) =>
@@ -1240,82 +1219,127 @@ export default class ParentRoutines extends Component {
             this.state.routinesLoaded &&
             this.state.containersLoaded && (
               <View>
-                {/* <Icon name="tag" style={styles.tagMenuIcons}><Text>Apply Tags</Text></Icon> */}
-                <View
-                  style={{
-                    flexDirection: "row",
-                    flexWrap: "wrap",
-                    marginLeft: 8,
-                    marginRight: 8,
-                  }}
-                >
-                  {this.displayRoutines()}
-                  {this.displayNewRoutineContainer()}
-                </View>
-                {/* Tag options */}
-                <View style={styles.textFields}>
-                  <Text style={styles.titles}>Apply a Routine Tag</Text>
-                  <View style={{ width: "80%" }}>
-                    {/* <Text style={styles.description}>
-              Select a tag then click a routine to apply it.
-            </Text> */}
-                  </View>
+                <View style={{ flexDirection: "row", marginTop: 6}}>
+                  {!this.state.addTagModal && (
+                    <TouchableOpacity
+                      onPress={() => {
+                        this.clickedAddTag();
+                      }}
+                      style={{ flexDirection: "row" }}
+                    >
+                      <Icon name="tag" style={styles.tagMenuIconsTwo} />
+                      <Text style={styles.tagMenuIconText}>Apply Tags</Text>
+                    </TouchableOpacity>
+                  )}
 
-                  <View style={{ flexDirection: "row" }}>
-                    {/* <View style={styles.tagsContainer}> */}
+                  {this.state.addTagModal && (
                     <Dropdown
-                      containerStyle={{ width: "42%" }}
-                      label="Select a tag then click a routine to apply it"
+                      dropdownPosition="0"
+                      dropdownOffset={{ top: 3, left: 30 }}
+                      containerStyle={{
+                        marginTop: 8,
+                        marginLeft: 25,
+                        width: "16%",
+                      }}
+                      label={
+                        // <Icon name="tag" style={styles.tagMenuIcons}></Icon>
+                        // <Text style={styles.tagMenuIconText}>Apply Tags</Text>
+                        "Select a tag"
+                      }
                       data={this.state.containerNames}
                       onChangeText={(id) => this.selectedContainer(id)}
                     />
-                    {/* </View> */}
+                  )}
+                  <TouchableOpacity
+                    onPress={() => {
+                      this.clickedEditTag();
+                    }}
+                    style={{ flexDirection: "row" }}
+                  >
+                    <Icon name="plus" style={styles.tagMenuIcons} />
+                    <Text style={styles.tagMenuIconText}>Edit Tags</Text>
+                  </TouchableOpacity>
+                </View>
+
+                <Dialog
+                  style={styles.tagModal}
+                  hasOverlay={true}
+                  overlayOpacity={0.1}
+                  visible={this.state.editTagModal}
+                  onTouchOutside={() => {
+                    this.cancelEditTag();
+                  }}
+                >
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      justifyContent: "center",
+                      marginTop: 0,
+                    }}
+                  >
+                    <Text style={styles.titles}>Create a New Tag</Text>
                   </View>
 
-                  <Text style={styles.titles}>Create New Routine Tags</Text>
-                  <View style={{ width: "80%" }}>
-                    {/* <Text style={styles.description}>
-              Enter a container name, select a color, and click the add button
-              to create a new container tag.
-            </Text> */}
-                  </View>
-
-                  <View style={{ flexDirection: "row" }}>
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      justifyContent: "center",
+                      marginTop: 0,
+                    }}
+                  >
                     <TextInput
                       inputStyle={{ paddingLeft: 4, fontSize: 12 }}
                       style={styles.tagNameContainer}
-                      placeholder="Container Name"
+                      placeholder="Tag Name"
                       onChangeText={(text) =>
                         this.setState({ newContainerName: text })
                       }
                     />
 
                     <Dropdown
-                      containerStyle={{ padding: 1, width: "20%" }}
+                      containerStyle={{
+                        padding: 1,
+                        marginLeft: 15,
+                        justifyContent: "center",
+                        width: "25%",
+                      }}
                       label="Select a color"
                       data={colors}
                       onChangeText={(value) => this.selectedColor(value)}
                     />
 
+                    {/* <View style={{ flexDirection: "row", justifyContent: "center", marginTop: 0 }}> */}
+
                     <TouchableOpacity
                       style={styles.saveButton}
                       onPress={() => this.saveNewContainer()}
                     >
-                      <Text style={{ color: "#fff" }}>Save</Text>
+                      <Text style={{ textAlign: "center", color: "#fff" }}>
+                        Save
+                      </Text>
                     </TouchableOpacity>
                   </View>
 
-                  <Text style={styles.titles}>Delete Routine Tags</Text>
-                  <View style={{ width: "80%" }}>
-                    <Text style={styles.description}>
-                      To remove a tag from a single routine, just click the tag.
-                    </Text>
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      justifyContent: "center",
+                      marginTop: 0,
+                    }}
+                  >
+                    <Text style={styles.titles}>Delete Routine Tags</Text>
                   </View>
 
-                  <View style={{ flexDirection: "row", marginTop: 0 }}>
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      justifyContent: "center",
+                      marginTop: 0,
+                    }}
+                  >
                     <Dropdown
-                      containerStyle={{ padding: 1, width: "30%" }}
-                      label="Select a Container to Delete"
+                      containerStyle={{ padding: 1, width: "58%" }}
+                      label="Select a Tag to Delete"
                       data={this.state.containerNames}
                       onChangeText={(id) => this.selectDeletion(id)}
                     />
@@ -1327,64 +1351,83 @@ export default class ParentRoutines extends Component {
                       <Text style={{ color: "#fff" }}>Delete</Text>
                     </TouchableOpacity>
                   </View>
+                </Dialog>
+
+                <View style={styles.textFields} />
+
+                <View
+                  style={{
+                    flexDirection: "row",
+                    flexWrap: "wrap",
+                    marginLeft: 8,
+                    marginRight: 8,
+                  }}
+                >
+                  {this.displayRoutines()}
+                  {this.displayNewRoutineContainer()}
                 </View>
               </View>
             )}
-
-          {this.state.activitiesLoaded && (
-            <View>
-              <ScrollView>
-                {!this.tabIsRoutines() && (
-                  <View
-                    style={{
-                      flexDirection: "row",
-                      flexWrap: "wrap",
-                    }}
-                  >
-                    {this.displayActivities()}
-                    {this.displayNewActivityContainer()}
-                    {this.displayLibraryContainer()}
-                  </View>
-                )}
-              </ScrollView>
-            </View>
-          )}
-
-          {/* Deletion modal */}
-          <Dialog
-            style={styles.deletionModal}
-            hasOverlay={true}
-            overlayOpacity={0.1}
-            visible={this.state.deleteModalVisible}
-            onTouchOutside={() => {
-              this.cancelDelete();
-            }}
-          >
-            <Text style={styles.dialogTitle}>Delete Routine</Text>
-            <Text style={styles.dialogSubtext}>
-              Are you sure you would like to delete this{" "}
-              {this.state.typeToDelete}?
-            </Text>
-            <DialogFooter style={styles.deletionFooter}>
-              <Button
-                onPress={() => {
-                  this.deleteItem();
-                }}
-                title="Yes, Delete it"
-                color="red"
-                accessibilityLabel="Yes Button"
-              />
-              <Button
-                onPress={() => {
-                  this.cancelDelete();
-                }}
-                title="No, Cancel"
-                // color="#841584"
-                accessibilityLabel="Cancel Button"
-              />
-            </DialogFooter>
-          </Dialog>
         </ScrollView>
+        {this.state.activitiesLoaded && (
+          <View>
+            <ScrollView>
+              {!this.tabIsRoutines() && (
+                <View
+                  style={{
+                    flexDirection: "row",
+                    flexWrap: "wrap",
+                  }}
+                >
+                  {this.displayActivities()}
+                  {this.displayNewActivityContainer()}
+                  {this.displayLibraryContainer()}
+                </View>
+              )}
+            </ScrollView>
+          </View>
+        )}
+
+        <Dialog
+          style={styles.deletionModal}
+          hasOverlay={true}
+          overlayOpacity={0.1}
+          visible={this.state.deleteModalVisible}
+          onTouchOutside={() => {
+            this.cancelDelete();
+          }}
+        >
+          <Text style={styles.dialogTitle}>Delete Routine</Text>
+          <Text style={styles.dialogSubtext}>
+            Are you sure you would like to delete this {this.state.typeToDelete}
+            ?
+          </Text>
+          <DialogFooter style={styles.deletionFooter}>
+            <Button
+              onPress={() => {
+                this.deleteItem();
+              }}
+              style={{ 
+                minWidth: 50,
+                width: 100,
+                borderRadius: 20,
+                borderWidth: 1,
+                borderColor: "#FF6978"
+              }}
+              title="Yes, Delete it"
+              color="red"
+              accessibilityLabel="Yes Button"
+            />
+            <Button
+              onPress={() => {
+                this.cancelDelete();
+              }}
+              title="No, Cancel"
+              // color="#841584"
+              accessibilityLabel="Cancel Button"
+            />
+          </DialogFooter>
+        </Dialog>
       </View>
     );
   }
@@ -1393,13 +1436,15 @@ export default class ParentRoutines extends Component {
 const styles = StyleSheet.create({
   // RoutinesPage
   tagNameContainer: {
-    padding: 0,
-    marginTop: 0,
+    // padding: 0,
+    // marginTop: 0,
     // margin:0,
-    width: "100%",
+    // width: "100%",
     borderColor: "grey",
     borderStyle: "solid",
     borderWidth: 1,
+    height: 30,
+    marginRight: 12,
   },
   colorSelectionContainer: {
     // padding: 1,
@@ -1456,6 +1501,21 @@ const styles = StyleSheet.create({
     shadowRadius: 3.84,
     elevation: 5,
   },
+  tagModal: {
+    margin: 12,
+    backgroundColor: "#f7f7f7",
+    padding: 20,
+    width: "50%",
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 1,
+      height: 2,
+    },
+    shadowOpacity: 0.65,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
   deletionFooter: {
     fontSize: 14,
     marginBottom: 6,
@@ -1487,19 +1547,33 @@ const styles = StyleSheet.create({
     overflow: "visible",
     zIndex: 999,
   },
-  routineDetailsIcon: {
-    color: "#355C7D",
-    fontSize: 14,
-  },
   tagMenuIcons: {
     color: "#FF6978",
     fontSize: 18,
     paddingTop: 5,
     marginLeft: 30,
     marginTop: 10,
+    flexDirection: "row",
+    fontWeight: "bold",
+  },
+  tagMenuIconsTwo: {
+    color: "#FF6978",
+    fontSize: 20,
+    paddingTop: 5,
+    marginLeft: 30,
+    marginTop: 10,
+    flexDirection: "row",
+  },
+  tagMenuIconText: {
+    // color: "#FF6978",
+    fontSize: 18,
+    paddingTop: 5,
+    marginLeft: 8,
+    marginTop: 8,
   },
   routineDetails: {
-    fontSize: 12,
+    marginLeft: 4,
+    fontSize: 16,
     zIndex: 2,
   },
   routineDetailsPreview: {
@@ -1535,7 +1609,8 @@ const styles = StyleSheet.create({
     fontSize: 14,
     // minWidth: 8,
     // minHeight: 20,
-    height: 38,
+    width: "10%",
+    height: 34,
     borderRadius: 8,
     backgroundColor: "#FF6978",
     borderColor: "#fff",
@@ -1544,11 +1619,11 @@ const styles = StyleSheet.create({
     alignItems: "center",
     flexDirection: "row",
     marginTop: 30,
-    paddingLeft: 8,
-    paddingRight: 8,
+    // paddingLeft: 8,
+    // paddingRight: 8,
   },
   deleteButton: {
-    marginLeft: 14,
+    marginLeft: 30,
     fontSize: 14,
     height: 38,
     borderRadius: 8,
@@ -1559,7 +1634,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     // flexDirection: "row",
     marginTop: 30,
-    paddingLeft: 8,
+    paddingLeft: 12,
     paddingRight: 8,
   },
   tagNameContainer: {
@@ -1654,14 +1729,14 @@ const styles = StyleSheet.create({
   ellipsis: {
     flexDirection: "row",
     alignSelf: "flex-end",
-    fontSize: 30,
+    fontSize: 34,
     marginRight: 10,
     overflow: "visible",
   },
   routineTitle: {
     marginLeft: 4,
     marginTop: 2,
-    fontSize: 14,
+    fontSize: 15,
     textAlign: "center",
     flex: 1,
   },
@@ -1670,12 +1745,15 @@ const styles = StyleSheet.create({
     zIndex: 999,
   },
   routineDetailsIcon: {
-    color: "#355C7D",
-    fontSize: 14,
+    color: "#FF6978",
+    fontSize: 16,
+    marginTop: 12,
   },
   routineDetails: {
-    fontSize: 12,
+    fontSize: 16,
     zIndex: 2,
+    marginTop: 12,
+    marginLeft: 5,
   },
   routineDetailsPreview: {
     flexDirection: "row",
@@ -1696,7 +1774,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "center",
     marginRight: 6,
-    opacity: 0.5,
+    // opacity: 0.5,
   },
   blueTag: {
     color: "white",
@@ -1711,7 +1789,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "center",
     marginRight: 6,
-    opacity: 0.5,
+    // opacity: 0.5,
   },
   purpleTag: {
     fontSize: 8,
@@ -1725,7 +1803,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "center",
     marginRight: 6,
-    opacity: 0.5,
+    // opacity: 0.5,
   },
   orangeTag: {
     color: "white",
@@ -1740,7 +1818,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "center",
     marginRight: 6,
-    opacity: 0.4,
+    // opacity: 0.4,
   },
   tagsbutton: {
     fontSize: 10,
@@ -1797,7 +1875,7 @@ const styles = StyleSheet.create({
   },
   roundAddButton: {
     marginLeft: 6,
-    fontSize: 30,
+    fontSize: 35,
     height: 50,
     minWidth: 50,
     width: 50,
@@ -1811,7 +1889,7 @@ const styles = StyleSheet.create({
   },
   titles: {
     // fontWeight: "bold",
-    fontSize: 15,
+    fontSize: 17,
     padding: 5,
     marginTop: 15,
   },

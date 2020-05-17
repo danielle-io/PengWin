@@ -116,7 +116,7 @@ function AppTabView(props) {
  //Basic format of Navigation
  //Screens in Active Screen
   return (
-    <View style={{ flex: 1 }}>
+    <View style={{ flex: 1, backgroundColor: "#FFFCF9"}}>
       <View style={{ flex: 1 }}>
         <ActiveScreen navigation={descriptor.navigation} />
       </View>
