@@ -6,6 +6,7 @@ import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 Icon.loadFont();
 
 import Hurray from "../../assets/images/hurray.gif";
+import Jump from "../../assets/images/jump.gif";
 
 import Environment from "../../database/sqlEnv";
 import UserInfo from "../../state/UserInfo";
@@ -72,6 +73,14 @@ export default class ChildActivityReward extends Component {
       });
   }
 
+  renderPenguin() {
+    if (this.state.key % 2 == 0) {
+      return <Image source={Hurray} style={{ margin: 10, marginLeft: 50 }} />;
+    } else {
+      return <Image source={Jump} style={{ margin: 10, marginLeft: 50 }} />;
+    }
+  }
+
   render() {
     if (this.state.loaded) {
       return (
@@ -88,7 +97,7 @@ export default class ChildActivityReward extends Component {
                 Good job {this.state.child.first_name}! You did it!
               </Text>
 
-              <Image source={Hurray} style={{ margin: 10, marginLeft: 50 }} />
+              {this.renderPenguin()}
             </View>
 
             <TouchableOpacity

@@ -65,8 +65,6 @@ export default class ChildActivityReward extends Component {
         results.map((item) => {
           this.setState({ activity: item });
           this.setState({ loaded: true });
-          console.log("MY ACTIVITY ")
-          console.log(item);
         });
       })
       .catch((error) => {
@@ -89,44 +87,30 @@ export default class ChildActivityReward extends Component {
   }
 
   renderText() {
-    if(this.state.key === this.state.length)
-    {
+    if (this.state.key === this.state.length) {
+      return (
+        <Text style={styles.title}>Wow you just completed your routine!!</Text>
+      );
+    } else if (this.state.key == 1) {
       return (
         <Text style={styles.title}>
-        Wow you just completed your routine!!
-      </Text>
-      )
-    }
-    else if(this.state.key == 1)
-    {
+          You got a star for completing your activity!
+        </Text>
+      );
+    } else {
       return (
         <Text style={styles.title}>
-        You got a star for completing your activity!
-      </Text>
-      )
-    }
-    else
-    {
-      return (
-        <Text style={styles.title}>
-        You got {(this.state.key)} stars for completing your activity!
-      </Text>
-      )
+          You got {this.state.key} stars for completing your activity!
+        </Text>
+      );
     }
   }
 
   renderButton() {
-    if(this.state.key === this.state.length)
-    {
-      return (
-        <Text style={styles.textStyle}>What's My Reward?</Text>
-      )
-    }
-    else
-    {
-      return (
-        <Text style={styles.textStyle}>Next Task!</Text>
-      )
+    if (this.state.key === this.state.length) {
+      return <Text style={styles.textStyle}>What's My Reward?</Text>;
+    } else {
+      return <Text style={styles.textStyle}>Next Task!</Text>;
     }
   }
 
@@ -143,7 +127,7 @@ export default class ChildActivityReward extends Component {
               }}
             >
               <View style={styles.image}>{this.renderStars()}</View>
-          {this.renderText()}
+              {this.renderText()}
             </View>
             {this.state.activity.reward_image && (
               <View

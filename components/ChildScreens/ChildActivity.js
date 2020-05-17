@@ -22,6 +22,7 @@ import * as Font from "expo-font";
 import Star from "../../assets/images/fillstar.png";
 import Ribbon from "../../assets/images/ribbon.png";
 import Head from "../../assets/images/PenguinFace.png";
+import Penguin from "../../assets/images/tokenPenguin.gif";
 
 import Environment from "../../database/sqlEnv";
 import UserInfo from "../../state/UserInfo";
@@ -34,6 +35,7 @@ const { width: WIDTH, height: HEIGHT } = Dimensions.get("window");
 const pincode = UserInfo.pincode;
 
 let customFonts = {
+  Gaegu: require("../../assets/fonts/Gaegu/Gaegu-Bold.ttf"),
   SF: require("../../assets/fonts/SF/SF-Pro-Rounded-Regular.otf"),
   "Inter-SemiBoldItalic":
     "https://rsms.me/inter/font-files/Inter-SemiBoldItalic.otf?v=3.12",
@@ -107,8 +109,6 @@ export default class ChildActivity extends Component {
       .then((results) => {
         this.setState({ activities: results });
         this.setState({ activitiesLoaded: true });
-        console.log("ACTIVITIES");
-        console.log(this.state.activities);
       })
       .catch((error) => {
         console.error(error);
@@ -171,7 +171,7 @@ export default class ChildActivity extends Component {
       return (
         <ScrollView style={{ width: WIDTH }}>
           <Carousel
-            height={HEIGHT * 0.9}
+            height={HEIGHT}
             hideIndicators={true}
             indicatorSize={20}
             animate={false}
@@ -179,15 +179,6 @@ export default class ChildActivity extends Component {
           >
             {/* Map Activities */}
             {this.state.activities.map((item, key) => {
-              let reward = false;
-              if (
-                item.reward_image ||
-                item.reward_video ||
-                item.reward_description
-              ) {
-                reward = true;
-              }
-
               return (
                 <View
                   style={
@@ -200,73 +191,72 @@ export default class ChildActivity extends Component {
                   }
                 >
                   {/* Header */}
-                  <ScrollView>
-                    <View style={styles.headerContainer}>
-                      <View style={styles.headerContainerLeft}>
-                        <View style={styles.headerContainerStar}>
-                          <Image
-                            source={Star}
-                            style={{
-                              width: 50,
-                              height: 40,
-                              marginTop: "1%",
-                              marginLeft: "2%",
-                              flex: 1,
-                              resizeMode: "contain",
-                            }}
-                          />
-                        </View>
 
-                        <Text style={styles.headerLeftText}>
-                          {key + 1} / {this.state.activities.length}
-                        </Text>
+                  <View style={styles.headerContainer}>
+                    <View style={styles.headerContainerLeft}>
+                      <View style={styles.headerContainerStar}>
+                        <Image
+                          source={Star}
+                          style={{
+                            width: 50,
+                            height: 40,
+                            marginTop: "1%",
+                            marginLeft: "2%",
+                            flex: 1,
+                            resizeMode: "contain",
+                          }}
+                        />
                       </View>
 
-                      <Image
-                        source={Head}
-                        // style={{transform: [{ scale: 0.40 }]}}
-                        // style={{ width: 140, height: 115 }}
-                        style={{
-                          flex: 1,
-                          width: 140,
-                          height: 115,
-                          resizeMode: "contain",
-                          alignItems: "center",
-                        }}
+                      <Text style={styles.headerLeftText}>
+                        {key + 1} / {this.state.activities.length}
+                      </Text>
+                    </View>
+
+                    <Image
+                      source={Head}
+                      // style={{transform: [{ scale: 0.40 }]}}
+                      // style={{ width: 140, height: 115 }}
+                      style={{
+                        flex: 1,
+                        width: 140,
+                        height: 115,
+                        resizeMode: "contain",
+                        alignItems: "center",
+                      }}
+                    />
+
+                    <View style={styles.headerContainerRight}>
+                      <Progress.Bar
+                        progress={(key + 1) / this.state.activities.length}
+                        color={"#B1EDE8"}
+                        width={100}
+                        height={30}
+                        borderWidth={2}
+                        borderRadius={20}
+                        // flex: 1,
+                        // resizeMode: "contain",
+                        // marginRight: "1%",
                       />
 
-                      <View style={styles.headerContainerRight}>
-                        <Progress.Bar
-                          progress={(key + 1) / this.state.activities.length}
-                          color={"#B1EDE8"}
-                          width={100}
-                          height={30}
-                          borderWidth={2}
-                          borderRadius={20}
-                          // flex: 1,
-                          // resizeMode: "contain",
-                          // marginRight: "1%",
+                      <View style={styles.headerRibbonContainer}>
+                        <Image
+                          source={Ribbon}
+                          style={{
+                            height: 50,
+                            width: 40,
+                            marginTop: 1,
+                            marginLeft: 9,
+                            resizeMode: "contain",
+                            flex: 1,
+                          }}
                         />
-
-                        <View style={styles.headerRibbonContainer}>
-                          <Image
-                            source={Ribbon}
-                            style={{
-                              height: 50,
-                              width: 40,
-                              marginTop: 1,
-                              marginLeft: 9,
-                              resizeMode: "contain",
-                              flex: 1,
-                            }}
-                          />
-                        </View>
                       </View>
                     </View>
-                  </ScrollView>
+                  </View>
 
                   {/* Activity Body */}
-                  <ScrollView>
+                  <ScrollView style={{ top: 20 }}>
                     <Text style={styles.actTitle}>
                       {" "}
                       {key + 1 + ". " + item.activity_name}{" "}
@@ -358,39 +348,47 @@ export default class ChildActivity extends Component {
                         </View>
                       </View>
                     )}
-                  </ScrollView>
 
-                  <View
-                    style={{ justifyContent: "center", alignItems: "center" }}
-                  >
-                    <TouchableOpacity
-                      style={styles.buttonStyle}
-                      onPress={() => {
-                        this.navigate("ChildCamera", {
-                          prevScreenTitle: "ACTIVITY",
-                          // TODO: try to process this array without eval bc
-                          // it could be dangerous if the user inputs a tag
-                          // that when evaluated runs something on the code
-                          tags: item.tags.split(","),
-                          key: key,
-                          activities: this.state.activities,
-                          childNotificationsId: this.state.childNotificationsId,
-                          activityId: item.activity_id,
-                          rewardToggle: reward,
-                        });
-                        this._onNext();
+                    <View
+                      style={{
+                        top: 100,
+                        justifyContent: "center",
+                        alignItems: "center",
                       }}
                     >
-                      <Text style={styles.textStyle}>Take A Picture!</Text>
-                    </TouchableOpacity>
-                  </View>
+                      <TouchableOpacity
+                        style={styles.buttonStyle}
+                        onPress={() => {
+                          this.navigate("ChildCamera", {
+                            prevScreenTitle: "ACTIVITY",
+                            // TODO: try to process this array without eval bc
+                            // it could be dangerous if the user inputs a tag
+                            // that when evaluated runs something on the code
+                            tags: item.tags.split(","),
+                            key: key,
+                            activities: this.state.activities,
+                            childNotificationsId: this.state
+                              .childNotificationsId,
+                            activityId: item.activity_id,
+                            rewardToggle:
+                              item.reward_image ||
+                              item.reward_video ||
+                              item.reward_description,
+                          });
+                          this._onNext();
+                        }}
+                      >
+                        <Text style={styles.textStyle}>Take A Picture!</Text>
+                      </TouchableOpacity>
+                    </View>
+                  </ScrollView>
                 </View>
               );
             })}
             {/* END MAP :: Receive badge */}
             <View style={styles.badgeContainer}>
               <Text style={styles.title}>
-                Congratulations! You receive a badge!
+                Congratulations! You receive a token!
                 {this.updateNotificationToNotInProgress()}
               </Text>
               <View style={styles.image}>
@@ -399,12 +397,9 @@ export default class ChildActivity extends Component {
                 ))}
               </View>
               <Image
-                source={Ribbon}
+                source={Penguin}
                 style={{
-                  margin: 10,
-                  flex: 1,
-                  width: 300,
-                  height: 300,
+                  height: HEIGHT * 0.5,
                   resizeMode: "contain",
                 }}
               />
@@ -503,13 +498,12 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.4,
     shadowRadius: 2,
     width: WIDTH,
+    height: 150,
     top: 0,
     left: 0,
     backgroundColor: "white",
-    paddingBottom: 10,
     flexDirection: "row",
     justifyContent: "center",
-    flex: 1,
     resizeMode: "contain",
   },
   headerContainerLeft: {
@@ -560,11 +554,6 @@ const styles = StyleSheet.create({
   },
   activities: {
     backgroundColor: "#FF6978",
-    padding: WIDTH * 0.01,
-    margin: WIDTH * 0.01,
-    borderRadius: 1,
-    width: WIDTH * 0.98,
-    height: HEIGHT,
   },
   actTitle: {
     fontFamily: "SF",
@@ -584,7 +573,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: "#FFFCF9",
   },
   buttonStyle: {
     padding: 10,
@@ -608,10 +597,10 @@ const styles = StyleSheet.create({
     fontSize: 35,
     fontWeight: "bold",
     marginBottom: 8,
-    fontFamily: "SF",
+    fontFamily: "Gaegu",
   },
   textStyle: {
-    fontFamily: "SF",
+    fontFamily: "Gaegu",
     fontSize: 20,
     color: "white",
     textAlign: "center",

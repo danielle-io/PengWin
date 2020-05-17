@@ -67,7 +67,7 @@ export default class ChildCamera extends React.Component {
       activities: this.props.navigation.state.params.activities,
       activityId: this.props.navigation.state.params.activityId,
       key: this.props.navigation.state.params.key,
-      rewardToggle: true,
+      rewardToggle: this.props.navigation.state.params.rewardToggle,
       activityImage: null,
       itemIsInTags: false,
       uploading: false,
@@ -77,7 +77,20 @@ export default class ChildCamera extends React.Component {
     };
   }
   static navigationOptions = ({ navigation }) => ({
-    title: "My Camera",
+    title: 'Login', 
+    headerLeft: null,
+    headerRight: () => (
+      <Icon
+        style={{padding: 15, color: '#848484'}}
+        name={'account-circle'}
+        size={25}
+        onPress={() => {
+          navigation.navigate('ChildPincode', {
+            prevScreenTitle: 'My Routines',
+          });
+        }}
+      />
+    ),
   });
 
   concatString() {
@@ -138,8 +151,10 @@ export default class ChildCamera extends React.Component {
         return responseJson;
       })
       .then((results) => {
-        console.log("RESULTS FROM DB ARE " + results[0].image_path_array);
-        this.setState({ currentImages: results[0].image_path_array });
+        // //console.log("RESULTS FROM DB ARE " + results[0].image_path_array);
+        if (typeof results[0] !== "undefined") {
+          this.setState({ currentImages: results[0].image_path_array });
+        }
       })
       .catch((error) => {
         console.error(error);
@@ -147,8 +162,6 @@ export default class ChildCamera extends React.Component {
   }
 
   goBackToActivityPage = () => {
-    console.log("leaving page");
-
     if (!this.state.rewardToggle) {
       this.navigate("ChildActivity", {});
     } else {
@@ -158,7 +171,7 @@ export default class ChildCamera extends React.Component {
         key: this.state.key,
       });
     }
-  }
+  };
 
   async _loadFontsAsync() {
     await Font.loadAsync(customFonts);
@@ -456,8 +469,7 @@ export default class ChildCamera extends React.Component {
                   />
                   <TouchableHighlight
                     style={styles.buttonStyle}
-                   // onPress={this._takePhoto}
-                   onPress={this.goBackToActivityPage}
+                    onPress={this._takePhoto}
                   >
                     <Icon
                       name="camera-outline"
