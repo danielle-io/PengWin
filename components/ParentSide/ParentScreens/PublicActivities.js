@@ -160,13 +160,6 @@ const styles = StyleSheet.create({
     flex: 1,
     overflow: "visible",
   },
-  ellipsis: {
-    flexDirection: "row",
-    alignSelf: "flex-end",
-    fontSize: 30,
-    marginRight: 10,
-    overflow: "visible",
-  },
   routineTitle: {
     marginLeft: 4,
     marginTop: 2,

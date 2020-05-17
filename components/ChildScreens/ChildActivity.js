@@ -34,9 +34,10 @@ const { width: WIDTH, height: HEIGHT } = Dimensions.get("window");
 const pincode = UserInfo.pincode;
 
 let customFonts = {
-  SF: require("../../assets/fonts/SF/SF-Pro-Display-ThinItalic.otf"),
+  SF: require("../../assets/fonts/SF/SF-Pro-Rounded-Regular.otf"),
   "Inter-SemiBoldItalic":
     "https://rsms.me/inter/font-files/Inter-SemiBoldItalic.otf?v=3.12",
+  TextArea: require("../../assets/fonts/SF/SF-Pro-Text-Regular.otf")
 };
 
 export default class ChildActivity extends Component {
@@ -50,8 +51,9 @@ export default class ChildActivity extends Component {
       routineId: this.props.navigation.state.params.routineId,
       rewardId: this.props.navigation.state.params.rewardId,
       requiresApproval: this.props.navigation.state.params.requiresApproval,
-      imagePathArray: ' ',
-      childNotificationsId: this.props.navigation.state.params.childNotificationsId,
+      imagePathArray: " ",
+      childNotificationsId: this.props.navigation.state.params
+        .childNotificationsId,
       testing: this.props.navigation.state.params.testing,
       visible1: false,
       visible2: false,
@@ -61,7 +63,7 @@ export default class ChildActivity extends Component {
       activityImage: null,
       inputCode: "",
     };
-    
+
     ChildActivity.navigationOptions.headerBackTitle = this.props.navigation.state.params.currentRoutine;
   }
 
@@ -76,7 +78,6 @@ export default class ChildActivity extends Component {
   _onNext = () => {
     this.child._animateNextPage();
   };
-  
 
   async _loadFontsAsync() {
     await Font.loadAsync(customFonts);
@@ -133,7 +134,7 @@ export default class ChildActivity extends Component {
       .then((responseJson) => {
         return responseJson;
       })
-      .then((results) => {        
+      .then((results) => {
         console.log(results);
       })
       .catch((error) => {
@@ -144,7 +145,7 @@ export default class ChildActivity extends Component {
   //code is 1234
   _checkCode = (inputCode) => {
     console.log("INPUT CODE " + inputCode);
-    console.log("pin CODE " +  pincode);
+    console.log("pin CODE " + pincode);
     console.log("STATE INPUT CODE " + this.state.inputCode);
     if (inputCode != pincode) {
       this.pinInput.current.shake();
@@ -158,7 +159,6 @@ export default class ChildActivity extends Component {
 
   // MAIN RENDER
   render() {
-
     if (this.state.fontsLoaded && this.state.activitiesLoaded) {
       return (
         <ScrollView style={{ width: WIDTH }}>
@@ -205,171 +205,166 @@ export default class ChildActivity extends Component {
                       </Text>
                     </View>
 
+                    <Image
+                      source={Head}
+                      // style={{transform: [{ scale: 0.40 }]}}
+                      // style={{ width: 140, height: 115 }}
+                      style={{
+                        flex: 1,
+                        width: 140,
+                        height: 115,
+                        resizeMode: "contain",
+                        alignItems: "center",
+                      }}
+                    />
 
-                      <Image
-                        source={Head}
-                        // style={{transform: [{ scale: 0.40 }]}}
-                        // style={{ width: 140, height: 115 }}
-                        style={{
-                          flex: 1,
-                          width: 140,
-                          height: 115,
-                          resizeMode: "contain",
-                          alignItems: "center",
-                        }}
+                    <View style={styles.headerContainerRight}>
+                      <Progress.Bar
+                        progress={(key + 1) / this.state.activities.length}
+                        color={"#B1EDE8"}
+                        width={100}
+                        height={30}
+                        borderWidth={2}
+                        borderRadius={20}
+                        // flex: 1,
+                        // resizeMode: "contain",
+                        // marginRight: "1%",
                       />
 
-                      <View style={styles.headerContainerRight}>
-                        <Progress.Bar
-                          progress={(key + 1) / this.state.activities.length}
-                            color={"#B1EDE8"}
-                            width={100}
-                            height={30}
-                            borderWidth={2}
-                            borderRadius={20}
-                            // flex: 1,
-                            // resizeMode: "contain",
-                            // marginRight: "1%",
-                          
+                      <View style={styles.headerRibbonContainer}>
+                        <Image
+                          source={Ribbon}
+                          style={{
+                            height: 50,
+                            width: 40,
+                            marginTop: 1,
+                            marginLeft: 9,
+                            resizeMode: "contain",
+                            flex: 1,
+                          }}
                         />
-
-                        <View style={styles.headerRibbonContainer}>
-                          <Image
-                            source={Ribbon}
-                            style={{
-                              height: 50,
-                              width: 40,
-                              marginTop: 1,
-                              marginLeft: 9,
-                              resizeMode: "contain",
-                              flex: 1,
-                            }}
-                          />
-                        </View>
                       </View>
                     </View>
-                  </ScrollView>
+                  </View>
+                </ScrollView>
 
-                  {/* Activity Body */}
-                  <ScrollView>
-                    <Text style={styles.actTitle}>
-                      {" "}
-                      {key + 1 + ". " + item.activity_name}{" "}
-                    </Text>
+                {/* Activity Body */}
+                <ScrollView>
+                  <Text style={styles.actTitle}>
+                    {" "}
+                    {key + 1 + ". " + item.activity_name}{" "}
+                  </Text>
 
-                    {item.image_path && (
+                  {item.image_path && (
+                    <View
+                      style={{
+                        justifyContent: "center",
+                        alignItems: "center",
+                      }}
+                    >
+                      <Image
+                        source={{ uri: item.image_path }}
+                        style={{
+                          width: 300,
+                          height: 200,
+                          margin: 5,
+                          borderRadius: 15,
+                          resizeMode: "contain",
+                        }}
+                      />
+                    </View>
+                  )}
+
+                  {item.activity_description && (
+                    <View>
+                      <Text style={styles.actTitle}>Description</Text>
+                      <Text style={styles.desc}>
+                        {item.activity_description}
+                      </Text>
+                    </View>
+                  )}
+
+                  {item.video_path && (
+                    <View>
+                      <Text style={styles.actTitle}>Watch</Text>
                       <View
                         style={{
                           justifyContent: "center",
                           alignItems: "center",
                         }}
                       >
-                        <Image
-                          source={{ uri: item.image_path }}
-                          style={{
-                            width: 300,
-                            height: 200,
-                            margin: 5,
-                            borderRadius: 15,
-                            resizeMode: "contain",
-                          }}
+                        <Video
+                          useNativeControls={true}
+                          source={{ uri: item.video_path }}
+                          rate={1.0}
+                          volume={1.0}
+                          isMuted={false}
+                          resizeMode="contain"
+                          isLooping
+                          style={{ width: 300, height: 200 }}
                         />
                       </View>
-                    )}
+                    </View>
+                  )}
 
-                    {item.activity_description && (
-                      <View>
-                        <Text style={styles.actTitle}>Description</Text>
-                        <Text style={styles.desc}>
-                          {item.activity_description}
-                        </Text>
-                      </View>
-                    )}
-
-                    {item.video_path && (
-                      <View>
-                        <Text style={styles.actTitle}>Watch</Text>
-                        <View
-                          style={{
-                            justifyContent: "center",
-                            alignItems: "center",
-                          }}
-                        >
-                          <Video
-                            useNativeControls={true}
-                            source={{ uri: item.video_path }}
-                            rate={1.0}
-                            volume={1.0}
-                            isMuted={false}
-                            resizeMode="contain"
-                            isLooping
-                            style={{ width: 300, height: 200 }}
+                  {item.audio_path && (
+                    <View>
+                      <Text style={styles.actTitle}>Listen To Directions</Text>
+                      <View
+                        style={{
+                          flexDirection: "row",
+                          margin: 15,
+                          justifyContent: "center",
+                        }}
+                      >
+                        <TouchableOpacity style={styles.button}>
+                          <Icon
+                            name="play-circle"
+                            color="#B1EDE8"
+                            size={30}
+                            style={{ marginRight: 10 }}
                           />
-                        </View>
-                      </View>
-                    )}
+                          <Text>Play</Text>
+                        </TouchableOpacity>
 
-                    {item.audio_path && (
-                      <View>
-                        <Text style={styles.actTitle}>
-                          Listen To Directions
-                        </Text>
-                        <View
-                          style={{
-                            flexDirection: "row",
-                            margin: 15,
-                            justifyContent: "center",
-                          }}
-                        >
-                          <TouchableOpacity style={styles.button}>
-                            <Icon
-                              name="play-circle"
-                              color="#B1EDE8"
-                              size={30}
-                              style={{ marginRight: 10 }}
-                            />
-                            <Text>Play</Text>
-                          </TouchableOpacity>
-
-                          <TouchableOpacity style={styles.button}>
-                            <Icon
-                              name="stop"
-                              color="#B1EDE8"
-                              size={30}
-                              style={{ marginRight: 10 }}
-                            />
-                            <Text>Stop</Text>
-                          </TouchableOpacity>
-                        </View>
+                        <TouchableOpacity style={styles.button}>
+                          <Icon
+                            name="stop"
+                            color="#B1EDE8"
+                            size={30}
+                            style={{ marginRight: 10 }}
+                          />
+                          <Text>Stop</Text>
+                        </TouchableOpacity>
                       </View>
-                    )}
-                  </ScrollView>
- 
-                  <View
-                    style={{ justifyContent: "center", alignItems: "center" }}
+                    </View>
+                  )}
+                </ScrollView>
+
+                <View
+                  style={{ justifyContent: "center", alignItems: "center" }}
+                >
+                  <TouchableOpacity
+                    style={styles.buttonStyle}
+                    onPress={() => {
+                      this.navigate("ChildCamera", {
+                        prevScreenTitle: "ACTIVITY",
+                        // TODO: try to process this array without eval bc
+                        // it could be dangerous if the user inputs a tag
+                        // that when evaluated runs something on the code
+                        tags: item.tags.split(","),
+                        key: key,
+                        activities: this.state.activities,
+                        childNotificationsId: this.state.childNotificationsId,
+                      });
+                      this._onNext();
+                    }}
                   >
-                    <TouchableOpacity
-                      style={styles.buttonStyle}
-                      onPress={() => {
-                        this.navigate("ChildCamera", {
-                          prevScreenTitle: "ACTIVITY",
-                          // TODO: try to process this array without eval bc
-                          // it could be dangerous if the user inputs a tag
-                          // that when evaluated runs something on the code
-                          tags: item.tags.split(','),
-                          key: key,
-                          activities: this.state.activities,
-                          childNotificationsId: this.state.childNotificationsId,
-                        });
-                        this._onNext();
-                      }}
-                    >
-                      <Text style={styles.textStyle}>Take A Picture!</Text>
-                      </TouchableOpacity>
+                    <Text style={styles.textStyle}>Take A Picture!</Text>
+                  </TouchableOpacity>
                 </View>
               </View>
             ))}
-
             {/* END MAP :: Receive badge */}
             <View style={styles.badgeContainer}>
               <Text style={styles.title}>
@@ -399,10 +394,9 @@ export default class ChildActivity extends Component {
               >
                 <Text style={styles.textStyle}>Unlock My Reward</Text>
               </TouchableOpacity>
-              </View>
+            </View>
             ))}
           </Carousel>
-
 
           <Dialog
             visible={this.state.visible1}
@@ -438,7 +432,7 @@ export default class ChildActivity extends Component {
               </View>
             </DialogContent>
           </Dialog>
-          
+
           {/* second dialog - pin enter */}
           <Dialog
             visible={this.state.visible2}
@@ -559,8 +553,9 @@ const styles = StyleSheet.create({
   desc: {
     fontSize: 20,
     padding: 10,
-    marginLeft: 10,
+    marginLeft: 30,
     marginBottom: 10,
+    fontFamily:"TextArea"
   },
   badgeContainer: {
     flex: 1,

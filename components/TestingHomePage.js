@@ -53,7 +53,6 @@ export default class TestingHomePage extends Component {
                 style={styles.parentContainer}
                 onPress={() =>
                   this.navigate("ParentNavigation", {
-                    prevScreenTitle: "TestingHomePage",
                     initialRouteName: "ParentRoutines",
                   })
                 }
@@ -162,10 +161,10 @@ export default class TestingHomePage extends Component {
               <TouchableOpacity
                 style={styles.childContainer}
                 onPress={() =>
-                  this.navigate("ChildMap", { prevScreenTitle: "Login" })
+                  this.navigate("ChildNotifScreen", { prevScreenTitle: "Login" })
                 }
               >
-                <Text style={styles.linkText}>Child Map</Text>
+                <Text style={styles.linkText}>Child Push Notif</Text>
               </TouchableOpacity>
 
             </View>
