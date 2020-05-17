@@ -609,6 +609,25 @@ app.get("/getAllRewardsandRoutines/:userId", function(req, res) {
   });
 });
 
+app.get("/getAllRewardsfromActivities/:activityId", function(req, res) {
+  let activityId = req.params.activityId;
+
+  db.getConnection(function(err, connection) {
+    connection.query(
+      "SELECT * FROM rewards AS reward, activities AS activity, reward_activity_relationship as relationship WHERE relationship.activity_id = activity.activity_id AND reward.reward_id = relationship.reward_id AND activity.activity_id ="  + activityId,
+      function(error, results, fields) {
+        connection.release();
+
+        if (error) {
+          throw error;
+          console.log(err);
+        }
+        res.send(results);
+      }
+    );
+  });
+});
+
 app.get("/getRewardById/:rewardId", function(req, res) {
   let rewardId = req.params.rewardId;
 

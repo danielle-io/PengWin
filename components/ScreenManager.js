@@ -36,6 +36,7 @@ import TestingHomePage from './TestingHomePage';
 
 const Screens = createStackNavigator({
 
+  ChildRoutines: {screen: ChildRoutines},
   ParentNavigation: {screen: ParentNavigation},
   TestingHomePage: {screen: TestingHomePage},
 
@@ -61,7 +62,6 @@ const Screens = createStackNavigator({
 
   ChildPincode: {screen:ChildPincode},
   ChildNotifScreen: {screen:ChildNotifScreen},
-  ChildRoutines: {screen: ChildRoutines},
   ChildActivity: {screen:ChildActivity},
   ChildMap: {screen:ChildMap},
   ChildRewards: {screen:ChildRewards},

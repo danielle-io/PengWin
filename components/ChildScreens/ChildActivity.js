@@ -144,9 +144,9 @@ export default class ChildActivity extends Component {
 
   //code is 1234
   _checkCode = (inputCode) => {
-    console.log("INPUT CODE " + inputCode);
-    console.log("pin CODE " + pincode);
-    console.log("STATE INPUT CODE " + this.state.inputCode);
+    // console.log("INPUT CODE " + inputCode);
+    // console.log("pin CODE " + pincode);
+    // console.log("STATE INPUT CODE " + this.state.inputCode);
     if (inputCode != pincode) {
       this.pinInput.current.shake();
       this.setState({ inputCode: "" });
