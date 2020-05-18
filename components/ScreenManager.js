@@ -53,7 +53,7 @@ const Screens = createStackNavigator({
 
   ChildRoutines: { screen: ChildRoutines },
   ParentNavigation: { screen: ParentNavigation },
-    TestingHomePage: { screen: TestingHomePage },
+  TestingHomePage: { screen: TestingHomePage },
 
 
   Login: { screen: Login },
