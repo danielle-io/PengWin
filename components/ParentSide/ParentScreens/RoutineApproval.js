@@ -102,7 +102,7 @@ export default class RoutineApproval extends Component {
               <View style={styles.carouselContainer}>
                 <Text style={styles.activityName}>{item.activity_name}</Text>
                 <Text style={styles.subtext}>
-                  Image taken by {this.state.childsName}
+                  Image taken by: {this.state.childsName}
                 </Text>
 
                 <View
@@ -125,7 +125,7 @@ export default class RoutineApproval extends Component {
                     this._onNext();
                   }}
                 >
-                  <Text>Next</Text>
+                  <Text style={styles.next}>Next</Text>
                 </TouchableOpacity>
               </View>
             ))}
@@ -164,6 +164,10 @@ const styles = StyleSheet.create({
     width: WIDTH * 0.98,
     height: HEIGHT,
   },
+  next: {
+    fontSize: 20,
+    textAlign: "center",
+  },
   text: {
     marginTop: 7,
     fontSize: 24,
@@ -177,19 +181,22 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
   },
   buttonStyle: {
-    padding: 10,
-    marginBottom: 50,
-    margin: 50,
+    width: 100,
+    padding: 11,
+    marginBottom: 90,
+    marginTop: 80,
+    marginLeft: 365,
     backgroundColor: "#FF6978",
     borderRadius: 5,
+    textAlign: "center"
   },
   subtext: {
-    marginTop: 0,
+    marginTop: 20,
     fontSize: 20,
     textAlign: "center",
     textAlignVertical: "auto",
     width: 220,
-    marginBottom: 25,
+    marginBottom: 35,
   },
   dialog: {
     backgroundColor: "#e1d8ff",
