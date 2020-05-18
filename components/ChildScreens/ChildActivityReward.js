@@ -14,7 +14,7 @@ import { ScrollView } from "react-native-gesture-handler";
 
 Icon.loadFont();
 
-const { width: WIDTH, height: HEIGHT } = Dimensions.get("window");
+// const { width: WIDTH, height: HEIGHT } = Dimensions.get("window");
 
 export default class ChildActivityReward extends Component {
   //Header titles for routine notif
@@ -177,9 +177,9 @@ export default class ChildActivityReward extends Component {
 
             {this.state.activity.reward_description && (
               <View>
-                {/* <Text style={styles.section}>
+                <Text style={styles.section}>
                   {this.state.activity.reward_description}
-                </Text> */}
+                </Text>
               </View>
             )}
 

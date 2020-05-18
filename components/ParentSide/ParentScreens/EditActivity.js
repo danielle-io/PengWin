@@ -1075,7 +1075,7 @@ const styles = StyleSheet.create({
   },
   descriptionBox: {
     borderColor: "#e8e8e8",
-    borderWidth: 1,
+    // borderWidth: 1,
     borderRadius: 15,
   },
   descriptionLines: {
@@ -1116,7 +1116,7 @@ const styles = StyleSheet.create({
   textInput: {
     height: 40,
     borderColor: "white",
-    borderWidth: 1,
+    // borderWidth: 1,
     marginTop: 8,
     borderRadius: 5,
     padding: 3,

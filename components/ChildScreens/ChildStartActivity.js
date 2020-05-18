@@ -57,7 +57,7 @@ export default class ChildStartActivity extends Component {
     ),
   });
 
-  async insertChildNotification() {
+  insertChildNotification() {
     console.log("inserting child notification");
 
     const parentId = UserInfo.parent_id;
@@ -78,7 +78,7 @@ export default class ChildStartActivity extends Component {
       activities_complete: 0,
       quick_start_activity_id: 0,
     };
-    let response = await fetch(
+    let response = fetch(
       Environment + "/insertChildRoutineNotifications",
       {
         method: "POST",
