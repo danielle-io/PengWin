@@ -16,14 +16,6 @@ let customFonts = {
 }
 
 
-
-var radio_props = [
-    {label: 'Reads well', value: 0 },
-    {label: 'Can read but needs visuals for better understanding', value: 1 },
-    {label: 'Cannot read', value: 2 }
-    // {label: 'Other', value: 3 }
-  ];
-
 export default class Question2 extends Component {
     constructor(props) {
         super(props);
