@@ -37,6 +37,7 @@ import TestingHomePage from "./TestingHomePage";
 
 const Screens = createStackNavigator({
 
+
   TestingHomePage: {screen: TestingHomePage},
 
   ParentNavigation: {screen: ParentNavigation},
@@ -49,9 +50,7 @@ const Screens = createStackNavigator({
   Camera: {screen:Camera},
   ChildCamera: {screen: ChildCamera },    
  
-<<<<<<< HEAD
-=======
-=======
+
   ChildRoutines: { screen: ChildRoutines },
   ParentNavigation: { screen: ParentNavigation },
     TestingHomePage: { screen: TestingHomePage },
@@ -63,8 +62,6 @@ const Screens = createStackNavigator({
   ForgotPassword: { screen: ForgotPassowrd },
   // Camera: { screen: Camera },
   ChildCamera: { screen: ChildCamera },
->>>>>>> origin/master
->>>>>>> ahazb
 
   ParentRoutines: { screen: ParentRoutines },
   EditActivity: { screen: EditActivity },
