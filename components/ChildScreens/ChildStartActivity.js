@@ -2,12 +2,16 @@ import React, { Component } from "react";
 import {
   Dimensions,
   StyleSheet,
+  Image,
   View,
   Text,
   TouchableOpacity,
 } from "react-native";
 import { AppLoading } from "expo";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+
+import Star from "../../assets/images/Star.png";
+import Wave from "../../assets/images/wave.gif";
 
 import Environment from "../../database/sqlEnv";
 import UserInfo from "../../state/UserInfo";
@@ -26,16 +30,58 @@ export default class ChildStartActivity extends Component {
       rewardId: this.props.navigation.state.params.rewardId,
       requiresApproval: this.props.navigation.state.params.requiresApproval,
       amountOfActivities: this.props.navigation.state.params.amountOfActivities,
+      child: null,
+      loaded: false,
+      routineName: this.props.navigation.state.params.routineName,
+      activities: this.props.navigation.state.params.activities,
+      rewards: this.props.navigation.state.params.rewards,
     };
     const { navigate } = this.props.navigation;
     this.navigate = navigate;
     ChildStartActivity.navigationOptions.headerBackTitle = this.props.navigation.state.params.currentRoutine;
+    this.getChild();
+
   }
 
   //Header titles for routines
   static navigationOptions = ({ navigation }) => ({
     title: `${navigation.state.params.currentRoutine}`,
   });
+
+
+  renderStars() {
+    let star = [];
+
+    for (let i = 0; i < this.state.activities; i++) {
+      star.push(<Image source={Star} style={{ margin: 10 }} />);
+    }
+    return star;
+  }
+
+  getChild() {
+    const parentId = UserInfo.parent_id;
+    const childId = UserInfo.child_id;
+    const userId = UserInfo.user_id;
+
+    fetch(Environment + "/getChildFromParent/" + parentId, {
+      headers: {
+        "Cache-Control": "no-cache",
+      },
+    })
+      .then((response) => response.json())
+      .then((responseJson) => {
+        return responseJson;
+      })
+      .then((results) => {
+        results.map((item) => {
+          this.setState({ child: item });
+          this.setState({ loaded: true });
+        });
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+  }
 
   async insertChildNotification(){
     console.log("inserting child notification");
@@ -92,37 +138,82 @@ export default class ChildStartActivity extends Component {
     }
 
   render() {
-    return (
-      <View style={{ alignItems: "center", flex: 1, justifyContent: "center" }}>
-        <TouchableOpacity
-          style={styles.buttonStyle}
-          onPress={() => {
-            // Create a notification in db
-            if (this.state.amountOfActivities > 0){
-              this.insertChildNotification();
-            }
+//     return (
+//       <View style={{ alignItems: "center", flex: 1, justifyContent: "center" }}>
+//         <TouchableOpacity
+//           style={styles.buttonStyle}
+//           onPress={() => {
+//             // Create a notification in db
+//             if (this.state.amountOfActivities > 0){
+//               this.insertChildNotification();
+//             }
 
-            // Leaving this here for testing the badge page, removing later
-            else{
-              const { navigate } = this.props.navigation;
-              this.navigate("ChildActivity", {
-                prevScreenTitle: "My Routines",
-                currentRoutine: this.state.currentRoutine,
-                routineId: this.state.routineId,
-                rewardId: this.state.rewardId,
-                requiresApproval: this.state.requiresApproval,
-              });
-            }
-          }}
-        >
-          <Text style={styles.textStyle}>Start Routine</Text>
-        </TouchableOpacity>
-      </View>
-    );
-  }
+//             // Leaving this here for testing the badge page, removing later
+//             else{
+//               const { navigate } = this.props.navigation;
+//               this.navigate("ChildActivity", {
+//                 prevScreenTitle: "My Routines",
+//                 currentRoutine: this.state.currentRoutine,
+//                 routineId: this.state.routineId,
+//                 rewardId: this.state.rewardId,
+//                 requiresApproval: this.state.requiresApproval,
+//               });
+//             }
+//           }}
+//         >
+//           <Text style={styles.textStyle}>Start Routine</Text>
+//         </TouchableOpacity>
+//       </View>
+//     );
+//   }
+// }
+
+if (this.state.loaded) {
+  return (
+    <View style={styles.container}>
+      <Text style={styles.title}> Start {this.state.routineName}</Text>
+      <Text style={styles.section}>
+        {" "}
+        Hi, {this.state.child.first_name}! It’s{" "}
+        It’s time to start your {this.state.routineName}! Complete the routine to earn{" "}
+        {this.state.activities} stars and win {this.state.rewards} exciting
+        rewards :){" "}
+      </Text>
+      <View style={styles.image}>{this.renderStars()}</View>
+      <Image source={Wave} style={{ margin: 10, marginLeft: 50 }} />
+      <TouchableOpacity
+        style={styles.buttonStyle}
+        onPress={() => {
+          this.insertChildNotification();
+        }}
+      >
+        <Text style={styles.textStyle}>Start Routine!</Text>
+      </TouchableOpacity>
+    </View>
+  );
+} else {
+  return <AppLoading />;
+}
+}
 }
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "#fff",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  image: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    margin: 30,
+  },
+  section: {
+    fontSize: 25,
+    alignItems: "center",
+    margin: 30,
+  },
   activities: {
     backgroundColor: "#FF6978",
     padding: WIDTH * 0.01,
@@ -131,10 +222,27 @@ const styles = StyleSheet.create({
     width: WIDTH * 0.98,
     height: HEIGHT,
   },
+  title: {
+    fontSize: 35,
+    fontWeight: "bold",
+    marginBottom: 8,
+  },
   actTitle: {
     fontSize: 25,
     padding: 10,
     marginLeft: 20,
+  },
+  textStyle: {
+    fontSize: 20,
+    color: "white",
+    textAlign: "center",
+  },
+  buttonStyle: {
+    width: 300,
+    padding: 10,
+    margin: 20,
+    backgroundColor: "#B1EDE8",
+    borderRadius: 100,
   },
   desc: {
     fontSize: 20,
@@ -152,48 +260,10 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
   },
   buttonStyle: {
-    padding: 10,
-    marginBottom: 50,
-    marginTop: 10,
-    backgroundColor: "#FF6978",
-    borderRadius: 5,
-  },
-  textStyle: {
-    fontSize: 20,
-    color: "white",
-    textAlign: "center",
-  },
-  image: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    margin: 30,
-  },
-  section: {
-    fontSize: 25,
-    alignItems: "center",
-    margin: 30,
-  },
-  buttonStyle: {
     width: 300,
     padding: 10,
     margin: 20,
     backgroundColor: "#B1EDE8",
     borderRadius: 100,
-  },
-  button: {
-    fontSize: 30,
-    minWidth: 150,
-    minHeight: 40,
-    borderRadius: 20,
-    backgroundColor: "#fff",
-    justifyContent: "center",
-    alignItems: "center",
-    flexDirection: "row",
-    margin: 5,
-    padding: 2,
-    shadowColor: "grey",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.4,
-    shadowRadius: 2,
   },
 });

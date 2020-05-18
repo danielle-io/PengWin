@@ -65,7 +65,9 @@ export default class ChildCamera extends React.Component {
         .childNotificationsId,
       tags: this.props.navigation.state.params.tags,
       activities: this.props.navigation.state.params.activities,
+      activityId: this.props.navigation.state.params.activityId,
       key: this.props.navigation.state.params.key,
+      rewardToggle: this.props.navigation.state.params.rewardToggle,
       activityImage: null,
       itemIsInTags: false,
       uploading: false,
@@ -75,7 +77,20 @@ export default class ChildCamera extends React.Component {
     };
   }
   static navigationOptions = ({ navigation }) => ({
-    title: "My Camera",
+    title: 'Login', 
+    headerLeft: null,
+    headerRight: () => (
+      <Icon
+        style={{padding: 15, color: '#848484'}}
+        name={'account-circle'}
+        size={25}
+        onPress={() => {
+          navigation.navigate('ChildPincode', {
+            prevScreenTitle: 'My Routines',
+          });
+        }}
+      />
+    ),
   });
 
   concatString() {
@@ -136,19 +151,27 @@ export default class ChildCamera extends React.Component {
         return responseJson;
       })
       .then((results) => {
-        console.log("RESULTS FROM DB ARE " + results[0].image_path_array);
-        this.setState({ currentImages: results[0].image_path_array });
+        // //console.log("RESULTS FROM DB ARE " + results[0].image_path_array);
+        if (typeof results[0] !== "undefined") {
+          this.setState({ currentImages: results[0].image_path_array });
+        }
       })
       .catch((error) => {
         console.error(error);
       });
   }
 
-  goBackToActivityPage() {
-    console.log("leaving page");
-    const { navigate } = this.props.navigation;
-    this.navigate("ChildActivity", {});
-  }
+  goBackToActivityPage = () => {
+    if (!this.state.rewardToggle) {
+      this.navigate("ChildActivity", {});
+    } else {
+      this.navigate("ChildHurray", {
+        activityId: this.state.activityId,
+        length: this.state.activities.length,
+        key: this.state.key,
+      });
+    }
+  };
 
   async _loadFontsAsync() {
     await Font.loadAsync(customFonts);
@@ -511,8 +534,8 @@ export default class ChildCamera extends React.Component {
                     <Icon name="window-close" color="#fff" size={60} />
                   </View>
                   <Text style={styles.textArea2}>
-                    Oh no, your photo didn't match! Try to take a photo of
-                    your {this.state.tags[0]}
+                    Oh no, your photo didn't match! Try to take a photo of your{" "}
+                    {this.state.tags[0]}
                   </Text>
                   <TouchableHighlight
                     style={styles.buttonStyle2}
@@ -642,7 +665,7 @@ const styles = StyleSheet.create({
     borderRadius: 1000,
     backgroundColor: "#FF6978",
     padding: 50,
-    top: - (WIDTH * 0.5),
+    top: -(WIDTH * 0.5),
   },
   textArea: {
     fontFamily: "SF",
@@ -655,7 +678,7 @@ const styles = StyleSheet.create({
     fontSize: 20,
     color: "black",
     flexWrap: "wrap",
-    top: - (WIDTH * 0.1),
+    top: -(WIDTH * 0.1),
   },
   buttonStyle2: {
     padding: 30,
@@ -664,6 +687,6 @@ const styles = StyleSheet.create({
     backgroundColor: "#B1EDE8",
     borderRadius: 100,
     textAlign: "center",
-    top: - (WIDTH * 0.1 + 90) ,
+    top: -(WIDTH * 0.1 + 90),
   },
 });
