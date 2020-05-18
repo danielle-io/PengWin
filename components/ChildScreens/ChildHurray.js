@@ -1,17 +1,22 @@
 import React, { Component } from "react";
-import { Text, View, TouchableOpacity, Image } from "react-native";
+import { Dimensions, Text, View, TouchableOpacity, Image } from "react-native";
 
+import { Video } from "expo-av";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 Icon.loadFont();
 
-import Star from "../../assets/images/Star.png";
-import Wave from "../../assets/images/wave.gif";
+import Hurray from "../../assets/images/hurray.gif";
+import Jump from "../../assets/images/jump.gif";
 
 import Environment from "../../database/sqlEnv";
 import UserInfo from "../../state/UserInfo";
 import { AppLoading } from "expo";
+import { ScrollView } from "react-native-gesture-handler";
+import { throwIfAudioIsDisabled } from "expo-av/build/Audio/AudioAvailability";
 
-export default class ChildNotifScreen extends Component {
+const { width: WIDTH, height: HEIGHT } = Dimensions.get("window");
+
+export default class ChildActivityReward extends Component {
   //Header titles for routine notif
   static navigationOptions = ({ navigation }) => ({
     title: "Routines",
@@ -34,15 +39,12 @@ export default class ChildNotifScreen extends Component {
     const { navigate } = this.props.navigation;
     this.navigate = navigate;
     this.state = {
+      activityId: this.props.navigation.state.params.activityId,
+      length: this.props.navigation.state.params.length,
+      key: this.props.navigation.state.params.key,
       child: null,
       loaded: false,
-      routineId: this.props.navigation.state.params.routineId,
-      routineTime: this.props.navigation.state.params.routineTime,
-      routineName: this.props.navigation.state.params.routineName,
-      activities: this.props.navigation.state.params.activities,
-      rewards: this.props.navigation.state.params.rewards,
     };
-
     this.getChild();
   }
 
@@ -71,50 +73,47 @@ export default class ChildNotifScreen extends Component {
       });
   }
 
-  renderStars() {
-    let star = [];
-
-    for (let i = 0; i < this.state.activities; i++) {
-      star.push(<Image source={Star} style={{ margin: 10 }} />);
+  renderPenguin() {
+    if (this.state.key % 2 == 0) {
+      return <Image source={Hurray} style={{ margin: 10, marginLeft: 50 }} />;
+    } else {
+      return <Image source={Jump} style={{ margin: 10, marginLeft: 50 }} />;
     }
-    return star;
   }
 
   render() {
-    let time = this.state.routineTime.split(":");
-    let hours = time[0];
-    console.log(hours);
-    let ampm = "AM";
-    if (hours > 11) ampm = "PM";
-    hours = hours % 12 || 12;
-
     if (this.state.loaded) {
       return (
-        <View style={styles.container}>
-          <Text style={styles.title}> Start {this.state.routineName}</Text>
-          <Text style={styles.section}>
-            {" "}
-            Good morning, {this.state.child.first_name}! It’s{" "}
-            {hours + ":" + time[1] + " " + ampm} and that means it’s time to
-            start your {this.state.routineName}! Complete the routine to earn{" "}
-            {this.state.activities} stars and win {this.state.rewards} exciting
-            rewards :){" "}
-          </Text>
-          <View style={styles.image}>{this.renderStars()}</View>
-          <Image source={Wave} style={{ margin: 10, marginLeft: 50 }} />
-          <TouchableOpacity
-            style={styles.buttonStyle}
-            onPress={() => {
-              this.navigate("ChildActivity", {
-                prevScreenTitle: "My Routines",
-                currentRoutine: this.state.routineName,
-                routineId: this.state.routineId,
-              });
-            }}
-          >
-            <Text style={styles.textStyle}>Start Routine!</Text>
-          </TouchableOpacity>
-        </View>
+        <ScrollView>
+          <View style={styles.container}>
+            <View
+              style={{
+                justifyContent: "center",
+                alignItems: "center",
+                marginBottom: 100,
+              }}
+            >
+              <Text style={{ fontSize: 40 }}>
+                Good job {this.state.child.first_name}! You did it!
+              </Text>
+
+              {this.renderPenguin()}
+            </View>
+
+            <TouchableOpacity
+              style={styles.buttonStyle}
+              onPress={() => {
+                this.navigate("ChildActivityReward", {
+                  activityId: this.state.activityId,
+                  length: this.state.length,
+                  key: this.state.key,
+                });
+              }}
+            >
+              <Text style={styles.textStyle}>What's My Reward?</Text>
+            </TouchableOpacity>
+          </View>
+        </ScrollView>
       );
     } else {
       return <AppLoading />;
@@ -128,6 +127,9 @@ const styles = {
     backgroundColor: "#fff",
     alignItems: "center",
     justifyContent: "center",
+    height: HEIGHT,
+
+    top: -20,
   },
   image: {
     flexDirection: "row",

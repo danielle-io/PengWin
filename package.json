@@ -41,6 +41,7 @@
     "react-native-camera": "^3.23.1",
     "react-native-cards": "^1.1.4",
     "react-native-carousel-view": "^0.5.1",
+    "react-native-chart-kit": "^5.5.0",
     "react-native-date-picker": "^2.7.9",
     "react-native-datepicker": "^1.7.2",
     "react-native-gesture-handler": "^1.5.6",
@@ -66,7 +67,11 @@
     "react-native-simple-radio-button": "^2.7.4",
     "react-native-smooth-pincode-input": "^1.0.9",
     "react-native-sortable-gridview": "^1.1.5",
+<<<<<<< HEAD
     "react-native-step-indicator": "0.0.11",
+=======
+    "react-native-svg": "^12.1.0",
+>>>>>>> origin
     "react-native-tab-view": "^2.14.0",
     "react-native-table-component": "^1.2.1",
     "react-native-tags": "^2.1.0",
