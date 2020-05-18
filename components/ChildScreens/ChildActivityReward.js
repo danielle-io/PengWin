@@ -143,11 +143,11 @@ export default class ChildActivityReward extends Component {
                 <Image
                   source={{ uri: this.state.activity.reward_image }}
                   style={{
-                    // width: WIDTH * 0.6,
-                    // height: WIDTH * 0.3,
-                    // marginBottom: 50,
-                    // borderRadius: 15,
-                    // resizeMode: "contain",
+                    width: WIDTH * 0.6,
+                    height: WIDTH * 0.3,
+                    marginBottom: 50,
+                    borderRadius: 15,
+                    resizeMode: "contain",
                   }}
                 />
               </View>
