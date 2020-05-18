@@ -1,10 +1,14 @@
 import React, { Component } from "react";
+import {
+  Dimensions,
+} from "react-native";
 import { Text, View, Button, Alert, Image } from 'react-native';
 import SmoothPinCodeInput from 'react-native-smooth-pincode-input';
 import Dialog, { DialogContent } from 'react-native-popup-dialog';
 import Logo from '../assets/images/pip.png/';
 import { ScrollView } from "react-native-gesture-handler";
 
+const { width: WIDTH } = Dimensions.get("window");
 
 export default class ChildPincode extends Component {
 

@@ -1,17 +1,15 @@
 import React, { Component } from "react";
 import { Dimensions, Text, View, Vibration } from "react-native";
 import { ScrollView, PinchGestureHandler } from "react-native-gesture-handler";
-const { width: WIDTH } = Dimensions.get("window");
-
 import { Notifications } from "expo";
-
 import * as Permissions from "expo-permissions";
 import Constants from "expo-constants";
+import { AppLoading } from "expo";
+import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 
 import Environment from "../../database/sqlEnv";
 import UserInfo from "../../state/UserInfo";
 
-import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 Icon.loadFont();
 
 console.disableYellowBox = true;
@@ -212,13 +210,14 @@ export default class ChildRoutines extends Component {
           <View
             style={({ flex: 1 }, styles.routines)}
             onStartShouldSetResponder={() =>
-              this.props.navigation.navigate("ChildActivity", {
+              this.props.navigation.navigate("ChildStartActivity", {
                 prevScreenTitle: "My Routines",
                 currentRoutine: item.routine_name,
                 routineId: item.routine_id,
                 rewardId: item.reward_id,
                 requiresApproval: item.requires_approval,
                 amountOfActivities: item.amount_of_activities,
+                amountOfRewards: item.amount_of_rewards,
               })
             }
           >

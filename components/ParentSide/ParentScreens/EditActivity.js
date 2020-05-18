@@ -8,7 +8,6 @@ import {
   Switch,
   TextInput,
   TouchableOpacity,
-  TouchableHighlight,
   Text,
 } from "react-native";
 import { Video } from "expo-av";
@@ -30,6 +29,7 @@ import firebase from "../../../database/irDb";
 
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 Icon.loadFont();
+
 
 const mainColor = "#3ca897";
 const parentId = UserInfo.parent_id;

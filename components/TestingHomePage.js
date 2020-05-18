@@ -6,6 +6,10 @@ import {
   widthPercentageToDP as wp,
   heightPercentageToDP as hp,
 } from "react-native-responsive-screen";
+import {
+  Dimensions,
+} from "react-native";
+const { width: WIDTH } = Dimensions.get("window");
 
 export default class TestingHomePage extends Component {
   constructor(props) {

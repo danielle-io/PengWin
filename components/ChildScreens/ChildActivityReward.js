@@ -3,7 +3,6 @@ import { Dimensions, Text, View, TouchableOpacity, Image } from "react-native";
 
 import { Video } from "expo-av";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
-Icon.loadFont();
 
 import Star from "../../assets/images/Star.png";
 import StarFill from "../../assets/images/fillstar.png";
@@ -12,6 +11,8 @@ import Environment from "../../database/sqlEnv";
 import UserInfo from "../../state/UserInfo";
 import { AppLoading } from "expo";
 import { ScrollView } from "react-native-gesture-handler";
+
+Icon.loadFont();
 
 const { width: WIDTH, height: HEIGHT } = Dimensions.get("window");
 
@@ -44,6 +45,7 @@ export default class ChildActivityReward extends Component {
       activity: null,
       loaded: false,
     };
+
     this.getActivity();
   }
 
@@ -115,6 +117,8 @@ export default class ChildActivityReward extends Component {
   }
 
   render() {
+    const { width: WIDTH, height: HEIGHT } = Dimensions.get("window");
+
     if (this.state.loaded) {
       return (
         <ScrollView>
@@ -139,11 +143,11 @@ export default class ChildActivityReward extends Component {
                 <Image
                   source={{ uri: this.state.activity.reward_image }}
                   style={{
-                    width: WIDTH * 0.6,
-                    height: WIDTH * 0.3,
-                    marginBottom: 50,
-                    borderRadius: 15,
-                    resizeMode: "contain",
+                    // width: WIDTH * 0.6,
+                    // height: WIDTH * 0.3,
+                    // marginBottom: 50,
+                    // borderRadius: 15,
+                    // resizeMode: "contain",
                   }}
                 />
               </View>
@@ -165,7 +169,7 @@ export default class ChildActivityReward extends Component {
                     isMuted={false}
                     resizeMode="contain"
                     isLooping
-                    style={{ width: WIDTH * 0.7, height: WIDTH * 0.3 }}
+                    // style={{ width: WIDTH * 0.7, height: WIDTH * 0.3 }}
                   />
                 </View>
               </View>
@@ -173,9 +177,9 @@ export default class ChildActivityReward extends Component {
 
             {this.state.activity.reward_description && (
               <View>
-                <Text style={styles.section}>
+                {/* <Text style={styles.section}>
                   {this.state.activity.reward_description}
-                </Text>
+                </Text> */}
               </View>
             )}
 
