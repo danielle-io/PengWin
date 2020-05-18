@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import { Text, View, Button, Alert, Image } from 'react-native';
 import SmoothPinCodeInput from 'react-native-smooth-pincode-input';
 import Dialog, { DialogContent } from 'react-native-popup-dialog';
-import Logo from '../assets/images/pip.png/';
+import Logo from '../assets/images/keypad.png/';
 import { ScrollView } from "react-native-gesture-handler";
 
 
@@ -39,8 +39,11 @@ static navigationOptions = ({ navigation }) => ({
   _checkCode = (code) => {
     if (code != '12345') {
       this.pinInput.current.shake()
-      Alert.alert('PinCode Created!');
+      Alert.alert('PinCode Created!',
+      this.props.navigation.navigate(''));
+
       this.setState({ code: '' })
+      this.navigate('ForgotPasword', { prevScreenTitle: 'My Routines' });
       
     }
     else
@@ -57,25 +60,30 @@ static navigationOptions = ({ navigation }) => ({
         
             
       <View style={styles.container}>
-          <Text style={styles.headingContainer}>PengWin</Text>
+          <Text style={styles.headingContainer}>CREATE A PASSCODE</Text>
           <View style={styles.logoContainer}>
+          {/* <Image source={Logo}
+          style={styles.logo}>
+          </Image> */}
+        </View>
+        
+           <View style={{marginTop: -750}}></View>
+           <ScrollView>
+                        
+<Text style={styles.routineTitle} >A passcode is required to switch from child to parent mode of </Text>
+<Text style={styles.routineTitle} >the app. Please enter a 4 digit passcode below. This can be                                                  changed anytime in your settings later.</Text>
+<Text style={styles.routineTitle} >changed anytime in your settings later. </Text>
+
+                    </ScrollView>
+
+
+                    <ScrollView>
+           <View style={styles.logoContainer}>
           <Image source={Logo}
           style={styles.logo}>
           </Image>
         </View>
-        
-           <View style={{marginTop: -600}}></View>
-           <ScrollView>
-                        <Text style={styles.routineTitle} >                             Hello Parents,</Text>
-                        <Text style={styles.routineTitle} >             Please create a 4 digit pincode</Text>
-<Text style={styles.routineTitle} >A passcode is required to switch from child </Text>
-<Text style={styles.routineTitle} >to parent mode of the app. Please enter a 4</Text>
-<Text style={styles.routineTitle} >digit passcode below. This can be changed</Text>
-<Text style={styles.routineTitle} >danytime in your settings later on.</Text>
-
-
-
-                    </ScrollView>
+          </ScrollView>
           <Button
             title="Create Pincode"
             onPress={() => {
@@ -94,7 +102,18 @@ static navigationOptions = ({ navigation }) => ({
 
               <Text style={styles.title}>Create Pincode?</Text>
               {/* <Text>This will log you out of the child mode. If you wish to switch from child to parent mode, you will need to enter your 4 digit passcode. Do you wish to continue the switch to parent mode of the app?</Text> */}
+             
               <Button
+                onPress={() => {
+                  this.setState( {visible2: true }, );
+
+                }}
+                title="Yes"
+                color="#841584"
+                accessibilityLabel="Yes Button"
+              />
+
+<Button
                 onPress={() => {
                   this.setState({ visible1: false });
                 }}
@@ -102,16 +121,6 @@ static navigationOptions = ({ navigation }) => ({
                 color="#841584"
                 accessibilityLabel="Cancel Button"
               />
-              <Button
-                onPress={() => {
-                  this.setState( {visible2: true });
-                }}
-                title="Yes"
-                color="#841584"
-                accessibilityLabel="Yes Button"
-              />
-
-              
             </DialogContent>
           </Dialog>
 
@@ -147,7 +156,13 @@ static navigationOptions = ({ navigation }) => ({
                   
                 />
                 <View style={{marginTop: 30}}></View>
-                <Text>Next</Text>
+                <Button
+                onPress={() => {
+                  this.props.navigation.navigate('ChildRoutines');
+                }}
+                title="Next"
+              />  
+           
               </View>
             </DialogContent>
           </Dialog>
@@ -179,10 +194,10 @@ const styles =
   routineTitle: {
     paddingLeft: 5,
     paddingTop: 5,
-    fontSize: 16,
+    fontSize: 19,
     marginLeft: 10,
     fontWeight: 'bold',
-    textAlign: 'left',
+    textAlign: 'center',
     textAlignVertical: 'center'
   },
   headingContainer: {
@@ -198,9 +213,9 @@ const styles =
     
   },
   title: {
-    fontSize: 16,
+    fontSize: 17,
     fontWeight: 'bold',
-    marginBottom: 8,
+    marginTop: 8,
     
   },
 };

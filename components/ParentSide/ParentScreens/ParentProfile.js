@@ -2,12 +2,10 @@ import React, {Component} from 'react';
 import {View, Dimensions, StyleSheet} from 'react-native';
 import {TextField} from 'react-native-material-textfield';
 import UserAvatar from 'react-native-user-avatar';
-
 import Environment from '../../../database/sqlEnv';
 import UserInfo from "../../../state/UserInfo";
 
 const {width: WIDTH} = Dimensions.get('window');
-
 const parentId = UserInfo.parent_id;
 const childId = UserInfo.child_id;
 const userId = UserInfo.user_id;
