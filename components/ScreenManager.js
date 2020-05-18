@@ -35,37 +35,36 @@ import TestingHomePage from './TestingHomePage';
 
 
 const Screens = createStackNavigator({
+  TestingHomePage: { screen: TestingHomePage },
+  ParentNavigation: { screen: ParentNavigation },
 
-  ParentNavigation: {screen: ParentNavigation},
-  TestingHomePage: {screen: TestingHomePage},
+  Login: { screen: Login },
+  SignUp: { screen: SignUp },
+  Pincode: { screen: Pincode },
+  ForgotPassword: { screen: ForgotPassowrd },
+  Camera: { screen: Camera },
+  ChildCamera: { screen: ChildCamera },
 
-  Login: {screen: Login},
-  SignUp: {screen: SignUp},
-  Pincode: {screen: Pincode},
-  ForgotPassword: {screen: ForgotPassowrd},
-  Camera: {screen:Camera},
-  ChildCamera: {screen: ChildCamera },    
+  ParentRoutines: { screen: ParentRoutines },
+  EditActivity: { screen: EditActivity },
+  ParentRewards: { screen: ParentRewards },
+  PublicActivities: { screen: PublicActivities },
+  ViewPublicActivity: { screen: ViewPublicActivity },
 
-  ParentRoutines: {screen: ParentRoutines},
-  EditActivity: {screen: EditActivity},
-  ParentRewards : {screen:ParentRewards},
-  PublicActivities : {screen:PublicActivities},
-  ViewPublicActivity : {screen:ViewPublicActivity},
+  EditReward: { screen: EditReward },
+  ParentProfile: { screen: ParentProfile },
+  EditRoutine: { screen: EditRoutine },
+  Progress: { screen: Progress },
+  Notifications: { screen: Notifications },
+  RoutineApproval: { screen: RoutineApproval },
 
-  EditReward: {screen:EditReward},
-  ParentProfile: {screen:ParentProfile},
-  EditRoutine: {screen:EditRoutine},
-  Progress: {screen: Progress},
-  Notifications: {screen: Notifications},
-  RoutineApproval: {screen: RoutineApproval},
-
-  ChildPincode: {screen:ChildPincode},
-  ChildNotifScreen: {screen:ChildNotifScreen},
-  ChildRoutines: {screen: ChildRoutines},
-  ChildActivity: {screen:ChildActivity},
-  ChildMap: {screen:ChildMap},
-  ChildRewards: {screen:ChildRewards},
-  ChildStartActivity: {screen:ChildStartActivity}
+  ChildPincode: { screen: ChildPincode },
+  ChildNotifScreen: { screen: ChildNotifScreen },
+  ChildRoutines: { screen: ChildRoutines },
+  ChildActivity: { screen: ChildActivity },
+  ChildMap: { screen: ChildMap },
+  ChildRewards: { screen: ChildRewards },
+  ChildStartActivity: { screen: ChildStartActivity },
 });
 
 const App = createAppContainer(Screens);
