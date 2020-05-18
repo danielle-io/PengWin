@@ -3,6 +3,7 @@ import { Dimensions, Text, View, TouchableOpacity, Image } from "react-native";
 
 import { Video } from "expo-av";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+Icon.loadFont();
 
 import Star from "../../assets/images/Star.png";
 import StarFill from "../../assets/images/fillstar.png";
@@ -12,9 +13,7 @@ import UserInfo from "../../state/UserInfo";
 import { AppLoading } from "expo";
 import { ScrollView } from "react-native-gesture-handler";
 
-Icon.loadFont();
-
-// const { width: WIDTH, height: HEIGHT } = Dimensions.get("window");
+const { width: WIDTH, height: HEIGHT } = Dimensions.get("window");
 
 export default class ChildActivityReward extends Component {
   //Header titles for routine notif
@@ -45,7 +44,6 @@ export default class ChildActivityReward extends Component {
       activity: null,
       loaded: false,
     };
-
     this.getActivity();
   }
 
@@ -117,8 +115,6 @@ export default class ChildActivityReward extends Component {
   }
 
   render() {
-    const { width: WIDTH, height: HEIGHT } = Dimensions.get("window");
-
     if (this.state.loaded) {
       return (
         <ScrollView>
@@ -169,7 +165,7 @@ export default class ChildActivityReward extends Component {
                     isMuted={false}
                     resizeMode="contain"
                     isLooping
-                    // style={{ width: WIDTH * 0.7, height: WIDTH * 0.3 }}
+                    style={{ width: WIDTH * 0.7, height: WIDTH * 0.3 }}
                   />
                 </View>
               </View>
