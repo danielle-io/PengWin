@@ -46,6 +46,59 @@ export default class ChildNotifScreen extends Component {
     this.getChild();
   }
 
+  async insertChildNotification(){
+    console.log("inserting child notification");
+
+    const parentId = UserInfo.parent_id;
+    const childId = UserInfo.child_id;
+    const userId = UserInfo.user_id;
+
+      var data = {
+        child_id: childId,
+        routine_id: this.state.routineId,
+        parent_id: parentId,
+        is_attempted: 1,
+        is_approved: 0,
+        in_progress: 1,
+        is_evaluated: 0,
+        requires_approval: this.state.requiresApproval,
+        amount_of_activities: this.state.amountOfActivities,
+        reward_id: this.state.rewardId,
+        activities_complete: 0,
+        quick_start_activity_id: 0
+      };
+      let response = await fetch(
+        Environment + "/insertChildRoutineNotifications" ,
+        {
+          method: "POST",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(data),
+        }
+      )
+      .then((response) => response.json())
+      .then((responseJson) => {
+        return responseJson;
+      })
+      .then((results) => {
+        console.log("inserted a notification!!! " + results.child_notifications_id);
+        this.navigate("ChildActivity", {
+          prevScreenTitle: "My Routines",
+          currentRoutine: this.state.currentRoutine,
+          routineId: this.state.routineId,
+          rewardId: this.state.rewardId,
+          requiresApproval: this.state.requiresApproval,
+          childNotificationsId: results.insertId,
+          image_path_array: ' ',
+        });
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+    }
+
   getChild() {
     const parentId = UserInfo.parent_id;
     const childId = UserInfo.child_id;
@@ -94,7 +147,7 @@ export default class ChildNotifScreen extends Component {
           <Text style={styles.title}> Start {this.state.routineName}</Text>
           <Text style={styles.section}>
             {" "}
-            Good morning, {this.state.child.first_name}! It’s{" "}
+            Hi, {this.state.child.first_name}! It’s{" "}
             {hours + ":" + time[1] + " " + ampm} and that means it’s time to
             start your {this.state.routineName}! Complete the routine to earn{" "}
             {this.state.activities} stars and win {this.state.rewards} exciting
@@ -105,11 +158,7 @@ export default class ChildNotifScreen extends Component {
           <TouchableOpacity
             style={styles.buttonStyle}
             onPress={() => {
-              this.navigate("ChildActivity", {
-                prevScreenTitle: "My Routines",
-                currentRoutine: this.state.routineName,
-                routineId: this.state.routineId,
-              });
+              this.insertChildNotification();
             }}
           >
             <Text style={styles.textStyle}>Start Routine!</Text>
