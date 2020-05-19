@@ -1,7 +1,14 @@
 import React, { Component } from "react";
-import { View, Dimensions, StyleSheet, Text, PickerIOSComponent, TouchableOpacity } from "react-native";
+import {
+  View,
+  Dimensions,
+  StyleSheet,
+  Text,
+  PickerIOSComponent,
+  TouchableOpacity,
+} from "react-native";
 import { TextField } from "react-native-material-textfield";
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
+import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import Environment from "../../../database/sqlEnv";
 import UserInfo from "../../../state/UserInfo";
 Icon.loadFont();
@@ -16,7 +23,7 @@ export default class Notifications extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      icon: 'check-all',
+      icon: "check-all",
       prevScreenTitle: this.props.navigation.state.params.prevScreenTitle,
       childNotifications: null,
       childLoaded: false,
@@ -45,7 +52,6 @@ export default class Notifications extends Component {
 
         tempRoutines.push(results.routines[0]);
         this.setState({ routines: tempRoutines });
-        
       })
       .catch((error) => {
         console.error(error);
@@ -73,8 +79,8 @@ export default class Notifications extends Component {
   }
 
   getChildInfo() {
-    const userId = UserInfo.user_id;
-    fetch(Environment + "/getChildFromParent/" + userId, {
+    const parentId = UserInfo.parent_id;
+    fetch(Environment + "/getChildFromParent/" + parentId, {
       headers: {
         "Cache-Control": "no-cache",
       },
@@ -86,63 +92,55 @@ export default class Notifications extends Component {
       .then((results) => {
         this.setState({ childResults: results });
         this.setState({ childLoaded: true });
-        //this.setState({ childsName: results[0].first_name });
+        this.setState({ childsName: results[0].first_name });
       })
       .catch((error) => {
         console.error(error);
       });
   }
 
-updateChildNotification(childNotificationId, data) {
-  console.log(childNotificationId);
-  
-      let response = fetch(
-        Environment + "/updateChildNotificationsTable/" + childNotificationId,
-        {
-          method: "POST",
-          headers: {
-            Accept: "application/json",
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(data),
-        })
-          .then((response) => response.json())
-          .then((responseJson) => {
-            return responseJson;
-          })
-          .then((results) => {
-            console.log(results);
-            
-            this.setState({ notificationsLoaded: false });
-            this.getNotifications();
-          })
-          .catch((error) => {
-            console.error(error);
-          });
+  updateChildNotification(childNotificationId, data) {
+    let response = fetch(
+      Environment + "/updateChildNotificationsTable/" + childNotificationId,
+      {
+        method: "POST",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
       }
-
-  evaluateRoutineNotification(childNotificationId, value){
-    console.log("childNotificationId.child_notifications_id" + childNotificationId.child_notifications_id);
-    
-    var data = {
-      "is_approved":  value,
-      "is_evaluated": 1
-    };
-    this.setState({ routines: [] });
-    this.updateChildNotification(childNotificationId.child_notifications_id, data);
+    )
+      .then((response) => response.json())
+      .then((responseJson) => {
+        return responseJson;
+      })
+      .then((results) => {
+        this.setState({ notificationsLoaded: false });
+        this.getNotifications();
+      })
+      .catch((error) => {
+        console.error(error);
+      });
   }
 
+  evaluateRoutineNotification(childNotificationId, value) {
+    var data = {
+      is_approved: value,
+      is_evaluated: 1,
+    };
+    this.setState({ routines: [] });
+    this.updateChildNotification(
+      childNotificationId.child_notifications_id,
+      data
+    );
+  }
 
   loopOverNotificationRoutines() {
-    console.log("in loop notifications");
-    if (this.state.childNotifications){
-
+    if (this.state.childNotifications) {
       this.state.childNotifications.map((item) => {
-
-        console.log("CHILD NOTIFS ID IS " + item.child_notifications_id);
         var id = item.routine_id;
         this.getRoutineById(id);
-
       });
       this.setState({ childLoaded: true });
       this.setState({ notificationsLoaded: true });
@@ -150,54 +148,70 @@ updateChildNotification(childNotificationId, data) {
     }
   }
 
-  getCurrentNotification(key){
-    console.log(this.state.childNotifications[key].child)
-    console.log("KEY " + key);
-    console.log("CHILD NOTIFS BELOW");
+  getCurrentNotification(key) {
+    console.log(this.state.childNotifications[key].child);
     console.log(this.state.childNotifications);
-    console.log("this.state.childNotifications[key];" + this.state.childNotifications[key])
     return this.state.childNotifications[key];
   }
 
   displayNotifications() {
-    console.log("routines length is " + this.state.routines.length);
     return this.state.routines.map((item, key) => {
       return (
-            <View
-              style={({ flex: 1 }, styles.notificationContainer)}
-              onStartShouldSetResponder={() =>
-                this.props.navigation.navigate("RoutineApproval", {
-                  prevScreenTitle: "Notifications",
-                  routineId: item.routine_id,
-                  childsName: this.state.childsName,
-                  routineName: item.routine_name,
-                  currentNotification: this.getCurrentNotification(key),
-                })
-              }
-            >
-              <Icon name={this.state.icon} color="#848484" style={{left:1}}color="#F32D2D" size={25} />
-              <Text style={styles.text}>Check Off Routine</Text>
-              <Text style={styles.routineTitle}>{this.state.childsName} has marked {item.routine_name} complete.</Text>
-              <Text style={styles.routineTitle}>Would you like to approve the routine to let {this.state.childsName} claim the reward?</Text>
-              
+        <View
+          style={({ flex: 1, marginTop: 10 }, styles.notificationContainer)}
+          onStartShouldSetResponder={() =>
+            this.props.navigation.navigate("RoutineApproval", {
+              prevScreenTitle: "Notifications",
+              routineId: item.routine_id,
+              childsName: this.state.childsName,
+              routineName: item.routine_name,
+              currentNotification: this.getCurrentNotification(key),
+            })
+          }
+        >
+          <Icon
+            name={this.state.icon}
+            color="#848484"
+            style={{ left: 1 }}
+            color="#F32D2D"
+            size={25}
+          />
+          <Text style={styles.titleText}>Check Off Routine</Text>
+          <Text style={styles.routineBodyText}>
+            {this.state.childsName} has marked {item.routine_name} complete.
+          </Text>
+          <Text style={styles.routineBodyText}>
+            Would you like to approve the routine to let {this.state.childsName}{" "}
+            claim the reward?
+          </Text>
 
-              <TouchableOpacity style={styles.button}>
-              <Icon name="check" 
+          <TouchableOpacity style={styles.button}>
+            <Icon
+              name="check"
               onPress={() => {
-                this.evaluateRoutineNotification(this.getCurrentNotification(key), 1);                  
+                this.evaluateRoutineNotification(
+                  this.getCurrentNotification(key),
+                  1
+                );
               }}
-                color="#FF6978" 
-                size={33}/>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.button2}>
-              <Icon name="window-close" color="#FF6978" 
-               onPress={() => {
-                this.evaluateRoutineNotification(this.getCurrentNotification(key), 0);                  
+              color="#FF6978"
+              size={33}
+            />
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.button2}>
+            <Icon
+              name="window-close"
+              color="#FF6978"
+              onPress={() => {
+                this.evaluateRoutineNotification(
+                  this.getCurrentNotification(key),
+                  0
+                );
               }}
-              size={33}/>
-            </TouchableOpacity>
-            </View>
-          
+              size={33}
+            />
+          </TouchableOpacity>
+        </View>
       );
     });
   }
@@ -209,10 +223,11 @@ updateChildNotification(childNotificationId, data) {
 
     return (
       <View>
-        {this.state.childLoaded && this.state.notificationsLoaded && this.state.routines.length > 0 &&(
-          <View style={styles.textfields}>{this.displayNotifications()} 
-          </View>
-        )}
+        {this.state.childLoaded &&
+          this.state.notificationsLoaded &&
+          this.state.routines.length > 0 && (
+            <View style={styles.textfields}>{this.displayNotifications()}</View>
+          )}
       </View>
     );
   }
@@ -225,6 +240,7 @@ const styles = StyleSheet.create({
     width: 830,
     fontSize: 70,
     padding: 5,
+    marginTop: 10,
     margin: 5,
   },
   button: {
@@ -253,22 +269,14 @@ const styles = StyleSheet.create({
     margin: 5,
     padding: 2,
   },
-  icon:{
-    fontSize: 20
+  icon: {
+    fontSize: 20,
+    marginLeft: 10,
   },
-  text: {
-    marginLeft: 30,
+  titleText: {
+    marginLeft: 40,
     fontSize: 24,
     marginTop: -28,
-  },
-  textFields: {
-    padding: 5,
-    margin: 2,
-    marginLeft: 45,
-    marginTop: 10,
-    marginBottom: 10,
-    fontSize: 50,
-    marginRight: 170,
   },
   formIndent: {
     marginLeft: 30,
@@ -297,8 +305,8 @@ const styles = StyleSheet.create({
     shadowColor: "black",
     shadowOpacity: 0.1,
   },
-  routineTitle: {
-    marginLeft: 33,
+  routineBodyText: {
+    marginLeft: 40,
     fontSize: 20,
     textAlignVertical: "center",
   },
