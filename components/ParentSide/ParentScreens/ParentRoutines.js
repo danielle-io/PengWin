@@ -1619,6 +1619,7 @@ const styles = StyleSheet.create({
     alignSelf: "flex-end",
     fontSize: 30,
     marginRight: 10,
+    marginLeft: 4,
     overflow: "visible",
   },
   routineTitle: {
