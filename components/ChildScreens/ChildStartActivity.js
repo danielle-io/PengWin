@@ -137,34 +137,6 @@ export default class ChildStartActivity extends Component {
   }
 
   render() {
-
-if (this.state.loaded) {
-  return (
-    <View style={styles.container}>
-      <Text style={styles.title}> Start {this.state.routineName}</Text>
-      <Text style={styles.section}>
-        {" "}
-        Hi, {this.state.child.first_name}! It’s{" "}
-        It’s time to start your {this.state.routineName}! Complete the routine to earn{" "}
-        {this.state.activities} stars and win {this.state.rewards} exciting
-        rewards :){" "}
-      </Text>
-      <View style={styles.image}>{this.renderStars()}</View>
-      <Image source={Wave} style={{ margin: 10, marginLeft: 50 }} />
-      <TouchableOpacity
-        style={styles.buttonStyle}
-        onPress={() => {
-          this.insertChildNotification();
-        }}
-      >
-        <Text style={styles.textStyle}>Start Routine!</Text>
-      </TouchableOpacity>
-    </View>
-  );
-} else {
-  return <AppLoading />;
-}
-
     if (this.state.loaded) {
       return (
         <View style={styles.container}>
