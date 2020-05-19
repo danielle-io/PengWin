@@ -206,16 +206,20 @@ export default class ChildRoutines extends Component {
   }
 
   renderRoutines() {
+    
     return this.state.routines.routines.map((item) => {
       if (item.is_active == 1) {
         return (
           <View
             style={({ flex: 1 }, styles.routines)}
             onStartShouldSetResponder={() =>
-              this.props.navigation.navigate("ChildActivity", {
+              this.props.navigation.navigate("ChildStartActivity", {
                 prevScreenTitle: "My Routines",
                 currentRoutine: item.routine_name,
                 routineId: item.routine_id,
+                routineName: item.routine_name,
+                activities: item.amount_of_activities,
+                rewards: item.amount_of_rewards,
                 rewardId: item.reward_id,
                 requiresApproval: item.requires_approval,
                 amountOfActivities: item.amount_of_activities,

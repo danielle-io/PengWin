@@ -37,21 +37,37 @@ import ChildHurray from "./ChildScreens/ChildHurray";
 import ChildActivityReward from "./ChildScreens/ChildActivityReward";
 import ChildStartActivity from "./ChildScreens/ChildStartActivity";
 
-import Camera from "../components/ImageRecognition/Camera";
+// import Camera from "../components/ImageRecognition/Camera";
 import ChildCamera from "../components/ImageRecognition/ChildCamera";
 
 import TestingHomePage from "./TestingHomePage";
 
 const Screens = createStackNavigator({
-  TestingHomePage: { screen: TestingHomePage },
+
+
+  TestingHomePage: {screen: TestingHomePage},
+
+  ParentNavigation: {screen: ParentNavigation},
+  
+
+  Login: {screen: Login},
+  SignUp: {screen: SignUp},
+  Pincode: {screen: Pincode},
+  ForgotPassword: {screen: ForgotPassowrd},
+  Camera: {screen:Camera},
+  ChildCamera: {screen: ChildCamera },    
+ 
+
   ChildRoutines: { screen: ChildRoutines },
   ParentNavigation: { screen: ParentNavigation },
+  TestingHomePage: { screen: TestingHomePage },
+
 
   Login: { screen: Login },
   SignUp: { screen: SignUp },
   Pincode: { screen: Pincode },
   ForgotPassword: { screen: ForgotPassowrd },
-  Camera: { screen: Camera },
+  // Camera: { screen: Camera },
   ChildCamera: { screen: ChildCamera },
 
   ParentRoutines: { screen: ParentRoutines },
