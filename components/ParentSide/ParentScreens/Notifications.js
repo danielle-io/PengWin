@@ -24,7 +24,6 @@ export default class Notifications extends Component {
     super(props);
     this.state = {
       icon: "check-all",
-      prevScreenTitle: this.props.navigation.state.params.prevScreenTitle,
       childNotifications: null,
       childLoaded: false,
       childResults: null,
@@ -37,6 +36,7 @@ export default class Notifications extends Component {
   componentDidMount() {
     this.props.navigation.addListener("didFocus", (payload) => {
       this.getChildInfo();
+      this.setState({ routines: [] });
       this.getNotifications();
     });
   }
@@ -149,8 +149,6 @@ export default class Notifications extends Component {
   }
 
   getCurrentNotification(key) {
-    console.log(this.state.childNotifications[key].child);
-    console.log(this.state.childNotifications);
     return this.state.childNotifications[key];
   }
 
@@ -277,33 +275,6 @@ const styles = StyleSheet.create({
     marginLeft: 40,
     fontSize: 24,
     marginTop: -28,
-  },
-  formIndent: {
-    marginLeft: 30,
-  },
-  routineDetails: {
-    fontSize: 10,
-    paddingTop: 15,
-    paddingLeft: 15,
-  },
-  detailsContainer: {
-    padding: 2,
-    paddingTop: 10,
-    paddingBottom: 15,
-  },
-  routinesStyling: {
-    paddingLeft: 3,
-    textAlignVertical: "center",
-    width: WIDTH * 0.3,
-    height: 100,
-    marginTop: 5,
-    marginBottom: 5,
-    borderWidth: 3,
-    borderRadius: 15,
-    backgroundColor: "white",
-    shadowOffset: { width: 5, height: 5 },
-    shadowColor: "black",
-    shadowOpacity: 0.1,
   },
   routineBodyText: {
     marginLeft: 40,

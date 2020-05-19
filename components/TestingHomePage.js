@@ -6,9 +6,7 @@ import {
   widthPercentageToDP as wp,
   heightPercentageToDP as hp,
 } from "react-native-responsive-screen";
-import {
-  Dimensions,
-} from "react-native";
+import { Dimensions } from "react-native";
 
 import UserInfo from "../state/UserInfo";
 
@@ -17,7 +15,6 @@ const parentId = UserInfo.parent_id;
 const childId = UserInfo.child_id;
 const userId = UserInfo.user_id;
 const pincode = UserInfo.pincode;
-
 
 export default class TestingHomePage extends Component {
   constructor(props) {
@@ -33,23 +30,23 @@ export default class TestingHomePage extends Component {
   };
 
   async componentDidMount() {
-      this.getRoutines();
+    this.getRoutines();
   }
 
-  checkAmounts(routines){
+  checkAmounts(routines) {
     routines.routines.map((item) => {
-      this.getRewardAmount(item.routine_id, item.amount_of_rewards, item.reward_id);
+      this.getRewardAmount(
+        item.routine_id,
+        item.amount_of_rewards,
+        item.reward_id
+      );
       this.checkActivityAmount(item.routine_id, item.amount_of_activities);
     });
   }
 
   getRewardAmount(routineId, rewardAmount, rewardId) {
     console.log("check reward amount");
-    fetch(
-      Environment +
-        "/joinRoutineActivityTableByRoutineId/" +
-        routineId
-    )
+    fetch(Environment + "/joinRoutineActivityTableByRoutineId/" + routineId)
       .then((response) => response.json())
       .then((responseJson) => {
         return responseJson;
@@ -60,34 +57,37 @@ export default class TestingHomePage extends Component {
       .catch((error) => {
         console.error(error);
       });
-   }
+  }
 
-   compareRewardAmount(routineId, rewardAmount, rewardId, activities){
+  compareRewardAmount(routineId, rewardAmount, rewardId, activities) {
     var rewardCount = 0;
-    for (var i = 0; i < activities.length; i++){
+    for (var i = 0; i < activities.length; i++) {
       console.log(activities[i].reward_image);
       console.log(activities[i].reward_video);
       console.log(activities[i].reward_description);
 
-      if (activities[i].reward_image || activities[i].reward_video || activities[i].reward_description){
+      if (
+        activities[i].reward_image ||
+        activities[i].reward_video ||
+        activities[i].reward_description
+      ) {
         rewardCount += 1;
       }
     }
-    if (rewardId){
+    if (rewardId) {
       rewardCount += 1;
     }
-    if (rewardCount !== rewardAmount){
+    if (rewardCount !== rewardAmount) {
       this.updateRoutineWithoutReload(
         routineId,
         "amount_of_rewards",
         rewardCount
       );
       this.state.routineRewardAmountDict[routineId] = rewardCount;
-    }
-    else{
+    } else {
       this.state.routineRewardAmountDict[routineId] = rewardAmount;
     }
-   }
+  }
 
   updateRoutine(routineId, tag, value) {
     var data = {
@@ -106,8 +106,7 @@ export default class TestingHomePage extends Component {
         .then((responseJson) => {
           return responseJson;
         })
-        .then((routineResults) => {
-        });
+        .then((routineResults) => {});
     }
   }
 
@@ -138,15 +137,14 @@ export default class TestingHomePage extends Component {
       color: (opacity = 1) => `rgba(26, 255, 146, ${opacity})`,
       strokeWidth: 2, // optional, default 3
       barPercentage: 0.5,
-      useShadowColorFromDataset: false // optional
+      useShadowColorFromDataset: false, // optional
     };
-    
+
     let ripple = { id: "submitButton" };
     return (
       <View>
         <ScrollView>
           <View style={styles.containerFull}>
-            
             <View
               style={{
                 flex: 1,
@@ -155,7 +153,6 @@ export default class TestingHomePage extends Component {
                 flexWrap: "wrap",
               }}
             >
-
               <TouchableOpacity
                 style={styles.parentContainer}
                 onPress={() =>
@@ -213,31 +210,28 @@ export default class TestingHomePage extends Component {
                 <Text style={styles.linkText}>Parent Rewards Page</Text>
               </TouchableOpacity>
 
+              <TouchableOpacity
+                style={styles.parentContainer}
+                onPress={() =>
+                  this.navigate("Questionnaire", {
+                    prevScreenTitle: "TestingHomePage",
+                  })
+                }
+              >
+                <Text style={styles.linkText}>Parent Questionnaire</Text>
+              </TouchableOpacity>
 
-            <TouchableOpacity
-              style={styles.parentContainer}
-              onPress={() =>
-                this.navigate("Questionnaire", {
-                  prevScreenTitle: "TestingHomePage",
-                })
-              }
-            >
-              <Text style={styles.linkText}>Parent Questionnaire</Text>
-            </TouchableOpacity>
-
-            
-
-            <TouchableOpacity
-              style={styles.parentContainer}
-              onPress={() =>
-                this.navigate("Progress", {
-                  prevScreenTitle: "TestingHomePage",
-                })
-              }
-            >
-              <Text style={styles.linkText}>Parent Progress Page</Text>
-            </TouchableOpacity>
-          </View>
+              <TouchableOpacity
+                style={styles.parentContainer}
+                onPress={() =>
+                  this.navigate("Progress", {
+                    prevScreenTitle: "TestingHomePage",
+                  })
+                }
+              >
+                <Text style={styles.linkText}>Parent Progress Page</Text>
+              </TouchableOpacity>
+            </View>
 
             <View
               style={{
@@ -301,7 +295,6 @@ export default class TestingHomePage extends Component {
                 flexWrap: "wrap",
               }}
             >
-
               <TouchableOpacity
                 onPress={() =>
                   this.navigate("Login", { prevScreenTitle: "TestingHomePage" })
@@ -319,21 +312,6 @@ export default class TestingHomePage extends Component {
               >
                 <Text style={styles.linkText}>Sign Up Page</Text>
               </TouchableOpacity>
-
-            
-            <View style={styles.otherContainer}>
-              <Text
-                style={styles.linkText}
-                onPress={() =>
-                  this.navigate("ForgotPassword", {
-                    prevScreenTitle: "TestingHomePage",
-                  })
-                }
-              >
-                  Forgot Password does not exist
-                </Text>
-              </View>
-
             </View>
           </View>
         </ScrollView>

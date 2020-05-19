@@ -4,7 +4,6 @@ import { createAppContainer } from "react-navigation";
 import { createStackNavigator } from "react-navigation-stack";
 import Login from "./Login";
 import SignUp from "./SignUp";
-import ForgotPassowrd from "./ForgotPassword";
 import Pincode from "./Pincode";
 import HomePage from './HomePage';
 
@@ -42,29 +41,16 @@ import TestingHomePage from "./TestingHomePage";
 
 const Screens = createStackNavigator({
 
-
-  TestingHomePage: {screen: TestingHomePage},
-
   ParentNavigation: {screen: ParentNavigation},
   
+  TestingHomePage: {screen: TestingHomePage},
 
   Login: {screen: Login},
   SignUp: {screen: SignUp},
   Pincode: {screen: Pincode},
-  ForgotPassword: {screen: ForgotPassowrd},
   ChildCamera: {screen: ChildCamera },    
 
-
   ChildRoutines: { screen: ChildRoutines },
-  ParentNavigation: { screen: ParentNavigation },
-  TestingHomePage: { screen: TestingHomePage },
-
-
-  Login: { screen: Login },
-  SignUp: { screen: SignUp },
-  Pincode: { screen: Pincode },
-  ForgotPassword: { screen: ForgotPassowrd },
-  ChildCamera: { screen: ChildCamera },
 
   ParentRoutines: { screen: ParentRoutines },
   EditActivity: { screen: EditActivity },

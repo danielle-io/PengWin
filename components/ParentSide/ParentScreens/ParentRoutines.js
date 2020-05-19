@@ -40,7 +40,7 @@ Icon.loadFont();
 export default class ParentRoutines extends Component {
   static navigationOptions = ({ navigation }) => ({
     title: "Routines",
-    prevScreenTitle: "Routines",
+    // prevScreenTitle: "Routines",
     activeTab: 2,
   });
 

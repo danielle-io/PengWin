@@ -2,7 +2,7 @@ import React, { Component } from "react";
 
 export default class Progress extends Component {
   static navigationOptions = ({ navigation }) => ({
-    title: "Forgot Password",
+    title: "Progress",
     prevScreenTitle: "Login",
   });
 
