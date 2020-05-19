@@ -45,6 +45,7 @@ app.get("/getChildFromParent/:userId", function(req, res) {
   });
 });
 
+
 app.get("/getUnevaluatedRoutines/:parentId", function(req, res) {
   let parentId = req.params.parentId;
   db.getConnection(function(err, connection) {
@@ -710,34 +711,7 @@ app.get("/getAmountOfActivitiesInRoutine/:routineId", function(req, res) {
   });
 });
 
-app.get("/getActivitiesWithRewardsPerRoutine/:routineId", function(req, res) {
-  let routineId = req.params.routineId;
-  db.getConnection(function(err, connection) {
-    connection.query(
-      "select routines.*, a.*, rar.order, rar.routine_activity_id from routines " +
-        "inner join routines_activities_relationship rar on routines.routine_id = rar.routine_id " +
-        "inner join activities a on rar.activity_id = a.activity_id " +
-        "where rar.routine_id = ? AND rar.routine_id <> 0 AND rar.deleted <> 1 " +
-        "AND reward_id <> null " +
-        "order by rar.order",
-      [routineId],
-      function(error, results, fields) {
-        connection.release();
-        // console.log('routine routes below');
-        // console.log(results);
-        // console.log(error);
 
-        if (error) {
-          throw error;
-          console.log(err);
-        }
-        // console.log("RESULTS FROM JOINING");
-        // console.log(results);
-        res.send(results);
-      }
-    );
-  });
-});
 
 app.get("/getRoutinesByUser/:userId", function(req, res) {
   let userId = req.params.userId;

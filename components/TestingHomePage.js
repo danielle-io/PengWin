@@ -6,6 +6,18 @@ import {
   widthPercentageToDP as wp,
   heightPercentageToDP as hp,
 } from "react-native-responsive-screen";
+import {
+  Dimensions,
+} from "react-native";
+
+import UserInfo from "../state/UserInfo";
+
+const { width: WIDTH } = Dimensions.get("window");
+const parentId = UserInfo.parent_id;
+const childId = UserInfo.child_id;
+const userId = UserInfo.user_id;
+const pincode = UserInfo.pincode;
+
 
 export default class TestingHomePage extends Component {
   constructor(props) {
@@ -20,7 +32,116 @@ export default class TestingHomePage extends Component {
     headerVisible: false,
   };
 
+  async componentDidMount() {
+      this.getRoutines();
+  }
+
+  checkAmounts(routines){
+    routines.routines.map((item) => {
+      this.getRewardAmount(item.routine_id, item.amount_of_rewards, item.reward_id);
+      this.checkActivityAmount(item.routine_id, item.amount_of_activities);
+    });
+  }
+
+  getRewardAmount(routineId, rewardAmount, rewardId) {
+    console.log("check reward amount");
+    fetch(
+      Environment +
+        "/joinRoutineActivityTableByRoutineId/" +
+        routineId
+    )
+      .then((response) => response.json())
+      .then((responseJson) => {
+        return responseJson;
+      })
+      .then((activities) => {
+        this.compareRewardAmount(routineId, rewardAmount, rewardId, activities);
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+   }
+
+   compareRewardAmount(routineId, rewardAmount, rewardId, activities){
+    var rewardCount = 0;
+    for (var i = 0; i < activities.length; i++){
+      console.log(activities[i].reward_image);
+      console.log(activities[i].reward_video);
+      console.log(activities[i].reward_description);
+
+      if (activities[i].reward_image || activities[i].reward_video || activities[i].reward_description){
+        rewardCount += 1;
+      }
+    }
+    if (rewardId){
+      rewardCount += 1;
+    }
+    if (rewardCount !== rewardAmount){
+      this.updateRoutineWithoutReload(
+        routineId,
+        "amount_of_rewards",
+        rewardCount
+      );
+      this.state.routineRewardAmountDict[routineId] = rewardCount;
+    }
+    else{
+      this.state.routineRewardAmountDict[routineId] = rewardAmount;
+    }
+   }
+
+  updateRoutine(routineId, tag, value) {
+    var data = {
+      [tag]: value,
+    };
+    {
+      let response = fetch(Environment + "/updateRoutine/" + routineId, {
+        method: "POST",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      })
+        .then((response) => response.json())
+        .then((responseJson) => {
+          return responseJson;
+        })
+        .then((routineResults) => {
+        });
+    }
+  }
+
+  getRoutines() {
+    fetch(Environment + "/getRoutinesByUser/" + userId, {
+      headers: {
+        "Cache-Control": "no-cache",
+      },
+    })
+      .then((response) => response.json())
+      .then((responseJson) => {
+        return responseJson;
+      })
+      .then((routineResults) => {
+        this.checkAmounts(routineResults);
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+  }
+
+
   render() {
+    const chartConfig = {
+      backgroundGradientFrom: "#1E2923",
+      backgroundGradientFromOpacity: 0,
+      backgroundGradientTo: "#08130D",
+      backgroundGradientToOpacity: 0.5,
+      color: (opacity = 1) => `rgba(26, 255, 146, ${opacity})`,
+      strokeWidth: 2, // optional, default 3
+      barPercentage: 0.5,
+      useShadowColorFromDataset: false // optional
+    };
+    
     let ripple = { id: "submitButton" };
     return (
       <View>
@@ -38,16 +159,6 @@ export default class TestingHomePage extends Component {
                 flexWrap: "wrap",
               }}
             >
-              <TouchableOpacity
-                style={styles.parentContainer}
-                onPress={() =>
-                  this.navigate("ParentRoutines", {
-                    prevScreenTitle: "TestingHomePage",
-                  })
-                }
-              >
-                <Text style={styles.linkText}>Parent / Routines Page</Text>
-              </TouchableOpacity>
 
               <TouchableOpacity
                 style={styles.parentContainer}
@@ -106,16 +217,6 @@ export default class TestingHomePage extends Component {
                 <Text style={styles.linkText}>Parent Rewards Page</Text>
               </TouchableOpacity>
 
-              <TouchableOpacity
-                style={styles.parentContainer}
-                onPress={() =>
-                  this.navigate("EditActivity", {
-                    prevScreenTitle: "TestingHomePage",
-                  })
-                }
-              >
-                <Text style={styles.linkText}>Parent Activity</Text>
-              </TouchableOpacity>
 
             <TouchableOpacity
               style={styles.parentContainer}
@@ -204,7 +305,7 @@ export default class TestingHomePage extends Component {
                 flexWrap: "wrap",
               }}
             >
-              <TouchableOpacity
+              {/* <TouchableOpacity
                 onPress={() =>
                   this.navigate("ChildCamera", {
                     prevScreenTitle: "ChildCamera",
@@ -213,7 +314,7 @@ export default class TestingHomePage extends Component {
                 style={styles.otherContainer}
               >
                 <Text style={styles.linkText}>ChildCamera</Text>
-              </TouchableOpacity>
+              </TouchableOpacity> */}
 
               <TouchableOpacity
                 onPress={() =>

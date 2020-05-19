@@ -1,15 +1,7 @@
 import React, { Component } from 'react';
-// import Login from './components/Login';
-// import Routines from './components/Routines';
+import { Dimensions } from "react-native";
 import ScreenManager from './components/ScreenManager';
 
-import {
-  MenuProvider,
-  Menu,
-  MenuOption,
-  MenuOptions,
-  MenuTrigger,
-} from "react-native-popup-menu";
 
 class App extends Component{
   constructor(props){
