@@ -67,11 +67,8 @@
     "react-native-simple-radio-button": "^2.7.4",
     "react-native-smooth-pincode-input": "^1.0.9",
     "react-native-sortable-gridview": "^1.1.5",
-<<<<<<< HEAD
     "react-native-step-indicator": "0.0.11",
-=======
     "react-native-svg": "^12.1.0",
->>>>>>> origin
     "react-native-tab-view": "^2.14.0",
     "react-native-table-component": "^1.2.1",
     "react-native-tags": "^2.1.0",

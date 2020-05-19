@@ -26,21 +26,6 @@ app.get("/users", function(req, res) {
   });
 });
 
-<<<<<<< HEAD
-
-// Creating a GET route that returns data from the 'users' table.
-app.get('/getChildFromParent/:userId', function (req, res) {
-  let userId = req.params.userId;
-
-  // Connecting to the database.
-  connection.getConnection(function (err, connection) {
-
-    // Executing the MySQL query (select all data from the 'users' table).
-    connection.query('select * from children '
-      + 'inner join users on children.user_id = users.user_id where parent_id = ?', [userId], function (error, results, fields) {
-        // console.log(error);
-        if (error){
-=======
 app.get("/getChildFromParent/:userId", function(req, res) {
   let userId = req.params.userId;
   db.getConnection(function(err, connection) {
@@ -51,7 +36,6 @@ app.get("/getChildFromParent/:userId", function(req, res) {
       function(error, results, fields) {
         connection.release();
         if (error) {
->>>>>>> origin
           throw error;
           console.log(err);
         }
@@ -387,13 +371,6 @@ app.post("/updateContainer/:containerId", function(req, res) {
   });
 });
 
-<<<<<<< HEAD
-
-app.get('/getUser/:userId', function (req, res) {
-  let userId = req.params.userId;
-  // Connecting to the database.
-  connection.getConnection(function (err, connection) {
-=======
 app.post("/updateRoutineTagTable/:containerRoutineId", function(req, res) {
   let containerRoutineId = req.params.containerRoutineId;
   var postData = req.body;
@@ -433,7 +410,6 @@ app.post("/insertNewContainer", function(req, res) {
     });
   });
 });
->>>>>>> origin
 
 app.post("/insertRewards", function(req, res) {
   var postData = req.body;
@@ -593,12 +569,6 @@ app.get("/getActivitiesFromRoutine/:routineID", function(req, res) {
 
 app.get("/getAllRewards/:userId", function(req, res) {
   let userId = req.params.userId;
-<<<<<<< HEAD
-  // Connecting to the database.
-  connection.getConnection(function (err, connection) {
-
-    connection.query('SELECT * FROM rewards where user_id =' + userId, function (error, results, fields) {
-=======
 
   db.getConnection(function(err, connection) {
     connection.query("SELECT * FROM rewards where user_id =" + userId, function(
@@ -607,7 +577,6 @@ app.get("/getAllRewards/:userId", function(req, res) {
       fields
     ) {
       connection.release();
->>>>>>> origin
 
       if (error) {
         throw error;
@@ -619,27 +588,7 @@ app.get("/getAllRewards/:userId", function(req, res) {
   });
 });
 
-<<<<<<< HEAD
-// app.get('/getPreferences/', function (req, res) {
-//   let userId = req.params.userId;
-//   // Connecting to the database.
-//   connection.getConnection(function (err, connection) {
-
-//     connection.query('SELECT * FROM rewards where user_id =' + userId, function (error, results, fields) {
-
-//       if (error){
-//         throw error;
-//         console.log(err);
-//       }
-//         res.send(results)
-//       });
-//   });
-// });
-
-app.get('/getAllRewardsandRoutines/:userId', function (req, res) {
-=======
 app.get("/getAllRewardsandRoutines/:userId", function(req, res) {
->>>>>>> origin
   let userId = req.params.userId;
 
   db.getConnection(function(err, connection) {
@@ -694,14 +643,7 @@ app.get("/getRewardById/:rewardId", function(req, res) {
 
         res.send(results);
       }
-<<<<<<< HEAD
-
-        // Getting the 'response' from the database and sending it to our route. This is were the data is.
-        res.send(results)
-      });
-=======
     );
->>>>>>> origin
   });
 });
 
@@ -725,16 +667,6 @@ app.get("/getActivityById/:activityId", function(req, res) {
 
 app.get("/joinRoutineActivityTableByRoutineId/:routineId", function(req, res) {
   let routineId = req.params.routineId;
-<<<<<<< HEAD
-  // Connecting to the database.
-  connection.getConnection(function (err, connection) {
-
-    connection.query('select routines.*, a.*, rar.order, rar.routine_activity_id from routines '
-      + 'inner join routines_activities_relationship rar on routines.routine_id = rar.routine_id '
-      + 'inner join activities a on rar.activity_id = a.activity_id '
-      + 'where rar.routine_id = ? AND rar.routine_id <> 0 AND rar.deleted <> 1 '
-      + 'order by rar.order', [routineId], function (error, results, fields) {
-=======
   db.getConnection(function(err, connection) {
     connection.query(
       "select routines.*, a.*, rar.order, rar.routine_activity_id from routines " +
@@ -745,7 +677,6 @@ app.get("/joinRoutineActivityTableByRoutineId/:routineId", function(req, res) {
       [routineId],
       function(error, results, fields) {
         connection.release();
->>>>>>> origin
         // console.log('routine routes below');
         // console.log(results);
         // console.log(error);
@@ -822,16 +753,10 @@ app.get("/getRoutinesByUser/:userId", function(req, res) {
 
         if (error) console.log(error);
 
-<<<<<<< HEAD
-      // Getting the 'response' from the database and sending it to our route. This is were the data is.
-      res.json({ 'routines': results });
-    });
-=======
         console.log(results);
         res.json({ routines: results });
       }
     );
->>>>>>> origin
   });
 });
 

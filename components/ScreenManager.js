@@ -27,13 +27,6 @@ import Question3 from './ParentSide/Questionnaire/Question3';
 import Question4 from './ParentSide/Questionnaire/Question4';
 import Questionnaire from './ParentSide/Questionnaire/Main';
 
-import ChildRoutines from './ChildScreens/ChildNavigation';
-import ChildActivity from './ChildScreens/ChildActivity';
-import ChildPincode from './ChildScreens/ChildPincode';
-import ChildNotifScreen from './ChildScreens/ChildNotifScreen';
-import ChildRewards from './ChildScreens/ChildRewards';
-import ChildMap from './ChildScreens/ChildMap';
-import ChildStartActivity from './ChildScreens/ChildStartActivity';
 import ChildRoutines from "./ChildScreens/ChildNavigation";
 import ChildActivity from "./ChildScreens/ChildActivity";
 import ChildPincode from "./ChildScreens/ChildPincode";
