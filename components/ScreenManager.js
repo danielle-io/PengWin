@@ -54,7 +54,7 @@ const Screens = createStackNavigator({
   SignUp: {screen: SignUp},
   Pincode: {screen: Pincode},
   ForgotPassword: {screen: ForgotPassowrd},
-  Camera: {screen:Camera},
+  // Camera: {screen:Camera},
   ChildCamera: {screen: ChildCamera },    
  
 
