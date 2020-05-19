@@ -116,7 +116,7 @@ function AppTabView(props) {
   //Screens in Active Screen
   return (
     <View style={{ flex: 1, backgroundColor: "#FFFCF9" }}>
-      <View style={{ flex: 1 }}>
+      <View style={{ flex: 1}}>
         <ActiveScreen navigation={descriptor.navigation} />
       </View>
 
@@ -126,6 +126,7 @@ function AppTabView(props) {
         activeTab={activeScreenName}
         onTabPress={handleTabPress}
         renderTab={({ tab, isActive }) => (
+         
           <FullTab
             style={{ flexDirection: "row" }}
             labelStyle={{

@@ -19,6 +19,7 @@ import EditActivity from "./ParentSide/ParentScreens/EditActivity";
 import Progress from "./ParentSide/ParentScreens/Progress";
 import Notifications from "./ParentSide/ParentScreens/Notifications";
 import RoutineApproval from "./ParentSide/ParentScreens/RoutineApproval";
+import CheckOffRoutine from "./ParentSide/ParentScreens/CheckOffRoutine";
 
 import Question1 from './ParentSide/Questionnaire/Question1';
 import Question2 from './ParentSide/Questionnaire/Question2';
@@ -40,10 +41,11 @@ import ChildCamera from "../components/ImageRecognition/ChildCamera";
 import TestingHomePage from "./TestingHomePage";
 
 const Screens = createStackNavigator({
-
   ParentNavigation: {screen: ParentNavigation},
   
   TestingHomePage: {screen: TestingHomePage},
+
+  
 
   Login: {screen: Login},
   SignUp: {screen: SignUp},
@@ -57,6 +59,7 @@ const Screens = createStackNavigator({
   ParentRewards: { screen: ParentRewards },
   PublicActivities: { screen: PublicActivities },
   ViewPublicActivity: { screen: ViewPublicActivity },
+  CheckOffRoutine: {screen: CheckOffRoutine },    
 
   // Notifications: {screen: Notifications},
   Questionnaire: {screen:Questionnaire},
@@ -66,7 +69,6 @@ const Screens = createStackNavigator({
   Question4: {screen:Question4},
   
   Notifications: {screen: Notifications},
-  RoutineApproval: {screen: RoutineApproval},
   EditReward: { screen: EditReward },
   ParentProfile: { screen: ParentProfile },
   EditRoutine: { screen: EditRoutine },

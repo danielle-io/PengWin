@@ -1,8 +1,11 @@
+// TODO: show rewards per activity dynamically,
+// i.e. if no rewards, state that
 import React, { Component } from "react";
 import {
   View,
   Dimensions,
   Image,
+  ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -11,6 +14,7 @@ import { RaisedTextButton } from "react-native-material-buttons";
 import { TextField } from "react-native-material-textfield";
 import Environment from "../../../database/sqlEnv";
 import Carousel from "react-native-carousel-view";
+import { Video } from "expo-av";
 
 import Star from "../../../assets/images/Star.png";
 import StarFill from "../../../assets/images/fillstar.png";
@@ -21,8 +25,6 @@ const { width: WIDTH, height: HEIGHT } = Dimensions.get("window");
 const childId = UserInfo.child_id;
 
 export default class RoutineApproval extends Component {
-  static navigationOptions = ({ navigation }) => ({
-  });
 
   constructor(props) {
     super(props);
@@ -35,6 +37,7 @@ export default class RoutineApproval extends Component {
       routineName: this.props.navigation.state.params.routineName,
       prevScreenTitle: this.props.navigation.state.params.prevScreenTitle,
       childsName: this.props.navigation.state.params.childsName,
+      finalRewardId: this.props.navigation.state.params.finalRewardId,
       currentNotification: this.props.navigation.state.params
         .currentNotification,
       activities: null,
@@ -43,7 +46,7 @@ export default class RoutineApproval extends Component {
   }
 
   static navigationOptions = ({ navigation }) => ({
-    title: `${navigation.state.params.routineName}`,  
+    title: `${navigation.state.params.routineName}`,
   });
 
   getRoutineActivities() {
@@ -106,8 +109,7 @@ export default class RoutineApproval extends Component {
     let ripple = { id: "addButton" };
 
     return (
-      <View>
-        
+      <View style={{backgroundColor: "#FFFCF9",}}>
         {this.state.activitiesLoaded && (
           <Carousel
             height={HEIGHT * 0.9}
@@ -116,66 +118,150 @@ export default class RoutineApproval extends Component {
             animate={false}
             onRef={(ref) => (this.child = ref)}
           >
+            {/* Loop over each activity */}
             {this.state.activities.map((item, key) => (
-              <View style={styles.carouselContainer}>
-               
-                <Text style={styles.activityName}>
-                  {key + 1}
-                  {". "}
-                  {item.activity_name}
-                </Text>
-                
-                <Text style={styles.subtext}>
-                  Image taken by {this.state.childsName}
-                </Text>
+             
+             <View style={styles.carouselContainer}>
+                <ScrollView>
+                  <Text style={styles.activityName}>
+                    {key + 1}
+                    {". "}
+                    {item.activity_name}
+                  </Text>
 
-                <View style={{ justifyContent: "center", textAlign: "center", alignItems: "center", textAlign: "center" }}>
-                  <View style={styles.imageContainer}>
-                    <Image
-                      source={{ uri: this.getImage(key) }}
-                      style={{
-                        width: 350,
-                        height: 250,
-                        margin: 5,
-                        borderRadius: 15,
-                        resizeMode: "contain",
+                  <Text style={styles.subtext}>
+                    Image taken by {this.state.childsName}
+                  </Text>
+
+                  <View
+                    style={{
+                      justifyContent: "center",
+                      alignItems: "center",
+                      textAlign: "center",
+                    }}
+                  >
+                    <View style={styles.imageContainer}>
+                      <Image
+                        source={{ uri: this.getImage(key) }}
+                        style={{
+                          width: 350,
+                          height: 250,
+                          margin: 5,
+                          borderRadius: 15,
+                          resizeMode: "contain",
+                        }}
+                      />
+                    </View>
+                  </View>
+
+                  <Text style={styles.subtitle}>Rewards Recevied</Text>
+                  {/* <Text style={styles.subtext}>
+                    {key + 1}
+                    {"/"}
+                    {this.state.activities.length}
+                    {" stars"}
+                  </Text> */}
+
+                  <View
+                    style={{
+                      justifyContent: "center",
+                      alignItems: "center",
+                      marginBottom: 20,
+                    }}
+                  >
+                    <View style={styles.image}>
+                      {this.renderStars(key + 1)}
+                    </View>
+                  </View>
+
+                  <View
+                    style={{
+                      justifyContent: "center",
+                      alignItems: "center",
+                      marginBottom: 100,
+                    }}
+                  >
+
+                  {item.reward_image && (
+                    <View style={styles.rewardImageContainer}>
+                      <Image
+                        source={{ uri: item.reward_image }}
+                        style={{
+                          width: 300,
+                          height: 200,
+                          margin: 5,
+                          borderRadius: 15,
+                          resizeMode: "contain",
+                        }}
+                      />
+                    </View>
+                  )}
+
+                  {item.reward_description && (
+                    
+                    <View style={styles.rewardImageContainer}>
+                      <Text style={styles.rewardDescriptionText}>
+                        {item.reward_description}
+                      </Text>
+                    </View>
+                  )}
+
+                  {item.reward_video && (
+                    <View>
+                      <View
+                        style={{
+                          justifyContent: "center",
+                          alignItems: "center",
+                          marginTop: 15,
+                        }}
+                      >
+                        <Video
+                          useNativeControls={true}
+                          source={{ uri: item.reward_video }}
+                          rate={1.0}
+                          volume={1.0}
+                          isMuted={false}
+                          resizeMode="contain"
+                          isLooping
+                          style={{ width: WIDTH * 0.7, height: WIDTH * 0.3 }}
+                        />
+                      </View>
+                    </View>
+                  )}
+
+                </View>
+
+                  <View
+                    style={{
+                      marginRight: 60,
+                      alignSelf: "flex-end",
+                      marginBottom: 50,
+                    }}
+                  >
+                    <RaisedTextButton
+                      style={styles.roundAddButton}
+                      title=">"
+                      titleColor="white"
+                      titleStyle={{ fontSize: 18 }}
+                      color="#FF6978"
+                      onPress={() => {
+                        if (key + 1 === this.state.activities.length) {
+                          this.props.navigation.navigate("CheckOffRoutine", {
+                            prevScreenTitle: "Notifications",
+                            routineId: this.state.routineId,
+                            childsName: this.state.childsName,
+                            routineName: this.state.routineName,
+                            finalRewardId: this.state.finalRewardId,
+                            currentNotification: this.state.currentNotification,
+                          });
+                        } else {
+                          this._onNext();
+                        }
                       }}
+                      ripple={ripple}
                     />
                   </View>
-                </View>
-
-                <Text style={styles.subtext}>Rewards Recevied</Text>
-                <Text style={styles.subtext}>{key + 1}{"/"}{this.state.activities.length}{" stars"}</Text>
-
-                <View
-                  style={{
-                    justifyContent: "center",
-                    alignItems: "center",
-                    marginBottom: 100,
-                  }}
-                >
-                  <View style={styles.image}>{this.renderStars(key + 1)}</View>
-                </View>
-
-                <View style={{ marginTop: 10, marginRight: 30, alignSelf: "flex-end" }}>
-                 
-                  <RaisedTextButton
-                    style={styles.roundAddButton}
-                    title=">"
-                    titleColor="white"
-                    titleStyle={{ fontSize: 18 }}
-                    color="#FF6978"
-                    onPress={() => {
-                      if (key + 1 === this.state.activities.length){
-                        this.navigate("Notifications");
-                      }
-                      else{
-                        this._onNext();
-                      }
-                    }}
-                    ripple={ripple}
-                  />
-                </View>
+                </ScrollView>
               </View>
             ))}
           </Carousel>
@@ -186,12 +272,11 @@ export default class RoutineApproval extends Component {
 
   render() {
     if (this.state.notificationsLoaded !== null) {
+      return (<View>{this.displayActivities()}</View>);
+
     } else {
       console.log("null");
     }
-    return (
-        <View>{this.displayActivities()}</View>
-    );
   }
 }
 
@@ -216,6 +301,17 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     paddingHorizontal: 20,
   },
+  subtitle:{
+    marginTop: 8,
+    fontSize: 20,
+    fontWeight: "500",
+    marginLeft: 25,
+  },
+  subtext: {
+    fontSize: 20,
+    marginLeft: 25,
+    marginTop: 8,
+  },
   image: {
     flexDirection: "row",
     flexWrap: "wrap",
@@ -230,11 +326,6 @@ const styles = StyleSheet.create({
     backgroundColor: "#FF6978",
     borderRadius: 5,
     textAlign: "center",
-  },
-  subtext: {
-    fontSize: 20,
-    marginLeft: 25,
-    marginTop: 8,
   },
   title: {
     fontSize: 16,
@@ -263,6 +354,20 @@ const styles = StyleSheet.create({
     alignItems: "center",
     borderRadius: 15,
   },
+  
+  rewardImageContainer: {
+    marginTop: 15,
+    width: 250,
+    height: 250,
+    backgroundColor: "white",
+    shadowColor: "grey",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.2,
+    shadowRadius: 3,
+    justifyContent: "center",
+    alignItems: "center",
+    borderRadius: 15,
+  },
   roundAddButton: {
     marginRight: 10,
     marginLeft: 6,
@@ -272,5 +377,12 @@ const styles = StyleSheet.create({
     width: 50,
     borderRadius: 50,
     color: "#FFFFFF",
+  },
+  rewardDescriptionText: {
+    fontSize: 22,
+    textAlign: "center",
+    justifyContent: "center",
+    alignItems: "center",
+    margin: 30,
   },
 });

@@ -30,6 +30,7 @@ export default class Notifications extends Component {
       childsName: null,
       notificationsLoaded: false,
       routines: [],
+      noNotifications: false,
     };
   }
 
@@ -71,7 +72,13 @@ export default class Notifications extends Component {
       })
       .then((results) => {
         this.setState({ childNotifications: results });
-        this.loopOverNotificationRoutines();
+        console.log(results);
+        if (results.length === 0) {
+          console.log("true");
+          this.setState({ noNotifications: true });
+        } else {
+          this.loopOverNotificationRoutines();
+        }
       })
       .catch((error) => {
         console.error(error);
@@ -124,14 +131,14 @@ export default class Notifications extends Component {
       });
   }
 
-  evaluateRoutineNotification(childNotificationId, value) {
+  evaluateRoutineNotification(childNotification, value) {
     var data = {
       is_approved: value,
       is_evaluated: 1,
     };
     this.setState({ routines: [] });
     this.updateChildNotification(
-      childNotificationId.child_notifications_id,
+      childNotification.child_notifications_id,
       data
     );
   }
@@ -163,6 +170,7 @@ export default class Notifications extends Component {
               routineId: item.routine_id,
               childsName: this.state.childsName,
               routineName: item.routine_name,
+              finalRewardId: item.reward_id,
               currentNotification: this.getCurrentNotification(key),
             })
           }
@@ -221,11 +229,31 @@ export default class Notifications extends Component {
 
     return (
       <View>
-        {this.state.childLoaded &&
-          this.state.notificationsLoaded &&
-          this.state.routines.length > 0 && (
-            <View style={styles.textfields}>{this.displayNotifications()}</View>
+        <View>
+          {this.state.childLoaded &&
+            this.state.notificationsLoaded &&
+            this.state.routines.length > 0 && (
+              <View style={styles.textfields}>
+                {this.displayNotifications()}
+              </View>
+            )}
+        </View>
+
+        <View>
+          {this.state.noNotifications && (
+            <View
+              style={{
+                justifyContent: "center",
+                alignItems: "center",
+                textAlign: "center",
+              }}
+            >
+              <Text style={styles.noNotifText}>
+                You have no new notifications.
+              </Text>
+            </View>
           )}
+        </View>
       </View>
     );
   }
@@ -276,8 +304,13 @@ const styles = StyleSheet.create({
     fontSize: 24,
     marginTop: -28,
   },
+  noNotifText: {
+    textAlign: "center",
+    fontSize: 24,
+    marginTop: 30,
+  },
   routineBodyText: {
-    marginLeft: 40,
+    marginLeft: 45,
     fontSize: 20,
     textAlignVertical: "center",
   },

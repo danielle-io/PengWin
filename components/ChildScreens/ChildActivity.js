@@ -576,13 +576,6 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#FFFCF9",
   },
-  buttonStyle: {
-    padding: 10,
-    marginBottom: 50,
-    marginTop: 10,
-    backgroundColor: "#FF6978",
-    borderRadius: 5,
-  },
   image: {
     flexDirection: "row",
     flexWrap: "wrap",

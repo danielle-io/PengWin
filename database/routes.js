@@ -132,9 +132,11 @@ app.post('/updateChildNotificationsTable/:childNotificationId', function (req, r
 
   console.log("updating child notifs, id is " + childNotificationId);
 
-  connection.getConnection(function (err, connection) {
+  db.getConnection(function (err, connection) {
+    
     connection.query('UPDATE child_notifications SET ? WHERE child_notifications_id = ?',
       [postData, childNotificationId],
+     
       function (error, results, fields) {
         connection.release();
         if (error){
