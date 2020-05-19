@@ -1,28 +1,17 @@
-
-import React, { Component } from 'react';
-import { StyleSheet, View, Text } from 'react-native';
+import React, { Component } from "react";
 
 export default class ForgotPassword extends Component {
+  static navigationOptions = ({ navigation }) => ({
+    title: "Forgot Password",
+    prevScreenTitle: "Login",
+  });
 
+  constructor() {
+    super();
+    this.state = {
 
-    constructor(props) {
-        super(props)
-        this.state = {
-            prevScreenTitle: this.props.navigation.state.params.prevScreenTitle,
-        };
-    }
-
-    render() {
-
-        const { navigate } = this.props.navigation
-        return (
-
-            <View>
-            </View>
-        );
-    }
+    };
+  }
 }
 
-const styles = StyleSheet.create({
 
-});

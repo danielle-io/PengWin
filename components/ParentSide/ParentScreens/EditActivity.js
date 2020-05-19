@@ -1,3 +1,5 @@
+// TODO: the reward amount in the relational table needs to be updated when the 
+// reward here is removed or added
 import React, { Component } from "react";
 import {
   Dimensions,
@@ -6,6 +8,7 @@ import {
   View,
   Slider,
   Switch,
+  TextInput,
   TouchableOpacity,
   TouchableHighlight,
   Text,
@@ -68,13 +71,16 @@ export default class Activity extends Component {
         .activityDescription,
       activityAudioPath: this.props.navigation.state.params.activityAudioPath,
       activityVideoPath: this.props.navigation.state.params.activityVideoPath,
-      rewardId: this.props.navigation.state.params.rewardId,
-      allRewardsByIdDictionary: this.props.navigation.state.params
-        .allRewardsByIdDictionary,
       isPublic: this.props.navigation.state.params.isPublic,
+      rewardImage: this.props.navigation.state.params.rewardImage,
+      rewardDescription: this.props.navigation.state.params.rewardImage,
+      rewardVideo: this.props.navigation.state.params.rewardVideo,
       changedValues: [],
       haveRecordingPermissions: false,
       isLoading: false,
+      rewardDescriptionModal: false,
+      tempRewardDescription: "",
+
       isPlaybackAllowed: false,
       muted: false,
       soundPosition: null,
@@ -123,12 +129,14 @@ export default class Activity extends Component {
     const userId = UserInfo.user_id;
     let data = {
       activity_name: this.state.activityName,
-      tags: this.state.activityTags.join(','),
+      tags: this.state.activityTags.join(","),
       image_path: this.state.activityImagePath,
       activity_description: this.state.activityDescription,
       audio_path: this.state.activityAudioPath,
       video_path: this.state.activityVideoPath,
-      reward_id: this.state.rewardId,
+      reward_image: this.state.rewardImage,
+      reward_video: this.state.rewardVideo,
+      reward_description: this.state.rewardDescription,
       is_public: this.state.isPublic,
       user_id: userId,
       deleted: 0,
@@ -148,6 +156,7 @@ export default class Activity extends Component {
       .then((results) => {
         console.log("new insert!!!");
         this.setState({ activityId: results.insertId });
+        this.props.navigation.navigate("Routines")
       })
       .catch((error) => {
         console.error(error);
@@ -158,7 +167,6 @@ export default class Activity extends Component {
     if (this.state.activityId === null) {
       console.log("no activity id !!");
       this.createNewActivity();
-
     } else {
       if (this.state.changedValues) {
         for (const keyValuePair of this.state.changedValues) {
@@ -168,7 +176,10 @@ export default class Activity extends Component {
         }
       }
     }
+    console.log("should navigate here");
+    this.props.navigation.navigate("ParentRoutines");
   }
+
 
   getCurrentSwitchState() {
     if (this.state.isPublic === 1) {
@@ -196,6 +207,7 @@ export default class Activity extends Component {
 
   componentDidMount() {
     this._askForPermissions();
+    console.log(this.state.activityTags);
   }
 
   _askForPermissions = async () => {
@@ -247,7 +259,7 @@ export default class Activity extends Component {
     }
   };
 
-  _handleImagePicked = async (pickerResult) => {
+  _handleImagePicked = async (pickerResult, imageName) => {
     try {
       this.setState({ uploading: true });
 
@@ -255,11 +267,19 @@ export default class Activity extends Component {
         var uploadUrl = await this.uploadImageAsync(pickerResult.uri);
         console.log("Upload URL is " + uploadUrl);
 
-        this.setState({ activityImagePath: uploadUrl });
-        this.pushToUpdateActivityArray(
-          "image_path",
-          this.state.activityImagePath
-        );
+        if (imageName === "activityImage") {
+          this.setState({ activityImagePath: uploadUrl });
+          this.pushToUpdateActivityArray(
+            "image_path",
+            this.state.activityImagePath
+          );
+        } else {
+          this.setState({ rewardImage: uploadUrl });
+          this.pushToUpdateActivityArray(
+            "reward_image",
+            this.state.rewardImage
+          );
+        }
       }
     } catch (e) {
       console.log(e);
@@ -295,7 +315,7 @@ export default class Activity extends Component {
 
     return await snapshot.ref.getDownloadURL();
   }
-  
+
   async _stopPlaybackAndBeginRecording() {
     this.setState({
       isLoading: true,
@@ -492,27 +512,45 @@ export default class Activity extends Component {
   //   }, 3000);
   // }
 
-  imagePicker = async () => {
+  imagePicker = async (imageName) => {
+    console.log("in image picker");
     let pickerResult = await ImagePicker.launchImageLibraryAsync({
       allowsEditing: true,
       aspect: [4, 3],
     });
-    if (pickerResult){
+    if (pickerResult) {
       console.log("picker result is here " + pickerResult);
-      this._handleImagePicked(pickerResult);
+      this._handleImagePicked(pickerResult, imageName);
       // this.setState({ activityImagePath: pickerResult });
     }
   };
 
-
-  newTagAdded(newTag) { 
-    console.log("tag is " + newTag);     
-    this.setState({ activityTags: newTag.toLowerCase() });
-    if (this.state.activityId){
+  newTagAdded(newTag) {
+    console.log("newTagAdded");
+    console.log("tag is " + newTag);
+    this.setState({ activityTags: newTag.split(",") });
+    if (this.state.activityId) {
       console.log("activity id exists");
-      this.updateActivity("tags", newTag.toLowerCase());
+      this.updateActivity("tags", newTag.toLowerCase().replace(/\s+/g, ""));
     }
     console.log("state is " + this.state.activityTags);
+  }
+
+  getImageText() {
+    if (this.state.rewardImage !== null) {
+      return this.state.rewardImage.substring(0, 5) + "..";
+    } else {
+      return "Image";
+    }
+  }
+
+  getDescriptionText() {
+    if (this.state.rewardDescription !== null) {
+      var textPreview = this.state.rewardDescription.substring(0, 5) + "..";
+      return textPreview;
+    } else {
+      return "Description";
+    }
   }
 
   videoPicker = async () => {
@@ -532,7 +570,6 @@ export default class Activity extends Component {
           source={{ uri: this.state.activityImagePath }}
         />
       );
-      
     } else {
       return <Icon name="camera-enhance" color="#DADADA" size={100} />;
     }
@@ -565,6 +602,10 @@ export default class Activity extends Component {
     console.log(field.value());
   };
 
+  clickedRewardDescription() {
+    this.setState({ rewardDescriptionModal: true });
+  }
+
   formatText = (text) => {
     return text.replace(/[^+\d]/g, "");
   };
@@ -579,19 +620,33 @@ export default class Activity extends Component {
     }
   };
 
+  cancelRewardDescription() {
+    this.setState({ rewardDescriptionModal: false });
+  }
+
+  saveRewardDescription() {
+    this.setState({ rewardDescriptionModal: false });
+
+    if (this.state.tempRewardDescription !== "") {
+      this.setState({ rewardDescription: this.state.tempRewardDescription });
+      this.pushToUpdateActivityArray(
+        "reward_description",
+        this.state.tempRewardDescription
+      );
+    }
+  }
+
   render() {
     return (
       <ScrollView style={{ backgroundColor: "#FFFCF9", padding: 20 }}>
         <View style={styles.textFields}>
-          <Text style={styles.titles}>What is this activity called?</Text>
+          <Text style={styles.titles}>What is the activity called?</Text>
 
           <TextField
             placeholder="(e.g. Wear Shoes)"
             value={this.state.activityName}
             style={(styles.textfieldWithFloatingLabel, styles.textFields)}
             textInputStyle={{ flex: 1 }}
-            onFocus={(e) => console.log("Focus", !!e)}
-            onBlur={(e) => console.log("Blur", !!e)}
             onEndEditing={(e) => {
               this.pushToUpdateActivityArray(
                 "activity_name",
@@ -605,11 +660,9 @@ export default class Activity extends Component {
         <View style={(styles.descriptionBox, styles.textFields)}>
           <Text style={styles.titles}>Tags</Text>
           <Text style={styles.description}>
-            Enter some words that match what this activity entails, so that the
-            camera can detect if it's been photographed. Make the first word the
-            most accurate, since it's what we will display in the instructions.
-            To create a tag, type in the word and use a comma or space to add it
-            to the list.
+            Tags are words related to the activity that you'd like your child to
+            photograph. Type in the word and use a comma or space to add it
+            (starting with the most accurate).
           </Text>
 
           <Tags
@@ -617,21 +670,13 @@ export default class Activity extends Component {
               placeholder: "?TAGS",
             }}
             initialTags={this.state.activityTags}
-            // onTagPress={(index, tagLabel, event, deleted) =>
-            //   this.tagWasPressed(
-            //     index,
-            //     tagLabel,
-            //     event,
-            //     deleted ? "deleted" : "not deleted"
-            //   )
-            // }
             containerStyle={{ justifyContent: "center" }}
             inputStyle={{
               backgroundColor: "#FFFCF9",
               borderBottomColor: "#c4c4c4",
               borderBottomWidth: 1,
             }}
-            onChangeTags={(tags) => this.newTagAdded(tags.join(','))}
+            onChangeTags={(tags) => this.newTagAdded(tags.join(","))}
             renderTag={({
               tag,
               index,
@@ -661,9 +706,11 @@ export default class Activity extends Component {
           <View style={{ margin: 20, alignItems: "center" }}>
             <TouchableOpacity
               style={styles.camerabutton}
-              onPress={this.imagePicker}
+              onPress={() => {
+                this.imagePicker("activityImage");
+              }}
             >
-            {this.returnImage()}
+              {this.returnImage()}
             </TouchableOpacity>
           </View>
         </View>
@@ -723,6 +770,7 @@ export default class Activity extends Component {
                   size={30}
                   style={{ marginRight: 10 }}
                 />
+
                 <Text>Record</Text>
               </TouchableOpacity>
 
@@ -771,16 +819,17 @@ export default class Activity extends Component {
               />
               <Text>Record</Text>
             </TouchableOpacity> */}
-
-          <TouchableOpacity
-            style={styles.button}
-            onPress={() => {
-              this.setState({ visible: true });
-            }}
-          >
-            <Icon name="upload" color="#FF6978" size={30} />
-            <Text>Choose from recordings</Text>
-          </TouchableOpacity>
+          <View styles={{ flexDirection: "row", justifyContent: "center" }}>
+            <TouchableOpacity
+              style={styles.chooseButton}
+              onPress={() => {
+                this.setState({ visible: true });
+              }}
+            >
+              <Icon name="upload" color="#FF6978" size={30} />
+              <Text>Choose from recordings</Text>
+            </TouchableOpacity>
+          </View>
 
           <Dialog
             visible={this.state.visible}
@@ -845,6 +894,57 @@ export default class Activity extends Component {
           </Dialog>
         </View>
 
+        <Dialog
+          style={styles.descriptionModal}
+          hasOverlay={true}
+          overlayOpacity={0.1}
+          visible={this.state.rewardDescriptionModal}
+          onTouchOutside={() => {
+            this.cancelRewardDescription();
+          }}
+        >
+          <View
+            style={{
+              flexDirection: "row",
+              justifyContent: "center",
+              marginTop: 10,
+            }}
+          >
+            <Text style={styles.titles}>Add a Reward Description</Text>
+          </View>
+
+          <View
+            style={{
+              flexDirection: "row",
+              justifyContent: "center",
+              marginTop: 6,
+            }}
+          >
+            <TextInput              // multiline={true}
+              // input={{ paddingLeft: 8, marginLeft: 10, fontSize: 12 }}
+              style={styles.rewardDescriptionInput}
+              onChangeText={(text) =>
+                this.setState({ tempRewardDescription: text })
+              }
+            />
+          </View>
+
+          <View
+            style={{
+              flexDirection: "row",
+              justifyContent: "center",
+              marginTop: 6,
+            }}
+          >
+            <TouchableOpacity
+              style={styles.saveButtonMargin}
+              onPress={() => this.saveRewardDescription()}
+            >
+              <Text style={{ textAlign: "center",color: "#fff" }}>Save</Text>
+            </TouchableOpacity>
+          </View>
+        </Dialog>
+
         <View style={(styles.descriptionBox, styles.textFields)}>
           <Text style={styles.titles}>Video</Text>
           <Text style={styles.description}>
@@ -877,20 +977,27 @@ export default class Activity extends Component {
           >
             <TouchableOpacity
               style={styles.button}
-              onPress={() => console.log("pressed image button")}
+              onPress={() => {
+                this.clickedRewardDescription();
+              }}
             >
               <Icon name="text" color="#FF6978" size={30} />
-              <Text>Description</Text>
+              <Text>{this.getDescriptionText()}</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.button}>
+            <TouchableOpacity
+              style={styles.button}
+              onPress={() => {
+                this.imagePicker("rewardImage");
+              }}
+            >
               <Icon
                 name="camera"
                 color="#FF6978"
                 size={30}
                 style={{ marginRight: 10 }}
               />
-              <Text>Image</Text>
+              <Text style={{ overflow: "hidden" }}>{this.getImageText()}</Text>
             </TouchableOpacity>
 
             <TouchableOpacity style={styles.button}>
@@ -906,21 +1013,22 @@ export default class Activity extends Component {
         </View>
 
         <View>
-          <View style={styles.editRoutineIconAndTitle}>
-            <Icon style={styles.routineDetailsIcon} name="check-all" />
-            <Text style={styles.editRoutineSectionName}>Set Public</Text>
-          </View>
-          <View style={styles.editRoutineIconAndTitle}>
-            <Text style={styles.editRoutinesInstructionsText}>
+          <View style={(styles.descriptionBox, styles.textFields)}>
+            <Text style={styles.titles}>Make Public</Text>
+            <Text style={styles.description}>
               Would you like this activity to be added to the public library, so
               other families can access a copy of it for their own use?
             </Text>
-            <Switch
-              style={{ padding: 10 }}
-              trackColor={{ false: "#767577", true: "#FF6978" }}
-              value={this.getCurrentSwitchState()}
-              onValueChange={() => this.handleApprovalSwitchChange()}
-            />
+
+            <View style={styles.editRoutineIconAndTitle}>
+              <Text style={styles.editRoutinesInstructionsText} />
+              <Switch
+                style={{ padding: 10 }}
+                trackColor={{ false: "#767577", true: "#FF6978" }}
+                value={this.getCurrentSwitchState()}
+                onValueChange={() => this.handleApprovalSwitchChange()}
+              />
+            </View>
           </View>
         </View>
 
@@ -933,7 +1041,7 @@ export default class Activity extends Component {
           }}
         >
           <TouchableOpacity
-            style={styles.savebutton}
+            style={styles.saveButton}
             onPress={() => this.updateAllChangedAttributes()}
           >
             <Text style={{ color: "#fff", fontSize: 20 }}>Save</Text>
@@ -1027,10 +1135,12 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   tagsbutton: {
+    flexWrap: "nowrap",
+    overflow: "hidden",
     fontSize: 30,
     height: 30,
     minWidth: 50,
-    width: 100,
+    // width: 100,
     borderRadius: 20,
     backgroundColor: "#fff",
     borderColor: "#FF6978",
@@ -1038,7 +1148,9 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     flexDirection: "row",
-    margin: 5,
+    paddingLeft: 12,
+    paddingRight: 8,
+    margin: 6,
   },
   button: {
     fontSize: 30,
@@ -1054,7 +1166,22 @@ const styles = StyleSheet.create({
     margin: 5,
     padding: 2,
   },
-  savebutton: {
+  chooseButton: {
+    fontSize: 30,
+    minWidth: 50,
+    minHeight: 40,
+    width: "30%",
+    borderRadius: 20,
+    backgroundColor: "#fff",
+    borderColor: "#FF6978",
+    borderWidth: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    flexDirection: "row",
+    margin: 5,
+    padding: 2,
+  },
+  saveButton: {
     fontSize: 30,
     minWidth: 150,
     minHeight: 40,
@@ -1067,6 +1194,21 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     margin: 5,
     padding: 2,
+  },
+  saveButtonMargin: {
+    fontSize: 30,
+    minWidth: 150,
+    minHeight: 40,
+    borderRadius: 20,
+    backgroundColor: "#FF6978",
+    borderColor: "#fff",
+    borderWidth: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    flexDirection: "row",
+    marginTop: 5,
+    padding: 2,
+    marginBottom: 10,
   },
   disabledbutton: {
     fontSize: 30,
@@ -1107,5 +1249,48 @@ const styles = StyleSheet.create({
   description: {
     fontSize: 20,
     padding: 5,
+  },
+  descriptionModal: {
+    // margin: 12,
+    // height: 100,
+    // marginTop: 8,
+    // backgroundColor: "#f7f7f7",
+    // padding: 20,
+    // minWidth: 150,
+    // width: "70%",
+    // alignItems: "center",
+    // shadowColor: "#000",
+    // shadowOffset: {
+    //   width: 1,
+    //   height: 2,
+    // },
+    shadowOpacity: 0.65,
+    shadowRadius: 3.84,
+    elevation: 5,
+    fontSize: 30,
+    height: 200,
+    width: 300,
+    borderRadius: 12,
+    backgroundColor: "#fff",
+    justifyContent: "center",
+    alignItems: "center",
+    flexDirection: "row",
+    margin: 5,
+    shadowColor: "grey",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.4,
+    shadowRadius: 2,
+    paddingBottom: 10,
+  },
+  rewardDescriptionInput: {
+    marginLeft: 10,
+    width: "70%",
+    minWidth: 130,
+    borderRadius: 15,
+    borderColor: "#d3d3d3",
+    borderStyle: "solid",
+    borderWidth: 1,
+    height: 100,
+    // justifyContent: "center",
   },
 });

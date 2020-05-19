@@ -29,12 +29,16 @@ import firebase from "../../database/irDb";
 import Star from "../../assets/images/fillstar.png";
 import Ribbon from "../../assets/images/ribbon.png";
 import Head from "../../assets/images/PenguinFaceWink.png";
+import Penguin from "../../assets/images/cameraPenguin.gif";
 
 import UserInfo from "../../state/UserInfo";
 
+import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+Icon.loadFont();
+
 import { AppLoading } from "expo";
 let customFonts = {
-  SF: require("../../assets/fonts/SF/SF-Pro-Display-ThinItalic.otf"),
+  SF: require("../../assets/fonts/SF/SF-Pro-Rounded-Black.otf"),
   "Inter-SemiBoldItalic":
     "https://rsms.me/inter/font-files/Inter-SemiBoldItalic.otf?v=3.12",
 };
@@ -44,7 +48,6 @@ const parentId = UserInfo.parent_id;
 const childId = UserInfo.child_id;
 const userId = UserInfo.user_id;
 const pincode = UserInfo.pincode;
-
 
 // currentImages: eval(this.state.currentImages),
 
@@ -62,7 +65,9 @@ export default class ChildCamera extends React.Component {
         .childNotificationsId,
       tags: this.props.navigation.state.params.tags,
       activities: this.props.navigation.state.params.activities,
+      activityId: this.props.navigation.state.params.activityId,
       key: this.props.navigation.state.params.key,
+      rewardToggle: this.props.navigation.state.params.rewardToggle,
       activityImage: null,
       itemIsInTags: false,
       uploading: false,
@@ -71,27 +76,42 @@ export default class ChildCamera extends React.Component {
       tagsDictionary: null,
     };
   }
+  static navigationOptions = ({ navigation }) => ({
+    title: 'Login', 
+    headerLeft: null,
+    headerRight: () => (
+      <Icon
+        style={{padding: 15, color: '#848484'}}
+        name={'account-circle'}
+        size={25}
+        onPress={() => {
+          navigation.navigate('ChildPincode', {
+            prevScreenTitle: 'My Routines',
+          });
+        }}
+      />
+    ),
+  });
 
-  concatString(){
+  concatString() {
     var inputString = "";
-    if (this.state.currentImages){
+    if (this.state.currentImages) {
       inputString = this.state.currentImages + "," + this.state.activityImage;
-    }
-    else {
+    } else {
       console.log("=== empty");
       inputString = this.state.activityImage;
     }
-    
+
     this.updateImageArrayInDb(inputString);
   }
 
- updateImageArrayInDb(inputString) {
-  console.log("inputString is :: " + inputString);
-  console.log("the notif id is " + this.state.childNotificationsId);
+  updateImageArrayInDb(inputString) {
+    console.log("inputString is :: " + inputString);
+    console.log("the notif id is " + this.state.childNotificationsId);
 
     var data = {
       image_path_array: inputString,
-      activities_complete: this.state.key + 1
+      activities_complete: this.state.key + 1,
     };
 
     fetch(
@@ -111,7 +131,7 @@ export default class ChildCamera extends React.Component {
       .then((responseJson) => {
         return responseJson;
       })
-      .then((results) => {        
+      .then((results) => {
         this.goBackToActivityPage();
       })
       .catch((error) => {
@@ -131,33 +151,36 @@ export default class ChildCamera extends React.Component {
         return responseJson;
       })
       .then((results) => {
-        console.log("RESULTS FROM DB ARE " + results[0].image_path_array);
-        this.setState({ currentImages: results[0].image_path_array });
+        // //console.log("RESULTS FROM DB ARE " + results[0].image_path_array);
+        if (typeof results[0] !== "undefined") {
+          this.setState({ currentImages: results[0].image_path_array });
+        }
       })
       .catch((error) => {
         console.error(error);
       });
   }
 
-  goBackToActivityPage() {
-    console.log("leaving page");
-    const { navigate } = this.props.navigation;
-    this.navigate("ChildActivity", {
-    });
-  }
+  goBackToActivityPage = () => {
+    if (!this.state.rewardToggle) {
+      this.navigate("ChildActivity", {});
+    } else {
+      this.navigate("ChildHurray", {
+        activityId: this.state.activityId,
+        length: this.state.activities.length,
+        key: this.state.key,
+      });
+    }
+  };
 
   async _loadFontsAsync() {
     await Font.loadAsync(customFonts);
     this.setState({ fontsLoaded: true });
   }
 
-  static navigationOptions = ({ navigation }) => ({
-    // title: `${navigation.state.params.currentRoutine}`,
-  });
-
   async componentDidMount() {
     this._loadFontsAsync();
-    if (this.state.key > 0){
+    if (this.state.key > 0) {
       this.getCurrentImages();
     }
     await Permissions.askAsync(Permissions.CAMERA_ROLL);
@@ -176,10 +199,8 @@ export default class ChildCamera extends React.Component {
       tempDictionary[word] = 1;
       console.log("TAGGSSS " + this.state.tags);
       console.log("TAG " + this.state.tags[i].toLowerCase());
-
     }
     this.setState({ tagsDictionary: tempDictionary });
-
   }
 
   _compareToTags = (description) => {
@@ -225,8 +246,7 @@ export default class ChildCamera extends React.Component {
         style={{
           justifyContent: "center",
           alignItems: "center",
-          marginTop: 20,
-          width: 250,
+          marginTop: 10,
           borderRadius: 3,
           elevation: 2,
         }}
@@ -247,8 +267,8 @@ export default class ChildCamera extends React.Component {
           <Image
             source={{ uri: activityImage }}
             style={{
-              width: 250,
-              height: 250,
+              width: WIDTH * 0.7,
+              height: WIDTH * 0.7,
               alignItems: "center",
               justifyContent: "center",
             }}
@@ -364,11 +384,13 @@ export default class ChildCamera extends React.Component {
 
   render() {
     let { activityImage } = this.state;
-    var titleString = "Click here and take a photo of: " + this.state.tags[0];
+    var titleString = "Take a photo of your " + this.state.tags[0];
 
     if (this.state.fontsLoaded) {
       return (
-        <View style={{ flex: 1, resizeMode: "contain" }}>
+        <View
+          style={{ flex: 1, backgroundColor: "#FFFCF9", resizeMode: "contain" }}
+        >
           {/* Header */}
           <View style={styles.headerContainer}>
             <View style={styles.headerContainerLeft}>
@@ -437,21 +459,30 @@ export default class ChildCamera extends React.Component {
           >
             <View>
               {!this.state.itemIsInTags && (
-                // <Button
-                //   onPress={this._takePhoto}
-                //   title={titleString}
-                //   titleStyle={{
-                //     fontFamily: "SF",
-                //     fontSize: 25,
-                //     padding: 10,
-                //     marginLeft: 20}}
-                // />
                 <View style={styles.linkContainer}>
-                  <TouchableHighlight onPress={this._takePhoto}>
-                    <Text style={styles.linkStyle}>{titleString}</Text>
+                  <Image
+                    source={Penguin}
+                    style={{
+                      flex: 1,
+                      resizeMode: "contain",
+                    }}
+                  />
+                  <TouchableHighlight
+                    style={styles.buttonStyle}
+                    onPress={this._takePhoto}
+                  >
+                    <Icon
+                      name="camera-outline"
+                      color="#fff"
+                      size={40}
+                      style={{ margin: 10 }}
+                    />
                   </TouchableHighlight>
+
+                  <Text style={styles.textArea}>{titleString}</Text>
                 </View>
               )}
+
               {this.state.googleResponse && (
                 <View>
                   <FlatList
@@ -468,13 +499,15 @@ export default class ChildCamera extends React.Component {
                   />
                 </View>
               )}
-
+              {/* 
               {!this.state.itemIsInTags && (
                 <View>
+                 
+                
                   {this._maybeRenderImage()}
                   {this._maybeRenderUploadingOverlay()}
                 </View>
-              )}
+              )} */}
 
               {/* {this.state.googleResponse && this.state.itemIsInTags && (
                 <View>
@@ -483,10 +516,39 @@ export default class ChildCamera extends React.Component {
               )} */}
 
               {this.state.googleResponse && !this.state.itemIsInTags && (
-                <Text>
-                  Oh no, your photo didn't match! try again to take a photo of
-                  your {this.state.tags[0]}
-                </Text>
+                <View
+                  style={{
+                    backgroundColor: "#FFFCF9",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    position: "absolute",
+                    top: 0,
+                    height: HEIGHT,
+                    width: WIDTH,
+                  }}
+                >
+                  {this._maybeRenderImage()}
+                  {this._maybeRenderUploadingOverlay()}
+
+                  <View style={styles.button2}>
+                    <Icon name="window-close" color="#fff" size={60} />
+                  </View>
+                  <Text style={styles.textArea2}>
+                    Oh no, your photo didn't match! Try to take a photo of your{" "}
+                    {this.state.tags[0]}
+                  </Text>
+                  <TouchableHighlight
+                    style={styles.buttonStyle2}
+                    onPress={this._takePhoto}
+                  >
+                    <Icon
+                      name="camera-outline"
+                      color="#fff"
+                      size={40}
+                      style={{ margin: 10 }}
+                    />
+                  </TouchableHighlight>
+                </View>
               )}
             </View>
           </ScrollView>
@@ -511,7 +573,7 @@ const styles = StyleSheet.create({
   },
   linkContainer: {
     marginTop: 20,
-    flexDirection: "row",
+    alignItems: "center",
     justifyContent: "center",
   },
   headerContainer: {
@@ -582,10 +644,49 @@ const styles = StyleSheet.create({
   linkStyle: {
     fontFamily: "SF",
     fontSize: 20,
-    padding: 10,
-    marginLeft: 20,
-    color: "#0000EE",
-    textDecorationLine: "underline",
+    color: "#fff",
     flexWrap: "wrap",
+  },
+  textArea: {
+    fontFamily: "SF",
+    fontSize: 20,
+    color: "black",
+    flexWrap: "wrap",
+  },
+  buttonStyle: {
+    padding: 30,
+    marginBottom: 50,
+    marginTop: 100,
+    backgroundColor: "#B1EDE8",
+    borderRadius: 100,
+    textAlign: "center",
+  },
+  button2: {
+    borderRadius: 1000,
+    backgroundColor: "#FF6978",
+    padding: 50,
+    top: -(WIDTH * 0.5),
+  },
+  textArea: {
+    fontFamily: "SF",
+    fontSize: 20,
+    color: "black",
+    flexWrap: "wrap",
+  },
+  textArea2: {
+    fontFamily: "SF",
+    fontSize: 20,
+    color: "black",
+    flexWrap: "wrap",
+    top: -(WIDTH * 0.1),
+  },
+  buttonStyle2: {
+    padding: 30,
+    marginBottom: 50,
+    marginTop: 100,
+    backgroundColor: "#B1EDE8",
+    borderRadius: 100,
+    textAlign: "center",
+    top: -(WIDTH * 0.1 + 90),
   },
 });
