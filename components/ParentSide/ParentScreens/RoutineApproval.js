@@ -106,7 +106,7 @@ export default class RoutineApproval extends Component {
     let ripple = { id: "addButton" };
 
     return (
-      <View style={{ backgroundColor: "##FFFCF9", flex: 1 }}>
+      <View>
         
         {this.state.activitiesLoaded && (
           <Carousel
@@ -190,9 +190,7 @@ export default class RoutineApproval extends Component {
       console.log("null");
     }
     return (
-      <View style={{ backgroundColor: "#FFFCF9"}}>
         <View>{this.displayActivities()}</View>
-      </View>
     );
   }
 }
@@ -249,7 +247,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     height: HEIGHT,
-
     top: -20,
   },
   imageContainer: {
