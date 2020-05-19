@@ -1211,7 +1211,6 @@ export default class ParentRoutines extends Component {
                 {/* <View style={{ float: "left" }}> */}
 
                 <View style={{ flexDirection: "row" }}>
-                  
                   <Text style={styles.routineDetails}>
                     <Icon
                       name="playlist-check"
@@ -1219,26 +1218,38 @@ export default class ParentRoutines extends Component {
                     />
                   </Text>
 
-                  <Text style={{marginLeft: 5}}>Activities: {item.amount_of_activities} </Text>
+                  <Text style={{ marginLeft: 5 }}>
+                    Activities: {item.amount_of_activities}{" "}
+                  </Text>
                 </View>
 
-                <View style={{ flexDirection: "row", justifyContent: "space-between"  }}>
-                  
-                <View style={{ flexDirection: "row" }}>
-                  <Text style={{marginLeft: 5}}>
+                <View
+                  style={{
+                    flexDirection: "row",
+                    justifyContent: "space-between",
+                  }}
+                >
+                  <View style={{ flexDirection: "row" }}>
+                    <Text style={{ marginLeft: 5 }}>
                       <Icon name="gift" style={styles.routineDetailsIcon} />
                     </Text>
 
-                  <Text style={{marginLeft: 5}}>Rewards: {item.amount_of_rewards}</Text>
+                    <Text style={{ marginLeft: 5 }}>
+                      Rewards: {item.amount_of_rewards}
+                    </Text>
                   </View>
 
-                  <View style={{ marginRight: 5, textAlign: 'right', alignItems: "flex-end", justifyContent: "flex-end"  }}>
+                  <View
+                    style={{
+                      marginRight: 5,
+                      textAlign: "right",
+                      alignItems: "flex-end",
+                      justifyContent: "flex-end",
+                    }}
+                  >
                     {this.getRoutineTags(item)}
-                  
                   </View>
-
                 </View>
-
               </View>
             </MenuProvider>
           </View>
@@ -1379,6 +1390,17 @@ export default class ParentRoutines extends Component {
                         this.setState({ newContainerName: text })
                       }
                     />
+                    {/* <View style={styles.textFields}> */}
+                      <TextField
+                        placeholder="Tag Name"
+                        // value={this.state.newContainerName}
+                        style={styles.textFields}
+                        // textInputStyle={{ flex: 1 }}
+                        onChangeText={(text) =>
+                          this.setState({ newContainerName: text })
+                        }
+                      />
+                    {/* </View> */}
 
                     <Dropdown
                       containerStyle={{
@@ -1749,6 +1771,12 @@ const styles = StyleSheet.create({
     marginLeft: 30,
 
     // margin: 0,
+  },
+  textFields: {
+    padding: 2,
+    margin: 2,
+    marginLeft: 10,
+    width: "30%",
   },
   tagsContainer: {
     marginTop: 0,

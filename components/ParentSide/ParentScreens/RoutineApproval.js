@@ -22,10 +22,6 @@ const childId = UserInfo.child_id;
 
 export default class RoutineApproval extends Component {
   static navigationOptions = ({ navigation }) => ({
-    backgroundColor: "#FFFCF9",
-    headerStyle: {
-      backgroundColor: '#FFFCF9',
-    }
   });
 
   constructor(props) {
@@ -47,12 +43,7 @@ export default class RoutineApproval extends Component {
   }
 
   static navigationOptions = ({ navigation }) => ({
-    title: `${navigation.state.params.routineName}`,
-    backgroundColor: "##FFFCF9",
-    headerStyle: {
-      backgroundColor: '#FFFCF9',
-    }
-    
+    title: `${navigation.state.params.routineName}`,  
   });
 
   getRoutineActivities() {
@@ -116,6 +107,7 @@ export default class RoutineApproval extends Component {
 
     return (
       <View style={{ backgroundColor: "##FFFCF9", flex: 1 }}>
+        
         {this.state.activitiesLoaded && (
           <Carousel
             height={HEIGHT * 0.9}
@@ -142,8 +134,8 @@ export default class RoutineApproval extends Component {
                     <Image
                       source={{ uri: this.getImage(key) }}
                       style={{
-                        width: 300,
-                        height: 200,
+                        width: 350,
+                        height: 250,
                         margin: 5,
                         borderRadius: 15,
                         resizeMode: "contain",
@@ -207,7 +199,7 @@ export default class RoutineApproval extends Component {
 
 const styles = StyleSheet.create({
   carouselContainer: {
-    backgroundColor: "#E5E5E5",
+    backgroundColor: "#FFFCF9",
   },
   next: {
     fontSize: 20,
@@ -243,10 +235,7 @@ const styles = StyleSheet.create({
   },
   subtext: {
     fontSize: 20,
-    // textAlign: "center",
-    // textAlignVertical: "auto",
-    // width: 220,
-    marginLeft: 16,
+    marginLeft: 25,
     marginTop: 8,
   },
   title: {
@@ -263,12 +252,11 @@ const styles = StyleSheet.create({
 
     top: -20,
   },
-
   imageContainer: {
     marginRight: 44,
     marginTop: 30,
-    width: 250,
-    height: 250,
+    width: 290,
+    height: 290,
     backgroundColor: "white",
     shadowColor: "grey",
     shadowOffset: { width: 0, height: 1 },
