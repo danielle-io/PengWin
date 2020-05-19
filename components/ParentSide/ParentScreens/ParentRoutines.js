@@ -1,5 +1,3 @@
-// TODO: move activitites page and tab over to allActivitiesDictionary
-// rather than allActivities
 import React, { Component } from "react";
 import {
   Button,
@@ -70,7 +68,9 @@ export default class ParentRoutines extends Component {
       selectedDeletion: null,
       addTagClicked: false,
       confirmedAmountOfActivities: false,
-      currentActivitiesAmount : 0,
+      currentActivitiesAmount: 0,
+      routineRewardAmountDict: {},
+      routineActivityAmountDict: {},
     };
   }
 
@@ -140,6 +140,7 @@ export default class ParentRoutines extends Component {
       })
       .then((routineResults) => {
         this.setState({ routines: routineResults });
+        // this.checkAmounts(routineResults);
         this.setState({ routinesLoaded: true });
       })
       .catch((error) => {
@@ -305,12 +306,14 @@ export default class ParentRoutines extends Component {
       var containerId = containerRoutineResults[i].container_id;
       var contRoutineId = containerRoutineResults[i].container_routine_id;
 
-      tempContainerRoutineDict[containerRoutineResults[i].routine_id] = {
-        color: this.state.containerDict[containerId].color,
-        name: this.state.containerDict[containerId].name,
-        containerId: containerId,
-        containerRoutineId: contRoutineId,
-      };
+      if (this.state.containerDict) {
+        tempContainerRoutineDict[containerRoutineResults[i].routine_id] = {
+          color: this.state.containerDict[containerId].color,
+          name: this.state.containerDict[containerId].name,
+          containerId: containerId,
+          containerRoutineId: contRoutineId,
+        };
+      }
     }
     this.setState({ containerRoutineDict: tempContainerRoutineDict });
     this.setState({ containersLoaded: true });
@@ -329,9 +332,7 @@ export default class ParentRoutines extends Component {
 
     if (this.state.containerRoutineDict !== null) {
       if (this.state.selectedDeletion) {
-        console.log("deletion");
         this.updateContainer(this.state.selectedDeletion, "deleted", 1);
-
         return Object.keys(this.state.containerRoutineDict).map((item) => {
           if (
             this.state.containerRoutineDict[item].containerId ===
@@ -368,7 +369,7 @@ export default class ParentRoutines extends Component {
   }
 
   checkActivityAmount(routineId, amountOfActivities) {
-   fetch(Environment + "/getAmountOfActivitiesInRoutine/" + routineId, {
+    fetch(Environment + "/getAmountOfActivitiesInRoutine/" + routineId, {
       headers: {
         "Cache-Control": "no-cache",
       },
@@ -384,39 +385,84 @@ export default class ParentRoutines extends Component {
         }
         console.log("LENGTH IS " + Object.keys(activities).length);
         if (activities.length !== amountOfActivities) {
-          this.updateRoutine(
+          this.updateRoutineWithoutReload(
             routineId,
             "amount_of_activities",
             activities.length
           );
           console.log("returning activities.length " + activities.length);
-          return activities.length;
+          this.state.routineActivityAmountDict[routineId] = activities.length;
         } else {
           console.log("returning amount of activities " + amountOfActivities);
-          return amountOfActivities;
+          this.state.routineActivityAmountDict[routineId] = amountOfActivities;
         }
       })
-    .catch((error) => {
-      console.error(error);
+      .catch((error) => {
+        console.error(error);
+      });
+  }
+
+  checkAmounts(routines) {
+    routines.routines.map((item) => {
+      this.getRewardAmount(
+        item.routine_id,
+        item.amount_of_rewards,
+        item.reward_id
+      );
+      this.checkActivityAmount(item.routine_id, item.amount_of_activities);
     });
   }
 
-  // Having issues with this. might move to on login.
-  // confirmAmountOfActivities(routineId, amountOfActivities) {
-  //   //  TODO: Set up a check later so that this only runs one time, on original page load
-  //   // if (this.state.confirmedAmountOfActivities){
-  //   //   return this.state.confirmedAmountOfActivities
-  //   // }
-  //   // else{
-  //   //   return this.checkActivityAmount(routineId, amountOfActivities);
-  //   // }
-  //   var activitiesAmount = this.checkActivityAmount(routineId, amountOfActivities);
-    
-  //   console.log("activitiesAmount " + activitiesAmount);
-  //   if (activitiesAmount){
-  //     return activitiesAmount;
-  //   }
-  // }
+  getRewardAmount(routineId, rewardAmount, rewardId) {
+    console.log("check reward amount");
+    fetch(Environment + "/joinRoutineActivityTableByRoutineId/" + routineId)
+      .then((response) => response.json())
+      .then((responseJson) => {
+        return responseJson;
+      })
+      .then((activities) => {
+        this.compareRewardAmount(routineId, rewardAmount, rewardId, activities);
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+  }
+
+  compareRewardAmount(routineId, rewardAmount, rewardId, activities) {
+    var rewardCount = 0;
+    for (var i = 0; i < activities.length; i++) {
+      console.log(activities[i].reward_image);
+      console.log(activities[i].reward_video);
+      console.log(activities[i].reward_description);
+
+      if (
+        activities[i].reward_image ||
+        activities[i].reward_video ||
+        activities[i].reward_description
+      ) {
+        rewardCount += 1;
+      }
+    }
+    if (rewardId) {
+      rewardCount += 1;
+    }
+    if (rewardCount !== rewardAmount) {
+      this.updateRoutineWithoutReload(
+        routineId,
+        "amount_of_rewards",
+        rewardCount
+      );
+      this.state.routineRewardAmountDict[routineId] = rewardCount;
+    } else {
+      this.state.routineRewardAmountDict[routineId] = rewardAmount;
+    }
+    if (
+      Object.keys(this.state.routineRewardAmountDict).length ===
+      this.state.routines.routines.length
+    ) {
+      this.setState({ routinesLoaded: true });
+    }
+  }
 
   updateRoutine(routineId, tag, value) {
     var data = {
@@ -446,6 +492,29 @@ export default class ParentRoutines extends Component {
     }
   }
 
+  updateRoutineWithoutReload(routineId, tag, value) {
+    var data = {
+      [tag]: value,
+    };
+    {
+      let response = fetch(Environment + "/updateRoutine/" + routineId, {
+        method: "POST",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      })
+        .then((response) => response.json())
+        .then((responseJson) => {
+          return responseJson;
+        })
+        .then((routineResults) => {
+          console.log(routineResults);
+        });
+    }
+  }
+
   async updateActivityRelationship(routine_activity_id, tag, value) {
     var data = {
       [tag]: value,
@@ -466,19 +535,6 @@ export default class ParentRoutines extends Component {
     } catch (errors) {
       console.log(errors);
     }
-  }
-
-  // TODO: get each activity, sum the reward_id != null
-  getTotalRewardsInRoutine(routineId) {
-    fetch(Environment + "/getActivitiesWithRewardsPerRoutine/" + routineId)
-      .then((response) => response.json())
-      .then((responseJson) => {
-        return responseJson;
-      })
-      .then((rewards) => {})
-      .catch((error) => {
-        console.error(error);
-      });
   }
 
   getAllRewardsForUser() {
@@ -1018,7 +1074,6 @@ export default class ParentRoutines extends Component {
         <View
           style={{
             textAlign: "right",
-            flexDirection: "row",
             alignSelf: "flex-end",
             alignItems: "flex-end",
             right: 0,
@@ -1080,6 +1135,10 @@ export default class ParentRoutines extends Component {
           containerName = "routineContainer";
         }
 
+        console.log(
+          "this.state.routineRewardAmountDict[item.routine_id] " +
+            this.state.routineRewardAmountDict[item.routine_id]
+        );
         return (
           <View
             onStartShouldSetResponder={() => this.setContainer(item.routine_id)}
@@ -1149,29 +1208,37 @@ export default class ParentRoutines extends Component {
               </View>
 
               <View style={styles.routineDetailsPreview}>
-                <View style={{ float: "left" }}>
+                {/* <View style={{ float: "left" }}> */}
+
+                <View style={{ flexDirection: "row" }}>
+                  
                   <Text style={styles.routineDetails}>
                     <Icon
                       name="playlist-check"
                       style={styles.routineDetailsIcon}
                     />
-                    {/* TODO: move the routines activity amount check somewhere else */}
-                    {/* {console.log("ITS " + this.confirmAmountOfActivities(item.routine_id, item.amount_of_activities))} */}
-                    Activities:{" "}{item.amount_of_activities}
-                    {/* {this.confirmAmountOfActivities(
-                      item.routine_id,
-                      item.amount_of_activities
-                    )} */}
-                    {/* Activities: {item.amount_of_activities}{" "} */}
                   </Text>
-                  <Text style={styles.routineDetails}>
-                    <Icon name="gift" style={styles.routineDetailsIcon} />{" "}
-                    Rewards: {item.amount_of_rewards}{" "}
-                  </Text>
+
+                  <Text style={{marginLeft: 5}}>Activities: {item.amount_of_activities} </Text>
                 </View>
-                <View style={{ marginTop: 12 }}>
-                  {this.getRoutineTags(item)}
+
+                <View style={{ flexDirection: "row", justifyContent: "space-between"  }}>
+                  
+                <View style={{ flexDirection: "row" }}>
+                  <Text style={{marginLeft: 5}}>
+                      <Icon name="gift" style={styles.routineDetailsIcon} />
+                    </Text>
+
+                  <Text style={{marginLeft: 5}}>Rewards: {item.amount_of_rewards}</Text>
+                  </View>
+
+                  <View style={{ marginRight: 5, textAlign: 'right', alignItems: "flex-end", justifyContent: "flex-end"  }}>
+                    {this.getRoutineTags(item)}
+                  
+                  </View>
+
                 </View>
+
               </View>
             </MenuProvider>
           </View>
@@ -1589,13 +1656,7 @@ const styles = StyleSheet.create({
     marginLeft: 8,
     marginTop: 8,
   },
-  routineDetails: {
-    marginLeft: 6,
-    fontSize: 16,
-    zIndex: 2,
-  },
   routineDetailsPreview: {
-    flexDirection: "row",
     zIndex: 2,
     marginBottom: 10,
     marginLeft: 5,
@@ -1620,6 +1681,13 @@ const styles = StyleSheet.create({
     borderWidth: 0,
     paddingTop: 10,
     overflow: "visible",
+  },
+
+  colorDot: {
+    height: 25,
+    width: 25,
+    backgroundColor: "#bbb",
+    borderRadius: 0.5,
   },
 
   saveButton: {
@@ -1766,19 +1834,17 @@ const styles = StyleSheet.create({
     color: "#FF6978",
     fontSize: 16,
     marginTop: 12,
+    marginLeft: 7,
+    marginRight: 7,
   },
   routineDetails: {
+    marginLeft: 6,
+    marginTop: 4,
+    marginBottom: 4,
     fontSize: 16,
     zIndex: 2,
-    marginTop: 12,
-    marginLeft: 5,
-  },
-  routineDetailsPreview: {
     flexDirection: "row",
-    justifyContent: "space-between",
-    zIndex: 2,
-    marginBottom: 10,
-    marginLeft: 5,
+    alignItems: "flex-start",
   },
   greenTag: {
     fontSize: 8,
