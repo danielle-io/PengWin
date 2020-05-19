@@ -21,14 +21,11 @@ import RadioForm, {
   RadioButtonInput,
   RadioButtonLabel,
 } from "react-native-simple-radio-button";
-
-import UserInfo from "../../../state/UserInfo";
+// import Question1 from './Question1';
+// import Question2 from './Question2';
 
 const { width: WIDTH, height: HEIGHT } = Dimensions.get("window");
-const parentId = UserInfo.parent_id;
-const childId = UserInfo.child_id;
-const userId = UserInfo.user_id;
-const pincode = UserInfo.pincode;
+// var questions = ["abc","efg","def"]
 
 export default class Questionnaire extends Component {
   constructor(props) {
@@ -47,6 +44,7 @@ export default class Questionnaire extends Component {
           ],
           tag: "gender",
         },
+        // {"question": "2. What is your child's birthday?"},
         {
           question: "3. How would you describe your child's reading ability?",
           radio_props: [
@@ -71,6 +69,7 @@ export default class Questionnaire extends Component {
           tag: "language_ability",
         },
       ],
+      // quesComponents:[Question1,Question2],
       questionsLoaded: false,
       prevScreenTitle: this.props.navigation.state.params.prevScreenTitle,
       selected: false,
@@ -85,34 +84,26 @@ export default class Questionnaire extends Component {
     this.setState({ chosenDate: newDate, selected: true });
   }
 
-  getButtonColor(buttonValue) {
-    console.log("getting button color");
-    if (buttonValue) {
-      console.log("returning primary");
-      return styles.buttonPrimary;
-    }
-    return styles.buttonSecondary;
-  }
-
   async postPreference(tag, value) {
     var data = {
       [tag]: value,
     };
-    fetch(Environment + "/updatePreferences/" + userId, {
-      method: "POST",
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(data),
-    })
-      .then((response) => response.json())
-      .then((responseJson) => {
-        console.log("success");
-      })
-      .catch((error) => {
-        console.error(error);
+    try {
+      let response = await fetch(Environment + "/updatePreferences/1", {
+        method: "POST",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
       });
+
+      if (response.status >= 200 && response.status < 300) {
+        console.log("POSTED");
+      }
+    } catch (errors) {
+      alert(errors);
+    }
   }
 
   static navigationOptions = ({ navigation }) => ({
@@ -120,9 +111,22 @@ export default class Questionnaire extends Component {
     prevScreenTitle: "Back",
   });
 
+  // async componentDidMount() {
+
+  //     this.props.navigation.addListener("didFocus", (payload) => {
+  //         this.getQuestions();
+  //       });
+  //     // this.getQuestions();
+  // }
+
+  // getQuestions() {
+  //     this.setState({questions: ["abc","efg","def"]});
+  //     this.setState({questionsLoaded: true})
+  // }
+
   _onNext = () => {
+    // key = key+1
     console.log("CHILD" + this.child);
-    this.setState({ selected: false });
     this.child._animateNextPage();
   };
 
@@ -134,10 +138,13 @@ export default class Questionnaire extends Component {
 
   changeState(choice, item) {
     console.log("selected is: " + this.state.selected);
-    this.setState({ value: choice });
-    this.setState({ selected: true });
+
+    this.setState({ value: choice});
+    this.setState({ selected: true});
     this.postPreference(item.tag, choice);
-    this.loadButton(true);
+    console.log("now selected is: " + this.state.selected);
+
+    this.displayQuestions();
   }
 
   askBday() {
@@ -170,10 +177,10 @@ export default class Questionnaire extends Component {
                 : styles.buttonSecondary
             }
             onPress={() => {
-              this.setState({
-                bdaySelected: true,
-                selected: false,
-              });
+              this.setState({ 
+                bdaySelected: true, 
+                selected: false });
+              // this._onNext();
               console.log("type", typeof this.state.chosenDate);
               console.log(
                 "valueee",
@@ -206,30 +213,6 @@ export default class Questionnaire extends Component {
     );
   }
 
-  loadButton(buttonValue) {
-    console.log("selected is " + this.state.selected);
-    return (
-      <TouchableOpacity
-        style={this.getButtonColor(buttonValue)}
-        onPress={() => {
-          console.log("value", this.state.value);
-          // this.setState({ selected: false });
-          this._onNext();
-        }}
-      >
-        <Text
-          style={
-            this.state.selected
-              ? styles.buttonPrimaryText
-              : styles.buttonSecondaryText
-          }
-        >
-          Continue
-        </Text>
-      </TouchableOpacity>
-    );
-  }
-
   displayQuestions() {
     if (this.state.questions) {
       return (
@@ -252,24 +235,26 @@ export default class Questionnaire extends Component {
                       currentPosition={key + 1}
                       // labels={labels}
                     />
+                    {/* <View style= {{marginTop:'15%'}}> */}
                     <View key={key}>
+                      {/* <Question ques={item}/> */}
+                      {/* <Question1/> */}
                       <Text style={styles.pageBodyText}>{item.question}</Text>
                     </View>
+                    {/* </View> */}
 
                     <View style={styles.radioButtons}>
+                      
                       <RadioForm
-                        onChange={() => {
-                          this.setState({ selected: true });
-                        }}
                         radio_props={item.radio_props}
                         initial={-1}
-                        value={this.state.choice}
                         buttonColor={"#352D39"}
                         labelStyle={{
                           margin: 8,
                           fontSize: 22,
                           color: "#352D39",
                         }}
+                        
                         // labelWrapStyle ={{lineHeight: 5}}
                         labelColor={"#352D39"}
                         selectedButtonColor={"#352D39"}
@@ -281,7 +266,28 @@ export default class Questionnaire extends Component {
 
                     {/* Continue Button */}
                     <View style={styles.buttonContainer}>
-                      {this.loadButton(this.state.selected)}
+                      <TouchableOpacity
+                        style={
+                          this.state.selected
+                            ? styles.buttonPrimary
+                            : styles.buttonSecondary
+                        }
+                        onPress={() => {
+                          console.log("value", this.state.value);
+                          this.setState({ selected: false });
+                          this._onNext();
+                        }}
+                      >
+                        <Text
+                          style={
+                            this.state.selected
+                              ? styles.buttonPrimaryText
+                              : styles.buttonSecondaryText
+                          }
+                        >
+                          Continue
+                        </Text>
+                      </TouchableOpacity>
                     </View>
                   </View>
                 )
@@ -301,7 +307,7 @@ export default class Questionnaire extends Component {
     }
 
     return (
-      console.log("LOAD " + this.state.questions),
+      console.log("SAWAAL LOAD" + this.state.questions),
       (
         <ScrollView style={{ backgroundColor: "#FFFCF9" }}>
           <View>
