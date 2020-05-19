@@ -129,7 +129,6 @@ export default class TestingHomePage extends Component {
       });
   }
 
-
   render() {
     const chartConfig = {
       backgroundGradientFrom: "#1E2923",
@@ -147,10 +146,7 @@ export default class TestingHomePage extends Component {
       <View>
         <ScrollView>
           <View style={styles.containerFull}>
-            {/* <View style={{ justifyContent: 'center', flexDirection: 'row' }}>
-            <Text style={styles.testingh2}>PARENT SCREENS</Text>
-          </View> */}
-
+            
             <View
               style={{
                 flex: 1,
@@ -305,16 +301,6 @@ export default class TestingHomePage extends Component {
                 flexWrap: "wrap",
               }}
             >
-              {/* <TouchableOpacity
-                onPress={() =>
-                  this.navigate("ChildCamera", {
-                    prevScreenTitle: "ChildCamera",
-                  })
-                }
-                style={styles.otherContainer}
-              >
-                <Text style={styles.linkText}>ChildCamera</Text>
-              </TouchableOpacity> */}
 
               <TouchableOpacity
                 onPress={() =>
@@ -334,18 +320,7 @@ export default class TestingHomePage extends Component {
                 <Text style={styles.linkText}>Sign Up Page</Text>
               </TouchableOpacity>
 
-            <TouchableOpacity
-              style={styles.parentContainer}
-              onPress={() =>
-                this.navigate("HomePage", {
-                  prevScreenTitle: "TestingHomePage",
-                })
-              }
-            >
-              <Text style={styles.linkText}>HomePage</Text>
-            </TouchableOpacity>
             
-            {/* <TouchableOpacity> */}
             <View style={styles.otherContainer}>
               <Text
                 style={styles.linkText}
@@ -358,20 +333,7 @@ export default class TestingHomePage extends Component {
                   Forgot Password does not exist
                 </Text>
               </View>
-              {/* </TouchableOpacity> */}
 
-              <View style={styles.otherContainer}>
-                <Text
-                  style={styles.linkText}
-                  onPress={() =>
-                    this.navigate("Camera", {
-                      prevScreenTitle: "TestingHomePage",
-                    })
-                  }
-                >
-                  Camera
-                </Text>
-              </View>
             </View>
           </View>
         </ScrollView>
