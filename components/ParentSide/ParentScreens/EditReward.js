@@ -45,9 +45,9 @@ export default class ParentRewards extends Component {
             activitiesLoaded: false,
             currentActivity: null,
             routineData: null,
-            activityData: null, 
+            activityData: null,
             changedRewardFields: []
-            
+
 
             //prevScreenTitle: this.props.navigation.state.params.prevScreenTitle,
         };
@@ -82,52 +82,54 @@ export default class ParentRewards extends Component {
         const parentId = UserInfo.parent_id;
         const childId = UserInfo.child_id;
         const userId = UserInfo.user_id
-        console.log("Environment :: " + Environment);
-        console.log("rewardName :: " + this.state.rewardName);
-        console.log("rewardDescription :: " + this.state.rewardDescription);
-        console.log("userId :: " + this.state.userId);
+        // console.log("Environment :: " + Environment);
+        // console.log("rewardName :: " + this.state.rewardName);
+        // console.log("rewardDescription :: " + this.state.rewardDescription);
+        // console.log("userId :: " + this.state.userId);
 
         data = {
-          reward_name: this.state.rewardName, 
-          reward_description: this.state.rewardDescription,
-          reward_image: this.state.rewardImage,
-          reward_video: this.state.rewardVideo,
-          user_id: userId,
-          deleted: 0,
+            reward_name: this.state.rewardName,
+            reward_description: this.state.rewardDescription,
+            reward_image: this.state.rewardImage,
+            reward_video: this.state.rewardVideo,
+            user_id: userId,
+            deleted: 0,
         };
-          let response = fetch(
-            Environment + "/insertRewards" ,
+        let response = fetch(
+            Environment + "/insertRewards",
             {
-              method: "POST",
-              headers: {
-                Accept: "application/json",
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify(data),
+                method: "POST",
+                headers: {
+                    Accept: "application/json",
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(data),
             }
-          )
-          .then((response) => response.json())
-          .then((responseJson) => {
-            return responseJson;
-          })
-          .then((results) => {
-            console.log(results);
-            console.log("worked for rewards!");
+        )
+            .then((response) => response.json())
+            .then((responseJson) => {
+                return responseJson;
+            })
+            .then((results) => {
+                // console.log(results);
+                // console.log("worked for rewards!");
 
-            // Set the new routineId
-            this.setState({ rewardId: results.insertId });
-            // this.saveAnyChanges();
-          })
-          .catch((error) => {
-            console.error(error);
-          });
-        }
+                // Set the new routineId
+                this.setState({ rewardId: results.insertId });
+                // this.saveAnyChanges();
+            })
+            .catch((error) => {
+                console.error(error);
+            });
+    }
 
 
     getAllActivitiesForRoutine() {
-        console.log("WE ARE IN GET ALL ACTIVITIES FOR ROUTINE");
-        console.log(this.state.currentRoutine)
+        // console.log("WE ARE IN GET ALL ACTIVITIES FOR ROUTINE");
+        // console.log(this.state.currentRoutine)
         var routineId = this.state.currentRoutine.id;
+        // console.log("CURRENT ROUTINE ID");
+        // console.log(routineId);
         fetch(Environment + "/joinRoutineActivityTableByRoutineId/" + routineId, {
             headers: {
                 "Cache-Control": "no-cache",
@@ -151,6 +153,7 @@ export default class ParentRewards extends Component {
     //Get the routines data from teh db
     getRoutines() {
         // fetch(Environment + '/routines/', {
+        // console.log(this.state.userId);
         fetch(Environment + "/getRoutinesByUser/" + this.state.userId, {
             headers: {
                 "Cache-Control": "no-cache",
@@ -162,8 +165,10 @@ export default class ParentRewards extends Component {
             })
             .then((results) => {
                 this.setState({ allRoutines: results });
-                console.log(this.state.results);
+                // console.log("WHAT ARE ALL THE ROUTINESSSSS")
+                // console.log(this.state.allRoutines);
                 this.setState({ routinesLoaded: true });
+                this.storeRoutines();
                 // this.storeRoutines();
             })
             .catch((error) => {
@@ -173,33 +178,47 @@ export default class ParentRewards extends Component {
     }
 
     async updateRewardField(tag, value) {
-        console.log("in fetch tag is and value is " + tag + " " )
-        console.log("updating reward field");
+        // console.log("in fetch tag is and value is " + tag + " ")
+        // console.log("updating reward field");
         var data = {
-          [tag]: value,
+            [tag]: value,
         };
         try {
-          let response = await fetch(
-            Environment + "/updateReward/" + this.state.rewardId,
-            {
-              method: "POST",
-              headers: {
-                Accept: "application/json",
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify(data),
+            let response = await fetch(
+                Environment + "/updateReward/" + this.state.rewardId,
+                {
+                    method: "POST",
+                    headers: {
+                        Accept: "application/json",
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify(data),
+                }
+            );
+            if (response.status >= 200 && response.status < 300) {
+                console.log("SUCCESS");
             }
-          );
-          if (response.status >= 200 && response.status < 300) {
-            console.log("SUCCESS");
-          }
         } catch (errors) {
-          console.log(errors);
+            console.log(errors);
         }
-      }
+    }
+
+    //come back
+    storeRoutines() {
+        var temprArray = [];
+        // console.log("AY");
+        // console.log(this.state.allRoutines);
+        this.state.allRoutines["routines"].map(item =>
+            temprArray.push({ id: item.routine_id, name: item.routine_name })
+        )
+        this.setState({ routineData: temprArray });
+        // console.log("HEYO in store routines");
+        // console.log(this.state.routineData);
+
+    }
 
     storeActivites() {
-        console.log("WE ARE IN  store activities");
+        // console.log("WE ARE IN  store activities");
 
         var tempArray = [];
         this.state.allActivities.map(item =>
@@ -209,25 +228,25 @@ export default class ParentRewards extends Component {
     }
 
     pushToChangedRewardsFields(tag, value) {
-        Object.keys(this.state.changedRewardFields).map(function(keyName, keyIndex) {
+        Object.keys(this.state.changedRewardFields).map(function (keyName, keyIndex) {
             if (keyName === tag) {
                 return;
-              }
+            }
         });
-        console.log("TAG " + tag + " VALUE " + value)
+        // console.log("TAG " + tag + " VALUE " + value)
 
         let tempArray = this.state.changedRewardFields;
         tempArray.push({ [tag]: value });
         this.setState({ changedRewardFields: tempArray });
-        console.log("MADE A REWARDS ARRAY " + tempArray);
-      }
+        // console.log("MADE A REWARDS ARRAY " + tempArray);
+    }
 
 
-      updateExistingRewardChanges() {
-        console.log("CHANGED REWARD FIELDS " + this.state.changedRewardFields);
+    updateExistingRewardChanges() {
+        // console.log("CHANGED REWARD FIELDS " + this.state.changedRewardFields);
         for (const keyValuePair of this.state.changedRewardFields) {
             Object.entries(keyValuePair).map(([key, val]) => {
-            this.updateRewardField(key, val);
+                this.updateRewardField(key, val);
             });
         }
     }
@@ -236,27 +255,33 @@ export default class ParentRewards extends Component {
     displayForm(currentList) {
         var stateName = "";
         var placeholder = "";
-        var items = [];
+        var displayItems = [];
+
         if (currentList === "activites") {
             placeholder = "Select an activity"
-            items = this.state.activityData;
+            displayItems = this.state.activityData;
         }
         else {
             placeholder = "Select an routine";
-            items = this.state.routineData;
+            // displayItems = this.state.allRoutines["routines"];
+            displayItems = this.state.routineData;
+            // console.log("all the routines inside items!");
+            // console.log(displayItems);
+
+
 
         }
         // const routineData = this.state.routinesArray;
-        // console.log(routineData);
+
         return (
             <View style={styles.drop}>
-
+                <ScrollView keyboardShouldPersistTaps="handled">
                 <SearchableDropdown
                     onItemSelect={(item) => {
                         if (currentList === "activity") {
                             this.setState({ currentActivity: item });
                         }
-                        else {
+                        else {     
                             this.setState({ currentRoutine: item });
                         }
                     }}
@@ -264,7 +289,7 @@ export default class ParentRewards extends Component {
                     itemStyle={styles.dropDownItem}
                     itemTextStyle={{ color: "#222" }}
                     itemsContainerStyle={{ maxHeight: 140 }}
-                    items={items}
+                    items={displayItems}
                     resetValue={false}
                     textInputProps={{
                         placeholder: placeholder,
@@ -280,15 +305,8 @@ export default class ParentRewards extends Component {
                     listProps={{
                         nestedScrollEnabled: true,
                     }}
-                />
-
-                {/* <Dropdown
-                    label="Select Routine"
-                    data={data}
-                    onChangeText ={(item) => {
-                     this.setState({ currentRoutine: item });
-                    }}
-                /> */}
+                />             
+                </ScrollView>
             </View>
         )
     }
@@ -314,12 +332,10 @@ export default class ParentRewards extends Component {
         });
 
         this.setState({ video: vid });
-        console.log("VIDEO");
-        console.log(vid);
+        
     };
 
     returnImage = () => {
-        console.log(this.state.photos);
         if (this.state.photos) {
             return (
                 <Image
@@ -334,7 +350,7 @@ export default class ParentRewards extends Component {
 
 
     returnVideo = () => {
-        console.log(this.state.video);
+       
         if (this.state.video) {
             return (
                 <Video
@@ -356,22 +372,22 @@ export default class ParentRewards extends Component {
     fieldRef = React.createRef();
     onSubmit = () => {
         let { current: field } = this.fieldRef;
-        console.log(field.value());
+        // console.log(field.value());
     };
 
     _onSubmit = () => {
-        console.log("rewardId " + this.state.rewardId);
-        if (this.state.rewardId){
-            console.log("existing reward edits");
+        // console.log("rewardId " + this.state.rewardId);
+        if (this.state.rewardId) {
+            // console.log("existing reward edits");
             this.updateExistingRewardChanges();
-        //   this.saveAnyChanges();
-        //   var alr = "";
-         
-        // this.
-        } 
+            //   this.saveAnyChanges();
+            //   var alr = "";
+
+            // this.
+        }
         else {
-        console.log("new reward");
-        this.createNewReward();
+            // console.log("new reward");
+            this.createNewReward();
         }
     }
 
@@ -381,98 +397,107 @@ export default class ParentRewards extends Component {
         const { navigate } = this.props.navigation
 
         return (
-            <View>
+            
+            // <ScrollView style={{ backgroundColor: "#FFFCF9", padding: 20 }}>
+            <ScrollView keyboardShouldPersistTaps="always">
+                <View>
+                    
+                    <View style={styles.rewardsContainer}>
+                        <View>
 
-                <View style={styles.rewardsContainer}>
-                    <View>
-
-                        <Text style={styles.textFields}>
-                            Reward Name
+                            <Text style={styles.textFields}>
+                                Reward Name
                         </Text>
 
-                        < TextField
-                            id="reward_name"
-                            placeholder="What's the Reward?"
-                            value={this.state.rewardName}
-                            style={styles.textfieldWithFloatingLabel, styles.textFields}
-                            textInputStyle={{ flex: 1 }}
-                            onChangeText={(text) => this.setState({ rewardName: text })}
-                            onEndEditing={(e) => {
-                                this.pushToChangedRewardsFields(
-                                  "reward_name",
-                                  this.state.rewardName
-                                );
-                            }}
+                            < TextField
+                                id="reward_name"
+                                placeholder="What's the Reward?"
+                                value={this.state.rewardName}
+                                style={styles.textfieldWithFloatingLabel, styles.textFields}
+                                textInputStyle={{ flex: 1 }}
+                                onChangeText={(text) => this.setState({ rewardName: text })}
+                                onEndEditing={(e) => {
+                                    this.pushToChangedRewardsFields(
+                                        "reward_name",
+                                        this.state.rewardName
+                                    );
+                                }}
 
-                        // onChangeText={(text) => this.setState({ currentRoutineName: text })}
-                        ></TextField>
+                            // onChangeText={(text) => this.setState({ currentRoutineName: text })}
+                            ></TextField>
 
-                        <Text style={styles.textFields}>
-                            Reward Description
+                            <Text style={styles.textFields}>
+                                Reward Description
                         </Text>
 
-                        < TextField
-                            id="reward_description"
-                            placeholder="Describe the Reward"
-                            value={this.state.rewardDescription}
-                            style={styles.textfieldWithFloatingLabel, styles.textFields}
-                            textInputStyle={{ flex: 1 }}
-                            onChangeText={(text) => this.setState({ rewardDescription: text })}
-                            onEndEditing={(e) => {
-                                this.pushToChangedRewardsFields(
-                                  "reward_description",
-                                  this.state.rewardDescription
-                                );
-                            }}
-                        ></TextField>
+                            < TextField
+                                id="reward_description"
+                                placeholder="Describe the Reward"
+                                value={this.state.rewardDescription}
+                                style={styles.textfieldWithFloatingLabel, styles.textFields}
+                                textInputStyle={{ flex: 1 }}
+                                onChangeText={(text) => this.setState({ rewardDescription: text })}
+                                onEndEditing={(e) => {
+                                    this.pushToChangedRewardsFields(
+                                        "reward_description",
+                                        this.state.rewardDescription
+                                    );
+                                }}
+                            ></TextField>
 
-                        {this.state.routinesLoaded &&
-                            <View>
-                                <Text style={styles.textFields}>
-                                    Select Routine
+                            {this.state.routinesLoaded &&
+                                <View>
+                                    <Text style={styles.textFields}>
+                                        Select Routine
+                                    </Text>
+                                    {this.displayForm("routine")}
+                                </View>
+                            }
+
+                            {this.state.currentRoutine !== null &&
+                                <View>
+                                    {this.getAllActivitiesForRoutine()}
+                                </View>
+                            }
+
+                            {this.state.activitiesLoaded &&
+                                <View>
+                                    <Text style={styles.textFields}>
+                                        Select Activity
                                 </Text>
-                                {this.displayForm("routine")}
-                            </View>
-                        }
-
-                        {this.state.currentRoutine !== null &&
-                            <View>
-                                {this.getAllActivitiesForRoutine()}
-                            </View>
-                        }
-
-                        {this.state.activitiesLoaded &&
-                            <View>
-                                <Text style={styles.textFields}>
-                                    Select Activity
-                                </Text>
-                                {this.displayForm("activites")}
-                            </View>
-                        }
+                                    {this.displayForm("activites")}
+                                </View>
+                            }
 
 
-                        <View style={styles.editRoutineIconAndTitle}>
-                            <Text style={styles.textFields}>Add Image</Text>
-                            <View style={{ margin: 20, alignItems: "center" }}>
+                            <View style={styles.editRoutineIconAndTitle}>
+                                <Text style={styles.textFields}>Add Image</Text>
+                                <View style={{
+                                    alignItems: "center",
+                                    flexDirection: "row",
+                                    justifyContent: "center",
+                                    margin: 70,
+
+                                }}>
 
 
-                                <TouchableOpacity
-                                    style={styles.camerabutton}
-                                    onPress={this._handleButtonPress}
-                                >
-                                    {/* onPress={() => {
+                                    <TouchableOpacity
+                                        style={styles.camerabutton}
+                                        onPress={this._handleButtonPress}
+                                    >
+                                        {/* onPress={() => {
                                         this.navigate('Camera', {prevScreenTitle: 'EditReward' });
                                         this._onNext();
                                     }}> */}
-                                    {this.returnImage()}
+                                        {this.returnImage()}
 
-                                </TouchableOpacity>
+                                    </TouchableOpacity>
+
+                                </View>
 
                             </View>
 
-                        </View>
-
-                        {/* <TouchableOpacity
+                            {/* <TouchableOpacity
                             style={styles.buttonStyle}
                             onPress={() => {
                                 this.navigate('Camera', { prevScreenTitle: 'EditReward' });
@@ -481,30 +506,36 @@ export default class ParentRewards extends Component {
                             <Text style={styles.textStyle}>Take A Picture!</Text>
                         </TouchableOpacity> */}
 
-                        {/* //insert image  */}
+                            {/* //insert image  */}
 
-                        {/* <Text style = {styles.textFields}>
+                            {/* <Text style = {styles.textFields}>
                         Video 
                     </Text> */}
-                        {/* //insert vieo 
+                            {/* //insert vieo 
                     */}
 
-                        <View style={styles.editRoutineIconAndTitle}>
-                            < Text style={styles.textFields}>
-                                Add Video
+                            <View style={styles.editRoutineIconAndTitle}>
+                                < Text style={styles.textFields}>
+                                    Add Video
                              </Text>
-                            <View style={{ margin: 20, alignItems: "center" }}>
-                                <TouchableOpacity
-                                    style={styles.camerabutton}
-                                    onPress={() => this.videoPicker()}
-                                >
-                                    {this.returnVideo()}
-                                </TouchableOpacity>
+                                <View style={{
+                                    alignItems: "center",
+                                    flexDirection: "row",
+                                    justifyContent: "center",
+                                    margin: 70,
+                                    // marginBottom: 100
+                                }}>
+                                    <TouchableOpacity
+                                        style={styles.camerabutton}
+                                        onPress={() => this.videoPicker()}
+                                    >
+                                        {this.returnVideo()}
+                                    </TouchableOpacity>
+                                </View>
+
                             </View>
 
-                        </View>
-
-                        {/* <Button
+                            {/* <Button
                             title="Save"
                             type="outline"
                             color='#FF6978'
@@ -512,7 +543,7 @@ export default class ParentRewards extends Component {
 
 
 
-                        {/* <TouchableOpacity style={styles.button}>
+                            {/* <TouchableOpacity style={styles.button}>
                             <Icon
                                 name="camera"
                                 color="#FF6978"
@@ -522,7 +553,7 @@ export default class ParentRewards extends Component {
                             <Text>Image</Text>
                         </TouchableOpacity> */}
 
-                        {/* <TouchableOpacity style={styles.button}>
+                            {/* <TouchableOpacity style={styles.button}>
                             <Icon
                                 name="video"
                                 color="#FF6978"
@@ -531,41 +562,35 @@ export default class ParentRewards extends Component {
                             />
                             <Text>Video</Text>
                         </TouchableOpacity> */}
+                        </View>
+
+                        <View
+                            style={{
+                                alignItems: "center",
+                                flexDirection: "row",
+                                justifyContent: "center",
+                                margin: 15,
+                                marginBottom: 100,
+                            }}
+                        >
+
+                            <RaisedTextButton
+                                onPress={() => this._onSubmit()}
+                                style={{ width: 150 }}
+                                titleStyle={styles.buttonstyle}
+                                title="Save Reward"
+                                titleColor={"#FF6978"}
+                                color={"white"}
+                            />
+
+                        </View>
+
                     </View>
 
-                    <RaisedTextButton
-                        onPress={() => this._onSubmit()}
-                        style={{ width: 150}, {alignItems: "center"}}
-                        titleStyle={styles.buttonstyle}
-                        title="Save Reward"
-                        titleColor={"#FF6978"}
-                        color={"white"}
-                    />
-                    {/* <TouchableOpacity style={styles.savebutton}>
-                        onPress={() => this._onSubmit()}
-                        <Text style={{ color: "#FF6978", fontSize: 20 }}>Save Reward</Text>
-                    </TouchableOpacity> */}
+                </View >
 
-                </View>
-
-            </View >
-
-            //  <View style={styles.textFields}>
-            //     <View>
-            //         <View style={styles.editRoutineIconAndTitle}>
-            //             <Icon style={styles.routineDetailsIcon} name="gift" />
-            //             <Text style={styles.editRoutineSectionName}>Rewards</Text>
-            //         </View>
-
-            //         <Text style={styles.editRoutinesInstructionsText}>
-            //             Add a reward that your child receives when they complete their {this.state.currentRoutine}.
-            //         </Text>
-            //         {this.displayList()}
-            //         {this.addNewItemButtonToList()}
-
-            //     </View>
-            //     </View>
-
+            
+             </ScrollView> 
         );
 
 
@@ -716,10 +741,10 @@ const styles = StyleSheet.create({
         borderRadius: 5,
     },
     buttonstyle: {
-        fontSize: 10,
+        fontSize: 15,
         padding: 0,
         margin: 0,
         fontWeight: "bold",
-      },
+    },
 });
 
