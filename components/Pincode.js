@@ -113,7 +113,7 @@ static navigationOptions = ({ navigation }) => ({
                 accessibilityLabel="Yes Button"
               />
 
-<Button
+            <Button
                 onPress={() => {
                   this.setState({ visible1: false });
                 }}
@@ -184,12 +184,10 @@ const styles =
     alignItems: 'center',
     margin: 16,
   },
- 
   logo:{
     height: 400,
      width: 400,
     alignContent: 'center'
-    
   },
   routineTitle: {
     paddingLeft: 5,

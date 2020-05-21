@@ -1,9 +1,12 @@
 import React, { Component } from "react";
-import { View, Dimensions, StyleSheet, Text, PickerIOSComponent, TouchableOpacity } from "react-native";
+import { AppRegistry, View, Dimensions, StyleSheet, Text, PickerIOSComponent, TouchableOpacity, Button } from "react-native";
 import { TextField } from "react-native-material-textfield";
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
 import Environment from "../../../database/sqlEnv";
 import UserInfo from "../../../state/UserInfo";
+import { Dialog } from 'react-native-simple-dialogs';
+
+
 Icon.loadFont();
 const { width: WIDTH } = Dimensions.get("window");
 
@@ -25,6 +28,13 @@ export default class Notifications extends Component {
       notificationsLoaded: false,
       routines: [],
     };
+  }
+ 
+  openDialog(show){
+    this.setState({showDialog: show})
+  }
+  openDialogs(show){
+    this.setState({showDialogs: show})
   }
 
   componentDidMount() {
@@ -135,14 +145,22 @@ export default class Notifications extends Component {
               <Text style={styles.routineTitle}>Would you like to approve the routine to let {this.state.childsName} claim his reward?</Text>
               <Text style={styles.routineTitle}> claim his reward?</Text>
 
-              <TouchableOpacity style={styles.button}>
+              <TouchableOpacity style={styles.button}
+               onPress={() => this.openDialog(true)} 
+               
+              >
               <Icon  name="check" color="#FF6978" size={33}/>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.button2}>
+              
+              </TouchableOpacity>
+
+            <TouchableOpacity style={styles.button2}
+            onPress={() => this.openDialogs(true)} 
+            >
               <Icon  name="window-close" color="#FF6978" size={33}/>
             </TouchableOpacity>
             </View>
-          
+
+           
       );
     });
   }
@@ -153,12 +171,29 @@ export default class Notifications extends Component {
     const { navigate } = this.props.navigation;
 
     return (
-      <View>
-        
+      <View >
         {this.state.childLoaded && this.state.notificationsLoaded && (
           <View style={styles.textfields}>{this.displayRoutines()} 
           </View>
         )}
+<Dialog style={{backgroundColor: 'blue'}} 
+
+    visible={this.state.showDialog}
+    title="Routine has been marked complete"
+    onTouchOutside={() => this.openDialog(false)}  >
+    <Button onPress ={() => this.openDialog(false)} style={{marginTop: 10}} title="CLOSE"/>
+</Dialog>
+ 
+
+
+<Dialog
+    visible={this.state.showDialogs}
+    title="Routine has been marked incomplete"
+    onTouchOutside={() => this.openDialogs(false)} 
+    >
+    <Button onPress ={() => this.openDialogs(false)} style={{marginTop: 10, width: 20}} title="CLOSE"/>
+</Dialog>
+
       </View>
     );
   }
@@ -172,6 +207,11 @@ const styles = StyleSheet.create({
     fontSize: 70,
     padding: 5,
     margin: 5,
+  },
+  box:{
+    width: WIDTH * .18,
+    height: 300,
+    borderRadius: 8,
   },
   button: {
     fontSize: 30,
@@ -249,3 +289,4 @@ const styles = StyleSheet.create({
     textAlignVertical: "center",
   },
 });
+
