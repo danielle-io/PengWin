@@ -37,15 +37,14 @@ import ChildHurray from "./ChildScreens/ChildHurray";
 import ChildActivityReward from "./ChildScreens/ChildActivityReward";
 import ChildStartActivity from "./ChildScreens/ChildStartActivity";
 import ChildCamera from "../components/ImageRecognition/ChildCamera";
-
 import TestingHomePage from "./TestingHomePage";
 
 const Screens = createStackNavigator({
-  ParentNavigation: {screen: ParentNavigation},
+  
   
   TestingHomePage: {screen: TestingHomePage},
 
-  
+  ParentNavigation: {screen: ParentNavigation},
 
   Login: {screen: Login},
   SignUp: {screen: SignUp},
