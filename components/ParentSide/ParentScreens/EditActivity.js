@@ -1,3 +1,5 @@
+// TODO: the reward amount in the relational table needs to be updated when the 
+// reward here is removed or added
 import React, { Component } from "react";
 import {
   Dimensions,
@@ -638,7 +640,7 @@ export default class Activity extends Component {
     return (
       <ScrollView style={{ backgroundColor: "#FFFCF9", padding: 20 }}>
         <View style={styles.textFields}>
-          <Text style={styles.titles}>What is this activity called?</Text>
+          <Text style={styles.titles}>What is the activity called?</Text>
 
           <TextField
             placeholder="(e.g. Wear Shoes)"
