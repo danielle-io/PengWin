@@ -55,7 +55,7 @@ export default class ChildRoutines extends Component {
         this.setState({ routines: results });
         this.setState({ loaded: true });
 
-        this.setNotifs();
+        // this.setNotifs();
       })
       .catch((error) => {
         console.error(error);
@@ -84,15 +84,15 @@ export default class ChildRoutines extends Component {
   }
 
   componentDidMount() {
-    this.registerForPushNotificationsAsync();
+    // this.registerForPushNotificationsAsync();
 
     this.props.navigation.addListener("didFocus", (payload) => {
       this.getRoutines();
     });
 
-    this._notificationSubscription = Notifications.addListener(
-      this._handleNotification
-    );
+    // this._notificationSubscription = Notifications.addListener(
+    //   this._handleNotification
+    // );
   }
 
   registerForPushNotificationsAsync = async () => {
@@ -206,7 +206,6 @@ export default class ChildRoutines extends Component {
   }
 
   renderRoutines() {
-    
     return this.state.routines.routines.map((item) => {
       if (item.is_active == 1) {
         return (
@@ -226,20 +225,33 @@ export default class ChildRoutines extends Component {
               })
             }
           >
-            <ScrollView>
+            {/* <ScrollView> */}
+            <View style ={{flexDirection: 'column', justifyContent: 'space-between'}}>
               <Text style={styles.routineTitle}>{item.routine_name}</Text>
-            </ScrollView>
+            {/* </ScrollView> */}
 
             <View style={styles.detailsContainer}>
               <Text style={styles.routineDetails}>
-                <Icon name="playlist-check" color="#B1EDE8" size={20} />{" "}
+                <Icon name="playlist-check" color="#B1EDE8" size={20} />
+              </Text>
+
+              <Text style={styles.routineDetails}>
+                {" "}
                 Activities: {item.amount_of_activities}
               </Text>
+
+              <Text style={styles.routineDetailsTwo}>
+                <Icon name="gift" color="#B1EDE8" size={20} />
+              </Text>
+
               <Text style={styles.routineDetails}>
-                <Icon name="gift" color="#B1EDE8" size={20} /> Rewards:{" "}
-                {item.amount_of_rewards}
+                {" "}
+                Rewards: {item.amount_of_rewards}
               </Text>
             </View>
+
+            </View>
+
           </View>
         );
       }
@@ -268,7 +280,7 @@ export default class ChildRoutines extends Component {
 const styles = {
   detailsContainer: {
     padding: 2,
-    paddingBottom: 15,
+    flexDirection: "row",
   },
   selectText: {
     fontSize: 17,
@@ -305,5 +317,11 @@ const styles = {
     fontSize: 15,
     paddingTop: 10,
     paddingLeft: 2,
+  },
+  routineDetailsTwo: {
+    fontSize: 15,
+    paddingTop: 10,
+    paddingLeft: 2,
+    marginLeft: 10,
   },
 };

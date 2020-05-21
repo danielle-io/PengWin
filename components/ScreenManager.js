@@ -41,9 +41,9 @@ import ChildCamera from "../components/ImageRecognition/ChildCamera";
 import TestingHomePage from "./TestingHomePage";
 
 const Screens = createStackNavigator({
-  ParentNavigation: {screen: ParentNavigation},
   
   TestingHomePage: {screen: TestingHomePage},
+  ParentNavigation: {screen: ParentNavigation},
 
   
 
