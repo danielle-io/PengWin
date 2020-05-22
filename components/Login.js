@@ -123,10 +123,6 @@ login(e){
             />
           </View>
 
-          <Text style={styles.forgotPassword}
-            onCLick={() => Alert.alert('oh no!')}>
-            Forgot Password?
-          </Text>
 
           {/* Login button */}
           <View style={styles.loginButton}>

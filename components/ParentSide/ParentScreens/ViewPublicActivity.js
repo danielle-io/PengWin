@@ -109,7 +109,6 @@ export default class ViewPublicActiviy extends Component {
       video_path: this.state.activityVideoPath,
       is_public: 0,
       deleted: 0,
-      reward_id: null,
     };
     let response = fetch(Environment + "/insertActivity", {
       method: "POST",

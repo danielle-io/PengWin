@@ -245,6 +245,7 @@ export default class EditRoutine extends Component {
         });
       }
     }
+    this.props.navigation.navigate("ParentRoutines");
   }
 
   createNewRoutine() {
@@ -1213,7 +1214,7 @@ export default class EditRoutine extends Component {
               onPress={() => this._onSubmit()}
               style={{ width: 100 }}
               titleStyle={styles.buttonstyle}
-              title="Submit"
+              title="Save"
               titleColor={"white"}
               color={"#FF6978"}
             />
