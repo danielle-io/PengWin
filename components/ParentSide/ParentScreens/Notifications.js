@@ -1,7 +1,4 @@
 import React, { Component } from "react";
-<<<<<<< HEAD
-import { AppRegistry, View, Dimensions, StyleSheet, Text, PickerIOSComponent, TouchableOpacity, Button } from "react-native";
-=======
 import {
   View,
   Dimensions,
@@ -10,12 +7,10 @@ import {
   PickerIOSComponent,
   TouchableOpacity,
 } from "react-native";
->>>>>>> origin/master
 import { TextField } from "react-native-material-textfield";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import Environment from "../../../database/sqlEnv";
 import UserInfo from "../../../state/UserInfo";
-import { Dialog } from 'react-native-simple-dialogs';
 
 
 Icon.loadFont();
@@ -176,42 +171,6 @@ export default class Notifications extends Component {
   displayNotifications() {
     return this.state.routines.map((item, key) => {
       return (
-<<<<<<< HEAD
-            <View
-              style={({ flex: 1 }, styles.notificationContainer)}
-              onStartShouldSetResponder={() =>
-                this.props.navigation.navigate("RoutineApproval", {
-                  prevScreenTitle: "Notifications",
-                  routineId: item.routine_id,
-                  childsName: this.state.childsName,
-                  routineName: item.routine_name,
-                  currentNotification: this.getCurrentNotification(key),
-                })
-              }
-            >
-              <Icon  name={this.state.icon} color="#848484" style={{left:1}}color="#F32D2D" size={25} />
-              <Text style={styles.text}>Check Off Routine</Text>
-              <Text style={styles.routineTitle}>{this.state.childsName} has marked his {item.routine_name} complete.</Text>
-              <Text style={styles.routineTitle}>Would you like to approve the routine to let {this.state.childsName} claim his reward?</Text>
-              <Text style={styles.routineTitle}> claim his reward?</Text>
-
-              <TouchableOpacity style={styles.button}
-               onPress={() => this.openDialog(true)} 
-               
-              >
-              <Icon  name="check" color="#FF6978" size={33}/>
-              
-              </TouchableOpacity>
-
-            <TouchableOpacity style={styles.button2}
-            onPress={() => this.openDialogs(true)} 
-            >
-              <Icon  name="window-close" color="#FF6978" size={33}/>
-            </TouchableOpacity>
-            </View>
-
-           
-=======
         <View
           style={({ flex: 1, marginTop: 10 }, styles.notificationContainer)}
           onStartShouldSetResponder={() =>
@@ -268,7 +227,6 @@ export default class Notifications extends Component {
             />
           </TouchableOpacity>
         </View>
->>>>>>> origin/master
       );
     });
   }
@@ -279,31 +237,6 @@ export default class Notifications extends Component {
     const { navigate } = this.props.navigation;
 
     return (
-<<<<<<< HEAD
-      <View >
-        {this.state.childLoaded && this.state.notificationsLoaded && (
-          <View style={styles.textfields}>{this.displayRoutines()} 
-          </View>
-        )}
-<Dialog style={{backgroundColor: 'blue'}} 
-
-    visible={this.state.showDialog}
-    title="Routine has been marked complete"
-    onTouchOutside={() => this.openDialog(false)}  >
-    <Button onPress ={() => this.openDialog(false)} style={{marginTop: 10}} title="CLOSE"/>
-</Dialog>
- 
-
-
-<Dialog
-    visible={this.state.showDialogs}
-    title="Routine has been marked incomplete"
-    onTouchOutside={() => this.openDialogs(false)} 
-    >
-    <Button onPress ={() => this.openDialogs(false)} style={{marginTop: 10, width: 20}} title="CLOSE"/>
-</Dialog>
-
-=======
       <View>
         <View>
           {this.state.childLoaded &&
@@ -330,7 +263,6 @@ export default class Notifications extends Component {
             </View>
           )}
         </View>
->>>>>>> origin/master
       </View>
     );
   }
