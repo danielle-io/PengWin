@@ -319,6 +319,9 @@ export default class EditRoutine extends Component {
       clicked = this.state.addActivityButtonClicked;
       placeholderText = "Select an activity";
       dropdownItems = this.state.filteredActivities;
+      console.log("drop down for routines!");
+      console.log(dropdownItems);
+      // console.log(this.state.filteredActivities);
     } else {
       clicked = this.state.addRewardButtonClicked;
       placeholderText = "Select a reward";
