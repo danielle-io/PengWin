@@ -42,6 +42,7 @@ import TestingHomePage from "./TestingHomePage";
 const Screens = createStackNavigator({
   
   TestingHomePage: {screen: TestingHomePage},
+  ParentNavigation: {screen: ParentNavigation},
 
   ParentNavigation: {screen: ParentNavigation},
 
