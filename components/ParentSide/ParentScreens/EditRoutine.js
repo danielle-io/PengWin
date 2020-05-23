@@ -7,6 +7,7 @@ import {
   Text,
   Switch,
   StyleSheet,
+  TouchableOpacity,
   View,
 } from "react-native";
 import { TextField } from "react-native-material-textfield";
@@ -88,26 +89,22 @@ export default class EditRoutine extends Component {
       allActivitiesDictionary: this.props.navigation.state.params
         .allActivitiesDictionary,
       filteredActivities: null,
-
       allRewardNames: [],
       changedValues: [],
-
       routineActivitiesByOrder: null,
       routineActivitiesById: null,
-
       activitiesLoaded: false,
       // TODO: hardcoded date
       date: "2016-05-15",
       newReward: null,
       currentlySelectedActivity: null,
       currentlySelectedReward: null,
-
       activityChangeLoad: true,
       rewardLoaded: false,
-      activityInserted: false,
       addActivityButtonClicked: false,
       addRewardButtonClicked: false,
       loadedAfterDeletion: true,
+      saveClicked: false,
     };
   }
 
@@ -161,7 +158,6 @@ export default class EditRoutine extends Component {
         }
       );
       if (response.status >= 200 && response.status < 300) {
-        this.setState({ activityInserted: true });
         this.getActivityRoutineJoinTable();
         this.setState({
           amount_of_activities: this.state.amount_of_activities + 1,
@@ -175,14 +171,6 @@ export default class EditRoutine extends Component {
 
   // Update the activity routine db table w/ changes
   async updateActivityRelationship(routine_activity_id, tag, value) {
-    console.log(
-      "TAG IS " +
-        tag +
-        " ROUTINE_ACTIVITY_ID IS " +
-        routine_activity_id +
-        " VALUE IS " +
-        value
-    );
     var data = {
       [tag]: value,
     };
@@ -198,13 +186,9 @@ export default class EditRoutine extends Component {
           body: JSON.stringify(data),
         }
       );
-      console.log(response.status);
       if (response.status >= 200 && response.status < 300) {
-        console.log("status is 200");
-        this.setState({ activityInserted: true });
 
         if (tag === "deleted") {
-          console.log("tag is deleted load trick");
           // Re-fetch the activities, set up by order & id, then
           // remove used ones from all activities (all in one call)
           this.getActivityRoutineJoinTable();
@@ -347,7 +331,7 @@ export default class EditRoutine extends Component {
           <View style={styles.formIndent}>
             <View style={styles.editRoutineButtonAndList}>
               <Text style={styles.redNumbers}>{rowNum}</Text>
-              
+
               <SearchableDropdown
                 onItemSelect={(item) => {
                   if (listName === "activity") {
@@ -385,6 +369,30 @@ export default class EditRoutine extends Component {
     );
   }
 
+  // Verify the number of rewards in a routine
+  compareRewardAmount() {
+    var rewardCount = 0;
+    for (
+      var i = 0;
+      i < Object.keys(this.state.routineActivitiesByOrder).length;
+      i++
+    ) {
+      if (
+        this.state.routineActivitiesByOrder[i].reward_image ||
+        this.state.routineActivitiesByOrder[i].reward_video ||
+        this.state.routineActivitiesByOrder[i].reward_description
+      ) {
+        rewardCount += 1;
+      }
+    }
+    if (this.state.rewardId) {
+      rewardCount += 1;
+    }
+    if (rewardCount !== this.state.amount_of_rewards) {
+      this.changeRoutineComponent("amount_of_rewards", rewardCount);
+    }
+  }
+
   getRoutineReward() {
     if (this.state.rewardId !== 0 && this.state.allRewardsByIdDictionary) {
       this.setState({
@@ -401,24 +409,10 @@ export default class EditRoutine extends Component {
 
   removeItem(routineActivityId, order, itemId, listName) {
     this.setState({ loadedAfterDeletion: false });
-    // this.setState({ activityChangeLoad: false});
-
-    console.log(
-      "RaID, ordr, itmId, list " +
-        routineActivityId +
-        " " +
-        order +
-        " " +
-        itemId +
-        " " +
-        listName
-    );
-
     if (listName === "activity") {
       this.setState({
         amount_of_activities: this.state.amount_of_activities - 1,
       });
-      console.log("updating activity orders");
       this.updateActivityOrders(order, listName, routineActivityId);
     }
 
@@ -678,19 +672,15 @@ export default class EditRoutine extends Component {
   }
 
   handleApprovalSwitchChange() {
-    console.log("Switch is " + this.state.requiresApproval)
+    console.log("Switch is " + this.state.requiresApproval);
     var newSwitchValue = 1;
-    if (this.state.requiresApproval === 0){
+    if (this.state.requiresApproval === 0) {
       this.setState({ requiresApproval: 1 });
-    }
-    else{
+    } else {
       this.setState({ requiresApproval: 0 });
       newSwitchValue = 0;
     }
-    this.pushToUpdateRoutineArray(
-      "requires_approval",
-      newSwitchValue,
-    );
+    this.pushToUpdateRoutineArray("requires_approval", newSwitchValue);
     this.getCurrentSwitchState();
   }
 
@@ -840,11 +830,19 @@ export default class EditRoutine extends Component {
           <Icon style={styles.routineDetailsIcon} name="check-all" />
           <Text style={styles.editRoutineSectionName}>Approve Completion</Text>
         </View>
+
         <View style={styles.editRoutineIconAndTitle}>
           <Text style={styles.editRoutinesInstructionsText}>
             Would you like to approve routine completion before your child
             receives their final reward?
           </Text>
+        </View>
+
+        <View
+          style={{
+            flexDirection: "row",
+          }}
+        >
           <Switch
             style={{ padding: 10 }}
             trackColor={{ false: "#767577", true: "#FF6978" }}
@@ -986,8 +984,11 @@ export default class EditRoutine extends Component {
   }
 
   saveAnyChanges() {
-    this.setState({ addActivityButtonClicked: false });
-    this.setState({ addRewardButtonClicked: false });
+    if (!this.saveClicked) {
+      this.setState({ addActivityButtonClicked: false });
+      this.setState({ addRewardButtonClicked: false });
+    }
+
     this.updateDateChanges();
 
     // This means an item was selected but the add button wasnt pressed
@@ -996,14 +997,16 @@ export default class EditRoutine extends Component {
     }
 
     if (this.state.newReward !== null) {
-      this.setState({ rewardLoaded: false });
-      this.setState({ rewardId: this.state.newReward.id });
+      if (!this.saveClicked) {
+        this.setState({ rewardLoaded: false });
+        this.setState({ rewardId: this.state.newReward.id });
 
-      this.setState({
-        currentlySelectedReward: this.state.allRewardsByIdDictionary[
-          this.state.newReward.id
-        ],
-      });
+        this.setState({
+          currentlySelectedReward: this.state.allRewardsByIdDictionary[
+            this.state.newReward.id
+          ],
+        });
+      }
       this.pushToUpdateRoutineArray("reward_id", this.state.newReward.id);
 
       this.pushToUpdateRoutineArray(
@@ -1011,7 +1014,7 @@ export default class EditRoutine extends Component {
         this.state.amount_of_rewards + 1
       );
     }
-
+    this.compareRewardAmount();
     this.updateRoutineData();
   }
 
@@ -1025,6 +1028,7 @@ export default class EditRoutine extends Component {
   };
 
   _onSubmit = () => {
+    this.setState({ saveClicked: true });
     if (this.state.routineId !== null) {
       this.saveAnyChanges();
       var alr = "";
@@ -1061,13 +1065,9 @@ export default class EditRoutine extends Component {
     if (this.state.activitiesLoaded && this.state.rewardLoaded) {
     } else {
       console.log("RETURNING NULL");
-      console.log(
-        "this.state.activitiesLoaded :: " + this.state.activitiesLoaded
-      );
-      console.log("this.state.rewardLoaded :: " + this.state.rewardLoaded);
-
       return null;
     }
+    let ripple = { id: "addButton" };
 
     return (
       <View style={styles.textFields}>
@@ -1090,17 +1090,71 @@ export default class EditRoutine extends Component {
                   onChangeText={(text) => this.setState({ routineName: text })}
                 />
 
-                <View style={styles.editRoutineIconAndTitle}>
-                  <Icon
-                    style={styles.routineDetailsIcon}
-                    name="playlist-check"
-                  />
-                  <Text style={styles.editRoutineSectionName}>Activities</Text>
+                <View
+                  style={{
+                    flexDirection: "row",
+                    justifyContent: "space-between",
+                  }}
+                >
+                  <View
+                    style={{
+                      flexDirection: "row",
+                    }}
+                  >
+                    <Icon
+                      style={styles.routineDetailsIcon}
+                      name="playlist-check"
+                    />
+                    <Text style={styles.editRoutineSectionName}>
+                      Activities
+                    </Text>
+                  </View>
+
+                  <View
+                    stlye={{
+                      textAlign: "right",
+                      alignItems: "flex-end",
+                      justifyContent: "flex-end",
+                      marginTop: 20,
+                    }}
+                  >
+                    <TouchableOpacity
+                    onPress={
+                      (this._onPress,
+                      () =>
+                        this.props.navigation.navigate("EditActivity", {
+                          // prevScreenTitle: this.state.routineName,
+                          activityName: null,
+                          activityId: null,
+                          activityImagePath: null,
+                          activityDescription: null,
+                          activityAudioPath: null,
+                          activityVideoPath: null,
+                          activityTags: [],
+                          isPublic: 0,
+                          deletingRoutine: null,
+                          containersLoaded: null,
+                          rewardImage: null,
+                          rewardVideo: null,
+                          rewardDescription: null,
+                          previousPage: "Edit Routine",
+                          allActivitiesDictionary: this.state.allActivitiesDictionary,
+                        }))
+                    }
+                    ripple={ripple}
+                      style={{ flexDirection: "row" }}
+                    >
+                      <Icon name="plus" style={styles.tagMenuIcons} />
+                      <Text style={styles.tagMenuIconText}>
+                        Create New Activity
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
                 </View>
 
                 <Text style={styles.editRoutinesInstructionsText}>
-                  Add activities that you want your child to complete for this
-                  routine.
+                  Add existing activities that you want your child to complete
+                  for this routine.
                 </Text>
 
                 {/* Call the displayActivities function to loop over the returned activities */}
@@ -1338,7 +1392,7 @@ const styles = StyleSheet.create({
     fontSize: 20,
     marginTop: 10,
     marginBottom: 10,
-    width: 600,
+    // width: 600,
   },
   formIndent: {
     marginLeft: 30,
@@ -1362,5 +1416,21 @@ const styles = StyleSheet.create({
     shadowColor: "black",
     shadowOpacity: 0.1,
     borderWidth: 0,
+  },
+  tagMenuIconText: {
+    // color: "#FF6978",
+    fontSize: 18,
+    paddingTop: 5,
+    marginLeft: 8,
+    marginTop: 8,
+  },
+  tagMenuIcons: {
+    color: "#FF6978",
+    fontSize: 18,
+    paddingTop: 5,
+    marginLeft: 30,
+    marginTop: 10,
+    flexDirection: "row",
+    fontWeight: "bold",
   },
 });
