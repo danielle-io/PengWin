@@ -1,4 +1,4 @@
-// TODO: the reward amount in the relational table needs to be updated when the 
+// TODO: the reward amount in the relational table needs to be updated when the
 // reward here is removed or added
 import React, { Component } from "react";
 import {
@@ -42,15 +42,6 @@ const pincode = UserInfo.pincode;
 const { width: WIDTH } = Dimensions.get("window");
 
 export default class Activity extends Component {
-  static navigationOptions = ({ navigation }) => ({
-    title: "Add an Activity", //`${navigation.state.params.currentRoutine}`,
-    prevScreenTitle: "Activities",
-    headerTitleStyle: { textAlign: "center", alignSelf: "center" },
-    headerStyle: {
-      backgroundColor: "white",
-    },
-  });
-
   constructor(props) {
     super(props);
     this.recording = null;
@@ -75,12 +66,15 @@ export default class Activity extends Component {
       rewardImage: this.props.navigation.state.params.rewardImage,
       rewardDescription: this.props.navigation.state.params.rewardImage,
       rewardVideo: this.props.navigation.state.params.rewardVideo,
+      previousPage: this.props.navigation.state.params.previousPage,
+      allActivitiesDictionary: this.props.navigation.state.params
+        .allActivitiesDictionary,
+
       changedValues: [],
       haveRecordingPermissions: false,
       isLoading: false,
       rewardDescriptionModal: false,
       tempRewardDescription: "",
-
       isPlaybackAllowed: false,
       muted: false,
       soundPosition: null,
@@ -97,6 +91,16 @@ export default class Activity extends Component {
       JSON.stringify(Audio.RECORDING_OPTIONS_PRESET_LOW_QUALITY)
     );
   }
+
+  navigationOptions = ({ navigation }) => ({
+    title: "Add an Activity",
+    // prevScreenTitle: this.props.navigation.state.params.previousPage,
+    headerTitleStyle: { textAlign: "center", alignSelf: "center" },
+    headerStyle: {
+      backgroundColor: "white",
+    },
+    params: this.getParams(),
+  });
 
   updateActivity(tag, value) {
     var data = {
@@ -156,7 +160,30 @@ export default class Activity extends Component {
       .then((results) => {
         console.log("new insert!!!");
         this.setState({ activityId: results.insertId });
-        this.props.navigation.navigate("Routines")
+        if (this.state.previousPage !== "Edit Routine") {
+          this.props.navigation.navigate("ParentRoutines");
+        } else {
+          // Add the new activity to the all activities dictionary
+          let data = {
+            activity_id: this.state.activityId,
+            activity_name: this.state.activityName,
+            tags: this.state.activityTags.join(","),
+            image_path: this.state.activityImagePath,
+            activity_description: this.state.activityDescription,
+            audio_path: this.state.activityAudioPath,
+            video_path: this.state.activityVideoPath,
+            reward_image: this.state.rewardImage,
+            reward_video: this.state.rewardVideo,
+            reward_description: this.state.rewardDescription,
+            is_public: this.state.isPublic,
+            user_id: userId,
+            deleted: 0,
+          };
+
+          var tempDict = this.state.allActivitiesDictionary;
+          tempDict[this.state.activityId] = data;
+          this.setState({ allActivitiesDictionary: tempDict });
+        }
       })
       .catch((error) => {
         console.error(error);
@@ -176,10 +203,15 @@ export default class Activity extends Component {
         }
       }
     }
-    console.log("should navigate here");
-    this.props.navigation.navigate("ParentRoutines");
+    if (this.state.previousPage !== "Edit Routine") {
+      this.props.navigation.navigate("ParentRoutines");
+    }
   }
 
+  getParams() {
+    console.log("returning all activities");
+    return { allActivitiesDictionary: this.state.allActivitiesDictionary };
+  }
 
   getCurrentSwitchState() {
     if (this.state.isPublic === 1) {
@@ -920,7 +952,7 @@ export default class Activity extends Component {
               marginTop: 6,
             }}
           >
-            <TextInput              // multiline={true}
+            <TextInput // multiline={true}
               // input={{ paddingLeft: 8, marginLeft: 10, fontSize: 12 }}
               style={styles.rewardDescriptionInput}
               onChangeText={(text) =>
@@ -940,7 +972,7 @@ export default class Activity extends Component {
               style={styles.saveButtonMargin}
               onPress={() => this.saveRewardDescription()}
             >
-              <Text style={{ textAlign: "center",color: "#fff" }}>Save</Text>
+              <Text style={{ textAlign: "center", color: "#fff" }}>Save</Text>
             </TouchableOpacity>
           </View>
         </Dialog>
