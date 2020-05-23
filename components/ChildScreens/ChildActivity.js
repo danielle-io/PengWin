@@ -22,6 +22,7 @@ import * as Font from "expo-font";
 import Star from "../../assets/images/fillstar.png";
 import Ribbon from "../../assets/images/ribbon.png";
 import Head from "../../assets/images/PenguinFace.png";
+import Penguin from "../../assets/images/tokenPenguin.gif";
 
 import Environment from "../../database/sqlEnv";
 import UserInfo from "../../state/UserInfo";
@@ -34,10 +35,11 @@ const { width: WIDTH, height: HEIGHT } = Dimensions.get("window");
 const pincode = UserInfo.pincode;
 
 let customFonts = {
+  Gaegu: require("../../assets/fonts/Gaegu/Gaegu-Bold.ttf"),
   SF: require("../../assets/fonts/SF/SF-Pro-Rounded-Regular.otf"),
   "Inter-SemiBoldItalic":
     "https://rsms.me/inter/font-files/Inter-SemiBoldItalic.otf?v=3.12",
-  TextArea: require("../../assets/fonts/SF/SF-Pro-Text-Regular.otf")
+  TextArea: require("../../assets/fonts/SF/SF-Pro-Text-Regular.otf"),
 };
 
 export default class ChildActivity extends Component {
@@ -62,6 +64,7 @@ export default class ChildActivity extends Component {
       activities: null,
       activityImage: null,
       inputCode: "",
+      rewardToggle: false,
     };
 
     ChildActivity.navigationOptions.headerBackTitle = this.props.navigation.state.params.currentRoutine;
@@ -144,9 +147,9 @@ export default class ChildActivity extends Component {
 
   //code is 1234
   _checkCode = (inputCode) => {
-    console.log("INPUT CODE " + inputCode);
-    console.log("pin CODE " + pincode);
-    console.log("STATE INPUT CODE " + this.state.inputCode);
+    // console.log("INPUT CODE " + inputCode);
+    // console.log("pin CODE " + pincode);
+    // console.log("STATE INPUT CODE " + this.state.inputCode);
     if (inputCode != pincode) {
       this.pinInput.current.shake();
       this.setState({ inputCode: "" });
@@ -157,33 +160,38 @@ export default class ChildActivity extends Component {
     }
   };
 
+  checkReward = (item) => {
+    if (item.reward_image || item.reward_video || item.reward_description)
+      this.setState({ rewardToggle: true });
+  };
+
   // MAIN RENDER
   render() {
     if (this.state.fontsLoaded && this.state.activitiesLoaded) {
       return (
         <ScrollView style={{ width: WIDTH }}>
           <Carousel
-            height={HEIGHT * 0.9}
+            height={HEIGHT}
             hideIndicators={true}
             indicatorSize={20}
             animate={false}
             onRef={(ref) => (this.child = ref)}
           >
             {/* Map Activities */}
-            {this.state.activities.map((item, key) => (
-              <View
-                key={key}
-                style={
-                  (styles.activities,
-                  {
-                    backgroundColor: "#FFFCF9",
-                    top: 0,
-                    left: 0,
-                  })
-                }
-              >
-                {/* Header */}
-                <ScrollView>
+            {this.state.activities.map((item, key) => {
+              return (
+                <View
+                  style={
+                    (styles.activities,
+                    {
+                      backgroundColor: "#FFFCF9",
+                      top: 0,
+                      left: 0,
+                    })
+                  }
+                >
+                  {/* Header */}
+
                   <View style={styles.headerContainer}>
                     <View style={styles.headerContainerLeft}>
                       <View style={styles.headerContainerStar}>
@@ -246,129 +254,142 @@ export default class ChildActivity extends Component {
                       </View>
                     </View>
                   </View>
-                </ScrollView>
 
-                {/* Activity Body */}
-                <ScrollView>
-                  <Text style={styles.actTitle}>
-                    {" "}
-                    {key + 1 + ". " + item.activity_name}{" "}
-                  </Text>
+                  {/* Activity Body */}
+                  <ScrollView style={{ top: 20 }}>
+                    <Text style={styles.actTitle}>
+                      {" "}
+                      {key + 1 + ". " + item.activity_name}{" "}
+                    </Text>
 
-                  {item.image_path && (
-                    <View
-                      style={{
-                        justifyContent: "center",
-                        alignItems: "center",
-                      }}
-                    >
-                      <Image
-                        source={{ uri: item.image_path }}
-                        style={{
-                          width: 300,
-                          height: 200,
-                          margin: 5,
-                          borderRadius: 15,
-                          resizeMode: "contain",
-                        }}
-                      />
-                    </View>
-                  )}
-
-                  {item.activity_description && (
-                    <View>
-                      <Text style={styles.actTitle}>Description</Text>
-                      <Text style={styles.desc}>
-                        {item.activity_description}
-                      </Text>
-                    </View>
-                  )}
-
-                  {item.video_path && (
-                    <View>
-                      <Text style={styles.actTitle}>Watch</Text>
+                    {item.image_path && (
                       <View
                         style={{
                           justifyContent: "center",
                           alignItems: "center",
                         }}
                       >
-                        <Video
-                          useNativeControls={true}
-                          source={{ uri: item.video_path }}
-                          rate={1.0}
-                          volume={1.0}
-                          isMuted={false}
-                          resizeMode="contain"
-                          isLooping
-                          style={{ width: 300, height: 200 }}
+                        <Image
+                          source={{ uri: item.image_path }}
+                          style={{
+                            width: 300,
+                            height: 200,
+                            margin: 5,
+                            borderRadius: 15,
+                            resizeMode: "contain",
+                          }}
                         />
                       </View>
-                    </View>
-                  )}
+                    )}
 
-                  {item.audio_path && (
-                    <View>
-                      <Text style={styles.actTitle}>Listen To Directions</Text>
-                      <View
-                        style={{
-                          flexDirection: "row",
-                          margin: 15,
-                          justifyContent: "center",
+                    {item.activity_description && (
+                      <View>
+                        <Text style={styles.actTitle}>Description</Text>
+                        <Text style={styles.desc}>
+                          {item.activity_description}
+                        </Text>
+                      </View>
+                    )}
+
+                    {item.video_path && (
+                      <View>
+                        <Text style={styles.actTitle}>Watch</Text>
+                        <View
+                          style={{
+                            justifyContent: "center",
+                            alignItems: "center",
+                          }}
+                        >
+                          <Video
+                            useNativeControls={true}
+                            source={{ uri: item.video_path }}
+                            rate={1.0}
+                            volume={1.0}
+                            isMuted={false}
+                            resizeMode="contain"
+                            isLooping
+                            style={{ width: 300, height: 200 }}
+                          />
+                        </View>
+                      </View>
+                    )}
+
+                    {item.audio_path && (
+                      <View>
+                        <Text style={styles.actTitle}>
+                          Listen To Directions
+                        </Text>
+                        <View
+                          style={{
+                            flexDirection: "row",
+                            margin: 15,
+                            justifyContent: "center",
+                          }}
+                        >
+                          <TouchableOpacity style={styles.button}>
+                            <Icon
+                              name="play-circle"
+                              color="#B1EDE8"
+                              size={30}
+                              style={{ marginRight: 10 }}
+                            />
+                            <Text>Play</Text>
+                          </TouchableOpacity>
+
+                          <TouchableOpacity style={styles.button}>
+                            <Icon
+                              name="stop"
+                              color="#B1EDE8"
+                              size={30}
+                              style={{ marginRight: 10 }}
+                            />
+                            <Text>Stop</Text>
+                          </TouchableOpacity>
+                        </View>
+                      </View>
+                    )}
+
+                    
+                  </ScrollView>
+                  <View
+                      style={{
+                        bottom: 100,
+                        justifyContent: "center",
+                        alignItems: "center",
+                      }}
+                    >
+                      <TouchableOpacity
+                        style={styles.buttonStyle}
+                        onPress={() => {
+                          this.navigate("ChildCamera", {
+                            prevScreenTitle: "ACTIVITY",
+                            // TODO: try to process this array without eval bc
+                            // it could be dangerous if the user inputs a tag
+                            // that when evaluated runs something on the code
+                            tags: item.tags.split(","),
+                            key: key,
+                            activities: this.state.activities,
+                            childNotificationsId: this.state
+                              .childNotificationsId,
+                            activityId: item.activity_id,
+                            rewardToggle:
+                              item.reward_image ||
+                              item.reward_video ||
+                              item.reward_description,
+                          });
+                          this._onNext();
                         }}
                       >
-                        <TouchableOpacity style={styles.button}>
-                          <Icon
-                            name="play-circle"
-                            color="#B1EDE8"
-                            size={30}
-                            style={{ marginRight: 10 }}
-                          />
-                          <Text>Play</Text>
-                        </TouchableOpacity>
-
-                        <TouchableOpacity style={styles.button}>
-                          <Icon
-                            name="stop"
-                            color="#B1EDE8"
-                            size={30}
-                            style={{ marginRight: 10 }}
-                          />
-                          <Text>Stop</Text>
-                        </TouchableOpacity>
-                      </View>
+                        <Text style={styles.textStyle}>Take A Picture!</Text>
+                      </TouchableOpacity>
                     </View>
-                  )}
-                </ScrollView>
-
-                <View
-                  style={{ justifyContent: "center", alignItems: "center" }}
-                >
-                  <TouchableOpacity
-                    style={styles.buttonStyle}
-                    onPress={() => {
-                      this.navigate("ChildCamera", {
-                        prevScreenTitle: "ACTIVITY",
-                        // TODO: try to process this array without eval bc
-                        // it could be dangerous if the user inputs a tag
-                        // that when evaluated runs something on the code
-                        tags: item.tags.split(","),
-                        key: key,
-                        activities: this.state.activities,
-                        childNotificationsId: this.state.childNotificationsId,
-                      });
-                      this._onNext();
-                    }}
-                  >
-                    <Text style={styles.textStyle}>Take A Picture!</Text>
-                  </TouchableOpacity>
                 </View>
-              </View>
-            ))}
+              );
+            })}
             {/* END MAP :: Receive badge */}
             <View style={styles.badgeContainer}>
               <Text style={styles.title}>
-                Congratulations! You receive a badge!
+                Congratulations! You receive a token!
                 {this.updateNotificationToNotInProgress()}
               </Text>
               <View style={styles.image}>
@@ -377,12 +398,9 @@ export default class ChildActivity extends Component {
                 ))}
               </View>
               <Image
-                source={Ribbon}
+                source={Penguin}
                 style={{
-                  margin: 10,
-                  flex: 1,
-                  width: 300,
-                  height: 300,
+                  height: HEIGHT * 0.5,
                   resizeMode: "contain",
                 }}
               />
@@ -481,13 +499,12 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.4,
     shadowRadius: 2,
     width: WIDTH,
+    height: 150,
     top: 0,
     left: 0,
     backgroundColor: "white",
-    paddingBottom: 10,
     flexDirection: "row",
     justifyContent: "center",
-    flex: 1,
     resizeMode: "contain",
   },
   headerContainerLeft: {
@@ -509,7 +526,7 @@ const styles = StyleSheet.create({
     zIndex: 99,
   },
   headerLeftText: {
-    fontFamily: "SF",
+    fontFamily: "Gaegu",
     borderColor: "#B1EDE8",
     borderWidth: 2,
     height: 40,
@@ -538,11 +555,6 @@ const styles = StyleSheet.create({
   },
   activities: {
     backgroundColor: "#FF6978",
-    padding: WIDTH * 0.01,
-    margin: WIDTH * 0.01,
-    borderRadius: 1,
-    width: WIDTH * 0.98,
-    height: HEIGHT,
   },
   actTitle: {
     fontFamily: "SF",
@@ -555,21 +567,14 @@ const styles = StyleSheet.create({
     padding: 10,
     marginLeft: 30,
     marginBottom: 10,
-    fontFamily:"TextArea"
+    fontFamily: "TextArea",
   },
   badgeContainer: {
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
     flex: 1,
-    backgroundColor: "#fff",
-  },
-  buttonStyle: {
-    padding: 10,
-    marginBottom: 50,
-    marginTop: 10,
-    backgroundColor: "#FF6978",
-    borderRadius: 5,
+    backgroundColor: "#FFFCF9",
   },
   image: {
     flexDirection: "row",
@@ -586,10 +591,10 @@ const styles = StyleSheet.create({
     fontSize: 35,
     fontWeight: "bold",
     marginBottom: 8,
-    fontFamily: "SF",
+    fontFamily: "Gaegu",
   },
   textStyle: {
-    fontFamily: "SF",
+    fontFamily: "Gaegu",
     fontSize: 20,
     color: "white",
     textAlign: "center",

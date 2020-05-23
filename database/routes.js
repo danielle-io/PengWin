@@ -45,15 +45,15 @@ app.get("/getChildFromParent/:userId", function(req, res) {
   });
 });
 
+
 app.get("/getUnevaluatedRoutines/:parentId", function(req, res) {
   let parentId = req.params.parentId;
   db.getConnection(function(err, connection) {
     connection.query(
-      "SELECT * FROM child_notifications where parent_id = ?",
-      [parentId] +
+      "SELECT * FROM child_notifications where parent_id = ?" +
         " AND is_evaluated = 0" +
         " AND requires_approval = 1" +
-        " AND in_progress = 0",
+        " AND in_progress = 0", [parentId],
       function(error, results, fields) {
         connection.release();
 
@@ -126,7 +126,31 @@ app.post("/updateRoutine/:routineId", function(req, res) {
 });
 
 // Update the routine data
-app.post("/updateActivityRelationship/:routineActivityId", function(req, res) {
+app.post('/updateChildNotificationsTable/:childNotificationId', function (req, res) {
+  let childNotificationId = req.params.childNotificationId;
+  var postData = req.body;
+
+  console.log("updating child notifs, id is " + childNotificationId);
+
+  db.getConnection(function (err, connection) {
+    
+    connection.query('UPDATE child_notifications SET ? WHERE child_notifications_id = ?',
+      [postData, childNotificationId],
+     
+      function (error, results, fields) {
+        connection.release();
+        if (error){
+          throw error;
+          console.log(err);
+        }
+        console.log("RESULTS ARE " + results);
+        res.send(JSON.stringify(results))
+      });
+  });
+});
+
+// Update the routine data
+app.post('/updateActivityRelationship/:routineActivityId', function (req, res) {
   let routineActivityId = req.params.routineActivityId;
   var postData = req.body;
   db.getConnection(function(err, connection) {
@@ -208,7 +232,27 @@ app.post("/updateActivity/:activityId", function(req, res) {
   });
 });
 
-app.post("/insertRoutine", function(req, res) {
+app.post('/updateRoutineRequiresApproval/:routine_id', function (req, res) {
+
+  let routine_id = req.params.routine_id;
+  var postData = req.body;
+
+  console.log(postData);
+  connection.getConnection(function (err, connection) {
+    connection.query('UPDATE child_notifications SET ? WHERE routine_id = ?',
+      [postData, routine_id],
+      function (error, results, fields) {
+        connection.release();
+        if (error) {
+          throw error;
+          console.log(err);
+        }
+        res.send(JSON.stringify(results))
+      });
+  });
+});
+
+app.post('/insertRoutine', function (req, res) {
   var postData = req.body;
   db.getConnection(function(err, connection) {
     connection.query("INSERT INTO routines SET ?", postData, function(
@@ -608,6 +652,25 @@ app.get("/getAllRewardsandRoutines/:userId", function(req, res) {
   });
 });
 
+app.get("/getAllRewardsfromActivities/:activityId", function(req, res) {
+  let activityId = req.params.activityId;
+
+  db.getConnection(function(err, connection) {
+    connection.query(
+      "SELECT * FROM rewards AS reward, activities AS activity, reward_activity_relationship as relationship WHERE relationship.activity_id = activity.activity_id AND reward.reward_id = relationship.reward_id AND activity.activity_id ="  + activityId,
+      function(error, results, fields) {
+        connection.release();
+
+        if (error) {
+          throw error;
+          console.log(err);
+        }
+        res.send(results);
+      }
+    );
+  });
+});
+
 app.get("/getRewardById/:rewardId", function(req, res) {
   let rewardId = req.params.rewardId;
 
@@ -691,34 +754,7 @@ app.get("/getAmountOfActivitiesInRoutine/:routineId", function(req, res) {
   });
 });
 
-app.get("/getActivitiesWithRewardsPerRoutine/:routineId", function(req, res) {
-  let routineId = req.params.routineId;
-  db.getConnection(function(err, connection) {
-    connection.query(
-      "select routines.*, a.*, rar.order, rar.routine_activity_id from routines " +
-        "inner join routines_activities_relationship rar on routines.routine_id = rar.routine_id " +
-        "inner join activities a on rar.activity_id = a.activity_id " +
-        "where rar.routine_id = ? AND rar.routine_id <> 0 AND rar.deleted <> 1 " +
-        "AND reward_id <> null " +
-        "order by rar.order",
-      [routineId],
-      function(error, results, fields) {
-        connection.release();
-        // console.log('routine routes below');
-        // console.log(results);
-        // console.log(error);
 
-        if (error) {
-          throw error;
-          console.log(err);
-        }
-        // console.log("RESULTS FROM JOINING");
-        // console.log(results);
-        res.send(results);
-      }
-    );
-  });
-});
 
 app.get("/getRoutinesByUser/:userId", function(req, res) {
   let userId = req.params.userId;
