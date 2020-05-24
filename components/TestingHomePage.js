@@ -89,6 +89,8 @@ export default class TestingHomePage extends Component {
     }
   }
 
+
+  
   updateRoutine(routineId, tag, value) {
     var data = {
       [tag]: value,
@@ -197,6 +199,21 @@ export default class TestingHomePage extends Component {
                 }
               >
                 <Text style={styles.linkText}>Parent's Profile</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={styles.parentContainer}
+                onPress={
+                  (this._onPress,
+                  () =>
+                    this.props.navigation.navigate("TestRewardDemo", {
+                      rewardImage: null,
+                      rewardDescription: null,
+                      rewardVideo: null,
+                    }))
+                }
+              >
+                <Text style={styles.linkText}>Test Reward</Text>
               </TouchableOpacity>
 
               <TouchableOpacity

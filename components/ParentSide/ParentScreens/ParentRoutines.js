@@ -50,6 +50,7 @@ export default class ParentRoutines extends Component {
       routinesLoaded: false,
       activitiesLoaded: false,
       routines: null,
+      allActivities: null,
       index: 0,
       selectedTab: 0,
       routes: [{ key: "1", title: "First" }, { key: "2", title: "Second" }],
@@ -552,7 +553,6 @@ export default class ParentRoutines extends Component {
       .catch((error) => {
         console.error(error);
       });
-     
   }
 
   updateActivity(tag, value, activityId) {
@@ -919,7 +919,7 @@ export default class ParentRoutines extends Component {
             (this._onPress,
             () =>
               this.props.navigation.navigate("EditActivity", {
-                // prevScreenTitle: "Activities",
+                prevScreenTitle: "Routines",
                 activityName: null,
                 activityId: null,
                 activityImagePath: null,
@@ -933,8 +933,7 @@ export default class ParentRoutines extends Component {
                 rewardImage: null,
                 rewardVideo: null,
                 rewardDescription: null,
-                allActivitiesDictionary: this.state.allActivitiesDictionary,
-                previousPage: "Activities",
+                allRewardsByIdDictionary: this.state.allRewardsByIdDictionary,
               }))
           }
           ripple={ripple}
@@ -1006,7 +1005,7 @@ export default class ParentRoutines extends Component {
                     <MenuOption
                       onSelect={() =>
                         this.props.navigation.navigate("EditActivity", {
-                          // prevScreenTitle: "Activities",
+                          prevScreenTitle: "Routines",
                           activityName: item.activity_name,
                           activityId: item.activity_id,
                           activityTags: item.tags.split(","),
@@ -1018,9 +1017,6 @@ export default class ParentRoutines extends Component {
                           rewardImage: item.reward_image,
                           rewardVideo: item.reward_video,
                           rewardDescription: item.reward_description,
-                          allActivitiesDictionary: this.state.allActivitiesDictionary,
-                          previousPage: "Activities",
-                          
                         })
                       }
                       ripple={ripple}
@@ -1172,6 +1168,7 @@ export default class ParentRoutines extends Component {
                           sunday: item.sunday,
                           amount_of_activities: item.amount_of_activities,
                           amount_of_rewards: item.amount_of_rewards,
+                          allActivities: this.state.allActivities,
                           rewardId: item.reward_id,
                           allRewardsByIdDictionary: this.state
                             .allRewardsByIdDictionary,
@@ -1211,6 +1208,7 @@ export default class ParentRoutines extends Component {
               </View>
 
               <View style={styles.routineDetailsPreview}>
+                {/* <View style={{ float: "left" }}> */}
 
                 <View style={{ flexDirection: "row" }}>
                   <Text style={styles.routineDetails}>

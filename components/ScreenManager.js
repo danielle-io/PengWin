@@ -7,6 +7,8 @@ import SignUp from "./SignUp";
 import Pincode from "./Pincode";
 import HomePage from './HomePage';
 
+import TestRewardDemo from "./ParentSide/ParentScreens/TestRewardDemo";
+
 import ParentNavigation from "./ParentSide/ParentNavigation";
 import ParentRewards from "./ParentSide/ParentScreens/ParentRewards";
 import EditReward from "./ParentSide/ParentScreens/EditReward";
@@ -45,7 +47,8 @@ const Screens = createStackNavigator({
   TestingHomePage: {screen: TestingHomePage},
   ParentNavigation: {screen: ParentNavigation},
 
-  
+  TestRewardDemo: {screen: TestRewardDemo},
+
 
   Login: {screen: Login},
   SignUp: {screen: SignUp},
