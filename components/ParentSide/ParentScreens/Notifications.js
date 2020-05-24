@@ -11,6 +11,8 @@ import { TextField } from "react-native-material-textfield";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import Environment from "../../../database/sqlEnv";
 import UserInfo from "../../../state/UserInfo";
+
+
 Icon.loadFont();
 const { width: WIDTH } = Dimensions.get("window");
 
@@ -32,6 +34,13 @@ export default class Notifications extends Component {
       routines: [],
       noNotifications: false,
     };
+  }
+ 
+  openDialog(show){
+    this.setState({showDialog: show})
+  }
+  openDialogs(show){
+    this.setState({showDialogs: show})
   }
 
   componentDidMount() {
@@ -269,6 +278,11 @@ const styles = StyleSheet.create({
     marginTop: 10,
     margin: 5,
   },
+  box:{
+    width: WIDTH * .18,
+    height: 300,
+    borderRadius: 8,
+  },
   button: {
     fontSize: 30,
     width: 40,
@@ -315,3 +329,4 @@ const styles = StyleSheet.create({
     textAlignVertical: "center",
   },
 });
+

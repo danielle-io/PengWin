@@ -117,7 +117,7 @@ static navigationOptions = ({ navigation }) => ({
                 accessibilityLabel="Yes Button"
               />
 
-<Button
+            <Button
                 onPress={() => {
                   this.setState({ visible1: false });
                 }}
@@ -162,7 +162,7 @@ static navigationOptions = ({ navigation }) => ({
                 <View style={{marginTop: 30}}></View>
                 <Button
                 onPress={() => {
-                  this.props.navigation.navigate('ChildRoutines');
+                  this.props.navigation.navigate('Page1');
                 }}
                 title="Next"
               />  
@@ -188,12 +188,10 @@ const styles =
     alignItems: 'center',
     margin: 16,
   },
- 
   logo:{
     height: 400,
      width: 400,
     alignContent: 'center'
-    
   },
   routineTitle: {
     paddingLeft: 5,
