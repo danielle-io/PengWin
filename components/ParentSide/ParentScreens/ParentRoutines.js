@@ -553,6 +553,7 @@ export default class ParentRoutines extends Component {
       .catch((error) => {
         console.error(error);
       });
+     
   }
 
   updateActivity(tag, value, activityId) {
