@@ -162,7 +162,7 @@ static navigationOptions = ({ navigation }) => ({
                 <View style={{marginTop: 30}}></View>
                 <Button
                 onPress={() => {
-                  this.props.navigation.navigate('Question1');
+                  this.props.navigation.navigate('Page1');
                 }}
                 title="Next"
               />  
