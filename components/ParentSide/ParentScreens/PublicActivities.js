@@ -94,7 +94,6 @@ export default class PublicActivities extends Component {
               activityDescription: item.activity_description,
               activityAudioPath: item.audio_path,
               activityVideoPath: item.video_path,
-              rewardId: item.reward_id,
             })
           }
         >

@@ -1,338 +1,320 @@
-import React, { Component } from 'react';
+import React, {Component} from 'react';
+import {View, Dimensions, StyleSheet, Text} from 'react-native';
+import {TextField} from 'react-native-material-textfield';
+import UserAvatar from 'react-native-user-avatar';
+import Environment from '../database/sqlEnv';
+import UserInfo from "../state/UserInfo";
 import { ScrollView } from "react-native-gesture-handler";
-import * as ImagePicker from "expo-image-picker";
-import { Image } from "react-native";
-import {
-  Alert,
-  Button,
-  TouchableOpacity,
-  View,
-  Text,
-  heading,
-  ImageBackground,
-  TextInput,
-  Dimensions,
-  StyleSheet,
-} from 'react-native';
-import Icon from "react-native-vector-icons/MaterialCommunityIcons";
-Icon.loadFont();
 
-const { width: WIDTH } = Dimensions.get('window')
 
-// import Background from '../images/background.png'
+const {width: WIDTH} = Dimensions.get('window');
+const parentId = UserInfo.parent_id;
+const childId = UserInfo.child_id;
+const userId = UserInfo.user_id;
 
 export default class SignUp extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      photos: null,
-      activityImagePath: this.props.navigation.state.params.activityImagePath,
-    }
-  }
   
 
-  _handleButtonPress = async () => {
-    let pickerResult = await ImagePicker.launchImageLibraryAsync({
-      allowsEditing: true,
-      aspect: [4, 3],
-    });
+  constructor(props) {
+    super(props);
+    const {navigate} = this.props.navigation;
+    this.state = {
+      firstLoaded: false,
+      loaded: false,
+      childResults: null,
+      results: null,
+      parentFirstName: null,
+      parentLastName: null,
+      email: null,
+      childFirstName: null,
+      prevScreenTitle: this.props.navigation.state.params.prevScreenTitle,
+    };
+  }
 
-    this.setState({ photos: pickerResult });
-  };
+  async changeUserComponent(tag, value, id) {
+    console.log('routine id below');
+    var data = {
+      [tag]: value,
+    };
+    try {
+      let response = await fetch(Environment + '/updateUser/' + id, {
+        method: 'POST',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      });
+      if (response.status >= 200 && response.status < 300) {
+        console.log('SUCCESSFUL CALL');
+      }
+    } catch (errors) {
+      alert(errors);
+    }
+  }
+
+  // This allows this page to refresh when you come back from
+  // edit routines, which allows it to display any changes made
+  componentDidMount() {
+    this.props.navigation.addListener('didFocus', payload => {
+      this.getUserInfo(), this.getChildInfo();
+    });
+  }
+
+  getChildInfo() {
+    // Get the routines data from the db
+    fetch(Environment + '/getChildFromParent/' + userId, {
+      headers: {
+        'Cache-Control': 'no-cache',
+      },
+    })
+      .then(response => response.json())
+      .then(responseJson => {
+        return responseJson;
+      })
+      .then(results => {
+        this.setState({childResults: results});
+        console.log(this.state.childResults);
+        this.setState({loaded: true});
+      })
+      .catch(error => {
+        console.error(error);
+      });
+  }
+
+  getUserInfo() {
+    // Get the routines data from the db
+    fetch(Environment + '/getUser/' + userId, {
+      headers: {
+        'Cache-Control': 'no-cache',
+      },
+    })
+      .then(response => response.json())
+      .then(responseJson => {
+        return responseJson;
+      })
+      .then(results => {
+        this.setState({results: results});
+        console.log(this.state.results);
+        this.setState({firstLoaded: true});
+      })
+      .catch(error => {
+        console.error(error);
+      });
+  }
+
+  getChildsName() {
+    return this.state.childResults.map(itemValue => {
+      return (
+        <TextField
+          id="childFirstName"
+          placeholder="Verify Password"
+          value={itemValue.first_name}
+          style={(styles.textfieldWithFloatingLabel, styles.textFields)}
+          textInputStyle={{flex: 1}}
+          onFocus={e => console.log('Focus', !!e)}
+          onBlur={e => console.log('Blur', !!e)}
+          onEndEditing={e => {
+            this.changeUserComponent(
+              'first_name',
+              this.state.childFirstName,
+              itemValue.user_id,
+            );
+          }}
+          onSubmitEditing={e => console.log('SubmitEditing', !!e)}
+          onChangeText={text => this.setState({childFirstName: text})}
+        />
+      );
+    });
+  }
+
+  displayUserData() {
+    return this.state.results.map(item => {
+      var fullName = item.first_name + ' ' + item.last_name;
+
+      return (
+        <View style={styles.parentProfileFormContainer}>
+          <View style={styles.avatarContainer}>
+            <UserAvatar size={100} name={fullName} />
+          </View>
+
+          <TextField
+            id="parentFirstName"
+            placeholder="Username"
+            value={item.first_name}
+            style={(styles.textfieldWithFloatingLabel, styles.textFields)}
+            textInputStyle={{flex: 1}}
+            onFocus={e => console.log('Focus', !!e)}
+            onBlur={e => console.log('Blur', !!e)}
+            onEndEditing={e => {
+              this.changeUserComponent(
+                'first_name',
+                this.state.parentFirstName,
+                userId,
+              );
+            }}
+            onSubmitEditing={e => console.log('SubmitEditing', !!e)}
+            onTextChange={s => console.log('TextChange', s)}
+            onChangeText={text => this.setState({parentFirstName: text})}
+          />
+
+          <TextField
+            id="parentLastName"
+            placeholder="Email ID"
+            value={item.last_name}
+            style={(styles.textfieldWithFloatingLabel, styles.textFields)}
+            textInputStyle={{flex: 1}}
+            onFocus={e => console.log('Focus', !!e)}
+            onBlur={e => console.log('Blur', !!e)}
+            onEndEditing={e => {
+              this.changeUserComponent(
+                'last_name',
+                this.state.parentLastName,
+                userId,
+              );
+            }}
+            onSubmitEditing={e => console.log('SubmitEditing', !!e)}
+            onChangeText={text => this.setState({parentLastName: text})}
+          />
+
+          <TextField
+            // textInputStyle="number"
+            id="parentEmail"
+            placeholder="Password"
+            value={item.email}
+            style={(styles.textfieldWithFloatingLabel, styles.textFields)}
+            textInputStyle={{flex: 1}}
+            onFocus={e => console.log('Focus', !!e)}
+            onBlur={e => console.log('Blur', !!e)}
+            onEndEditing={e => {
+              this.changeUserComponent(
+                'email',
+                this.state.email,
+                userId,
+              );
+            }}
+            onSubmitEditing={e => console.log('SubmitEditing', !!e)}
+            onChangeText={text => this.setState({email: text})}
+          />
+
+          {this.getChildsName()}
+        </View>
+      );
+    });
+  }
+
+  fieldRef = React.createRef();
+
   render() {
 
-  returnImage = () => {
-      console.log(this.state.photos);
-      if (this.state.photos) {
-        return (
-
-
-
-          <Image
-            style={{ width: 300, height: 200, borderRadius: 15 }}
-            source={{ uri: this.state.photos.uri }}
-          />
-        );
-      } else {
-        return <Icon name="camera-enhance" color="#DADADA" size={100} />;
-      }
-    };
-    
-
     return (
-     
       <View>
-
-         
-
-        <View style={{marginTop: 50, height:20, width:20}}></View>
-        <View style={styles.headingContainer}></View>
-        
-        <View style={{marginBottom: 0}}></View>
-        
-        <View style={(styles.descriptionBox, styles.textFields)}>
-        
-          <View style={{ margin: 20, alignItems: "center" }}>
-            <TouchableOpacity
-              style={styles.camerabutton}
-              onPress={this._handleButtonPress}
-            >
-               
-            
-            </TouchableOpacity>
-            
-            <Text style={styles.headingContainer}>Add Photo
-            </Text>
-   
-          </View>
-        </View>
-     
-
-        <View style={styles.logoContainer}>
-          {/* <Image source={Logo}
-          style={styles.logo}>
-          </Image> */}
-          {/* Please use the profile default avatar here */}
-        </View>
+        {this.state.loaded && this.state.firstLoaded && (
+          <View>{this.displayUserData()}</View>
+        )}
 
 
-
-        {/* Container for username and password form */}
-        <View style={styles.loginContainer}>
-
-          {/* Username form */}
-          <View style={styles.userLoginForm}>
-            <Image
-              source={require('../assets/icons/user.png')} //Change your icon image here
-              style={styles.loginIcons}
-            />
-
-            <TextInput 
-              style={{ flex: 1 }}
-              borderColor='transparent'
-              placeholder="First Name or Username"
-              underlineColorAndroid='transparent'
-
-            />
-         </View>
-
-          <View style={styles.userLoginForm}>
-          <Image
-              source={require('../assets/icons/user.png')} //Change your icon image here
-              style={styles.loginIcons}
-          />
-
-            <TextInput
-              style={{ flex: 1 }}
-              placeholder="Email ID"
-            />
-            </View>
-
-          {/* Password form */}
-          <View style={styles.userLoginForm}>
-            <Image
-              source={require('../assets/icons/password.png')} //Change your icon image here
-              style={styles.loginIcons}
-            />
-
-            <TextInput
-              style={{ flex: 1 }}
-              placeholder="Please choose a password"
-             
-            // underlineColorAndroid="transparent"
-            />
-          </View>
-
-          {/* Re-enter password form */}
-          <View style={styles.userLoginForm}>
-          <Image
-              source={require('../assets/icons/password.png')} //Change your icon image here
-              style={styles.loginIcons}
-          />
-
-            <TextInput
-              style={{ flex: 1 }}
-              placeholder="Please re-enter your password"
-            />
-            </View>
-            
-
-            <View style={styles.loginButton}>
-
-            <View style={styles.buttonContainer}>
-            <View style={
-                { flex: 1, flexDirection: 'row', justifyContent: 'space-around' }
-            } >
-                <View style={ {flex: 1},
-                    styles.routines
-                }
+   <View style={styles.loginButton}>
+   <View style={ {flex: 1}, styles.routines}
                     onStartShouldSetResponder={() =>this.props.navigation.navigate('Pincode',{
-                                })
-                    } >
-                    <ScrollView>
-                        <Text style={styles.routineTitle} >Next</Text>
-                    </ScrollView>
-                </View>
-              </View>
-      </View>
-      </View>
+                                }) } >
+           <ScrollView>
+           <Text style={styles.routineTitle}>Next</Text>
+           </ScrollView>
+           </View>
+  
       </View>
       </View>
     );
   }
 }
+
 const styles = StyleSheet.create({
-  userLoginForm: {
-    width: WIDTH - 300,
-    height: 45,
-    borderRadius: 15,
-    borderStyle: 'solid',
-    borderColor: '#d6d7da',
-    borderWidth: 5,
-    fontSize: 12,
-    color: 'black',
-    marginBottom: 45,
-    overflow: 'hidden',
-    flexDirection: 'row',
-    alignSelf: 'center',
-  },
-  placeholder: {
-    color: 'black'
-  },
-  loginContainer: {
-    marginBottom: 80,
+  // Parent Profile
+  parentProfileFormContainer: {
     marginTop: 10,
+    marginLeft: 100,
+    marginRight: 100,
+    marginBottom: 50,
   },
- 
-  logo: {
-    alignContent: 'center'
+  avatarContainer: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    alignContent: 'center',
+    marginTop: 50,
   },
   buttonContainer: {
     marginTop: 100,
     fontSize: 200,
+    width: 200,
+    height: 200
     
   },
   loginButton: {
-    marginTop: 20,
-    width: 50,
+    marginTop: 90,
+    width: 90,
+    height: 200,
     alignSelf: 'center'
   
   },
-  headingContainer: {
+  routineTitle: {
+    fontSize: 30,
     textAlign: 'center',
-    fontSize: 25,
-    fontWeight: 'bold',
-    marginTop: 15
-  },
-  loginIcons: {
-    padding: 12,
-    margin: 5,
-    height: 20,
-    width: 20,
-    opacity: .2,
-    alignItems: 'center',
-  },
-  backgroundContainer: {
-    flex: 1,
-    width: null,
-    height: null,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  input: {
-    width: WIDTH - 110,
-    height: 35,
-    borderRadius: 5,
-    fontSize: 10,
-    paddingLeft: 45,
-    borderWidth: 0.5,
-    color: 'black',
-    backgroundColor: 'white',
-    borderStyle: 'solid',
-    borderColor: '#d6d7da',
-    borderWidth: 4,
-    marginBottom: 6,
-    overflow: 'hidden',
-  },
-  logoContainer: {
-    marginTop: 30,
-    marginBottom: 80,
-    alignItems: 'center'
-    
-  },
-  forgotPassword: {
-    fontSize: 16,
-    letterSpacing: .3,
-    lineHeight: 38,
-    alignSelf: 'center',
-    color: 'blue',
-  },
-  generalText: {
-    paddingTop: 30,
-    fontSize: 16,
-    lineHeight: 38,
-    textAlign: 'center',
-    color: 'black',
-  },
-  logo:{
-    height: 200,
-     width: 200,
-    alignContent: 'center'
-    
+
   },
   routines: {
-    paddingLeft: 29,
-    textAlignVertical: 'center',
     width: WIDTH * .18,
-    height: 45,
-    marginTop: 20 ,
-    marginBottom: 5,
-    borderWidth: 2,
-    borderRadius: 60,
+    height: 39,
+    borderRadius: 8,
     backgroundColor: 'pink',
     shadowOffset:{  width: 5,  height: 5,  },
-    shadowColor: 'black',
     shadowOpacity: .1,
-    borderWidth: 0
+    borderWidth: 0,
+    marginLeft: -25
 },
-routineTitle: {
-  paddingLeft: 5,
-  paddingTop: 5,
-  fontSize: 30,
-  marginLeft: 10,
-  textAlign: 'left',
-  textAlignVertical: 'center'
-},
-  createAccount: {
-    fontSize: 16,
-    lineHeight: 38,
-    textAlign: 'center',
-    color: '#223a7a',
-    textDecorationLine: 'underline',
-  },
-  camerabutton: {
-    fontSize: 30,
-    height: 200,
-    width: 200,
-    borderRadius: 100,
-    backgroundColor: "#fff",
-    justifyContent: "center",
-    alignItems: "center",
-    flexDirection: "row",
-    margin: 5,
-    shadowColor: "grey",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.4,
-    shadowRadius: 2,
-  },
+
   textFields: {
-    padding: 2,
+    padding: 5,
     margin: 2,
     marginLeft: 10,
+    marginTop: 10,
+    marginBottom: 10,
+    fontSize: 20,
+  },
+  formIndent: {
+    marginLeft: 30,
+  },
+  imageContainer: {
+    alignItems: 'center',
+    marginBottom: 200,
+  },
+  imageButton: {
+    marginTop: 50,
+    marginLeft: 100,
   },
   descriptionBox: {
-    borderColor: "#e8e8e8",
+    borderColor: '#e8e8e8',
     borderWidth: 1,
     borderRadius: 15,
   },
+  descriptionLines: {
+    marginBottom: 4,
+    marginLeft: 8,
+    marginRight: 8,
+    marginTop: 10,
+  },
+  routineDetails: {
+    fontSize: 10,
+    paddingTop: 15,
+    paddingLeft: 15,
+  },
+ 
+  detailsContainer: {
+    padding: 2,
+    paddingTop: 10,
+    paddingBottom: 15,
+  },
+  
 });
+
+
