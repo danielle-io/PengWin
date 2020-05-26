@@ -202,16 +202,7 @@ export default class ParentRewards extends Component {
                             </Menu>
                         </View>
 
-                        <View style={styles.routineDetailsPreview}>
-                            <Text style={styles.routineDetails}>
-                                <Icon name="playlist-check" style={styles.routineDetailsIcon} />{" "}
-                                Daily Morning Routine{" "}
-                            </Text>
-                            {/* <Text style={styles.routineDetails}>
-                                <Icon name="star" style={styles.routineDetailsIcon} /> {" "}
-                                1/5 {" "}
-                            </Text> */}
-                        </View>
+                       
                     </MenuProvider>
                 </View>
             );

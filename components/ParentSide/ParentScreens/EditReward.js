@@ -460,9 +460,9 @@ export default class ParentRewards extends Component {
                 />
             );
         }
-        // else {
-        //     return <Icon name="camera-enhance" color="#DADADA" size={100} />;
-        // }
+        else {
+            return <Icon name="camera-enhance" color="#DADADA" size={100} />;
+        }
     };
 
 
@@ -638,7 +638,7 @@ export default class ParentRewards extends Component {
                                         this.navigate('Camera', {prevScreenTitle: 'EditReward' });
                                         this._onNext();
                                     }}> */}
-                                        <Icon name="camera-enhance" color="#DADADA" size={100} />
+                                        {/* <Icon name="camera-enhance" color="#DADADA" size={100} /> */}
                                         {this.returnImage()}
 
                                     </TouchableOpacity>
