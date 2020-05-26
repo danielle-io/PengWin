@@ -1,18 +1,21 @@
 import React, { Component } from 'react';
-import { Button, Dimensions, StyleSheet, ScrollView, View, Text, TouchableOpacity } from 'react-native';
+import { Button, Modal, Dimensions, StyleSheet, ScrollView, View, Text, TouchableOpacity } from 'react-native';
 import { TextField, FilledTextField } from 'react-native-material-textfield';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { Dropdown } from 'react-native-material-dropdown';
 // import YouTube from 'react-native-youtube';
+import Dialog, { DialogContent } from "react-native-popup-dialog";
 import { Video } from "expo-av";
 import { Image } from "react-native";
 import * as ImagePicker from "expo-image-picker";
+import * as Permissions from "expo-permissions";
 import SearchableDropdown from "react-native-searchable-dropdown";
 import { RaisedTextButton } from "react-native-material-buttons";
 
 import Environment from "../../../database/sqlEnv";
 import UserInfo from "../../../state/UserInfo";
 
+import uuid from "uuid";
 
 const { width: WIDTH } = Dimensions.get('window')
 
@@ -46,7 +49,11 @@ export default class ParentRewards extends Component {
             currentActivity: null,
             routineData: null,
             activityData: null,
-            changedRewardFields: []
+            changedRewardFields: [],
+            //needed 
+            pictureModal: false,
+            visible: false,
+            uploading: false
 
 
             //prevScreenTitle: this.props.navigation.state.params.prevScreenTitle,
@@ -124,33 +131,33 @@ export default class ParentRewards extends Component {
     }
 
 
-    getAllActivitiesForRoutine() {
-        // console.log("WE ARE IN GET ALL ACTIVITIES FOR ROUTINE");
-        // console.log(this.state.currentRoutine)
-        var routineId = this.state.currentRoutine.id;
-        // console.log("CURRENT ROUTINE ID");
-        // console.log(routineId);
-        fetch(Environment + "/joinRoutineActivityTableByRoutineId/" + routineId, {
-            headers: {
-                "Cache-Control": "no-cache",
-            },
-        })
-            .then((response) => response.json())
-            .then((responseJson) => {
-                return responseJson;
-            })
-            .then((results) => {
-                this.setState({ allActivities: results });
-                this.setState({ activitiesLoaded: true });
-                this.storeActivites();
-            })
-            .catch((error) => {
-                console.error(error);
-            });
-    }
+    // getAllActivitiesForRoutine() {
+    //     // console.log("WE ARE IN GET ALL ACTIVITIES FOR ROUTINE");
+    //     // console.log(this.state.currentRoutine)
+    //     var routineId = this.state.currentRoutine.id;
+    //     // console.log("CURRENT ROUTINE ID");
+    //     // console.log(routineId);
+    //     fetch(Environment + "/joinRoutineActivityTableByRoutineId/" + routineId, {
+    //         headers: {
+    //             "Cache-Control": "no-cache",
+    //         },
+    //     })
+    //         .then((response) => response.json())
+    //         .then((responseJson) => {
+    //             return responseJson;
+    //         })
+    //         .then((results) => {
+    //             this.setState({ allActivities: results });
+    //             this.setState({ activitiesLoaded: true });
+    //             this.storeActivites();
+    //         })
+    //         .catch((error) => {
+    //             console.error(error);
+    //         });
+    // }
 
 
-    //Get the routines data from teh db
+    // //Get the routines data from teh db
     getRoutines() {
         // fetch(Environment + '/routines/', {
         // console.log(this.state.userId);
@@ -168,11 +175,11 @@ export default class ParentRewards extends Component {
                 // console.log("WHAT ARE ALL THE ROUTINESSSSS")
                 // console.log(this.state.allRoutines);
                 this.setState({ routinesLoaded: true });
-                this.storeRoutines();
+                // this.storeRoutines();
                 // this.storeRoutines();
             })
             .catch((error) => {
-                // console.log("AH");
+                // console.log("AH");   
                 console.error(error);
             });
     }
@@ -204,28 +211,28 @@ export default class ParentRewards extends Component {
     }
 
     //come back
-    storeRoutines() {
-        var temprArray = [];
-        // console.log("AY");
-        // console.log(this.state.allRoutines);
-        this.state.allRoutines["routines"].map(item =>
-            temprArray.push({ id: item.routine_id, name: item.routine_name })
-        )
-        this.setState({ routineData: temprArray });
-        // console.log("HEYO in store routines");
-        // console.log(this.state.routineData);
+    // storeRoutines() {
+    //     var temprArray = [];
+    //     // console.log("AY");
+    //     // console.log(this.state.allRoutines);
+    //     this.state.allRoutines["routines"].map(item =>
+    //         temprArray.push({ id: item.routine_id, name: item.routine_name })
+    //     )
+    //     this.setState({ routineData: temprArray });
+    //     // console.log("HEYO in store routines");
+    //     // console.log(this.state.routineData);
 
-    }
+    // }
 
-    storeActivites() {
-        // console.log("WE ARE IN  store activities");
+    // storeActivites() {
+    //     // console.log("WE ARE IN  store activities");
 
-        var tempArray = [];
-        this.state.allActivities.map(item =>
-            tempArray.push({ id: item.activity_id, name: item.activity_name })
-        )
-        this.setState({ activityData: tempArray });
-    }
+    //     var tempArray = [];
+    //     this.state.allActivities.map(item =>
+    //         tempArray.push({ id: item.activity_id, name: item.activity_name })
+    //     )
+    //     this.setState({ activityData: tempArray });
+    // }
 
     pushToChangedRewardsFields(tag, value) {
         Object.keys(this.state.changedRewardFields).map(function (keyName, keyIndex) {
@@ -276,36 +283,36 @@ export default class ParentRewards extends Component {
         return (
             <View style={styles.drop}>
                 <ScrollView keyboardShouldPersistTaps="handled">
-                <SearchableDropdown
-                    onItemSelect={(item) => {
-                        if (currentList === "activity") {
-                            this.setState({ currentActivity: item });
-                        }
-                        else {     
-                            this.setState({ currentRoutine: item });
-                        }
-                    }}
-                    containerStyle={{ padding: 5 }}
-                    itemStyle={styles.dropDownItem}
-                    itemTextStyle={{ color: "#222" }}
-                    itemsContainerStyle={{ maxHeight: 140 }}
-                    items={displayItems}
-                    resetValue={false}
-                    textInputProps={{
-                        placeholder: placeholder,
-                        underlineColorAndroid: "transparent",
-                        style: {
-                            padding: 12,
-                            borderWidth: 1,
-                            borderColor: "#ccc",
-                            borderRadius: 5,
-                        },
-                    }}
-                    // value={this.state.currentlySelectedActivity}
-                    listProps={{
-                        nestedScrollEnabled: true,
-                    }}
-                />             
+                    <SearchableDropdown
+                        onItemSelect={(item) => {
+                            if (currentList === "activity") {
+                                this.setState({ currentActivity: item });
+                            }
+                            else {
+                                this.setState({ currentRoutine: item });
+                            }
+                        }}
+                        containerStyle={{ padding: 5 }}
+                        itemStyle={styles.dropDownItem}
+                        itemTextStyle={{ color: "#222" }}
+                        itemsContainerStyle={{ maxHeight: 140 }}
+                        items={displayItems}
+                        resetValue={false}
+                        textInputProps={{
+                            placeholder: placeholder,
+                            underlineColorAndroid: "transparent",
+                            style: {
+                                padding: 12,
+                                borderWidth: 1,
+                                borderColor: "#ccc",
+                                borderRadius: 5,
+                            },
+                        }}
+                        // value={this.state.currentlySelectedActivity}
+                        listProps={{
+                            nestedScrollEnabled: true,
+                        }}
+                    />
                 </ScrollView>
             </View>
         )
@@ -318,6 +325,7 @@ export default class ParentRewards extends Component {
 
     //from EditActivity
     _handleButtonPress = async () => {
+        console.log("Button is pressed!");
         let pickerResult = await ImagePicker.launchImageLibraryAsync({
             allowsEditing: true,
             aspect: [4, 3],
@@ -332,9 +340,117 @@ export default class ParentRewards extends Component {
         });
 
         this.setState({ video: vid });
-        
-    };
 
+    };
+    //Take Photo 
+    takePhoto = async () => {
+        let pickerResult = await ImagePicker.launchCameraAsync({
+          allowsEditing: true,
+          aspect: [4, 3],
+        });
+        
+        this.setState({ photos: pickerResult });
+        // this._handleImagePicked(pickerResult);
+      };
+    
+      _handleImagePicked = async (pickerResult) => {
+        try {
+          this.setState({ uploading: true });
+    
+          if (!pickerResult.cancelled) {
+            var uploadUrl = await this.uploadImageAsync(pickerResult.uri);
+            this.setState({ rewardImage: uploadUrl });
+            this.submitToGoogle();
+          }
+        } catch (e) {
+          console.log(e);
+          alert("Upload failed, sorry :(");
+        } finally {
+          this.setState({ uploading: false });
+        }
+      };
+    
+      async uploadImageAsync(uri) {
+        const blob = await new Promise((resolve, reject) => {
+          const xhr = new XMLHttpRequest();
+          xhr.onload = function() {
+            resolve(xhr.response);
+          };
+          xhr.onerror = function(e) {
+            console.log(e);
+            reject(new TypeError("Network request failed"));
+          };
+          xhr.responseType = "blob";
+          xhr.open("GET", uri, true);
+          xhr.send(null);
+        });
+    
+        const ref = firebase
+          .storage()
+          .ref()
+          .child(uuid.v4());
+        const snapshot = await ref.put(blob);
+    
+        blob.close();
+    
+        return await snapshot.ref.getDownloadURL();
+      }
+    
+      submitToGoogle = async () => {
+        try {
+          
+          this.setState({ uploading: true });
+          let { rewardImage } = this.state;
+          let body = JSON.stringify({
+            requests: [
+              {
+                features: [
+                  { type: "LABEL_DETECTION", maxResults: 10 },
+                  { type: "LANDMARK_DETECTION", maxResults: 5 },
+                  { type: "FACE_DETECTION", maxResults: 5 },
+                  { type: "LOGO_DETECTION", maxResults: 5 },
+                  { type: "TEXT_DETECTION", maxResults: 5 },
+                  { type: "DOCUMENT_TEXT_DETECTION", maxResults: 5 },
+                  { type: "SAFE_SEARCH_DETECTION", maxResults: 5 },
+                  { type: "IMAGE_PROPERTIES", maxResults: 5 },
+                  { type: "CROP_HINTS", maxResults: 5 },
+                  { type: "WEB_DETECTION", maxResults: 5 },
+                ],
+                image: {
+                  source: {
+                    imageUri: activityImage,
+                  },
+                },
+              },
+            ],
+          });
+          let response = await fetch(
+            "https://vision.googleapis.com/v1/images:annotate?key=" +
+              irEnv["GOOGLE_CLOUD_VISION_API_KEY"],
+            {
+              headers: {
+                Accept: "application/json",
+                "Content-Type": "application/json",
+              },
+              method: "POST",
+              body: body,
+            }
+          );
+          let responseJson = await response.json();
+          this.setState({
+            googleResponse: responseJson,
+            uploading: false,
+          });
+        } catch (error) {
+          console.log(error);
+        }
+      };
+
+
+
+
+
+    //Choose Photo or video
     returnImage = () => {
         if (this.state.photos) {
             return (
@@ -343,14 +459,15 @@ export default class ParentRewards extends Component {
                     source={{ uri: this.state.photos.uri }}
                 />
             );
-        } else {
-            return <Icon name="camera-enhance" color="#DADADA" size={100} />;
         }
+        // else {
+        //     return <Icon name="camera-enhance" color="#DADADA" size={100} />;
+        // }
     };
 
 
     returnVideo = () => {
-       
+
         if (this.state.video) {
             return (
                 <Video
@@ -368,6 +485,13 @@ export default class ParentRewards extends Component {
             return <Icon name="video" color="#DADADA" size={100} />;
         }
     };
+
+
+
+
+
+
+
 
     fieldRef = React.createRef();
     onSubmit = () => {
@@ -391,17 +515,37 @@ export default class ParentRewards extends Component {
         }
     }
 
+    clickedCameraIcon() {
+        this.setState({ pictureModal: true });
+    }
+
+    cancelCameraIcon() {
+        this.setState({ pictureModal: false });
+    }
+
+    //FIX!
+    // saveCameraIcon() {
+    //     this.setState({ pictureModal: false });
+
+    //     if (this.state.tempRewardDescription !== "") {
+    //         this.setState({ rewardDescription: this.state.tempRewardDescription });
+    //         this.pushToUpdateActivityArray(
+    //             "reward_description",
+    //             this.state.tempRewardDescription
+    //         );
+    //     }
+    // }
 
     render() {
 
         const { navigate } = this.props.navigation
 
         return (
-            
+
             // <ScrollView style={{ backgroundColor: "#FFFCF9", padding: 20 }}>
             <ScrollView keyboardShouldPersistTaps="always">
                 <View>
-                    
+
                     <View style={styles.rewardsContainer}>
                         <View>
 
@@ -423,7 +567,7 @@ export default class ParentRewards extends Component {
                                     );
                                 }}
 
-                            // onChangeText={(text) => this.setState({ currentRoutineName: text })}
+
                             ></TextField>
 
                             <Text style={styles.textFields}>
@@ -445,29 +589,29 @@ export default class ParentRewards extends Component {
                                 }}
                             ></TextField>
 
-                            {this.state.routinesLoaded &&
+                            {/* {this.state.routinesLoaded &&
                                 <View>
                                     <Text style={styles.textFields}>
                                         Select Routine
                                     </Text>
                                     {this.displayForm("routine")}
                                 </View>
-                            }
+                            } */}
 
-                            {this.state.currentRoutine !== null &&
+                            {/* {this.state.currentRoutine !== null &&
                                 <View>
                                     {this.getAllActivitiesForRoutine()}
                                 </View>
-                            }
+                            } */}
 
-                            {this.state.activitiesLoaded &&
+                            {/* {this.state.activitiesLoaded &&
                                 <View>
                                     <Text style={styles.textFields}>
                                         Select Activity
                                 </Text>
                                     {this.displayForm("activites")}
                                 </View>
-                            }
+                            } */}
 
 
                             <View style={styles.editRoutineIconAndTitle}>
@@ -483,36 +627,94 @@ export default class ParentRewards extends Component {
 
                                     <TouchableOpacity
                                         style={styles.camerabutton}
-                                        onPress={this._handleButtonPress}
+                                        // onPress={this._handleButtonPress}
+                                        onPress={() => {
+                                            this.clickedCameraIcon();
+                                        }}
+
+                                        
                                     >
                                         {/* onPress={() => {
                                         this.navigate('Camera', {prevScreenTitle: 'EditReward' });
                                         this._onNext();
                                     }}> */}
+                                        <Icon name="camera-enhance" color="#DADADA" size={100} />
                                         {this.returnImage()}
 
                                     </TouchableOpacity>
+
+
+
+
 
                                 </View>
 
                             </View>
 
-                            {/* <TouchableOpacity
-                            style={styles.buttonStyle}
-                            onPress={() => {
-                                this.navigate('Camera', { prevScreenTitle: 'EditReward' });
-                                this._onNext();
-                            }}>
-                            <Text style={styles.textStyle}>Take A Picture!</Text>
-                        </TouchableOpacity> */}
+                            <Dialog
+                                style={styles.bottomModal}
+                                hasOverlay={true}
+                                overlayOpacity={0.1}
+                                visible={this.state.pictureModal}
+                                onTouchOutside={() => {
+                                    this.cancelCameraIcon();
+                                }}
+                            >
+                                {/* <View
+                                    style={{
+                                        flexDirection: "row",
+                                        justifyContent: "center",
+                                        marginTop: 10,
+                                    }}
+                                >
+                                    <Text style={styles.titles}>Take image</Text>
+                                    
+                                </View> */}
 
-                            {/* //insert image  */}
 
-                            {/* <Text style = {styles.textFields}>
-                        Video 
-                    </Text> */}
-                            {/* //insert vieo 
-                    */}
+                                <View style={styles.editRoutineIconAndTitle}>
+                                 
+                                    <View style={{
+                                        alignItems: "center",
+                                        flexDirection: "column",
+                                        justifyContent: "center",
+                                        margin: 70,
+
+                                    }}>
+
+                                        {/* <Text style={styles.textFields}> Choose from Library</Text>
+                                        <TouchableOpacity
+                                            // style={styles.camerabutton}
+                                            onPress={this._handleButtonPress}
+                                           
+                                        >
+                                            
+                                            {this.returnImage()}
+
+                                        </TouchableOpacity> */}
+                                        <Button
+                                            title = "Take a Photo"
+                                            onPress={this.takePhoto}
+                                        />
+
+                                        <Button
+                                            title="Choose from Library"
+                                            onPress={this._handleButtonPress}
+                                        />
+
+                                        {this.returnImage()}
+
+                                        
+
+                                        
+
+                                    </View>
+
+                                </View>
+
+                            </Dialog>
+
+
 
                             <View style={styles.editRoutineIconAndTitle}>
                                 < Text style={styles.textFields}>
@@ -535,33 +737,10 @@ export default class ParentRewards extends Component {
 
                             </View>
 
-                            {/* <Button
-                            title="Save"
-                            type="outline"
-                            color='#FF6978'
-                        /> */}
 
 
 
-                            {/* <TouchableOpacity style={styles.button}>
-                            <Icon
-                                name="camera"
-                                color="#FF6978"
-                                size={30}
-                                style={{ marginRight: 10 }}
-                            />
-                            <Text>Image</Text>
-                        </TouchableOpacity> */}
 
-                            {/* <TouchableOpacity style={styles.button}>
-                            <Icon
-                                name="video"
-                                color="#FF6978"
-                                size={30}
-                                style={{ marginRight: 10 }}
-                            />
-                            <Text>Video</Text>
-                        </TouchableOpacity> */}
                         </View>
 
                         <View
@@ -589,8 +768,8 @@ export default class ParentRewards extends Component {
 
                 </View >
 
-            
-             </ScrollView> 
+
+            </ScrollView>
         );
 
 
@@ -601,6 +780,30 @@ export default class ParentRewards extends Component {
 
 
 const styles = StyleSheet.create({
+    tagModal: {
+        margin: 12,
+        backgroundColor: "#f7f7f7",
+        padding: 20,
+        width: "50%",
+        alignItems: "center",
+        shadowColor: "#000",
+        shadowOffset: {
+            width: 1,
+            height: 2,
+        },
+        shadowOpacity: 0.65,
+        shadowRadius: 3.84,
+        elevation: 5,
+    },
+    bottomModal: {
+        fontSize: 30,
+        marginRight: 200,
+        flexDirection: "row",
+        marginTop: 20,
+        borderBottomColor: "#C4C4C4",
+        borderBottomWidth: 1,
+        marginBottom: 30,
+    },
     //From edit routines
     editRoutineIconAndTitle: {
         flexDirection: 'row',

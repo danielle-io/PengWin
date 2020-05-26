@@ -178,7 +178,7 @@ export default class ParentRewards extends Component {
                                                 allActivities: null,
                                                 currentRoutine: null,
                                                 currentActivity: null,
-                                                routineData: null,
+                                                           routineData: null,
                                                 activityData: null,
                                                 rewardId: item.reward_id, 
                                                 rewardName: item.reward_name,
@@ -207,10 +207,10 @@ export default class ParentRewards extends Component {
                                 <Icon name="playlist-check" style={styles.routineDetailsIcon} />{" "}
                                 Daily Morning Routine{" "}
                             </Text>
-                            <Text style={styles.routineDetails}>
+                            {/* <Text style={styles.routineDetails}>
                                 <Icon name="star" style={styles.routineDetailsIcon} /> {" "}
                                 1/5 {" "}
-                            </Text>
+                            </Text> */}
                         </View>
                     </MenuProvider>
                 </View>
