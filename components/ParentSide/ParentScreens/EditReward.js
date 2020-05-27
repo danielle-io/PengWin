@@ -187,12 +187,13 @@ export default class ParentRewards extends Component {
     async updateRewardField(tag, value) {
         // console.log("in fetch tag is and value is " + tag + " ")
         // console.log("updating reward field");
+        console.log("Hi I am here");
         var data = {
             [tag]: value,
         };
         try {
             let response = await fetch(
-                Environment + "/updateReward/" + this.state.rewardId,
+                Environment + "/updateReward" + this.state.rewardId,
                 {
                     method: "POST",
                     headers: {
@@ -204,6 +205,7 @@ export default class ParentRewards extends Component {
             );
             if (response.status >= 200 && response.status < 300) {
                 console.log("SUCCESS");
+                
             }
         } catch (errors) {
             console.log(errors);
@@ -240,22 +242,27 @@ export default class ParentRewards extends Component {
                 return;
             }
         });
-        // console.log("TAG " + tag + " VALUE " + value)
+        console.log("TAG " + tag + " VALUE " + value);
 
         let tempArray = this.state.changedRewardFields;
+        console.log(this.state.changedRewardFields);
         tempArray.push({ [tag]: value });
+        console.log("MADE A REWARDS ARRAY " + tempArray);
         this.setState({ changedRewardFields: tempArray });
-        // console.log("MADE A REWARDS ARRAY " + tempArray);
+        // console.log("Changed reward fields state" + this.state.changedRewardFields);
+        
     }
 
 
     updateExistingRewardChanges() {
         // console.log("CHANGED REWARD FIELDS " + this.state.changedRewardFields);
+        console.log("hello are you there");
         for (const keyValuePair of this.state.changedRewardFields) {
             Object.entries(keyValuePair).map(([key, val]) => {
                 this.updateRewardField(key, val);
             });
         }
+        this.props.navigation.navigate("ParentRewards");
     }
 
 
@@ -501,8 +508,9 @@ export default class ParentRewards extends Component {
 
     _onSubmit = () => {
         // console.log("rewardId " + this.state.rewardId);
-        if (this.state.rewardId) {
+        if (this.state.rewardId != null) {
             // console.log("existing reward edits");
+            console.log("right one");
             this.updateExistingRewardChanges();
             //   this.saveAnyChanges();
             //   var alr = "";

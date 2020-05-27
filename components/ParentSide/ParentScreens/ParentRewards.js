@@ -32,7 +32,7 @@ export default class ParentRewards extends Component {
             allActivitiesDictionary: null,
             //don't know if need this
             reward_name: null,
-            routine_name: null, 
+            routine_name: null,
             // reward1: null,
             // reward2: null,
             // reward3: null,
@@ -47,7 +47,7 @@ export default class ParentRewards extends Component {
     );
 
 
-    
+
 
 
     // fieldRef = React.createRef();
@@ -173,28 +173,27 @@ export default class ParentRewards extends Component {
                                 <MenuOptions>
                                     <MenuOption
                                         onSelect={() =>
-                                            navigate("EditReward", {
-                                                allRoutines: null,
-                                                allActivities: null,
-                                                currentRoutine: null,
-                                                currentActivity: null,
-                                                           routineData: null,
-                                                activityData: null,
-                                                rewardId: item.reward_id, 
+                                            this.props.navigation.navigate("EditReward", {
+                                                // allRoutines: null,
+                                                // allActivities: null,
+                                                // currentRoutine: null,
+                                                // currentActivity: null,
+                                                //            routineData: null,
+                                                // activityData: null,
+                                                prevScreenTitle: "Rewards",
+                                                rewardId: item.reward_id,
                                                 rewardName: item.reward_name,
-                                                rewardImage: null, 
-                                                rewardDescription: item.reward_description
-                                                
+                                                rewardImage: null,
+                                                rewardDescription: item.reward_description,
+                                                deleted: 0
+
                                             })
                                         }
                                     >
                                         <Text style={{ color: "black" }}>Edit</Text>
                                     </MenuOption>
 
-                                    <MenuOption
-                                        onSelect={() => alert("Duplicate")}
-                                        text="Duplicate"
-                                    />
+
                                     <MenuOption onSelect={() => alert("Delete")}>
                                         <Text style={{ color: "red" }}>Delete</Text>
                                     </MenuOption>
@@ -202,7 +201,7 @@ export default class ParentRewards extends Component {
                             </Menu>
                         </View>
 
-                       
+
                     </MenuProvider>
                 </View>
             );
@@ -254,7 +253,7 @@ export default class ParentRewards extends Component {
                                     currentRoutineApproval: 0,
                                     rewardId: null,
                                     rewardName: null,
-                                    rewardDescription: null, 
+                                    rewardDescription: null,
                                     rewardImage: null,
                                     rewardVideo: null,
 

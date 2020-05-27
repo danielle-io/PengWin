@@ -230,6 +230,7 @@ export default class EditRoutine extends Component {
   // Update the DB
   updateRoutineData() {
     // Make sure the activity amount is correct, and if not, update it as well
+    console.log("changes of routine state" + this.state.changedValues);
     if (this.state.routineActivitiesByOrder) {
       this.updateRoutineActivityAmount();
     }
@@ -311,6 +312,7 @@ export default class EditRoutine extends Component {
     let tempArray = this.state.changedValues;
     tempArray.push({ [tag]: value });
     this.setState({ changedValues: tempArray });
+    // console.log("changed routines state" + this.state.changedValues);
   }
 
   trackDateChanges(date, state) {
