@@ -7,20 +7,14 @@ import { Dimensions,
   TouchableOpacity,
   DatePickerIOS,
   ScrollView} from 'react-native';
-// import MobileStepper from "@bit/mui-org.material-ui.mobile-stepper";
-// import * as Font from "expo-font";
 import StepIndicator from 'react-native-step-indicator';
 import Carousel from "react-native-carousel-view";
 import { AppLoading } from "expo";
 import Environment from "../../../database/sqlEnv";
-
-
 import RadioForm, {RadioButton, RadioButtonInput, RadioButtonLabel} from 'react-native-simple-radio-button';
-// import Question1 from './Question1';
-// import Question2 from './Question2';
+
 
 const { width: WIDTH, height: HEIGHT } = Dimensions.get("window");
-// var questions = ["abc","efg","def"]
 
 
 export default class Questionnaire extends Component {
@@ -55,10 +49,10 @@ export default class Questionnaire extends Component {
                 {label: 'Non verbal', value: 4 }
               ],
               "tag":"language_ability"}],
-            // quesComponents:[Question1,Question2],
+          
             questionsLoaded: false,
             prevScreenTitle: this.props.navigation.state.params.prevScreenTitle,
-            selected: false,
+            // selected: false,
             datepicker_visible: false,
             chosenDate: new Date(),
             bdaySelected:false
@@ -67,7 +61,9 @@ export default class Questionnaire extends Component {
     }
 
     setDate(newDate) {
-      this.setState({chosenDate: newDate, selected: true});
+      this.setState({chosenDate: newDate, 
+        //selected: true
+      });
     }
 
     async postPreference(tag, value){
@@ -97,18 +93,6 @@ export default class Questionnaire extends Component {
         prevScreenTitle: 'Back'
     });
 
-    // async componentDidMount() {
-
-    //     this.props.navigation.addListener("didFocus", (payload) => {
-    //         this.getQuestions();
-    //       });
-    //     // this.getQuestions();
-    // }
-
-    // getQuestions() {
-    //     this.setState({questions: ["abc","efg","def"]});
-    //     this.setState({questionsLoaded: true})
-    // }
 
     _onNext = () => {
         // key = key+1
@@ -123,10 +107,11 @@ export default class Questionnaire extends Component {
     }
 
     changeState(choice, item) {
-        console.log("selected is: " + this.state.selected)
-        this.setState({value:choice, selected: true}); 
+        // console.log("selected is: " + this.state.selected)
+        
         this.postPreference(item.tag,choice)
-        console.log("selected is: " + this.state.selected)
+        
+        // console.log("selected iss: " + this.state.selected)
 }
 
 
@@ -159,7 +144,7 @@ export default class Questionnaire extends Component {
                         ? styles.buttonPrimary
                         : styles.buttonSecondary}
                 onPress={() => {
-                                this.setState({bdaySelected:true, selected: false})
+                                this.setState({bdaySelected:true})
                                 // this._onNext();
                                 console.log("type", typeof(this.state.chosenDate)); 
                                 console.log("valueee", String(Number(this.state.chosenDate.getMonth() + 1))
@@ -203,17 +188,15 @@ export default class Questionnaire extends Component {
                             customStyles={customStyles}
                             stepCount= {4}
                             currentPosition={key+1}
-                            // labels={labels}
                         />
-                      {/* <View style= {{marginTop:'15%'}}> */}
+            
                       <View
                       key={key}
                       >
-                      {/* <Question ques={item}/> */}
-                      {/* <Question1/> */}
+       
                       <Text style={styles.pageBodyText}>{item.question}</Text>
                       </View>
-                      {/* </View> */}
+              
     
                       <View style={styles.radioButtons}>
     
@@ -222,11 +205,10 @@ export default class Questionnaire extends Component {
                       initial={-1}
                       buttonColor={'#352D39'}
                       labelStyle={{margin: 8, fontSize: 22, color: '#352D39'}}
-                      // labelWrapStyle ={{lineHeight: 5}}
                       labelColor={'#352D39'}
                       selectedButtonColor={'#352D39'}
                       onPress={(choice) => {this.changeState(choice, item)}}
-                      //it shows the value of previously selected choice. don't know why¯\_(ツ)_/¯
+                  
                       />
                       </View>
                       {/* Continue Button */}
@@ -238,8 +220,8 @@ export default class Questionnaire extends Component {
     
                         onPress={() => { 
                             console.log("valueee", this.state.value); 
-                            console.log("clickkk");
-                            this.setState({selected:false});
+                            // console.log("clickkk");
+                            // this.setState({selected:false});
                             this._onNext();
                             }}
                         >
@@ -263,8 +245,7 @@ export default class Questionnaire extends Component {
       
     
     render () {
-        // this.getQuestions();
-        // if (this.state.questionsLoaded=true) {
+      
           if (this.state.bdaySelected == false) {
             return (
               <View>
@@ -274,7 +255,7 @@ export default class Questionnaire extends Component {
           }
 
             return (
-                console.log("SAWAAL LOAD" + this.state.questions),
+                // console.log("Questions" + this.state.questions),
 
                 <ScrollView style={{backgroundColor:"#FFFCF9"}}>
                 <View >

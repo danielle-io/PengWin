@@ -21,10 +21,6 @@ import Progress from "./ParentSide/ParentScreens/Progress";
 import Notifications from "./ParentSide/ParentScreens/Notifications";
 import RoutineApproval from "./ParentSide/ParentScreens/RoutineApproval";
 
-import Question1 from './ParentSide/Questionnaire/Question1';
-import Question2 from './ParentSide/Questionnaire/Question2';
-import Question3 from './ParentSide/Questionnaire/Question3';
-import Question4 from './ParentSide/Questionnaire/Question4';
 import Questionnaire from './ParentSide/Questionnaire/Main';
 
 import ChildRoutines from "./ChildScreens/ChildNavigation";
@@ -78,10 +74,6 @@ const Screens = createStackNavigator({
 
   // Notifications: {screen: Notifications},
   Questionnaire: {screen:Questionnaire},
-  Question1: {screen:Question1},
-  Question2: {screen:Question2},
-  Question3: {screen:Question3},
-  Question4: {screen:Question4},
   
   Notifications: {screen: Notifications},
   RoutineApproval: {screen: RoutineApproval},
