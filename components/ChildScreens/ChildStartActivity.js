@@ -40,14 +40,12 @@ export default class ChildStartActivity extends Component {
     this.navigate = navigate;
     ChildStartActivity.navigationOptions.headerBackTitle = this.props.navigation.state.params.currentRoutine;
     this.getChild();
-
   }
 
   //Header titles for routines
   static navigationOptions = ({ navigation }) => ({
     title: `${navigation.state.params.currentRoutine}`,
   });
-
 
   renderStars() {
     let star = [];
@@ -83,45 +81,46 @@ export default class ChildStartActivity extends Component {
       });
   }
 
-  async insertChildNotification(){
+  async insertChildNotification() {
     console.log("inserting child notification");
 
     const parentId = UserInfo.parent_id;
     const childId = UserInfo.child_id;
     const userId = UserInfo.user_id;
 
-    
-      var data = {
-        child_id: childId,
-        routine_id: this.state.routineId,
-        parent_id: parentId,
-        is_attempted: 1,
-        is_approved: 0,
-        in_progress: 1,
-        is_evaluated: 0,
-        requires_approval: this.state.requiresApproval,
-        amount_of_activities: this.state.amountOfActivities,
-        reward_id: this.state.rewardId,
-        activities_complete: 0,
-        quick_start_activity_id: 0
-      };
-      let response = await fetch(
-        Environment + "/insertChildRoutineNotifications" ,
-        {
-          method: "POST",
-          headers: {
-            Accept: "application/json",
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(data),
-        }
-      )
+    var data = {
+      child_id: childId,
+      routine_id: this.state.routineId,
+      parent_id: parentId,
+      is_attempted: 1,
+      is_approved: 0,
+      in_progress: 1,
+      is_evaluated: 0,
+      requires_approval: this.state.requiresApproval,
+      amount_of_activities: this.state.amountOfActivities,
+      reward_id: this.state.rewardId,
+      activities_complete: 0,
+      quick_start_activity_id: 0,
+    };
+    let response = await fetch(
+      Environment + "/insertChildRoutineNotifications",
+      {
+        method: "POST",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      }
+    )
       .then((response) => response.json())
       .then((responseJson) => {
         return responseJson;
       })
       .then((results) => {
-        console.log("inserted a notification!!! " + results.child_notifications_id);
+        console.log(
+          "inserted a notification!!! " + results.child_notifications_id
+        );
         this.navigate("ChildActivity", {
           prevScreenTitle: "My Routines",
           currentRoutine: this.state.currentRoutine,
@@ -129,72 +128,42 @@ export default class ChildStartActivity extends Component {
           rewardId: this.state.rewardId,
           requiresApproval: this.state.requiresApproval,
           childNotificationsId: results.insertId,
-          image_path_array: ' ',
+          image_path_array: " ",
         });
       })
       .catch((error) => {
         console.error(error);
       });
-    }
+  }
 
   render() {
-//     return (
-//       <View style={{ alignItems: "center", flex: 1, justifyContent: "center" }}>
-//         <TouchableOpacity
-//           style={styles.buttonStyle}
-//           onPress={() => {
-//             // Create a notification in db
-//             if (this.state.amountOfActivities > 0){
-//               this.insertChildNotification();
-//             }
-
-//             // Leaving this here for testing the badge page, removing later
-//             else{
-//               const { navigate } = this.props.navigation;
-//               this.navigate("ChildActivity", {
-//                 prevScreenTitle: "My Routines",
-//                 currentRoutine: this.state.currentRoutine,
-//                 routineId: this.state.routineId,
-//                 rewardId: this.state.rewardId,
-//                 requiresApproval: this.state.requiresApproval,
-//               });
-//             }
-//           }}
-//         >
-//           <Text style={styles.textStyle}>Start Routine</Text>
-//         </TouchableOpacity>
-//       </View>
-//     );
-//   }
-// }
-
-if (this.state.loaded) {
-  return (
-    <View style={styles.container}>
-      <Text style={styles.title}> Start {this.state.routineName}</Text>
-      <Text style={styles.section}>
-        {" "}
-        Hi, {this.state.child.first_name}! It’s{" "}
-        It’s time to start your {this.state.routineName}! Complete the routine to earn{" "}
-        {this.state.activities} stars and win {this.state.rewards} exciting
-        rewards :){" "}
-      </Text>
-      <View style={styles.image}>{this.renderStars()}</View>
-      <Image source={Wave} style={{ margin: 10, marginLeft: 50 }} />
-      <TouchableOpacity
-        style={styles.buttonStyle}
-        onPress={() => {
-          this.insertChildNotification();
-        }}
-      >
-        <Text style={styles.textStyle}>Start Routine!</Text>
-      </TouchableOpacity>
-    </View>
-  );
-} else {
-  return <AppLoading />;
-}
-}
+    if (this.state.loaded) {
+      return (
+        <View style={styles.container}>
+          <Text style={styles.title}> Start {this.state.routineName}</Text>
+          <Text style={styles.section}>
+            {" "}
+            Hi, {this.state.child.first_name}! It’s It’s time to start your{" "}
+            {this.state.routineName}! Complete the routine to earn{" "}
+            {this.state.activities} stars and win {this.state.rewards} exciting
+            rewards :){" "}
+          </Text>
+          <View style={styles.image}>{this.renderStars()}</View>
+          <Image source={Wave} style={{ margin: 10, marginLeft: 50 }} />
+          <TouchableOpacity
+            style={styles.buttonStyle}
+            onPress={() => {
+              this.insertChildNotification();
+            }}
+          >
+            <Text style={styles.textStyle}>Start Routine!</Text>
+          </TouchableOpacity>
+        </View>
+      );
+    } else {
+      return <AppLoading />;
+    }
+  }
 }
 
 const styles = StyleSheet.create({

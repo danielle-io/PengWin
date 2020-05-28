@@ -1,10 +1,14 @@
 import React, { Component } from "react";
+import {
+  Dimensions,
+} from "react-native";
 import { Text, View, Button, Alert, Image } from 'react-native';
 import SmoothPinCodeInput from 'react-native-smooth-pincode-input';
 import Dialog, { DialogContent } from 'react-native-popup-dialog';
 import Logo from '../assets/images/keypad.png/';
 import { ScrollView } from "react-native-gesture-handler";
 
+const { width: WIDTH } = Dimensions.get("window");
 
 export default class ChildPincode extends Component {
 
@@ -113,7 +117,7 @@ static navigationOptions = ({ navigation }) => ({
                 accessibilityLabel="Yes Button"
               />
 
-<Button
+            <Button
                 onPress={() => {
                   this.setState({ visible1: false });
                 }}
@@ -158,7 +162,7 @@ static navigationOptions = ({ navigation }) => ({
                 <View style={{marginTop: 30}}></View>
                 <Button
                 onPress={() => {
-                  this.props.navigation.navigate('ChildRoutines');
+                  this.props.navigation.navigate('Page1');
                 }}
                 title="Next"
               />  
@@ -184,12 +188,10 @@ const styles =
     alignItems: 'center',
     margin: 16,
   },
- 
   logo:{
     height: 400,
      width: 400,
     alignContent: 'center'
-    
   },
   routineTitle: {
     paddingLeft: 5,

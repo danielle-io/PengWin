@@ -4,7 +4,6 @@ import { createAppContainer } from "react-navigation";
 import { createStackNavigator } from "react-navigation-stack";
 import Login from "./Login";
 import SignUp from "./SignUp";
-import ForgotPassowrd from "./ForgotPassword";
 import Pincode from "./Pincode";
 import HomePage from './HomePage';
 
@@ -20,8 +19,15 @@ import EditActivity from "./ParentSide/ParentScreens/EditActivity";
 import Progress from "./ParentSide/ParentScreens/Progress";
 import Notifications from "./ParentSide/ParentScreens/Notifications";
 import RoutineApproval from "./ParentSide/ParentScreens/RoutineApproval";
+import CheckOffRoutine from "./ParentSide/ParentScreens/CheckOffRoutine";
 
 import Questionnaire from './ParentSide/Questionnaire/Main';
+
+import Start from './ParentSide/Signup/Start';
+import Page1 from './ParentSide/Signup/Page1';
+import Page2 from './ParentSide/Signup/Page2';
+import Page3 from './ParentSide/Signup/Page3';
+import Page4 from './ParentSide/Signup/Page4';
 
 import ChildRoutines from "./ChildScreens/ChildNavigation";
 import ChildActivity from "./ChildScreens/ChildActivity";
@@ -32,51 +38,42 @@ import ChildMap from "./ChildScreens/ChildMap";
 import ChildHurray from "./ChildScreens/ChildHurray";
 import ChildActivityReward from "./ChildScreens/ChildActivityReward";
 import ChildStartActivity from "./ChildScreens/ChildStartActivity";
-
-// import Camera from "../components/ImageRecognition/Camera";
 import ChildCamera from "../components/ImageRecognition/ChildCamera";
-
 import TestingHomePage from "./TestingHomePage";
 
 const Screens = createStackNavigator({
 
-
   TestingHomePage: {screen: TestingHomePage},
-
   ParentNavigation: {screen: ParentNavigation},
   
+ 
+
+  ParentNavigation: {screen: ParentNavigation},
 
   Login: {screen: Login},
   SignUp: {screen: SignUp},
   Pincode: {screen: Pincode},
-  ForgotPassword: {screen: ForgotPassowrd},
-  // Camera: {screen:Camera},
   ChildCamera: {screen: ChildCamera },    
- 
 
   ChildRoutines: { screen: ChildRoutines },
-  ParentNavigation: { screen: ParentNavigation },
-  TestingHomePage: { screen: TestingHomePage },
-
-
-  Login: { screen: Login },
-  SignUp: { screen: SignUp },
-  Pincode: { screen: Pincode },
-  ForgotPassword: { screen: ForgotPassowrd },
-  // Camera: { screen: Camera },
-  ChildCamera: { screen: ChildCamera },
 
   ParentRoutines: { screen: ParentRoutines },
   EditActivity: { screen: EditActivity },
   ParentRewards: { screen: ParentRewards },
   PublicActivities: { screen: PublicActivities },
   ViewPublicActivity: { screen: ViewPublicActivity },
+  CheckOffRoutine: {screen: CheckOffRoutine },    
 
   // Notifications: {screen: Notifications},
   Questionnaire: {screen:Questionnaire},
   
+  Start: {screen:Start},
+  Page1: {screen:Page1},
+  Page2: {screen:Page2},
+  Page3: {screen:Page3},
+  Page4: {screen:Page4},
+
   Notifications: {screen: Notifications},
-  RoutineApproval: {screen: RoutineApproval},
   EditReward: { screen: EditReward },
   ParentProfile: { screen: ParentProfile },
   EditRoutine: { screen: EditRoutine },

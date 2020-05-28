@@ -245,6 +245,7 @@ export default class EditRoutine extends Component {
         });
       }
     }
+    this.props.navigation.navigate("ParentRoutines");
   }
 
   createNewRoutine() {
@@ -334,6 +335,9 @@ export default class EditRoutine extends Component {
       clicked = this.state.addActivityButtonClicked;
       placeholderText = "Select an activity";
       dropdownItems = this.state.filteredActivities;
+      console.log("drop down for routines!");
+      console.log(dropdownItems);
+      // console.log(this.state.filteredActivities);
     } else {
       clicked = this.state.addRewardButtonClicked;
       placeholderText = "Select a reward";
@@ -1210,7 +1214,7 @@ export default class EditRoutine extends Component {
               onPress={() => this._onSubmit()}
               style={{ width: 100 }}
               titleStyle={styles.buttonstyle}
-              title="Submit"
+              title="Save"
               titleColor={"white"}
               color={"#FF6978"}
             />

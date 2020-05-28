@@ -1,5 +1,3 @@
-// TODO: move activitites page and tab over to allActivitiesDictionary
-// rather than allActivities
 import React, { Component } from "react";
 import {
   Button,
@@ -42,7 +40,7 @@ Icon.loadFont();
 export default class ParentRoutines extends Component {
   static navigationOptions = ({ navigation }) => ({
     title: "Routines",
-    prevScreenTitle: "Routines",
+    // prevScreenTitle: "Routines",
     activeTab: 2,
   });
 
@@ -69,6 +67,10 @@ export default class ParentRoutines extends Component {
       selectedContainer: null,
       selectedDeletion: null,
       addTagClicked: false,
+      confirmedAmountOfActivities: false,
+      currentActivitiesAmount: 0,
+      routineRewardAmountDict: {},
+      routineActivityAmountDict: {},
     };
   }
 
@@ -138,6 +140,7 @@ export default class ParentRoutines extends Component {
       })
       .then((routineResults) => {
         this.setState({ routines: routineResults });
+        // this.checkAmounts(routineResults);
         this.setState({ routinesLoaded: true });
       })
       .catch((error) => {
@@ -156,7 +159,7 @@ export default class ParentRoutines extends Component {
         return responseJson;
       })
       .then((containerRoutineResults) => {
-        if (containerRoutineResults){
+        if (containerRoutineResults) {
           this.storeContainerRoutineInfo(containerRoutineResults);
         }
         this.displayRoutines();
@@ -303,12 +306,14 @@ export default class ParentRoutines extends Component {
       var containerId = containerRoutineResults[i].container_id;
       var contRoutineId = containerRoutineResults[i].container_routine_id;
 
-      tempContainerRoutineDict[containerRoutineResults[i].routine_id] = {
-        color: this.state.containerDict[containerId].color,
-        name: this.state.containerDict[containerId].name,
-        containerId: containerId,
-        containerRoutineId: contRoutineId,
-      };
+      if (this.state.containerDict) {
+        tempContainerRoutineDict[containerRoutineResults[i].routine_id] = {
+          color: this.state.containerDict[containerId].color,
+          name: this.state.containerDict[containerId].name,
+          containerId: containerId,
+          containerRoutineId: contRoutineId,
+        };
+      }
     }
     this.setState({ containerRoutineDict: tempContainerRoutineDict });
     this.setState({ containersLoaded: true });
@@ -327,9 +332,7 @@ export default class ParentRoutines extends Component {
 
     if (this.state.containerRoutineDict !== null) {
       if (this.state.selectedDeletion) {
-        console.log("deletion");
         this.updateContainer(this.state.selectedDeletion, "deleted", 1);
-
         return Object.keys(this.state.containerRoutineDict).map((item) => {
           if (
             this.state.containerRoutineDict[item].containerId ===
@@ -382,16 +385,16 @@ export default class ParentRoutines extends Component {
         }
         console.log("LENGTH IS " + Object.keys(activities).length);
         if (activities.length !== amountOfActivities) {
-          this.updateRoutine(
+          this.updateRoutineWithoutReload(
             routineId,
             "amount_of_activities",
             activities.length
           );
           console.log("returning activities.length " + activities.length);
-          return activities.length;
+          this.state.routineActivityAmountDict[routineId] = activities.length;
         } else {
           console.log("returning amount of activities " + amountOfActivities);
-          return amountOfActivities;
+          this.state.routineActivityAmountDict[routineId] = amountOfActivities;
         }
       })
       .catch((error) => {
@@ -399,9 +402,66 @@ export default class ParentRoutines extends Component {
       });
   }
 
-  // Having issues with this. might move to on login.
-  confirmAmountOfActivities(routineId, amountOfActivities) {
-    return this.checkActivityAmount(routineId, amountOfActivities);
+  checkAmounts(routines) {
+    routines.routines.map((item) => {
+      this.getRewardAmount(
+        item.routine_id,
+        item.amount_of_rewards,
+        item.reward_id
+      );
+      this.checkActivityAmount(item.routine_id, item.amount_of_activities);
+    });
+  }
+
+  getRewardAmount(routineId, rewardAmount, rewardId) {
+    console.log("check reward amount");
+    fetch(Environment + "/joinRoutineActivityTableByRoutineId/" + routineId)
+      .then((response) => response.json())
+      .then((responseJson) => {
+        return responseJson;
+      })
+      .then((activities) => {
+        this.compareRewardAmount(routineId, rewardAmount, rewardId, activities);
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+  }
+
+  compareRewardAmount(routineId, rewardAmount, rewardId, activities) {
+    var rewardCount = 0;
+    for (var i = 0; i < activities.length; i++) {
+      console.log(activities[i].reward_image);
+      console.log(activities[i].reward_video);
+      console.log(activities[i].reward_description);
+
+      if (
+        activities[i].reward_image ||
+        activities[i].reward_video ||
+        activities[i].reward_description
+      ) {
+        rewardCount += 1;
+      }
+    }
+    if (rewardId) {
+      rewardCount += 1;
+    }
+    if (rewardCount !== rewardAmount) {
+      this.updateRoutineWithoutReload(
+        routineId,
+        "amount_of_rewards",
+        rewardCount
+      );
+      this.state.routineRewardAmountDict[routineId] = rewardCount;
+    } else {
+      this.state.routineRewardAmountDict[routineId] = rewardAmount;
+    }
+    if (
+      Object.keys(this.state.routineRewardAmountDict).length ===
+      this.state.routines.routines.length
+    ) {
+      this.setState({ routinesLoaded: true });
+    }
   }
 
   updateRoutine(routineId, tag, value) {
@@ -432,6 +492,29 @@ export default class ParentRoutines extends Component {
     }
   }
 
+  updateRoutineWithoutReload(routineId, tag, value) {
+    var data = {
+      [tag]: value,
+    };
+    {
+      let response = fetch(Environment + "/updateRoutine/" + routineId, {
+        method: "POST",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      })
+        .then((response) => response.json())
+        .then((responseJson) => {
+          return responseJson;
+        })
+        .then((routineResults) => {
+          console.log(routineResults);
+        });
+    }
+  }
+
   async updateActivityRelationship(routine_activity_id, tag, value) {
     var data = {
       [tag]: value,
@@ -454,19 +537,6 @@ export default class ParentRoutines extends Component {
     }
   }
 
-  // TODO: get each activity, sum the reward_id != null
-  getTotalRewardsInRoutine(routineId) {
-    fetch(Environment + "/getActivitiesWithRewardsPerRoutine/" + routineId)
-      .then((response) => response.json())
-      .then((responseJson) => {
-        return responseJson;
-      })
-      .then((rewards) => {})
-      .catch((error) => {
-        console.error(error);
-      });
-  }
-
   getAllRewardsForUser() {
     fetch(Environment + "/getAllRewards/" + userId, {
       headers: {
@@ -483,6 +553,7 @@ export default class ParentRoutines extends Component {
       .catch((error) => {
         console.error(error);
       });
+     
   }
 
   updateActivity(tag, value, activityId) {
@@ -817,7 +888,7 @@ export default class ParentRoutines extends Component {
           style={styles.roundAddButton}
           title="+"
           titleColor="white"
-          titleStyle={{fontSize: 18}}
+          titleStyle={{ fontSize: 18 }}
           color="#FF6978"
           onPress={
             (this._onPress,
@@ -843,7 +914,7 @@ export default class ParentRoutines extends Component {
           style={styles.roundAddButton}
           title="+"
           titleColor="white"
-          titleStyle={{fontSize: 18}}
+          titleStyle={{ fontSize: 18 }}
           color="#FF6978"
           onPress={
             (this._onPress,
@@ -881,7 +952,7 @@ export default class ParentRoutines extends Component {
         <RaisedTextButton
           style={styles.roundAddButton}
           title="+"
-          titleStyle={{fontSize: 18}}
+          titleStyle={{ fontSize: 18 }}
           titleColor="white"
           color="#FF6978"
           onPress={
@@ -1004,7 +1075,6 @@ export default class ParentRoutines extends Component {
         <View
           style={{
             textAlign: "right",
-            flexDirection: "row",
             alignSelf: "flex-end",
             alignItems: "flex-end",
             right: 0,
@@ -1057,110 +1127,137 @@ export default class ParentRoutines extends Component {
   displayRoutines() {
     var containerName;
 
-    if (this.state.routines){
-    // parse out the db objects returned from the routines call
-    return this.state.routines.routines.map((item) => {
-      if (item.is_active === 0) {
-        containerName = "inactiveRoutineContainer";
-      } else {
-        containerName = "routineContainer";
-      }
+    if (this.state.routines) {
+      // parse out the db objects returned from the routines call
+      return this.state.routines.routines.map((item) => {
+        if (item.is_active === 0) {
+          containerName = "inactiveRoutineContainer";
+        } else {
+          containerName = "routineContainer";
+        }
 
-      return (
-        <View
-          onStartShouldSetResponder={() => this.setContainer(item.routine_id)}
-          style={styles[containerName]}
-        >
-          <MenuProvider>
-            <View style={styles.routineTitleAndMenu}>
-              <Text style={styles.routineTitle}> {item.routine_name}</Text>
-              <Menu style={styles.routineMenuStyling}>
-                <MenuTrigger style={styles.ellipsis} text="..." />
-                <MenuOptions>
-                  <MenuOption
-                    onSelect={() =>
-                      this.props.navigation.navigate("EditRoutine", {
-                        prevScreenTitle: "Routines",
-                        routineName: item.routine_name,
-                        routineId: item.routine_id,
-                        startTime: item.start_time,
-                        endTime: item.end_time,
-                        requiresApproval: item.requires_approval,
-                        monday: item.monday,
-                        tuesday: item.tuesday,
-                        wednesday: item.wednesday,
-                        thursday: item.thursday,
-                        friday: item.friday,
-                        saturday: item.saturday,
-                        sunday: item.sunday,
-                        amount_of_activities: item.amount_of_activities,
-                        amount_of_rewards: item.amount_of_rewards,
-                        allActivities: this.state.allActivities,
-                        rewardId: item.reward_id,
-                        allRewardsByIdDictionary: this.state
-                          .allRewardsByIdDictionary,
-                        allActivitiesDictionary: this.state
-                          .allActivitiesDictionary,
-                      })
-                    }
-                  >
-                    <Text style={{ color: "black" }}>Edit</Text>
-                  </MenuOption>
-                  <MenuOption
-                    onSelect={() =>
-                      this.changeActiveStatus(
-                        item.routine_id,
-                        "is_active",
-                        item.is_active
-                      )
-                    }
-                    text={this.setActiveText(item.is_active, item.routine_id)}
-                  />
-                  <MenuOption
-                    onSelect={() => this.duplicateRoutine(item)}
-                    text="Duplicate"
-                  />
-                  <MenuOption
-                    onSelect={() => alert("QuickStart")}
-                    text="Quick Start"
-                  />
+        console.log(
+          "this.state.routineRewardAmountDict[item.routine_id] " +
+            this.state.routineRewardAmountDict[item.routine_id]
+        );
+        return (
+          <View
+            onStartShouldSetResponder={() => this.setContainer(item.routine_id)}
+            style={styles[containerName]}
+          >
+            <MenuProvider>
+              <View style={styles.routineTitleAndMenu}>
+                <Text style={styles.routineTitle}> {item.routine_name}</Text>
+                <Menu style={styles.routineMenuStyling}>
+                  <MenuTrigger style={styles.ellipsis} text="..." />
+                  <MenuOptions>
+                    <MenuOption
+                      onSelect={() =>
+                        this.props.navigation.navigate("EditRoutine", {
+                          prevScreenTitle: "Routines",
+                          routineName: item.routine_name,
+                          routineId: item.routine_id,
+                          startTime: item.start_time,
+                          endTime: item.end_time,
+                          requiresApproval: item.requires_approval,
+                          monday: item.monday,
+                          tuesday: item.tuesday,
+                          wednesday: item.wednesday,
+                          thursday: item.thursday,
+                          friday: item.friday,
+                          saturday: item.saturday,
+                          sunday: item.sunday,
+                          amount_of_activities: item.amount_of_activities,
+                          amount_of_rewards: item.amount_of_rewards,
+                          allActivities: this.state.allActivities,
+                          rewardId: item.reward_id,
+                          allRewardsByIdDictionary: this.state
+                            .allRewardsByIdDictionary,
+                          allActivitiesDictionary: this.state
+                            .allActivitiesDictionary,
+                        })
+                      }
+                    >
+                      <Text style={{ color: "black" }}>Edit</Text>
+                    </MenuOption>
+                    <MenuOption
+                      onSelect={() =>
+                        this.changeActiveStatus(
+                          item.routine_id,
+                          "is_active",
+                          item.is_active
+                        )
+                      }
+                      text={this.setActiveText(item.is_active, item.routine_id)}
+                    />
+                    <MenuOption
+                      onSelect={() => this.duplicateRoutine(item)}
+                      text="Duplicate"
+                    />
+                    <MenuOption
+                      onSelect={() => alert("QuickStart")}
+                      text="Quick Start"
+                    />
 
-                  <MenuOption
-                    onSelect={() => this.itemDeletionModal(item, "routine")}
-                  >
-                    <Text style={{ color: "red" }}>Delete</Text>
-                  </MenuOption>
-                </MenuOptions>
-              </Menu>
-            </View>
-
-            <View style={styles.routineDetailsPreview}>
-              <View style={{ float: "left" }}>
-                <Text style={styles.routineDetails}>
-                  <Icon
-                    name="playlist-check"
-                    style={styles.routineDetailsIcon}
-                  />
-                  {/* TODO: move the routines activity amount check somewhere else */}
-                  {/* {console.log("ITS " + this.confirmAmountOfActivities(item.routine_id, item.amount_of_activities))} */}
-                  {/* Activities:{" "}{this.confirmAmountOfActivities(item.routine_id, item.amount_of_activities)}{" "} */}
-                  Activities: {item.amount_of_activities}{" "}
-                </Text>
-                <Text style={styles.routineDetails}>
-                  <Icon name="gift" style={styles.routineDetailsIcon} />{" "}
-                  Rewards: {item.amount_of_rewards}{" "}
-                </Text>
+                    <MenuOption
+                      onSelect={() => this.itemDeletionModal(item, "routine")}
+                    >
+                      <Text style={{ color: "red" }}>Delete</Text>
+                    </MenuOption>
+                  </MenuOptions>
+                </Menu>
               </View>
-              <View style={{marginTop: 12}}>{this.getRoutineTags(item)}</View>
 
-            </View>
+              <View style={styles.routineDetailsPreview}>
+                {/* <View style={{ float: "left" }}> */}
 
-          </MenuProvider>
-        </View>
-      );
-    });
+                <View style={{ flexDirection: "row" }}>
+                  <Text style={styles.routineDetails}>
+                    <Icon
+                      name="playlist-check"
+                      style={styles.routineDetailsIcon}
+                    />
+                  </Text>
+
+                  <Text style={{ marginLeft: 5 }}>
+                    Activities: {item.amount_of_activities}{" "}
+                  </Text>
+                </View>
+
+                <View
+                  style={{
+                    flexDirection: "row",
+                    justifyContent: "space-between",
+                  }}
+                >
+                  <View style={{ flexDirection: "row" }}>
+                    <Text style={{ marginLeft: 5 }}>
+                      <Icon name="gift" style={styles.routineDetailsIcon} />
+                    </Text>
+
+                    <Text style={{ marginLeft: 5 }}>
+                      Rewards: {item.amount_of_rewards}
+                    </Text>
+                  </View>
+
+                  <View
+                    style={{
+                      marginRight: 5,
+                      textAlign: "right",
+                      alignItems: "flex-end",
+                      justifyContent: "flex-end",
+                    }}
+                  >
+                    {this.getRoutineTags(item)}
+                  </View>
+                </View>
+              </View>
+            </MenuProvider>
+          </View>
+        );
+      });
+    }
   }
-}
 
   selectedColor(value) {
     this.setState({ selectedColor: value });
@@ -1218,7 +1315,7 @@ export default class ParentRoutines extends Component {
             this.state.routinesLoaded &&
             this.state.containersLoaded && (
               <View>
-                <View style={{ flexDirection: "row", marginTop: 6}}>
+                <View style={{ flexDirection: "row", marginTop: 6 }}>
                   {!this.state.addTagModal && (
                     <TouchableOpacity
                       onPress={() => {
@@ -1294,6 +1391,17 @@ export default class ParentRoutines extends Component {
                         this.setState({ newContainerName: text })
                       }
                     />
+                    {/* <View style={styles.textFields}> */}
+                      <TextField
+                        placeholder="Tag Name"
+                        // value={this.state.newContainerName}
+                        style={styles.textFields}
+                        // textInputStyle={{ flex: 1 }}
+                        onChangeText={(text) =>
+                          this.setState({ newContainerName: text })
+                        }
+                      />
+                    {/* </View> */}
 
                     <Dropdown
                       containerStyle={{
@@ -1407,12 +1515,12 @@ export default class ParentRoutines extends Component {
               onPress={() => {
                 this.deleteItem();
               }}
-              style={{ 
+              style={{
                 minWidth: 50,
                 width: 100,
                 borderRadius: 20,
                 borderWidth: 1,
-                borderColor: "#FF6978"
+                borderColor: "#FF6978",
               }}
               title="Yes, Delete it"
               color="red"
@@ -1534,6 +1642,7 @@ const styles = StyleSheet.create({
     alignSelf: "flex-end",
     fontSize: 30,
     marginRight: 10,
+    marginLeft: 4,
     overflow: "visible",
   },
   routineTitle: {
@@ -1571,13 +1680,7 @@ const styles = StyleSheet.create({
     marginLeft: 8,
     marginTop: 8,
   },
-  routineDetails: {
-    marginLeft: 4,
-    fontSize: 16,
-    zIndex: 2,
-  },
   routineDetailsPreview: {
-    flexDirection: "row",
     zIndex: 2,
     marginBottom: 10,
     marginLeft: 5,
@@ -1602,6 +1705,13 @@ const styles = StyleSheet.create({
     borderWidth: 0,
     paddingTop: 10,
     overflow: "visible",
+  },
+
+  colorDot: {
+    height: 25,
+    width: 25,
+    backgroundColor: "#bbb",
+    borderRadius: 0.5,
   },
 
   saveButton: {
@@ -1662,6 +1772,12 @@ const styles = StyleSheet.create({
     marginLeft: 30,
 
     // margin: 0,
+  },
+  textFields: {
+    padding: 2,
+    margin: 2,
+    marginLeft: 10,
+    width: "30%",
   },
   tagsContainer: {
     marginTop: 0,
@@ -1748,19 +1864,17 @@ const styles = StyleSheet.create({
     color: "#FF6978",
     fontSize: 16,
     marginTop: 12,
+    marginLeft: 7,
+    marginRight: 7,
   },
   routineDetails: {
+    marginLeft: 6,
+    marginTop: 4,
+    marginBottom: 4,
     fontSize: 16,
     zIndex: 2,
-    marginTop: 12,
-    marginLeft: 5,
-  },
-  routineDetailsPreview: {
     flexDirection: "row",
-    justifyContent: "space-between",
-    zIndex: 2,
-    marginBottom: 10,
-    marginLeft: 5,
+    alignItems: "flex-start",
   },
   greenTag: {
     fontSize: 8,
@@ -1769,12 +1883,13 @@ const styles = StyleSheet.create({
     width: 100,
     borderRadius: 20,
     backgroundColor: "#8dd993",
-    borderWidth: 1,
+
+    // borderWidth: 1,
     alignItems: "center",
     flexDirection: "row",
     justifyContent: "center",
     marginRight: 6,
-    // opacity: 0.5,
+    opacity: 0.8,
   },
   blueTag: {
     color: "white",

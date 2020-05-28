@@ -1,15 +1,17 @@
 import React, { Component } from "react";
-import { Text, View, TouchableOpacity, Image } from "react-native";
+import { Text, View, TouchableOpacity, Image, Dimensions } from "react-native";
 
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
-Icon.loadFont();
-
 import Star from "../../assets/images/Star.png";
 import Wave from "../../assets/images/wave.gif";
 
 import Environment from "../../database/sqlEnv";
 import UserInfo from "../../state/UserInfo";
 import { AppLoading } from "expo";
+
+Icon.loadFont();
+const { width: WIDTH, height: HEIGHT } = Dimensions.get("window");
+
 
 export default class ChildNotifScreen extends Component {
   //Header titles for routine notif
@@ -40,7 +42,11 @@ export default class ChildNotifScreen extends Component {
       routineTime: this.props.navigation.state.params.routineTime,
       routineName: this.props.navigation.state.params.routineName,
       activities: this.props.navigation.state.params.activities,
+      rewardId: this.props.navigation.state.params.rewardId,
       rewards: this.props.navigation.state.params.rewards,
+      amountOfActivities: this.props.navigation.state.params.amountOfActivities,
+      requiresApproval: this.props.navigation.state.params.requiresApproval,
+
     };
 
     this.getChild();
@@ -92,6 +98,7 @@ export default class ChildNotifScreen extends Component {
           requiresApproval: this.state.requiresApproval,
           childNotificationsId: results.insertId,
           image_path_array: ' ',
+          rewards: this.state.rewards,
         });
       })
       .catch((error) => {
@@ -158,7 +165,7 @@ export default class ChildNotifScreen extends Component {
           <TouchableOpacity
             style={styles.buttonStyle}
             onPress={() => {
-              this.insertChildNotification();
+                this.insertChildNotification();
             }}
           >
             <Text style={styles.textStyle}>Start Routine!</Text>
