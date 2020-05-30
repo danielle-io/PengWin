@@ -183,7 +183,8 @@ export default class ParentRewards extends Component {
                                                 prevScreenTitle: "Rewards",
                                                 rewardId: item.reward_id,
                                                 rewardName: item.reward_name,
-                                                rewardImage: null,
+                                                rewardImage: item.reward_image,
+                                                rewardVideo: item.reward_video,
                                                 rewardDescription: item.reward_description,
                                                 deleted: 0
 

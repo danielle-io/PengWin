@@ -17,6 +17,8 @@ import UserInfo from "../../../state/UserInfo";
 
 import uuid from "uuid";
 
+import firebase from "../../../database/irDb";
+
 const { width: WIDTH } = Dimensions.get('window')
 
 export default class ParentRewards extends Component {
@@ -53,7 +55,9 @@ export default class ParentRewards extends Component {
             //needed 
             pictureModal: false,
             visible: false,
-            uploading: false
+            uploading: false,
+            googleResponse: null
+
 
 
             //prevScreenTitle: this.props.navigation.state.params.prevScreenTitle,
@@ -100,6 +104,8 @@ export default class ParentRewards extends Component {
             reward_image: this.state.rewardImage,
             reward_video: this.state.rewardVideo,
             user_id: userId,
+            reward_image: this.state.rewardImage,
+            reward_video: this.state.rewardVideo,
             deleted: 0,
         };
         let response = fetch(
@@ -205,7 +211,7 @@ export default class ParentRewards extends Component {
             );
             if (response.status >= 200 && response.status < 300) {
                 console.log("SUCCESS");
-                
+
             }
         } catch (errors) {
             console.log(errors);
@@ -250,7 +256,7 @@ export default class ParentRewards extends Component {
         console.log("MADE A REWARDS ARRAY " + tempArray);
         this.setState({ changedRewardFields: tempArray });
         // console.log("Changed reward fields state" + this.state.changedRewardFields);
-        
+
     }
 
 
@@ -349,116 +355,133 @@ export default class ParentRewards extends Component {
         this.setState({ video: vid });
 
     };
-    //Take Photo 
+    // Take Photo 
     takePhoto = async () => {
         let pickerResult = await ImagePicker.launchCameraAsync({
-          allowsEditing: true,
-          aspect: [4, 3],
+            allowsEditing: true,
+            aspect: [4, 3],
         });
-        
+
         this.setState({ photos: pickerResult });
-        // this._handleImagePicked(pickerResult);
-      };
+        this._handleImagePicked(pickerResult);
+    };
+
+
+    //new
+
+    // imagePicker = async (imageName) => {
+    //     console.log("in image picker");
+    //     let pickerResult = await ImagePicker.launchImageLibraryAsync({
+    //         allowsEditing: true,
+    //         aspect: [4, 3],
+    //     });
+    //     if (pickerResult) {
+    //         console.log("picker result is here " + pickerResult);
+    //         this._handleImagePicked(pickerResult, imageName);
+    //         // this.setState({ activityImagePath: pickerResult });
+    //     }
+    // };
     
-      _handleImagePicked = async (pickerResult) => {
+    _handleImagePicked = async (pickerResult) => {
         try {
-          this.setState({ uploading: true });
-    
-          if (!pickerResult.cancelled) {
-            var uploadUrl = await this.uploadImageAsync(pickerResult.uri);
-            this.setState({ rewardImage: uploadUrl });
-            this.submitToGoogle();
-          }
-        } catch (e) {
-          console.log(e);
-          alert("Upload failed, sorry :(");
-        } finally {
-          this.setState({ uploading: false });
-        }
-      };
-    
-      async uploadImageAsync(uri) {
-        const blob = await new Promise((resolve, reject) => {
-          const xhr = new XMLHttpRequest();
-          xhr.onload = function() {
-            resolve(xhr.response);
-          };
-          xhr.onerror = function(e) {
-            console.log(e);
-            reject(new TypeError("Network request failed"));
-          };
-          xhr.responseType = "blob";
-          xhr.open("GET", uri, true);
-          xhr.send(null);
-        });
-    
-        const ref = firebase
-          .storage()
-          .ref()
-          .child(uuid.v4());
-        const snapshot = await ref.put(blob);
-    
-        blob.close();
-    
-        return await snapshot.ref.getDownloadURL();
-      }
-    
-      submitToGoogle = async () => {
-        try {
-          
-          this.setState({ uploading: true });
-          let { rewardImage } = this.state;
-          let body = JSON.stringify({
-            requests: [
-              {
-                features: [
-                  { type: "LABEL_DETECTION", maxResults: 10 },
-                  { type: "LANDMARK_DETECTION", maxResults: 5 },
-                  { type: "FACE_DETECTION", maxResults: 5 },
-                  { type: "LOGO_DETECTION", maxResults: 5 },
-                  { type: "TEXT_DETECTION", maxResults: 5 },
-                  { type: "DOCUMENT_TEXT_DETECTION", maxResults: 5 },
-                  { type: "SAFE_SEARCH_DETECTION", maxResults: 5 },
-                  { type: "IMAGE_PROPERTIES", maxResults: 5 },
-                  { type: "CROP_HINTS", maxResults: 5 },
-                  { type: "WEB_DETECTION", maxResults: 5 },
-                ],
-                image: {
-                  source: {
-                    imageUri: activityImage,
-                  },
-                },
-              },
-            ],
-          });
-          let response = await fetch(
-            "https://vision.googleapis.com/v1/images:annotate?key=" +
-              irEnv["GOOGLE_CLOUD_VISION_API_KEY"],
-            {
-              headers: {
-                Accept: "application/json",
-                "Content-Type": "application/json",
-              },
-              method: "POST",
-              body: body,
+            this.setState({ uploading: true });
+
+            if (!pickerResult.cancelled) {
+                var uploadUrl = await this.uploadImageAsync(pickerResult.uri);
+                console.log("Upload URl is " + uploadUrl);
+                this.setState({ rewardImage: uploadUrl });
+                // this.submitToGoogle();
+                
             }
-          );
-          let responseJson = await response.json();
-          this.setState({
-            googleResponse: responseJson,
-            uploading: false,
-          });
-        } catch (error) {
-          console.log(error);
+        } catch (e) {
+            console.log(e);
+            alert("Upload failed, sorry :(");
+        } finally {
+            this.setState({ uploading: false });
         }
-      };
+    };
 
+    async uploadImageAsync(uri) {
+        console.log("uploading reward image");
+        const blob = await new Promise((resolve, reject) => {
+            const xhr = new XMLHttpRequest();
+            xhr.onload = function () {
+                resolve(xhr.response);
+            };
+            xhr.onerror = function (e) {
+                console.log(e);
+                reject(new TypeError("Network request failed"));
+            };
+            xhr.responseType = "blob";
+            xhr.open("GET", uri, true);
+            xhr.send(null);
+        });
 
+        const ref = firebase
+            .storage()
+            .ref()
+            .child(uuid.v4());
+        const snapshot = await ref.put(blob);
 
+        blob.close();
+
+        return await snapshot.ref.getDownloadURL();
+    }
+
+    submitToGoogle = async () => {
+        try {
+
+            this.setState({ uploading: true });
+            let { rewardImage } = this.state;
+            let body = JSON.stringify({
+                requests: [
+                    {
+                        features: [
+                            { type: "LABEL_DETECTION", maxResults: 10 },
+                            { type: "LANDMARK_DETECTION", maxResults: 5 },
+                            { type: "FACE_DETECTION", maxResults: 5 },
+                            { type: "LOGO_DETECTION", maxResults: 5 },
+                            { type: "TEXT_DETECTION", maxResults: 5 },
+                            { type: "DOCUMENT_TEXT_DETECTION", maxResults: 5 },
+                            { type: "SAFE_SEARCH_DETECTION", maxResults: 5 },
+                            { type: "IMAGE_PROPERTIES", maxResults: 5 },
+                            { type: "CROP_HINTS", maxResults: 5 },
+                            { type: "WEB_DETECTION", maxResults: 5 },
+                        ],
+                        image: {
+                            source: {
+                                imageUri: rewardImage,
+                            },
+                        },
+                    },
+                ],
+            });
+            let response = await fetch(
+                "https://vision.googleapis.com/v1/images:annotate?key=" +
+                irEnv["GOOGLE_CLOUD_VISION_API_KEY"],
+                {
+                    headers: {
+                        Accept: "application/json",
+                        "Content-Type": "application/json",
+                    },
+                    method: "POST",
+                    body: body,
+                }
+            );
+            let responseJson = await response.json();
+            this.setState({
+                googleResponse: responseJson,
+                uploading: false,
+            });
+        } catch (error) {
+            console.log(error);
+        }
+    };
 
 
     //Choose Photo or video
     returnImage = () => {
+        let {rewardImage,googleResponse} = this.state;
         if (this.state.photos) {
             return (
                 <Image
@@ -640,7 +663,7 @@ export default class ParentRewards extends Component {
                                             this.clickedCameraIcon();
                                         }}
 
-                                        
+
                                     >
                                         {/* onPress={() => {
                                         this.navigate('Camera', {prevScreenTitle: 'EditReward' });
@@ -681,7 +704,7 @@ export default class ParentRewards extends Component {
 
 
                                 <View style={styles.editRoutineIconAndTitle}>
-                                 
+
                                     <View style={{
                                         alignItems: "center",
                                         flexDirection: "column",
@@ -701,8 +724,9 @@ export default class ParentRewards extends Component {
 
                                         </TouchableOpacity> */}
                                         <Button
-                                            title = "Take a Photo"
+                                            title="Take a Photo"
                                             onPress={this.takePhoto}
+                                            // onPress={this.imagePicker("rewardImage")}
                                         />
 
                                         <Button
@@ -712,9 +736,9 @@ export default class ParentRewards extends Component {
 
                                         {this.returnImage()}
 
-                                        
 
-                                        
+
+
 
                                     </View>
 
