@@ -638,6 +638,26 @@ app.get("/getActivitiesFromRoutine/:routineID", function(req, res) {
   });
 });
 
+// app.get("/getImagePathFromRewards/:rewardId", function(
+//   req,
+//   res
+// ) {
+//   let childNotificationsId = req.params.childNotificationsId;
+//   db.getConnection(function(err, connection) {
+//     connection.query(
+//       "SELECT * FROM rewards where reward_id = ?",
+//       [rewardId],
+//       function(error, results, fields) {
+//         connection.release();
+//         if (error) throw error;
+//         console.log(results);
+//         res.send(results);
+//       }
+//     );
+//   });
+// });
+
+
 app.get("/getAllRewards/:userId", function(req, res) {
   let userId = req.params.userId;
 

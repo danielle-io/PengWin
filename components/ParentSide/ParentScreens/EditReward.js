@@ -56,6 +56,8 @@ export default class ParentRewards extends Component {
             pictureModal: false,
             visible: false,
             uploading: false,
+            googleResponse: null,
+            currentImages: null,
             googleResponse: null
 
 
@@ -84,6 +86,50 @@ export default class ParentRewards extends Component {
         )
     }
 
+
+    //From Camera
+    // concatString() {
+    //     var inputString = "";
+    //     if (this.state.currentImages) {
+    //       inputString = this.state.currentImages + "," + this.state.rewardImage;
+    //     } else {
+    //       console.log("=== empty");
+    //       inputString = this.state.rewardImage;
+    //     }
+    
+    //     this.updateImageArrayInDb(inputString);
+    //   }
+    
+    //   updateImageArrayInDb(inputString) {
+    //     console.log("inputString is :: " + inputString);
+    //     console.log("the reward id is " + this.state.rewardId);
+    
+    //     var data = {
+    //       image_path_array: inputString,
+    //       activities_complete: this.state.key + 1,
+    //     };
+    
+    //     fetch(
+    //       Environment +
+    //         "/updateReward" +
+    //         this.state.rewardId,
+    //       {
+    //         method: "POST",
+    //         headers: {
+    //           Accept: "application/json",
+    //           "Content-Type": "application/json",
+    //         },
+    //         body: JSON.stringify(data),
+    //       }
+    //     )
+    //       .then((response) => response.json())
+    //       .then((responseJson) => {
+    //         return responseJson;
+    //       })
+    //       .catch((error) => {
+    //         console.error(error);
+    //       });
+    //   }
 
     //onsubmit: call createRewards done
     //post call 
@@ -482,11 +528,11 @@ export default class ParentRewards extends Component {
     //Choose Photo or video
     returnImage = () => {
         let {rewardImage,googleResponse} = this.state;
-        if (this.state.photos) {
+        if (this.state.rewardImage) {
             return (
                 <Image
                     style={{ width: 300, height: 200, borderRadius: 15 }}
-                    source={{ uri: this.state.photos.uri }}
+                    source={{ uri: this.state.rewardImage}}
                 />
             );
         }
