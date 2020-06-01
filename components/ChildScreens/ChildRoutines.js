@@ -168,7 +168,7 @@ export default class ChildRoutines extends Component {
     this.state.routines.routines.map((item) => {
       if (item.push_set === 0) {
         let time = item.start_time.split(":");
-        console.log(time);
+        
         let date = new Date();
         date.setHours(time[0]);
         date.setMinutes(time[1]);
@@ -212,7 +212,7 @@ export default class ChildRoutines extends Component {
           <View
             style={({ flex: 1 }, styles.routines)}
             onStartShouldSetResponder={() =>
-              this.props.navigation.navigate("ChildStartActivity", {
+              this.props.navigation.navigate("ChildActivity", {
                 prevScreenTitle: "My Routines",
                 currentRoutine: item.routine_name,
                 routineId: item.routine_id,
