@@ -62,18 +62,11 @@ export default class ParentRewards extends Component {
 
 
 
-            //prevScreenTitle: this.props.navigation.state.params.prevScreenTitle,
+            
         };
     }
 
-    // //from ChildActivity
-    // //Header titles for routines
-    // static navigationOptions = ({ navigation }) => ({
-    //     title: `${navigation.state.params.currentReward}`,
-    // });
-    // _onNext = () => {
-    //     this.child._animateNextPage(); // do stuff
-    // };
+    
 
     componentDidMount() {
         console.log('running component did mount for rewards');
@@ -87,53 +80,7 @@ export default class ParentRewards extends Component {
     }
 
 
-    //From Camera
-    // concatString() {
-    //     var inputString = "";
-    //     if (this.state.currentImages) {
-    //       inputString = this.state.currentImages + "," + this.state.rewardImage;
-    //     } else {
-    //       console.log("=== empty");
-    //       inputString = this.state.rewardImage;
-    //     }
-    
-    //     this.updateImageArrayInDb(inputString);
-    //   }
-    
-    //   updateImageArrayInDb(inputString) {
-    //     console.log("inputString is :: " + inputString);
-    //     console.log("the reward id is " + this.state.rewardId);
-    
-    //     var data = {
-    //       image_path_array: inputString,
-    //       activities_complete: this.state.key + 1,
-    //     };
-    
-    //     fetch(
-    //       Environment +
-    //         "/updateReward" +
-    //         this.state.rewardId,
-    //       {
-    //         method: "POST",
-    //         headers: {
-    //           Accept: "application/json",
-    //           "Content-Type": "application/json",
-    //         },
-    //         body: JSON.stringify(data),
-    //       }
-    //     )
-    //       .then((response) => response.json())
-    //       .then((responseJson) => {
-    //         return responseJson;
-    //       })
-    //       .catch((error) => {
-    //         console.error(error);
-    //       });
-    //   }
 
-    //onsubmit: call createRewards done
-    //post call 
-    //create Rewards funciton()
 
     createNewReward() {
         const parentId = UserInfo.parent_id;
@@ -150,8 +97,6 @@ export default class ParentRewards extends Component {
             reward_image: this.state.rewardImage,
             reward_video: this.state.rewardVideo,
             user_id: userId,
-            reward_image: this.state.rewardImage,
-            reward_video: this.state.rewardVideo,
             deleted: 0,
         };
         let response = fetch(
@@ -181,32 +126,6 @@ export default class ParentRewards extends Component {
                 console.error(error);
             });
     }
-
-
-    // getAllActivitiesForRoutine() {
-    //     // console.log("WE ARE IN GET ALL ACTIVITIES FOR ROUTINE");
-    //     // console.log(this.state.currentRoutine)
-    //     var routineId = this.state.currentRoutine.id;
-    //     // console.log("CURRENT ROUTINE ID");
-    //     // console.log(routineId);
-    //     fetch(Environment + "/joinRoutineActivityTableByRoutineId/" + routineId, {
-    //         headers: {
-    //             "Cache-Control": "no-cache",
-    //         },
-    //     })
-    //         .then((response) => response.json())
-    //         .then((responseJson) => {
-    //             return responseJson;
-    //         })
-    //         .then((results) => {
-    //             this.setState({ allActivities: results });
-    //             this.setState({ activitiesLoaded: true });
-    //             this.storeActivites();
-    //         })
-    //         .catch((error) => {
-    //             console.error(error);
-    //         });
-    // }
 
 
     // //Get the routines data from teh db
@@ -264,29 +183,7 @@ export default class ParentRewards extends Component {
         }
     }
 
-    //come back
-    // storeRoutines() {
-    //     var temprArray = [];
-    //     // console.log("AY");
-    //     // console.log(this.state.allRoutines);
-    //     this.state.allRoutines["routines"].map(item =>
-    //         temprArray.push({ id: item.routine_id, name: item.routine_name })
-    //     )
-    //     this.setState({ routineData: temprArray });
-    //     // console.log("HEYO in store routines");
-    //     // console.log(this.state.routineData);
-
-    // }
-
-    // storeActivites() {
-    //     // console.log("WE ARE IN  store activities");
-
-    //     var tempArray = [];
-    //     this.state.allActivities.map(item =>
-    //         tempArray.push({ id: item.activity_id, name: item.activity_name })
-    //     )
-    //     this.setState({ activityData: tempArray });
-    // }
+    
 
     pushToChangedRewardsFields(tag, value) {
         Object.keys(this.state.changedRewardFields).map(function (keyName, keyIndex) {
@@ -318,65 +215,7 @@ export default class ParentRewards extends Component {
     }
 
 
-    // displayForm(currentList) {
-    //     var stateName = "";
-    //     var placeholder = "";
-    //     var displayItems = [];
-
-    //     if (currentList === "activites") {
-    //         placeholder = "Select an activity"
-    //         displayItems = this.state.activityData;
-    //     }
-    //     else {
-    //         placeholder = "Select an routine";
-    //         // displayItems = this.state.allRoutines["routines"];
-    //         displayItems = this.state.routineData;
-    //         // console.log("all the routines inside items!");
-    //         // console.log(displayItems);
-
-
-
-    //     }
-        // const routineData = this.state.routinesArray;
-
-        // return (
-        //     <View style={styles.drop}>
-        //         <ScrollView keyboardShouldPersistTaps="handled">
-        //             <SearchableDropdown
-        //                 onItemSelect={(item) => {
-        //                     if (currentList === "activity") {
-        //                         this.setState({ currentActivity: item });
-        //                     }
-        //                     else {
-        //                         this.setState({ currentRoutine: item });
-        //                     }
-        //                 }}
-        //                 containerStyle={{ padding: 5 }}
-        //                 itemStyle={styles.dropDownItem}
-        //                 itemTextStyle={{ color: "#222" }}
-        //                 itemsContainerStyle={{ maxHeight: 140 }}
-        //                 items={displayItems}
-        //                 resetValue={false}
-        //                 textInputProps={{
-        //                     placeholder: placeholder,
-        //                     underlineColorAndroid: "transparent",
-        //                     style: {
-        //                         padding: 12,
-        //                         borderWidth: 1,
-        //                         borderColor: "#ccc",
-        //                         borderRadius: 5,
-        //                     },
-        //                 }}
-        //                 // value={this.state.currentlySelectedActivity}
-        //                 listProps={{
-        //                     nestedScrollEnabled: true,
-        //                 }}
-        //             />
-        //         </ScrollView>
-        //     </View>
-        // )
-    // }
-
+    
     //From ChildActivity
     _onNext = () => {
         this.child._animateNextPage(); // do stuff
@@ -399,7 +238,8 @@ export default class ParentRewards extends Component {
             mediaTypes: ImagePicker.MediaTypeOptions.Videos,
         });
 
-        this.setState({ video: vid });
+        // this.setState({ rewardVideo: vid });
+        this._handleVideoPicked(vid);
 
     };
     // Take Photo 
@@ -433,8 +273,28 @@ export default class ParentRewards extends Component {
         }
     };
 
+      
+    _handleVideoPicked = async (pickerResult) => {
+        try {
+            this.setState({ uploading: true });
+
+            if (!pickerResult.cancelled) {
+                var uploadUrl = await this.uploadImageAsync(pickerResult.uri);
+                console.log("Upload URl is " + uploadUrl);
+                this.setState({ rewardVideo: uploadUrl });
+                // this.submitToGoogle();
+                
+            }
+        } catch (e) {
+            console.log(e);
+            alert("Upload failed, sorry :(");
+        } finally {
+            this.setState({ uploading: false });
+        }
+    };
+
     async uploadImageAsync(uri) {
-        console.log("uploading reward image");
+        console.log("uploading reward");
         const blob = await new Promise((resolve, reject) => {
             const xhr = new XMLHttpRequest();
             xhr.onload = function () {
@@ -530,10 +390,10 @@ export default class ParentRewards extends Component {
 
     returnVideo = () => {
 
-        if (this.state.video) {
+        if (this.state.rewardVideo) {
             return (
                 <Video
-                    source={{ uri: this.state.video.uri }}
+                    source={{ uri: this.state.rewardVideo }}
                     rate={1.0}
                     volume={1.0}
                     isMuted={false}
