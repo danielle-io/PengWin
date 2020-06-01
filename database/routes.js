@@ -662,7 +662,7 @@ app.get("/getAllRewards/:userId", function(req, res) {
   let userId = req.params.userId;
 
   db.getConnection(function(err, connection) {
-    connection.query("SELECT * FROM rewards where user_id =" + userId, function(
+    connection.query("SELECT * FROM rewards WHERE deleted <> 1 AND user_id =" + userId, function(
       error,
       results,
       fields
@@ -723,7 +723,7 @@ app.get("/getRewardById/:rewardId", function(req, res) {
 
   db.getConnection(function(err, connection) {
     connection.query(
-      "SELECT * FROM rewards where reward_id =" + rewardId,
+      "SELECT * FROM rewards WHERE deleted <> 1 AND reward_id =" + rewardId,
       function(error, results, fields) {
         connection.release();
 

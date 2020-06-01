@@ -849,6 +849,7 @@ export default class ParentRoutines extends Component {
 
   itemDeletionModal(item, type) {
     this.setState({ itemToDelete: item });
+    // console.log("item to delete" + itemToDelete)
     this.setState({ typeToDelete: type });
     this.setState({ deleteModalVisible: true });
   }

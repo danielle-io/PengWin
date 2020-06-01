@@ -5,7 +5,7 @@
 
 //From Parents Routines
 import React, { Component } from 'react';
-import { Dimensions, StyleSheet, View, Text } from 'react-native';
+import { ScrollView, Dimensions, StyleSheet, View, Text } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { RaisedTextButton } from 'react-native-material-buttons';
 import { MenuProvider, Menu, MenuOption, MenuOptions, MenuTrigger, optionsRenderer, Popover } from 'react-native-popup-menu';
@@ -27,12 +27,14 @@ export default class ParentRewards extends Component {
             secondLoaded: false,
             userId: 1,
             allRewards: null,
-            allRewardNames: null,
+            // allRewardNames: null,
             allActivities: null,
             allActivitiesDictionary: null,
             //don't know if need this
             reward_name: null,
             routine_name: null,
+            rewardToDelete: null
+            // selectedDeletion: null
             // reward1: null,
             // reward2: null,
             // reward3: null,
@@ -146,6 +148,71 @@ export default class ParentRewards extends Component {
 
     }
 
+    // selectDeletion(id){
+    //     this.setState({selectedDeletion: id})
+    // }
+
+    // selectedReward(id){
+    //     this.setState({selectedReward: id});
+    // }
+
+    deleteItem(r){
+        // this.setState({rewardToDelete: item});
+        // this.deleteReward();
+        this.updateReward(r, "deleted", 1)
+    }
+
+    // deleteReward() {
+         
+    //     console.log("deleteReward function");
+        
+    //     this.updateReward(this.state.rewardToDelete.rewardId, "deleted", 1);
+        // if (this.state.allRewards !== null) {
+        //     //   if (this.state.selectedDeletion) {
+        //     this.updateReward("deleted", 1);
+            // return Object.keys(this.state.allRewards).map((item) => {
+            //   if (
+            //     this.state.containerRoutineDict[item].containerId ===
+            //     this.state.selectedDeletion
+            //   ) {
+            // this.setState({ loaded: false });            
+            //   }
+            // });
+        // }
+
+    // }
+
+    updateReward(rewardId, tag, value) {
+        // console.log("in fetch tag is and value is " + tag + " ")
+        // console.log("updating reward field");
+        console.log("Deleted reward id " + rewardId);
+        var data = {
+            [tag]: value,
+        };
+
+        let response = fetch(
+            Environment + "/updateReward" + rewardId,
+            {
+                method: "POST",
+                headers: {
+                    Accept: "application/json",
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(data),
+            }).then((results) => {
+                console.log("SUCCESS: updated amount of rewards");
+                this.setState({ loaded: false });
+          
+                console.log("delete worked");
+                this.getAllRewardsForUser();
+          
+                if (this.state.loaded) {
+                  console.log("rewards loaded again");
+                  this.displayRewards();
+                }
+            });
+          }
+
     displayRewards() {
         const { navigate } = this.props.navigation;
 
@@ -195,7 +262,7 @@ export default class ParentRewards extends Component {
                                     </MenuOption>
 
 
-                                    <MenuOption onSelect={() => alert("Delete")}>
+                                    <MenuOption onSelect={() => this.deleteItem(item.reward_id)}>
                                         <Text style={{ color: "red" }}>Delete</Text>
                                     </MenuOption>
                                 </MenuOptions>
@@ -220,59 +287,59 @@ export default class ParentRewards extends Component {
         const { navigate } = this.props.navigation
 
         return (
+            <ScrollView style={{ backgroundColor: "#FFFCF9", padding: 10 }}>
+                <View>
 
-            <View>
-
-                {this.state.loaded && (
-                    <View
-                        style={{
-                            flexDirection: "row",
-                            flexWrap: "wrap",
-                        }}
-                    >
-                        {this.displayRewards()}
-                        {/* {this.displayNewRoutineContainer()} */}
-                    </View>
-                )}
-
-
-
-                {/* New Rewards Container */}
-                <View style={styles.routineContainer}>
-                    <View style={{ flex: 1 }} >
-                        <RaisedTextButton style={styles.roundAddButton}
-                            title='+'
-                            color='#FF6978'
-                            onPress={this._onPress, () =>
-
-                                navigate('EditReward', {
-                                    prevScreenTitle: 'Rewards',
-                                    currentRoutineName: null,
-                                    currentRoutineId: null,
-                                    currentRoutineStartTime: null,
-                                    currentRoutineEndTime: null,
-                                    currentRoutineApproval: 0,
-                                    rewardId: null,
-                                    rewardName: null,
-                                    rewardDescription: null,
-                                    rewardImage: null,
-                                    rewardVideo: null,
+                    {this.state.loaded && (
+                        <View
+                            style={{
+                                flexDirection: "row",
+                                flexWrap: "wrap",
+                            }}
+                        >
+                            {this.displayRewards()}
+                            {/* {this.displayNewRoutineContainer()} */}
+                        </View>
+                    )}
 
 
-                                    // TO DO: set up rewards
-                                    currentRewards: null
-                                })}
-                            ripple={ripple}
-                        />
 
-                        <Text style={styles.routineTitle} >
-                            Add a Reward
+                    {/* New Rewards Container */}
+                    <View style={styles.routineContainer}>
+                        <View style={{ flex: 1 }} >
+                            <RaisedTextButton style={styles.roundAddButton}
+                                title='+'
+                                color='#FF6978'
+                                onPress={this._onPress, () =>
+
+                                    navigate('EditReward', {
+                                        prevScreenTitle: 'Rewards',
+                                        currentRoutineName: null,
+                                        currentRoutineId: null,
+                                        currentRoutineStartTime: null,
+                                        currentRoutineEndTime: null,
+                                        currentRoutineApproval: 0,
+                                        rewardId: null,
+                                        rewardName: null,
+                                        rewardDescription: null,
+                                        rewardImage: null,
+                                        rewardVideo: null,
+
+
+                                        // TO DO: set up rewards
+                                        currentRewards: null
+                                    })}
+                                ripple={ripple}
+                            />
+
+                            <Text style={styles.routineTitle} >
+                                Add a Reward
                         </Text>
 
+                        </View>
                     </View>
-                </View>
 
-                {/* <View style={styles.pageFormat}>
+                    {/* <View style={styles.pageFormat}>
                     <Text style={styles.pageDescription}>
                         Rewards are a great way to not only make your child happy but also have them complete daily tasks and routines!
                     </Text>
@@ -280,15 +347,15 @@ export default class ParentRewards extends Component {
 
 
 
-                {/* {this.state.loaded &&
+                    {/* {this.state.loaded &&
                     <View style={{ flex: 1, flexWrap: 'wrap', flexDirection: 'row', justifyContent: 'space-around' }}>
 
                         {this.
                             displayRoutines()}
                     </View>
                 } */}
-            </View>
-
+                </View>
+            </ScrollView>
         );
     }
 }

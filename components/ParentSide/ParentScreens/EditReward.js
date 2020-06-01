@@ -318,64 +318,64 @@ export default class ParentRewards extends Component {
     }
 
 
-    displayForm(currentList) {
-        var stateName = "";
-        var placeholder = "";
-        var displayItems = [];
+    // displayForm(currentList) {
+    //     var stateName = "";
+    //     var placeholder = "";
+    //     var displayItems = [];
 
-        if (currentList === "activites") {
-            placeholder = "Select an activity"
-            displayItems = this.state.activityData;
-        }
-        else {
-            placeholder = "Select an routine";
-            // displayItems = this.state.allRoutines["routines"];
-            displayItems = this.state.routineData;
-            // console.log("all the routines inside items!");
-            // console.log(displayItems);
+    //     if (currentList === "activites") {
+    //         placeholder = "Select an activity"
+    //         displayItems = this.state.activityData;
+    //     }
+    //     else {
+    //         placeholder = "Select an routine";
+    //         // displayItems = this.state.allRoutines["routines"];
+    //         displayItems = this.state.routineData;
+    //         // console.log("all the routines inside items!");
+    //         // console.log(displayItems);
 
 
 
-        }
+    //     }
         // const routineData = this.state.routinesArray;
 
-        return (
-            <View style={styles.drop}>
-                <ScrollView keyboardShouldPersistTaps="handled">
-                    <SearchableDropdown
-                        onItemSelect={(item) => {
-                            if (currentList === "activity") {
-                                this.setState({ currentActivity: item });
-                            }
-                            else {
-                                this.setState({ currentRoutine: item });
-                            }
-                        }}
-                        containerStyle={{ padding: 5 }}
-                        itemStyle={styles.dropDownItem}
-                        itemTextStyle={{ color: "#222" }}
-                        itemsContainerStyle={{ maxHeight: 140 }}
-                        items={displayItems}
-                        resetValue={false}
-                        textInputProps={{
-                            placeholder: placeholder,
-                            underlineColorAndroid: "transparent",
-                            style: {
-                                padding: 12,
-                                borderWidth: 1,
-                                borderColor: "#ccc",
-                                borderRadius: 5,
-                            },
-                        }}
-                        // value={this.state.currentlySelectedActivity}
-                        listProps={{
-                            nestedScrollEnabled: true,
-                        }}
-                    />
-                </ScrollView>
-            </View>
-        )
-    }
+        // return (
+        //     <View style={styles.drop}>
+        //         <ScrollView keyboardShouldPersistTaps="handled">
+        //             <SearchableDropdown
+        //                 onItemSelect={(item) => {
+        //                     if (currentList === "activity") {
+        //                         this.setState({ currentActivity: item });
+        //                     }
+        //                     else {
+        //                         this.setState({ currentRoutine: item });
+        //                     }
+        //                 }}
+        //                 containerStyle={{ padding: 5 }}
+        //                 itemStyle={styles.dropDownItem}
+        //                 itemTextStyle={{ color: "#222" }}
+        //                 itemsContainerStyle={{ maxHeight: 140 }}
+        //                 items={displayItems}
+        //                 resetValue={false}
+        //                 textInputProps={{
+        //                     placeholder: placeholder,
+        //                     underlineColorAndroid: "transparent",
+        //                     style: {
+        //                         padding: 12,
+        //                         borderWidth: 1,
+        //                         borderColor: "#ccc",
+        //                         borderRadius: 5,
+        //                     },
+        //                 }}
+        //                 // value={this.state.currentlySelectedActivity}
+        //                 listProps={{
+        //                     nestedScrollEnabled: true,
+        //                 }}
+        //             />
+        //         </ScrollView>
+        //     </View>
+        // )
+    // }
 
     //From ChildActivity
     _onNext = () => {
@@ -390,7 +390,8 @@ export default class ParentRewards extends Component {
             aspect: [4, 3],
         });
 
-        this.setState({ photos: pickerResult });
+        this._handleImagePicked(pickerResult);
+        // this.setState({ photos: pickerResult });
     };
 
     videoPicker = async () => {
@@ -412,21 +413,6 @@ export default class ParentRewards extends Component {
         this._handleImagePicked(pickerResult);
     };
 
-
-    //new
-
-    // imagePicker = async (imageName) => {
-    //     console.log("in image picker");
-    //     let pickerResult = await ImagePicker.launchImageLibraryAsync({
-    //         allowsEditing: true,
-    //         aspect: [4, 3],
-    //     });
-    //     if (pickerResult) {
-    //         console.log("picker result is here " + pickerResult);
-    //         this._handleImagePicked(pickerResult, imageName);
-    //         // this.setState({ activityImagePath: pickerResult });
-    //     }
-    // };
     
     _handleImagePicked = async (pickerResult) => {
         try {
@@ -600,18 +586,6 @@ export default class ParentRewards extends Component {
         this.setState({ pictureModal: false });
     }
 
-    //FIX!
-    // saveCameraIcon() {
-    //     this.setState({ pictureModal: false });
-
-    //     if (this.state.tempRewardDescription !== "") {
-    //         this.setState({ rewardDescription: this.state.tempRewardDescription });
-    //         this.pushToUpdateActivityArray(
-    //             "reward_description",
-    //             this.state.tempRewardDescription
-    //         );
-    //     }
-    // }
 
     render() {
 
@@ -619,8 +593,8 @@ export default class ParentRewards extends Component {
 
         return (
 
-            // <ScrollView style={{ backgroundColor: "#FFFCF9", padding: 20 }}>
-            <ScrollView keyboardShouldPersistTaps="always">
+            <ScrollView style={{ backgroundColor: "#FFFCF9", padding: 20 }}>
+            
                 <View>
 
                     <View style={styles.rewardsContainer}>
@@ -666,29 +640,7 @@ export default class ParentRewards extends Component {
                                 }}
                             ></TextField>
 
-                            {/* {this.state.routinesLoaded &&
-                                <View>
-                                    <Text style={styles.textFields}>
-                                        Select Routine
-                                    </Text>
-                                    {this.displayForm("routine")}
-                                </View>
-                            } */}
-
-                            {/* {this.state.currentRoutine !== null &&
-                                <View>
-                                    {this.getAllActivitiesForRoutine()}
-                                </View>
-                            } */}
-
-                            {/* {this.state.activitiesLoaded &&
-                                <View>
-                                    <Text style={styles.textFields}>
-                                        Select Activity
-                                </Text>
-                                    {this.displayForm("activites")}
-                                </View>
-                            } */}
+                    
 
 
                             <View style={styles.editRoutineIconAndTitle}>
