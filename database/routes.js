@@ -473,6 +473,33 @@ app.post("/insertRewards", function(req, res) {
   });
 });
 
+
+
+//update rewards
+app.post("/updateReward:rewardId", function(req, res) {
+  let rewardId = req.params.rewardId;
+  var postData = req.body;
+  console.log(
+    "updating reward, reward id is " + rewardId + " data is " + postData
+  );
+  db.getConnection(function(err, connection) {
+    connection.query(
+      "UPDATE rewards SET ? WHERE reward_id = ?",
+      [postData, rewardId],
+      function(error, results, fields) {
+        connection.release();
+
+        if (error) {
+          throw error;
+          console.log(err);
+        }
+        console.log("RESULTS ARE " + JSON.stringify(results));
+        res.send(JSON.stringify(results));
+      }
+    );
+  });
+});
+
 app.get("/getUser/:userId", function(req, res) {
   let userId = req.params.userId;
   db.getConnection(function(err, connection) {
@@ -611,11 +638,31 @@ app.get("/getActivitiesFromRoutine/:routineID", function(req, res) {
   });
 });
 
+// app.get("/getImagePathFromRewards/:rewardId", function(
+//   req,
+//   res
+// ) {
+//   let childNotificationsId = req.params.childNotificationsId;
+//   db.getConnection(function(err, connection) {
+//     connection.query(
+//       "SELECT * FROM rewards where reward_id = ?",
+//       [rewardId],
+//       function(error, results, fields) {
+//         connection.release();
+//         if (error) throw error;
+//         console.log(results);
+//         res.send(results);
+//       }
+//     );
+//   });
+// });
+
+
 app.get("/getAllRewards/:userId", function(req, res) {
   let userId = req.params.userId;
 
   db.getConnection(function(err, connection) {
-    connection.query("SELECT * FROM rewards where user_id =" + userId, function(
+    connection.query("SELECT * FROM rewards WHERE deleted <> 1 AND user_id =" + userId, function(
       error,
       results,
       fields
@@ -676,7 +723,7 @@ app.get("/getRewardById/:rewardId", function(req, res) {
 
   db.getConnection(function(err, connection) {
     connection.query(
-      "SELECT * FROM rewards where reward_id =" + rewardId,
+      "SELECT * FROM rewards WHERE deleted <> 1 AND reward_id =" + rewardId,
       function(error, results, fields) {
         connection.release();
 

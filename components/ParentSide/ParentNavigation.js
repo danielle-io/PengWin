@@ -92,11 +92,11 @@ function AppTabView(props) {
     },
     {
       key: "ParentProfile",
-      icon: "cogs",
-      label: "Settings",
+      icon: "account",
+      label: "Profile",
       barColor: "#FFFCF9",
       pressColor: "rgba(255, 255, 255, 0.1)",
-      title: "Settings",
+      title: "Profile",
     },
   ];
 
@@ -116,7 +116,7 @@ function AppTabView(props) {
   //Screens in Active Screen
   return (
     <View style={{ flex: 1, backgroundColor: "#FFFCF9" }}>
-      <View style={{ flex: 1}}>
+      <View style={{ flex: 1 }}>
         <ActiveScreen navigation={descriptor.navigation} />
       </View>
 
@@ -126,13 +126,12 @@ function AppTabView(props) {
         activeTab={activeScreenName}
         onTabPress={handleTabPress}
         renderTab={({ tab, isActive }) => (
-         
           <FullTab
             style={{ flexDirection: "row" }}
             labelStyle={{
               color: isActive ? "#FF6978" : "#848484",
               padding: 0,
-              left: -40,
+              left: tab.key === "ParentProfile" ? -70 : -44,
               top: 1,
             }}
             isActive={isActive}

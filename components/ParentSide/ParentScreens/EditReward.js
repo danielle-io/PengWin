@@ -17,6 +17,8 @@ import UserInfo from "../../../state/UserInfo";
 
 import uuid from "uuid";
 
+import firebase from "../../../database/irDb";
+
 const { width: WIDTH } = Dimensions.get('window')
 
 export default class ParentRewards extends Component {
@@ -53,21 +55,18 @@ export default class ParentRewards extends Component {
             //needed 
             pictureModal: false,
             visible: false,
-            uploading: false
+            uploading: false,
+            googleResponse: null,
+            currentImages: null,
+            googleResponse: null
 
 
-            //prevScreenTitle: this.props.navigation.state.params.prevScreenTitle,
+
+            
         };
     }
 
-    // //from ChildActivity
-    // //Header titles for routines
-    // static navigationOptions = ({ navigation }) => ({
-    //     title: `${navigation.state.params.currentReward}`,
-    // });
-    // _onNext = () => {
-    //     this.child._animateNextPage(); // do stuff
-    // };
+    
 
     componentDidMount() {
         console.log('running component did mount for rewards');
@@ -81,9 +80,7 @@ export default class ParentRewards extends Component {
     }
 
 
-    //onsubmit: call createRewards done
-    //post call 
-    //create Rewards funciton()
+
 
     createNewReward() {
         const parentId = UserInfo.parent_id;
@@ -131,32 +128,6 @@ export default class ParentRewards extends Component {
     }
 
 
-    // getAllActivitiesForRoutine() {
-    //     // console.log("WE ARE IN GET ALL ACTIVITIES FOR ROUTINE");
-    //     // console.log(this.state.currentRoutine)
-    //     var routineId = this.state.currentRoutine.id;
-    //     // console.log("CURRENT ROUTINE ID");
-    //     // console.log(routineId);
-    //     fetch(Environment + "/joinRoutineActivityTableByRoutineId/" + routineId, {
-    //         headers: {
-    //             "Cache-Control": "no-cache",
-    //         },
-    //     })
-    //         .then((response) => response.json())
-    //         .then((responseJson) => {
-    //             return responseJson;
-    //         })
-    //         .then((results) => {
-    //             this.setState({ allActivities: results });
-    //             this.setState({ activitiesLoaded: true });
-    //             this.storeActivites();
-    //         })
-    //         .catch((error) => {
-    //             console.error(error);
-    //         });
-    // }
-
-
     // //Get the routines data from teh db
     getRoutines() {
         // fetch(Environment + '/routines/', {
@@ -187,12 +158,13 @@ export default class ParentRewards extends Component {
     async updateRewardField(tag, value) {
         // console.log("in fetch tag is and value is " + tag + " ")
         // console.log("updating reward field");
+        console.log("Hi I am here");
         var data = {
             [tag]: value,
         };
         try {
             let response = await fetch(
-                Environment + "/updateReward/" + this.state.rewardId,
+                Environment + "/updateReward" + this.state.rewardId,
                 {
                     method: "POST",
                     headers: {
@@ -204,35 +176,14 @@ export default class ParentRewards extends Component {
             );
             if (response.status >= 200 && response.status < 300) {
                 console.log("SUCCESS");
+
             }
         } catch (errors) {
             console.log(errors);
         }
     }
 
-    //come back
-    // storeRoutines() {
-    //     var temprArray = [];
-    //     // console.log("AY");
-    //     // console.log(this.state.allRoutines);
-    //     this.state.allRoutines["routines"].map(item =>
-    //         temprArray.push({ id: item.routine_id, name: item.routine_name })
-    //     )
-    //     this.setState({ routineData: temprArray });
-    //     // console.log("HEYO in store routines");
-    //     // console.log(this.state.routineData);
-
-    // }
-
-    // storeActivites() {
-    //     // console.log("WE ARE IN  store activities");
-
-    //     var tempArray = [];
-    //     this.state.allActivities.map(item =>
-    //         tempArray.push({ id: item.activity_id, name: item.activity_name })
-    //     )
-    //     this.setState({ activityData: tempArray });
-    // }
+    
 
     pushToChangedRewardsFields(tag, value) {
         Object.keys(this.state.changedRewardFields).map(function (keyName, keyIndex) {
@@ -240,84 +191,31 @@ export default class ParentRewards extends Component {
                 return;
             }
         });
-        // console.log("TAG " + tag + " VALUE " + value)
+        console.log("TAG " + tag + " VALUE " + value);
 
         let tempArray = this.state.changedRewardFields;
+        console.log(this.state.changedRewardFields);
         tempArray.push({ [tag]: value });
+        console.log("MADE A REWARDS ARRAY " + tempArray);
         this.setState({ changedRewardFields: tempArray });
-        // console.log("MADE A REWARDS ARRAY " + tempArray);
+        // console.log("Changed reward fields state" + this.state.changedRewardFields);
+
     }
 
 
     updateExistingRewardChanges() {
         // console.log("CHANGED REWARD FIELDS " + this.state.changedRewardFields);
+        console.log("hello are you there");
         for (const keyValuePair of this.state.changedRewardFields) {
             Object.entries(keyValuePair).map(([key, val]) => {
                 this.updateRewardField(key, val);
             });
         }
+        this.props.navigation.navigate("ParentRewards");
     }
 
 
-    displayForm(currentList) {
-        var stateName = "";
-        var placeholder = "";
-        var displayItems = [];
-
-        if (currentList === "activites") {
-            placeholder = "Select an activity"
-            displayItems = this.state.activityData;
-        }
-        else {
-            placeholder = "Select an routine";
-            // displayItems = this.state.allRoutines["routines"];
-            displayItems = this.state.routineData;
-            // console.log("all the routines inside items!");
-            // console.log(displayItems);
-
-
-
-        }
-        // const routineData = this.state.routinesArray;
-
-        return (
-            <View style={styles.drop}>
-                <ScrollView keyboardShouldPersistTaps="handled">
-                    <SearchableDropdown
-                        onItemSelect={(item) => {
-                            if (currentList === "activity") {
-                                this.setState({ currentActivity: item });
-                            }
-                            else {
-                                this.setState({ currentRoutine: item });
-                            }
-                        }}
-                        containerStyle={{ padding: 5 }}
-                        itemStyle={styles.dropDownItem}
-                        itemTextStyle={{ color: "#222" }}
-                        itemsContainerStyle={{ maxHeight: 140 }}
-                        items={displayItems}
-                        resetValue={false}
-                        textInputProps={{
-                            placeholder: placeholder,
-                            underlineColorAndroid: "transparent",
-                            style: {
-                                padding: 12,
-                                borderWidth: 1,
-                                borderColor: "#ccc",
-                                borderRadius: 5,
-                            },
-                        }}
-                        // value={this.state.currentlySelectedActivity}
-                        listProps={{
-                            nestedScrollEnabled: true,
-                        }}
-                    />
-                </ScrollView>
-            </View>
-        )
-    }
-
+    
     //From ChildActivity
     _onNext = () => {
         this.child._animateNextPage(); // do stuff
@@ -331,7 +229,8 @@ export default class ParentRewards extends Component {
             aspect: [4, 3],
         });
 
-        this.setState({ photos: pickerResult });
+        this._handleImagePicked(pickerResult);
+        // this.setState({ photos: pickerResult });
     };
 
     videoPicker = async () => {
@@ -339,124 +238,147 @@ export default class ParentRewards extends Component {
             mediaTypes: ImagePicker.MediaTypeOptions.Videos,
         });
 
-        this.setState({ video: vid });
+        // this.setState({ rewardVideo: vid });
+        this._handleVideoPicked(vid);
 
     };
-    //Take Photo 
+    // Take Photo 
     takePhoto = async () => {
         let pickerResult = await ImagePicker.launchCameraAsync({
-          allowsEditing: true,
-          aspect: [4, 3],
+            allowsEditing: true,
+            aspect: [4, 3],
         });
-        
+
         this.setState({ photos: pickerResult });
-        // this._handleImagePicked(pickerResult);
-      };
+        this._handleImagePicked(pickerResult);
+    };
+
     
-      _handleImagePicked = async (pickerResult) => {
+    _handleImagePicked = async (pickerResult) => {
         try {
-          this.setState({ uploading: true });
-    
-          if (!pickerResult.cancelled) {
-            var uploadUrl = await this.uploadImageAsync(pickerResult.uri);
-            this.setState({ rewardImage: uploadUrl });
-            this.submitToGoogle();
-          }
-        } catch (e) {
-          console.log(e);
-          alert("Upload failed, sorry :(");
-        } finally {
-          this.setState({ uploading: false });
-        }
-      };
-    
-      async uploadImageAsync(uri) {
-        const blob = await new Promise((resolve, reject) => {
-          const xhr = new XMLHttpRequest();
-          xhr.onload = function() {
-            resolve(xhr.response);
-          };
-          xhr.onerror = function(e) {
-            console.log(e);
-            reject(new TypeError("Network request failed"));
-          };
-          xhr.responseType = "blob";
-          xhr.open("GET", uri, true);
-          xhr.send(null);
-        });
-    
-        const ref = firebase
-          .storage()
-          .ref()
-          .child(uuid.v4());
-        const snapshot = await ref.put(blob);
-    
-        blob.close();
-    
-        return await snapshot.ref.getDownloadURL();
-      }
-    
-      submitToGoogle = async () => {
-        try {
-          
-          this.setState({ uploading: true });
-          let { rewardImage } = this.state;
-          let body = JSON.stringify({
-            requests: [
-              {
-                features: [
-                  { type: "LABEL_DETECTION", maxResults: 10 },
-                  { type: "LANDMARK_DETECTION", maxResults: 5 },
-                  { type: "FACE_DETECTION", maxResults: 5 },
-                  { type: "LOGO_DETECTION", maxResults: 5 },
-                  { type: "TEXT_DETECTION", maxResults: 5 },
-                  { type: "DOCUMENT_TEXT_DETECTION", maxResults: 5 },
-                  { type: "SAFE_SEARCH_DETECTION", maxResults: 5 },
-                  { type: "IMAGE_PROPERTIES", maxResults: 5 },
-                  { type: "CROP_HINTS", maxResults: 5 },
-                  { type: "WEB_DETECTION", maxResults: 5 },
-                ],
-                image: {
-                  source: {
-                    imageUri: activityImage,
-                  },
-                },
-              },
-            ],
-          });
-          let response = await fetch(
-            "https://vision.googleapis.com/v1/images:annotate?key=" +
-              irEnv["GOOGLE_CLOUD_VISION_API_KEY"],
-            {
-              headers: {
-                Accept: "application/json",
-                "Content-Type": "application/json",
-              },
-              method: "POST",
-              body: body,
+            this.setState({ uploading: true });
+
+            if (!pickerResult.cancelled) {
+                var uploadUrl = await this.uploadImageAsync(pickerResult.uri);
+                console.log("Upload URl is " + uploadUrl);
+                this.setState({ rewardImage: uploadUrl });
+                // this.submitToGoogle();
+                
             }
-          );
-          let responseJson = await response.json();
-          this.setState({
-            googleResponse: responseJson,
-            uploading: false,
-          });
-        } catch (error) {
-          console.log(error);
+        } catch (e) {
+            console.log(e);
+            alert("Upload failed, sorry :(");
+        } finally {
+            this.setState({ uploading: false });
         }
-      };
+    };
 
+      
+    _handleVideoPicked = async (pickerResult) => {
+        try {
+            this.setState({ uploading: true });
 
+            if (!pickerResult.cancelled) {
+                var uploadUrl = await this.uploadImageAsync(pickerResult.uri);
+                console.log("Upload URl is " + uploadUrl);
+                this.setState({ rewardVideo: uploadUrl });
+                // this.submitToGoogle();
+                
+            }
+        } catch (e) {
+            console.log(e);
+            alert("Upload failed, sorry :(");
+        } finally {
+            this.setState({ uploading: false });
+        }
+    };
 
+    async uploadImageAsync(uri) {
+        console.log("uploading reward");
+        const blob = await new Promise((resolve, reject) => {
+            const xhr = new XMLHttpRequest();
+            xhr.onload = function () {
+                resolve(xhr.response);
+            };
+            xhr.onerror = function (e) {
+                console.log(e);
+                reject(new TypeError("Network request failed"));
+            };
+            xhr.responseType = "blob";
+            xhr.open("GET", uri, true);
+            xhr.send(null);
+        });
+
+        const ref = firebase
+            .storage()
+            .ref()
+            .child(uuid.v4());
+        const snapshot = await ref.put(blob);
+
+        blob.close();
+
+        return await snapshot.ref.getDownloadURL();
+    }
+
+    submitToGoogle = async () => {
+        try {
+
+            this.setState({ uploading: true });
+            let { rewardImage } = this.state;
+            let body = JSON.stringify({
+                requests: [
+                    {
+                        features: [
+                            { type: "LABEL_DETECTION", maxResults: 10 },
+                            { type: "LANDMARK_DETECTION", maxResults: 5 },
+                            { type: "FACE_DETECTION", maxResults: 5 },
+                            { type: "LOGO_DETECTION", maxResults: 5 },
+                            { type: "TEXT_DETECTION", maxResults: 5 },
+                            { type: "DOCUMENT_TEXT_DETECTION", maxResults: 5 },
+                            { type: "SAFE_SEARCH_DETECTION", maxResults: 5 },
+                            { type: "IMAGE_PROPERTIES", maxResults: 5 },
+                            { type: "CROP_HINTS", maxResults: 5 },
+                            { type: "WEB_DETECTION", maxResults: 5 },
+                        ],
+                        image: {
+                            source: {
+                                imageUri: rewardImage,
+                            },
+                        },
+                    },
+                ],
+            });
+            let response = await fetch(
+                "https://vision.googleapis.com/v1/images:annotate?key=" +
+                irEnv["GOOGLE_CLOUD_VISION_API_KEY"],
+                {
+                    headers: {
+                        Accept: "application/json",
+                        "Content-Type": "application/json",
+                    },
+                    method: "POST",
+                    body: body,
+                }
+            );
+            let responseJson = await response.json();
+            this.setState({
+                googleResponse: responseJson,
+                uploading: false,
+            });
+        } catch (error) {
+            console.log(error);
+        }
+    };
 
 
     //Choose Photo or video
     returnImage = () => {
-        if (this.state.photos) {
+        let {rewardImage,googleResponse} = this.state;
+        if (this.state.rewardImage) {
             return (
                 <Image
                     style={{ width: 300, height: 200, borderRadius: 15 }}
-                    source={{ uri: this.state.photos.uri }}
+                    source={{ uri: this.state.rewardImage}}
                 />
             );
         }
@@ -468,10 +390,10 @@ export default class ParentRewards extends Component {
 
     returnVideo = () => {
 
-        if (this.state.video) {
+        if (this.state.rewardVideo) {
             return (
                 <Video
-                    source={{ uri: this.state.video.uri }}
+                    source={{ uri: this.state.rewardVideo }}
                     rate={1.0}
                     volume={1.0}
                     isMuted={false}
@@ -501,8 +423,9 @@ export default class ParentRewards extends Component {
 
     _onSubmit = () => {
         // console.log("rewardId " + this.state.rewardId);
-        if (this.state.rewardId) {
+        if (this.state.rewardId != null) {
             // console.log("existing reward edits");
+            console.log("right one");
             this.updateExistingRewardChanges();
             //   this.saveAnyChanges();
             //   var alr = "";
@@ -523,18 +446,6 @@ export default class ParentRewards extends Component {
         this.setState({ pictureModal: false });
     }
 
-    //FIX!
-    // saveCameraIcon() {
-    //     this.setState({ pictureModal: false });
-
-    //     if (this.state.tempRewardDescription !== "") {
-    //         this.setState({ rewardDescription: this.state.tempRewardDescription });
-    //         this.pushToUpdateActivityArray(
-    //             "reward_description",
-    //             this.state.tempRewardDescription
-    //         );
-    //     }
-    // }
 
     render() {
 
@@ -542,8 +453,8 @@ export default class ParentRewards extends Component {
 
         return (
 
-            // <ScrollView style={{ backgroundColor: "#FFFCF9", padding: 20 }}>
-            <ScrollView keyboardShouldPersistTaps="always">
+            <ScrollView style={{ backgroundColor: "#FFFCF9", padding: 20 }}>
+            
                 <View>
 
                     <View style={styles.rewardsContainer}>
@@ -589,29 +500,7 @@ export default class ParentRewards extends Component {
                                 }}
                             ></TextField>
 
-                            {/* {this.state.routinesLoaded &&
-                                <View>
-                                    <Text style={styles.textFields}>
-                                        Select Routine
-                                    </Text>
-                                    {this.displayForm("routine")}
-                                </View>
-                            } */}
-
-                            {/* {this.state.currentRoutine !== null &&
-                                <View>
-                                    {this.getAllActivitiesForRoutine()}
-                                </View>
-                            } */}
-
-                            {/* {this.state.activitiesLoaded &&
-                                <View>
-                                    <Text style={styles.textFields}>
-                                        Select Activity
-                                </Text>
-                                    {this.displayForm("activites")}
-                                </View>
-                            } */}
+                    
 
 
                             <View style={styles.editRoutineIconAndTitle}>
@@ -632,7 +521,7 @@ export default class ParentRewards extends Component {
                                             this.clickedCameraIcon();
                                         }}
 
-                                        
+
                                     >
                                         {/* onPress={() => {
                                         this.navigate('Camera', {prevScreenTitle: 'EditReward' });
@@ -673,7 +562,7 @@ export default class ParentRewards extends Component {
 
 
                                 <View style={styles.editRoutineIconAndTitle}>
-                                 
+
                                     <View style={{
                                         alignItems: "center",
                                         flexDirection: "column",
@@ -693,8 +582,9 @@ export default class ParentRewards extends Component {
 
                                         </TouchableOpacity> */}
                                         <Button
-                                            title = "Take a Photo"
+                                            title="Take a Photo"
                                             onPress={this.takePhoto}
+                                            // onPress={this.imagePicker("rewardImage")}
                                         />
 
                                         <Button
@@ -704,9 +594,9 @@ export default class ParentRewards extends Component {
 
                                         {this.returnImage()}
 
-                                        
 
-                                        
+
+
 
                                     </View>
 

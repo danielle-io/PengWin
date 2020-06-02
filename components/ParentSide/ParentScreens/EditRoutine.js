@@ -15,8 +15,6 @@ import { RaisedTextButton } from "react-native-material-buttons";
 import { AppLoading } from "expo";
 import DatePicker from "react-native-datepicker";
 
-// import DatePickerIOS from '@react-native-community/datetimepicker';
-
 import SearchableDropdown from "react-native-searchable-dropdown";
 
 import Environment from "../../../database/sqlEnv";
@@ -71,7 +69,7 @@ export default class EditRoutine extends Component {
       routineId: this.props.navigation.state.params.routineId,
       startTime: this.props.navigation.state.params.startTime,
       endTime: this.props.navigation.state.params.endTime,
-      requiresApproval: this.props.navigation.state.params.requires_approval,
+      requiresApproval: this.props.navigation.state.params.requiresApproval,
       amount_of_activities: this.props.navigation.state.params
         .amount_of_activities,
       amount_of_rewards: this.props.navigation.state.params.amount_of_rewards,
@@ -230,6 +228,7 @@ export default class EditRoutine extends Component {
   // Update the DB
   updateRoutineData() {
     // Make sure the activity amount is correct, and if not, update it as well
+    console.log("changes of routine state" + this.state.changedValues);
     if (this.state.routineActivitiesByOrder) {
       this.updateRoutineActivityAmount();
     }
@@ -311,6 +310,7 @@ export default class EditRoutine extends Component {
     let tempArray = this.state.changedValues;
     tempArray.push({ [tag]: value });
     this.setState({ changedValues: tempArray });
+    // console.log("changed routines state" + this.state.changedValues);
   }
 
   trackDateChanges(date, state) {
@@ -350,7 +350,7 @@ export default class EditRoutine extends Component {
           <View style={styles.formIndent}>
             <View style={styles.editRoutineButtonAndList}>
               <Text style={styles.redNumbers}>{rowNum}</Text>
-              
+
               <SearchableDropdown
                 onItemSelect={(item) => {
                   if (listName === "activity") {
@@ -674,6 +674,7 @@ export default class EditRoutine extends Component {
   }
 
   getCurrentSwitchState() {
+    console.log("THIS REQUIRES APPROVAL" + this.state.requiresApproval)
     if (this.state.requiresApproval === 1) {
       return true;
     }
@@ -681,20 +682,17 @@ export default class EditRoutine extends Component {
   }
 
   handleApprovalSwitchChange() {
-    console.log("Switch is " + this.state.requiresApproval)
     var newSwitchValue = 1;
-    if (this.state.requiresApproval === 0){
+
+    if (this.state.requiresApproval === 0) {
       this.setState({ requiresApproval: 1 });
-    }
-    else{
+    } 
+    else {
       this.setState({ requiresApproval: 0 });
       newSwitchValue = 0;
     }
-    this.pushToUpdateRoutineArray(
-      "requires_approval",
-      newSwitchValue,
-    );
-    this.getCurrentSwitchState();
+
+    this.pushToUpdateRoutineArray("requires_approval", newSwitchValue);
   }
 
   // ReRender the components on the click of the new button
@@ -874,18 +872,32 @@ export default class EditRoutine extends Component {
     }
   }
 
+  AddMinutesToDate() {
+    let date = new Date();
+    return new Date(date.getTime() + 2 * 60000);
+  }
+
   defineTime(text) {
+    let date = new Date();
+    date.setHours(0, 0);
+
     if (text === "Start") {
       if (this.state.startTime === "00:00") {
-        return "00:00";
+        return date;
       }
-      return this.state.startTime;
+
+      let start = this.state.startTime.split(":");
+      date.setHours(start[0], start[1]);
+      return date;
     }
+
     if (text === "End") {
       if (this.state.endTime === "00:00") {
-        return "00:00";
+        return date;
       }
-      return this.state.endTime;
+      let end = this.state.endTime.split(":");
+      date.setHours(end[0], end[1]);
+      return date;
     }
   }
 
@@ -1054,9 +1066,9 @@ export default class EditRoutine extends Component {
     //   // Update database
     //   this.updateRoutineData();
 
-    //   this.navigate("ParentNavigation", {
-    //     prevScreenTitle: "Routines",
-    //   });
+      this.navigate("ParentNavigation", {
+        prevScreenTitle: "Routines",
+      });
     // }
   };
 
@@ -1155,7 +1167,7 @@ export default class EditRoutine extends Component {
               </Text>
               <DatePicker
                 style={{ marginLeft: this.timeMarginDefinition("Start") }}
-                value={this.defineTime("Start")}
+                date={this.defineTime("Start")}
                 mode="time"
                 showIcon={false}
                 confirmBtnText="Confirm"
@@ -1181,7 +1193,7 @@ export default class EditRoutine extends Component {
                 style={{
                   marginLeft: this.timeMarginDefinition("End"),
                 }}
-                value={this.defineTime("End")}
+                date={this.defineTime("End")}
                 mode="time"
                 showIcon={false}
                 confirmBtnText="Confirm"
