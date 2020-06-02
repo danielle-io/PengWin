@@ -95,18 +95,7 @@ export default class Questionnaire extends Component {
     prevScreenTitle: "Back",
   });
 
-  // async componentDidMount() {
-
-  //     this.props.navigation.addListener("didFocus", (payload) => {
-  //         this.getQuestions();
-  //       });
-  //     // this.getQuestions();
-  // }
-
-  // getQuestions() {
-  //     this.setState({questions: ["abc","efg","def"]});
-  //     this.setState({questionsLoaded: true})
-  // }
+ 
 
   _onNext = () => {
     // key = key+1
@@ -121,12 +110,12 @@ export default class Questionnaire extends Component {
   }
 
   changeState(choice, item) {
-    console.log("selected is: " + this.state.selected);
+    // console.log("selected is: " + this.state.selected);
 
     this.setState({ value: choice});
-    this.setState({ selected: true});
+    // this.setState({ selected: true});
     this.postPreference(item.tag, choice);
-    console.log("now selected is: " + this.state.selected);
+    // console.log("now selected is: " + this.state.selected);
 
     this.displayQuestions();
   }
@@ -221,8 +210,7 @@ export default class Questionnaire extends Component {
                     />
                     {/* <View style= {{marginTop:'15%'}}> */}
                     <View key={key}>
-                      {/* <Question ques={item}/> */}
-                      {/* <Question1/> */}
+                    
                       <Text style={styles.pageBodyText}>{item.question}</Text>
                     </View>
                     {/* </View> */}
@@ -258,7 +246,7 @@ export default class Questionnaire extends Component {
                         }
                         onPress={() => {
                           console.log("value", this.state.value);
-                          this.setState({ selected: false });
+                          // this.setState({ selected: false });
                           this._onNext();
                         }}
                       >
@@ -291,7 +279,7 @@ export default class Questionnaire extends Component {
     }
 
     return (
-      console.log("SAWAAL LOAD" + this.state.questions),
+      console.log("Questions" + this.state.questions),
       (
         <ScrollView style={{ backgroundColor: "#FFFCF9" }}>
           <View>
