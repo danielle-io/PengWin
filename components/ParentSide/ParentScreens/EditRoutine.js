@@ -1224,7 +1224,7 @@ export default class EditRoutine extends Component {
           >
             <RaisedTextButton
               onPress={() => this._onSubmit()}
-              style={{ width: 100 }}
+              style={{ width: 100, borderRadius: 40}}
               titleStyle={styles.buttonstyle}
               title="Save"
               titleColor={"white"}
