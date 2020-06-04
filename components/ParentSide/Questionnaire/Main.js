@@ -7,82 +7,66 @@ import {
   Text,
   TouchableOpacity,
   DatePickerIOS,
-  ScrollView,
-} from "react-native";
-// import MobileStepper from "@bit/mui-org.material-ui.mobile-stepper";
-// import * as Font from "expo-font";
-import StepIndicator from "react-native-step-indicator";
+  ScrollView} from 'react-native';
+import StepIndicator from 'react-native-step-indicator';
 import Carousel from "react-native-carousel-view";
 import { AppLoading } from "expo";
 import Environment from "../../../database/sqlEnv";
+import RadioForm, {RadioButton, RadioButtonInput, RadioButtonLabel} from 'react-native-simple-radio-button';
 
-import RadioForm, {
-  RadioButton,
-  RadioButtonInput,
-  RadioButtonLabel,
-} from "react-native-simple-radio-button";
-// import Question1 from './Question1';
-// import Question2 from './Question2';
 
 const { width: WIDTH, height: HEIGHT } = Dimensions.get("window");
-// var questions = ["abc","efg","def"]
 
 export default class Questionnaire extends Component {
-  constructor(props) {
-    super(props);
-    const { navigate } = this.props.navigation;
-    this.navigate = navigate;
-    this.state = {
-      questions: [
-        {
-          question: "2. What is your child's gender?",
-          radio_props: [
-            { label: "Male", value: 0 },
-            { label: "Female", value: 1 },
-            { label: "NonBinary", value: 2 },
-            { label: "Other", value: 3 },
-          ],
-          tag: "gender",
-        },
-        // {"question": "2. What is your child's birthday?"},
-        {
-          question: "3. How would you describe your child's reading ability?",
-          radio_props: [
-            { label: "Reads well", value: 0 },
-            {
-              label: "Can read but needs visuals for better understanding",
-              value: 1,
-            },
-            { label: "Cannot read", value: 2 },
-          ],
-          tag: "reading_ability",
-        },
-        {
-          question: "4. How would you describe your child's language ability?",
-          radio_props: [
-            { label: "Verbal", value: 0 },
-            { label: "Non-verbal but can say Yes/No", value: 1 },
-            { label: "Can speak but not everyone understands", value: 2 },
-            { label: "Cannot speak but knows words", value: 3 },
-            { label: "Non verbal", value: 4 },
-          ],
-          tag: "language_ability",
-        },
-      ],
-      // quesComponents:[Question1,Question2],
-      questionsLoaded: false,
-      prevScreenTitle: this.props.navigation.state.params.prevScreenTitle,
-      selected: false,
-      datepicker_visible: false,
-      chosenDate: new Date(),
-      bdaySelected: false,
-    };
-    this.setDate = this.setDate.bind(this);
-  }
+    constructor(props) {
+        super(props);
+        const { navigate } = this.props.navigation;
+        this.navigate = navigate;
+        this.state = {
+            questions: [
+              {"question": "2. What is your child's gender?",
+              "radio_props": [
+                {label: 'Male', value: 0 },
+                {label: 'Female', value: 1 },
+                {label: 'NonBinary', value: 2 },
+                {label: 'Other', value: 3 }
+              ],
+              "tag":"gender"},
+              // {"question": "2. What is your child's birthday?"},
+              {"question": "3. How would you describe your child's reading ability?",
+              "radio_props": [
+                {label: 'Reads well', value: 0 },
+                {label: 'Can read but needs visuals for better understanding', value: 1 },
+                {label: 'Cannot read', value: 2 }
+              ],
+              "tag":"reading_ability"},
+              {"question": "4. How would you describe your child's language ability?",
+              "radio_props": [
+                {label: 'Verbal', value: 0 },
+                {label: 'Non-verbal but can say Yes/No', value: 1 },
+                {label: 'Can speak but not everyone understands', value: 2 },
+                {label: 'Cannot speak but knows words', value: 3 },
+                {label: 'Non verbal', value: 4 }
+              ],
+              "tag":"language_ability"}],
+          
+            questionsLoaded: false,
+            prevScreenTitle: this.props.navigation.state.params.prevScreenTitle,
+            // selected: false,
+            datepicker_visible: false,
+            chosenDate: new Date(),
+            bdaySelected:false
+        };
+        this.setDate = this.setDate.bind(this);
+    }
 
-  setDate(newDate) {
-    this.setState({ chosenDate: newDate, selected: true });
-  }
+    setDate(newDate) {
+      this.setState({chosenDate: newDate, 
+        //selected: true
+      });
+    }
+
+    
 
   async postPreference(tag, value) {
     var data = {
@@ -111,18 +95,7 @@ export default class Questionnaire extends Component {
     prevScreenTitle: "Back",
   });
 
-  // async componentDidMount() {
-
-  //     this.props.navigation.addListener("didFocus", (payload) => {
-  //         this.getQuestions();
-  //       });
-  //     // this.getQuestions();
-  // }
-
-  // getQuestions() {
-  //     this.setState({questions: ["abc","efg","def"]});
-  //     this.setState({questionsLoaded: true})
-  // }
+ 
 
   _onNext = () => {
     // key = key+1
@@ -137,12 +110,12 @@ export default class Questionnaire extends Component {
   }
 
   changeState(choice, item) {
-    console.log("selected is: " + this.state.selected);
+    // console.log("selected is: " + this.state.selected);
 
     this.setState({ value: choice});
-    this.setState({ selected: true});
+    // this.setState({ selected: true});
     this.postPreference(item.tag, choice);
-    console.log("now selected is: " + this.state.selected);
+    // console.log("now selected is: " + this.state.selected);
 
     this.displayQuestions();
   }
@@ -237,8 +210,7 @@ export default class Questionnaire extends Component {
                     />
                     {/* <View style= {{marginTop:'15%'}}> */}
                     <View key={key}>
-                      {/* <Question ques={item}/> */}
-                      {/* <Question1/> */}
+                    
                       <Text style={styles.pageBodyText}>{item.question}</Text>
                     </View>
                     {/* </View> */}
@@ -274,7 +246,7 @@ export default class Questionnaire extends Component {
                         }
                         onPress={() => {
                           console.log("value", this.state.value);
-                          this.setState({ selected: false });
+                          // this.setState({ selected: false });
                           this._onNext();
                         }}
                       >
@@ -307,7 +279,7 @@ export default class Questionnaire extends Component {
     }
 
     return (
-      console.log("SAWAAL LOAD" + this.state.questions),
+      console.log("Questions" + this.state.questions),
       (
         <ScrollView style={{ backgroundColor: "#FFFCF9" }}>
           <View>

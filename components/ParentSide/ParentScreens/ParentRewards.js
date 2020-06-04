@@ -1,9 +1,4 @@
-// import React, { Component } from 'react';
-// import { Dimensions, StyleSheet, ScrollView, View, Text } from 'react-native';
-// import { TextField, FilledTextField } from 'react-native-material-textfield';
-// import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
-//From Parents Routines
 import React, { Component } from 'react';
 import { ScrollView, Dimensions, StyleSheet, View, Text } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -19,7 +14,6 @@ export default class ParentRewards extends Component {
         prevScreenTitle: 'Testing Home Page',
     });
 
-
     constructor(props) {
         super(props)
         this.state = {
@@ -34,25 +28,12 @@ export default class ParentRewards extends Component {
             reward_name: null,
             routine_name: null,
             rewardToDelete: null
-            // selectedDeletion: null
-            // reward1: null,
-            // reward2: null,
-            // reward3: null,
-            // reward4: null,
-            //prevScreenTitle: this.props.navigation.state.params.prevScreenTitle,
         };
     }
-
 
     _renderPage = (props) => (
         <TabViewPage {...props} renderScene={this._renderScene} />
     );
-
-
-
-
-
-    // fieldRef = React.createRef();
 
     async componentDidMount() {
         this.props.navigation.addListener("didFocus", (payload) => {
@@ -62,7 +43,6 @@ export default class ParentRewards extends Component {
             // this.getAllRewardNames();
         });
     }
-
 
     getRoutines() {
         fetch(Environment + "/getRoutinesByUser/" + this.state.userId, {
@@ -103,16 +83,6 @@ export default class ParentRewards extends Component {
             });
     }
 
-
-    // getAllRewardNames() {
-    //     var tempArray = [];
-    //     this.state.allRewards.map((item) => {
-    //         tempArray.push({ id: item.reward_id, name: item.reward_name });
-    //     });
-    //     this.setState({ allRewardNames: tempArray });
-    // }
-
-
     getAllActivitiesForUser() {
         fetch(Environment + "/getActivities/" + this.state.userId, {
             headers: {
@@ -132,7 +102,6 @@ export default class ParentRewards extends Component {
             });
     }
 
-
     createActivityDictionary() {
         var tempDict = {};
         this.state.allActivities.map((item) => {
@@ -145,42 +114,13 @@ export default class ParentRewards extends Component {
         console.log("the all activities dictionary is below");
         console.log(this.state.allActivitiesDictionary);
         this.setState({ secondLoaded: true });
-
     }
-
-    // selectDeletion(id){
-    //     this.setState({selectedDeletion: id})
-    // }
-
-    // selectedReward(id){
-    //     this.setState({selectedReward: id});
-    // }
 
     deleteItem(r){
         // this.setState({rewardToDelete: item});
         // this.deleteReward();
         this.updateReward(r, "deleted", 1)
     }
-
-    // deleteReward() {
-         
-    //     console.log("deleteReward function");
-        
-    //     this.updateReward(this.state.rewardToDelete.rewardId, "deleted", 1);
-        // if (this.state.allRewards !== null) {
-        //     //   if (this.state.selectedDeletion) {
-        //     this.updateReward("deleted", 1);
-            // return Object.keys(this.state.allRewards).map((item) => {
-            //   if (
-            //     this.state.containerRoutineDict[item].containerId ===
-            //     this.state.selectedDeletion
-            //   ) {
-            // this.setState({ loaded: false });            
-            //   }
-            // });
-        // }
-
-    // }
 
     updateReward(rewardId, tag, value) {
         // console.log("in fetch tag is and value is " + tag + " ")
@@ -216,19 +156,9 @@ export default class ParentRewards extends Component {
     displayRewards() {
         const { navigate } = this.props.navigation;
 
-        // var tempArray = [];
-        // console.log("LOOK HERE");
-        // console.log(this.state.allRewards);
-        // this.state.allRewards.map((item) => {
-        //     tempArray.push({ id: item.reward_id, name: item.reward_name });
-        // });
-        // this.setState({ allRewardNames: tempArray });
-        // console.log("ALL THE REWARD NAMES WOAH")
-        // console.log(this.state.allRewardNames);
         // parse out the db objects returned from the routines call
         return this.state.allRewards.map((item) => {
             //want to map across each reward name in allRewardNames
-
 
             return (
                 <View style={styles["routineContainer"]}>
@@ -241,12 +171,6 @@ export default class ParentRewards extends Component {
                                     <MenuOption
                                         onSelect={() =>
                                             this.props.navigation.navigate("EditReward", {
-                                                // allRoutines: null,
-                                                // allActivities: null,
-                                                // currentRoutine: null,
-                                                // currentActivity: null,
-                                                //            routineData: null,
-                                                // activityData: null,
                                                 prevScreenTitle: "Rewards",
                                                 rewardId: item.reward_id,
                                                 rewardName: item.reward_name,
@@ -254,7 +178,6 @@ export default class ParentRewards extends Component {
                                                 rewardVideo: item.reward_video,
                                                 rewardDescription: item.reward_description,
                                                 deleted: 0
-
                                             })
                                         }
                                     >
@@ -277,11 +200,7 @@ export default class ParentRewards extends Component {
     }
 
     render() {
-        // if (this.state.results !== null) {
-        //     console.log(this.state.results);
-        // } else {
-        //     return null;
-        // }
+      
 
         let ripple = { id: 'addButton' };
         const { navigate } = this.props.navigation
@@ -339,21 +258,6 @@ export default class ParentRewards extends Component {
                         </View>
                     </View>
 
-                    {/* <View style={styles.pageFormat}>
-                    <Text style={styles.pageDescription}>
-                        Rewards are a great way to not only make your child happy but also have them complete daily tasks and routines!
-                    </Text>
-                </View> */}
-
-
-
-                    {/* {this.state.loaded &&
-                    <View style={{ flex: 1, flexWrap: 'wrap', flexDirection: 'row', justifyContent: 'space-around' }}>
-
-                        {this.
-                            displayRoutines()}
-                    </View>
-                } */}
                 </View>
             </ScrollView>
         );

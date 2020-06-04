@@ -178,7 +178,8 @@ export default class ParentRewards extends Component {
                 console.log("SUCCESS");
 
             }
-        } catch (errors) {
+        }
+         catch (errors) {
             console.log(errors);
         }
     }
@@ -272,7 +273,6 @@ export default class ParentRewards extends Component {
             this.setState({ uploading: false });
         }
     };
-
       
     _handleVideoPicked = async (pickerResult) => {
         try {
@@ -325,6 +325,7 @@ export default class ParentRewards extends Component {
 
             this.setState({ uploading: true });
             let { rewardImage } = this.state;
+            let { rewardVideo } = this.state;
             let body = JSON.stringify({
                 requests: [
                     {
@@ -343,6 +344,11 @@ export default class ParentRewards extends Component {
                         image: {
                             source: {
                                 imageUri: rewardImage,
+                            },
+                        },
+                        Video: {
+                            source: {
+                                videoUri: rewardVideo,
                             },
                         },
                     },
@@ -389,7 +395,7 @@ export default class ParentRewards extends Component {
 
 
     returnVideo = () => {
-
+        let {rewardVideo,googleResponse} = this.state;
         if (this.state.rewardVideo) {
             return (
                 <Video
@@ -408,13 +414,6 @@ export default class ParentRewards extends Component {
         }
     };
 
-
-
-
-
-
-
-
     fieldRef = React.createRef();
     onSubmit = () => {
         let { current: field } = this.fieldRef;
@@ -429,7 +428,6 @@ export default class ParentRewards extends Component {
             this.updateExistingRewardChanges();
             //   this.saveAnyChanges();
             //   var alr = "";
-
             // this.
         }
         else {
@@ -523,11 +521,7 @@ export default class ParentRewards extends Component {
 
 
                                     >
-                                        {/* onPress={() => {
-                                        this.navigate('Camera', {prevScreenTitle: 'EditReward' });
-                                        this._onNext();
-                                    }}> */}
-                                        {/* <Icon name="camera-enhance" color="#DADADA" size={100} /> */}
+                                       
                                         {this.returnImage()}
 
                                     </TouchableOpacity>
@@ -571,16 +565,8 @@ export default class ParentRewards extends Component {
 
                                     }}>
 
-                                        {/* <Text style={styles.textFields}> Choose from Library</Text>
-                                        <TouchableOpacity
-                                            // style={styles.camerabutton}
-                                            onPress={this._handleButtonPress}
-                                           
-                                        >
-                                            
-                                            {this.returnImage()}
 
-                                        </TouchableOpacity> */}
+                                   
                                         <Button
                                             title="Take a Photo"
                                             onPress={this.takePhoto}
@@ -592,7 +578,7 @@ export default class ParentRewards extends Component {
                                             onPress={this._handleButtonPress}
                                         />
 
-                                        {this.returnImage()}
+                                       
 
 
 
