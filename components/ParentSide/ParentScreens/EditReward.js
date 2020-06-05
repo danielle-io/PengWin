@@ -2,14 +2,11 @@ import React, { Component } from 'react';
 import { Button, Modal, Dimensions, StyleSheet, ScrollView, View, Text, TouchableOpacity } from 'react-native';
 import { TextField, FilledTextField } from 'react-native-material-textfield';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import { Dropdown } from 'react-native-material-dropdown';
-// import YouTube from 'react-native-youtube';
 import Dialog, { DialogContent } from "react-native-popup-dialog";
 import { Video } from "expo-av";
 import { Image } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import * as Permissions from "expo-permissions";
-import SearchableDropdown from "react-native-searchable-dropdown";
 import { RaisedTextButton } from "react-native-material-buttons";
 
 import Environment from "../../../database/sqlEnv";
@@ -39,42 +36,39 @@ export default class ParentRewards extends Component {
             rewardImage: this.props.navigation.state.params.rewardImage,
             rewardVideo: this.props.navigation.state.params.rewardVideo,
             //remove userID 1
-            userId: 1,
+            // userId: 1,
             photos: null,
             video: null,
-            routinesLoaded: false,
-            // activities: null,
-            allRoutines: null,
-            allActivities: null,
-            currentRoutine: null,
-            activitiesLoaded: false,
-            currentActivity: null,
-            routineData: null,
-            activityData: null,
+            
+            
+
+
+
+
             changedRewardFields: [],
             //needed 
             pictureModal: false,
             visible: false,
             uploading: false,
             googleResponse: null,
-            currentImages: null,
-            googleResponse: null
 
 
 
-            
+
+
+
         };
     }
 
-    
+
 
     componentDidMount() {
-        console.log('running component did mount for rewards');
         this.props.navigation.addListener(
             'didFocus',
             (payload) => {
-                this.getRoutines();
+                // this.getRoutines();
                 // this.getActivitiesForRoutine();
+                console.log('running component did mount for rewards');
             }
         )
     }
@@ -128,33 +122,6 @@ export default class ParentRewards extends Component {
     }
 
 
-    // //Get the routines data from teh db
-    getRoutines() {
-        // fetch(Environment + '/routines/', {
-        // console.log(this.state.userId);
-        fetch(Environment + "/getRoutinesByUser/" + this.state.userId, {
-            headers: {
-                "Cache-Control": "no-cache",
-            },
-        })
-            .then((response) => response.json())
-            .then((responseJson) => {
-                return responseJson;
-            })
-            .then((results) => {
-                this.setState({ allRoutines: results });
-                // console.log("WHAT ARE ALL THE ROUTINESSSSS")
-                // console.log(this.state.allRoutines);
-                this.setState({ routinesLoaded: true });
-                // this.storeRoutines();
-                // this.storeRoutines();
-            })
-            .catch((error) => {
-                // console.log("AH");   
-                console.error(error);
-            });
-    }
-
     async updateRewardField(tag, value) {
         // console.log("in fetch tag is and value is " + tag + " ")
         // console.log("updating reward field");
@@ -179,12 +146,12 @@ export default class ParentRewards extends Component {
 
             }
         }
-         catch (errors) {
+        catch (errors) {
             console.log(errors);
         }
     }
 
-    
+
 
     pushToChangedRewardsFields(tag, value) {
         Object.keys(this.state.changedRewardFields).map(function (keyName, keyIndex) {
@@ -216,12 +183,8 @@ export default class ParentRewards extends Component {
     }
 
 
-    
-    //From ChildActivity
-    _onNext = () => {
-        this.child._animateNextPage(); // do stuff
-    };
 
+   
     //from EditActivity
     _handleButtonPress = async () => {
         console.log("Button is pressed!");
@@ -229,9 +192,12 @@ export default class ParentRewards extends Component {
             allowsEditing: true,
             aspect: [4, 3],
         });
-
-        this._handleImagePicked(pickerResult);
-        // this.setState({ photos: pickerResult });
+        if (pickerResult) {
+            console.log("picker result is here " + pickerResult);
+            // this._handleImagePicked(pickerResult, imageName);
+            this._handleImagePicked(pickerResult);
+            // this.setState({ photos: pickerResult });
+        }
     };
 
     videoPicker = async () => {
@@ -254,7 +220,7 @@ export default class ParentRewards extends Component {
         this._handleImagePicked(pickerResult);
     };
 
-    
+
     _handleImagePicked = async (pickerResult) => {
         try {
             this.setState({ uploading: true });
@@ -264,7 +230,7 @@ export default class ParentRewards extends Component {
                 console.log("Upload URl is " + uploadUrl);
                 this.setState({ rewardImage: uploadUrl });
                 // this.submitToGoogle();
-                
+
             }
         } catch (e) {
             console.log(e);
@@ -273,7 +239,7 @@ export default class ParentRewards extends Component {
             this.setState({ uploading: false });
         }
     };
-      
+
     _handleVideoPicked = async (pickerResult) => {
         try {
             this.setState({ uploading: true });
@@ -283,7 +249,7 @@ export default class ParentRewards extends Component {
                 console.log("Upload URl is " + uploadUrl);
                 this.setState({ rewardVideo: uploadUrl });
                 // this.submitToGoogle();
-                
+
             }
         } catch (e) {
             console.log(e);
@@ -379,12 +345,12 @@ export default class ParentRewards extends Component {
 
     //Choose Photo or video
     returnImage = () => {
-        let {rewardImage,googleResponse} = this.state;
+        let { rewardImage, googleResponse } = this.state;
         if (this.state.rewardImage) {
             return (
                 <Image
                     style={{ width: 300, height: 200, borderRadius: 15 }}
-                    source={{ uri: this.state.rewardImage}}
+                    source={{ uri: this.state.rewardImage }}
                 />
             );
         }
@@ -395,7 +361,7 @@ export default class ParentRewards extends Component {
 
 
     returnVideo = () => {
-        let {rewardVideo,googleResponse} = this.state;
+        let { rewardVideo, googleResponse } = this.state;
         if (this.state.rewardVideo) {
             return (
                 <Video
@@ -415,16 +381,14 @@ export default class ParentRewards extends Component {
     };
 
     fieldRef = React.createRef();
-    onSubmit = () => {
-        let { current: field } = this.fieldRef;
-        // console.log(field.value());
-    };
+
 
     _onSubmit = () => {
         // console.log("rewardId " + this.state.rewardId);
         if (this.state.rewardId != null) {
             // console.log("existing reward edits");
             console.log("right one");
+            this.pushToChangedRewardsFields("reward_image", this.state.rewardImage)
             this.updateExistingRewardChanges();
             //   this.saveAnyChanges();
             //   var alr = "";
@@ -452,7 +416,7 @@ export default class ParentRewards extends Component {
         return (
 
             <ScrollView style={{ backgroundColor: "#FFFCF9", padding: 20 }}>
-            
+
                 <View>
 
                     <View style={styles.rewardsContainer}>
@@ -498,7 +462,7 @@ export default class ParentRewards extends Component {
                                 }}
                             ></TextField>
 
-                    
+
 
 
                             <View style={styles.editRoutineIconAndTitle}>
@@ -518,20 +482,11 @@ export default class ParentRewards extends Component {
                                         onPress={() => {
                                             this.clickedCameraIcon();
                                         }}
-
-
                                     >
-                                       
                                         {this.returnImage()}
 
                                     </TouchableOpacity>
-
-
-
-
-
                                 </View>
-
                             </View>
 
                             <Dialog
@@ -543,16 +498,7 @@ export default class ParentRewards extends Component {
                                     this.cancelCameraIcon();
                                 }}
                             >
-                                {/* <View
-                                    style={{
-                                        flexDirection: "row",
-                                        justifyContent: "center",
-                                        marginTop: 10,
-                                    }}
-                                >
-                                    <Text style={styles.titles}>Take image</Text>
-                                    
-                                </View> */}
+
 
 
                                 <View style={styles.editRoutineIconAndTitle}>
@@ -566,22 +512,17 @@ export default class ParentRewards extends Component {
                                     }}>
 
 
-                                   
+
                                         <Button
                                             title="Take a Photo"
                                             onPress={this.takePhoto}
-                                            // onPress={this.imagePicker("rewardImage")}
+
                                         />
 
                                         <Button
                                             title="Choose from Library"
                                             onPress={this._handleButtonPress}
                                         />
-
-                                       
-
-
-
 
 
                                     </View>
@@ -810,14 +751,6 @@ const styles = StyleSheet.create({
         flexDirection: "row",
         margin: 5,
         padding: 2,
-    },
-    dropDownItem: {
-        padding: 10,
-        marginTop: 2,
-        backgroundColor: "#ddd",
-        borderColor: "#bbb",
-        borderWidth: 1,
-        borderRadius: 5,
     },
     buttonstyle: {
         fontSize: 15,
