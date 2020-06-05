@@ -8,12 +8,9 @@ import { Image } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import * as Permissions from "expo-permissions";
 import { RaisedTextButton } from "react-native-material-buttons";
-
 import Environment from "../../../database/sqlEnv";
 import UserInfo from "../../../state/UserInfo";
-
 import uuid from "uuid";
-
 import firebase from "../../../database/irDb";
 
 const { width: WIDTH } = Dimensions.get('window')
@@ -35,46 +32,24 @@ export default class ParentRewards extends Component {
             rewardDescription: this.props.navigation.state.params.rewardDescription,
             rewardImage: this.props.navigation.state.params.rewardImage,
             rewardVideo: this.props.navigation.state.params.rewardVideo,
-            //remove userID 1
-            // userId: 1,
             photos: null,
             video: null,
-            
-            
-
-
-
-
             changedRewardFields: [],
-            //needed 
             pictureModal: false,
             visible: false,
             uploading: false,
             googleResponse: null,
-
-
-
-
-
-
         };
     }
-
-
 
     componentDidMount() {
         this.props.navigation.addListener(
             'didFocus',
             (payload) => {
-                // this.getRoutines();
-                // this.getActivitiesForRoutine();
                 console.log('running component did mount for rewards');
             }
         )
     }
-
-
-
 
     createNewReward() {
         const parentId = UserInfo.parent_id;
