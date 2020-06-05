@@ -55,11 +55,6 @@ export default class ParentRewards extends Component {
         const parentId = UserInfo.parent_id;
         const childId = UserInfo.child_id;
         const userId = UserInfo.user_id
-        // console.log("Environment :: " + Environment);
-        // console.log("rewardName :: " + this.state.rewardName);
-        // console.log("rewardDescription :: " + this.state.rewardDescription);
-        // console.log("userId :: " + this.state.userId);
-
         data = {
             reward_name: this.state.rewardName,
             reward_description: this.state.rewardDescription,
@@ -84,12 +79,7 @@ export default class ParentRewards extends Component {
                 return responseJson;
             })
             .then((results) => {
-                // console.log(results);
-                // console.log("worked for rewards!");
-
-                // Set the new routineId
                 this.setState({ rewardId: results.insertId });
-                // this.saveAnyChanges();
             })
             .catch((error) => {
                 console.error(error);
@@ -98,9 +88,6 @@ export default class ParentRewards extends Component {
 
 
     async updateRewardField(tag, value) {
-        // console.log("in fetch tag is and value is " + tag + " ")
-        // console.log("updating reward field");
-        console.log("Hi I am here");
         var data = {
             [tag]: value,
         };
@@ -118,7 +105,6 @@ export default class ParentRewards extends Component {
             );
             if (response.status >= 200 && response.status < 300) {
                 console.log("SUCCESS");
-
             }
         }
         catch (errors) {
@@ -134,21 +120,15 @@ export default class ParentRewards extends Component {
                 return;
             }
         });
-        console.log("TAG " + tag + " VALUE " + value);
-
         let tempArray = this.state.changedRewardFields;
         console.log(this.state.changedRewardFields);
         tempArray.push({ [tag]: value });
         console.log("MADE A REWARDS ARRAY " + tempArray);
         this.setState({ changedRewardFields: tempArray });
-        // console.log("Changed reward fields state" + this.state.changedRewardFields);
-
     }
 
 
     updateExistingRewardChanges() {
-        // console.log("CHANGED REWARD FIELDS " + this.state.changedRewardFields);
-        console.log("hello are you there");
         for (const keyValuePair of this.state.changedRewardFields) {
             Object.entries(keyValuePair).map(([key, val]) => {
                 this.updateRewardField(key, val);
@@ -157,10 +137,6 @@ export default class ParentRewards extends Component {
         this.props.navigation.navigate("ParentRewards");
     }
 
-
-
-   
-    //from EditActivity
     _handleButtonPress = async () => {
         console.log("Button is pressed!");
         let pickerResult = await ImagePicker.launchImageLibraryAsync({
@@ -169,9 +145,7 @@ export default class ParentRewards extends Component {
         });
         if (pickerResult) {
             console.log("picker result is here " + pickerResult);
-            // this._handleImagePicked(pickerResult, imageName);
             this._handleImagePicked(pickerResult);
-            // this.setState({ photos: pickerResult });
         }
     };
 
@@ -179,11 +153,9 @@ export default class ParentRewards extends Component {
         let vid = await ImagePicker.launchImageLibraryAsync({
             mediaTypes: ImagePicker.MediaTypeOptions.Videos,
         });
-
-        // this.setState({ rewardVideo: vid });
         this._handleVideoPicked(vid);
-
     };
+
     // Take Photo 
     takePhoto = async () => {
         let pickerResult = await ImagePicker.launchCameraAsync({
@@ -204,8 +176,6 @@ export default class ParentRewards extends Component {
                 var uploadUrl = await this.uploadImageAsync(pickerResult.uri);
                 console.log("Upload URl is " + uploadUrl);
                 this.setState({ rewardImage: uploadUrl });
-                // this.submitToGoogle();
-
             }
         } catch (e) {
             console.log(e);
@@ -223,8 +193,6 @@ export default class ParentRewards extends Component {
                 var uploadUrl = await this.uploadImageAsync(pickerResult.uri);
                 console.log("Upload URl is " + uploadUrl);
                 this.setState({ rewardVideo: uploadUrl });
-                // this.submitToGoogle();
-
             }
         } catch (e) {
             console.log(e);
@@ -359,18 +327,11 @@ export default class ParentRewards extends Component {
 
 
     _onSubmit = () => {
-        // console.log("rewardId " + this.state.rewardId);
         if (this.state.rewardId != null) {
-            // console.log("existing reward edits");
-            console.log("right one");
             this.pushToChangedRewardsFields("reward_image", this.state.rewardImage)
             this.updateExistingRewardChanges();
-            //   this.saveAnyChanges();
-            //   var alr = "";
-            // this.
         }
         else {
-            // console.log("new reward");
             this.createNewReward();
         }
     }
@@ -453,7 +414,6 @@ export default class ParentRewards extends Component {
 
                                     <TouchableOpacity
                                         style={styles.camerabutton}
-                                        // onPress={this._handleButtonPress}
                                         onPress={() => {
                                             this.clickedCameraIcon();
                                         }}
@@ -517,7 +477,6 @@ export default class ParentRewards extends Component {
                                     flexDirection: "row",
                                     justifyContent: "center",
                                     margin: 70,
-                                    // marginBottom: 100
                                 }}>
                                     <TouchableOpacity
                                         style={styles.camerabutton}
@@ -528,10 +487,6 @@ export default class ParentRewards extends Component {
                                 </View>
 
                             </View>
-
-
-
-
 
                         </View>
 
@@ -553,13 +508,11 @@ export default class ParentRewards extends Component {
                                 titleColor={"#FF6978"}
                                 color={"white"}
                             />
-
                         </View>
 
                     </View>
 
                 </View >
-
 
             </ScrollView>
         );
@@ -572,21 +525,7 @@ export default class ParentRewards extends Component {
 
 
 const styles = StyleSheet.create({
-    tagModal: {
-        margin: 12,
-        backgroundColor: "#f7f7f7",
-        padding: 20,
-        width: "50%",
-        alignItems: "center",
-        shadowColor: "#000",
-        shadowOffset: {
-            width: 1,
-            height: 2,
-        },
-        shadowOpacity: 0.65,
-        shadowRadius: 3.84,
-        elevation: 5,
-    },
+
     bottomModal: {
         fontSize: 30,
         marginRight: 200,
@@ -614,12 +553,6 @@ const styles = StyleSheet.create({
         marginRight: 100,
         marginBottom: 50,
     },
-    avatarContainer: {
-        justifyContent: 'center',
-        alignItems: 'center',
-        alignContent: 'center',
-        marginTop: 50,
-    },
     textFields: {
         padding: 2,
         margin: 2,
@@ -627,47 +560,6 @@ const styles = StyleSheet.create({
         marginTop: 5,
         marginBottom: 10,
         fontSize: 20,
-    },
-    formIndent: {
-        marginLeft: 30,
-    },
-    imageContainer: {
-        alignItems: 'center',
-        marginBottom: 200,
-    },
-    imageButton: {
-        marginTop: 50,
-        marginLeft: 100,
-    },
-    descriptionBox: {
-        borderColor: '#e8e8e8',
-        borderWidth: 1,
-        borderRadius: 15,
-    },
-    descriptionLines: {
-        marginBottom: 4,
-        marginLeft: 8,
-        marginRight: 8,
-        marginTop: 10
-    },
-    routineDetails: {
-        fontSize: 150,
-        paddingTop: 15,
-        paddingLeft: 135
-    },
-    // routineTitle: {
-    //     paddingLeft: 15,
-    //     paddingTop: 12,
-    //     marginTop: 15,
-    //     fontSize: 10,
-    //     marginLeft: 10,
-    //     textAlign: 'left',
-    //     textAlignVertical: 'center'
-    // },
-    detailsContainer: {
-        padding: 2,
-        paddingTop: 10,
-        paddingBottom: 15
     },
     routines: {
         paddingLeft: 3,
@@ -683,11 +575,6 @@ const styles = StyleSheet.create({
         shadowColor: 'black',
         shadowOpacity: .1,
         borderWidth: 0
-    },
-    routineTitle: {
-        fontSize: 14,
-        textAlign: 'center',
-        textAlignVertical: 'center'
     },
     saveButton: {
         marginLeft: 6,
