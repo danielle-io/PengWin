@@ -11,10 +11,15 @@ const childId = UserInfo.child_id;
 const userId = UserInfo.user_id;
 
 export default class ParentProfile extends Component {
-  static navigationOptions = ({navigation}) => ({
-    title: 'Parent Profile',
-    prevScreenTitle: 'Testing Home Page',
+  // static navigationOptions = ({navigation}) => ({
+  //   title: 'Parent Profile',
+  // });
+
+  static navigationOptions = ({ navigation }) => ({
+    title: "Profile",
+    activeTab: 4,
   });
+
 
   constructor(props) {
     super(props);
@@ -28,7 +33,6 @@ export default class ParentProfile extends Component {
       parentLastName: null,
       email: null,
       childFirstName: null,
-      prevScreenTitle: this.props.navigation.state.params.prevScreenTitle,
     };
   }
 
