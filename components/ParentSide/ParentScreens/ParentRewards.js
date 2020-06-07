@@ -1,11 +1,6 @@
-// import React, { Component } from 'react';
-// import { Dimensions, StyleSheet, ScrollView, View, Text } from 'react-native';
-// import { TextField, FilledTextField } from 'react-native-material-textfield';
-// import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
-//From Parents Routines
 import React, { Component } from 'react';
-import { Dimensions, StyleSheet, View, Text } from 'react-native';
+import { ScrollView, Dimensions, StyleSheet, View, Text } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { RaisedTextButton } from 'react-native-material-buttons';
 import { MenuProvider, Menu, MenuOption, MenuOptions, MenuTrigger, optionsRenderer, Popover } from 'react-native-popup-menu';
@@ -19,7 +14,6 @@ export default class ParentRewards extends Component {
         prevScreenTitle: 'Testing Home Page',
     });
 
-
     constructor(props) {
         super(props)
         this.state = {
@@ -27,30 +21,19 @@ export default class ParentRewards extends Component {
             secondLoaded: false,
             userId: 1,
             allRewards: null,
-            allRewardNames: null,
+            // allRewardNames: null,
             allActivities: null,
             allActivitiesDictionary: null,
             //don't know if need this
             reward_name: null,
-            routine_name: null, 
-            // reward1: null,
-            // reward2: null,
-            // reward3: null,
-            // reward4: null,
-            //prevScreenTitle: this.props.navigation.state.params.prevScreenTitle,
+            routine_name: null,
+            rewardToDelete: null
         };
     }
-
 
     _renderPage = (props) => (
         <TabViewPage {...props} renderScene={this._renderScene} />
     );
-
-
-    
-
-
-    // fieldRef = React.createRef();
 
     async componentDidMount() {
         this.props.navigation.addListener("didFocus", (payload) => {
@@ -60,7 +43,6 @@ export default class ParentRewards extends Component {
             // this.getAllRewardNames();
         });
     }
-
 
     getRoutines() {
         fetch(Environment + "/getRoutinesByUser/" + this.state.userId, {
@@ -101,16 +83,6 @@ export default class ParentRewards extends Component {
             });
     }
 
-
-    // getAllRewardNames() {
-    //     var tempArray = [];
-    //     this.state.allRewards.map((item) => {
-    //         tempArray.push({ id: item.reward_id, name: item.reward_name });
-    //     });
-    //     this.setState({ allRewardNames: tempArray });
-    // }
-
-
     getAllActivitiesForUser() {
         fetch(Environment + "/getActivities/" + this.state.userId, {
             headers: {
@@ -130,7 +102,6 @@ export default class ParentRewards extends Component {
             });
     }
 
-
     createActivityDictionary() {
         var tempDict = {};
         this.state.allActivities.map((item) => {
@@ -143,25 +114,51 @@ export default class ParentRewards extends Component {
         console.log("the all activities dictionary is below");
         console.log(this.state.allActivitiesDictionary);
         this.setState({ secondLoaded: true });
-
     }
+
+    deleteItem(r){
+        // this.setState({rewardToDelete: item});
+        // this.deleteReward();
+        this.updateReward(r, "deleted", 1)
+    }
+
+    updateReward(rewardId, tag, value) {
+        // console.log("in fetch tag is and value is " + tag + " ")
+        // console.log("updating reward field");
+        console.log("Deleted reward id " + rewardId);
+        var data = {
+            [tag]: value,
+        };
+
+        let response = fetch(
+            Environment + "/updateReward" + rewardId,
+            {
+                method: "POST",
+                headers: {
+                    Accept: "application/json",
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(data),
+            }).then((results) => {
+                console.log("SUCCESS: updated amount of rewards");
+                this.setState({ loaded: false });
+          
+                console.log("delete worked");
+                this.getAllRewardsForUser();
+          
+                if (this.state.loaded) {
+                  console.log("rewards loaded again");
+                  this.displayRewards();
+                }
+            });
+          }
 
     displayRewards() {
         const { navigate } = this.props.navigation;
 
-        // var tempArray = [];
-        // console.log("LOOK HERE");
-        // console.log(this.state.allRewards);
-        // this.state.allRewards.map((item) => {
-        //     tempArray.push({ id: item.reward_id, name: item.reward_name });
-        // });
-        // this.setState({ allRewardNames: tempArray });
-        // console.log("ALL THE REWARD NAMES WOAH")
-        // console.log(this.state.allRewardNames);
         // parse out the db objects returned from the routines call
         return this.state.allRewards.map((item) => {
             //want to map across each reward name in allRewardNames
-
 
             return (
                 <View style={styles["routineContainer"]}>
@@ -173,45 +170,29 @@ export default class ParentRewards extends Component {
                                 <MenuOptions>
                                     <MenuOption
                                         onSelect={() =>
-                                            navigate("EditReward", {
-                                                allRoutines: null,
-                                                allActivities: null,
-                                                currentRoutine: null,
-                                                currentActivity: null,
-                                                routineData: null,
-                                                activityData: null,
-                                                rewardId: item.reward_id, 
+                                            this.props.navigation.navigate("EditReward", {
+                                                prevScreenTitle: "Rewards",
+                                                rewardId: item.reward_id,
                                                 rewardName: item.reward_name,
-                                                rewardImage: null, 
-                                                rewardDescription: item.reward_description
-                                                
+                                                rewardImage: item.reward_image,
+                                                rewardVideo: item.reward_video,
+                                                rewardDescription: item.reward_description,
+                                                deleted: 0
                                             })
                                         }
                                     >
                                         <Text style={{ color: "black" }}>Edit</Text>
                                     </MenuOption>
 
-                                    <MenuOption
-                                        onSelect={() => alert("Duplicate")}
-                                        text="Duplicate"
-                                    />
-                                    <MenuOption onSelect={() => alert("Delete")}>
+
+                                    <MenuOption onSelect={() => this.deleteItem(item.reward_id)}>
                                         <Text style={{ color: "red" }}>Delete</Text>
                                     </MenuOption>
                                 </MenuOptions>
                             </Menu>
                         </View>
 
-                        <View style={styles.routineDetailsPreview}>
-                            <Text style={styles.routineDetails}>
-                                <Icon name="playlist-check" style={styles.routineDetailsIcon} />{" "}
-                                Daily Morning Routine{" "}
-                            </Text>
-                            <Text style={styles.routineDetails}>
-                                <Icon name="star" style={styles.routineDetailsIcon} /> {" "}
-                                1/5 {" "}
-                            </Text>
-                        </View>
+
                     </MenuProvider>
                 </View>
             );
@@ -219,85 +200,66 @@ export default class ParentRewards extends Component {
     }
 
     render() {
-        // if (this.state.results !== null) {
-        //     console.log(this.state.results);
-        // } else {
-        //     return null;
-        // }
+      
 
         let ripple = { id: 'addButton' };
         const { navigate } = this.props.navigation
 
         return (
+            <ScrollView style={{ backgroundColor: "#FFFCF9", padding: 10 }}>
+                <View>
 
-            <View>
-
-                {this.state.loaded && (
-                    <View
-                        style={{
-                            flexDirection: "row",
-                            flexWrap: "wrap",
-                        }}
-                    >
-                        {this.displayRewards()}
-                        {/* {this.displayNewRoutineContainer()} */}
-                    </View>
-                )}
-
-
-
-                {/* New Rewards Container */}
-                <View style={styles.routineContainer}>
-                    <View style={{ flex: 1 }} >
-                        <RaisedTextButton style={styles.roundAddButton}
-                            title='+'
-                            color='#FF6978'
-                            onPress={this._onPress, () =>
-
-                                navigate('EditReward', {
-                                    prevScreenTitle: 'Rewards',
-                                    currentRoutineName: null,
-                                    currentRoutineId: null,
-                                    currentRoutineStartTime: null,
-                                    currentRoutineEndTime: null,
-                                    currentRoutineApproval: 0,
-                                    rewardId: null,
-                                    rewardName: null,
-                                    rewardDescription: null, 
-                                    rewardImage: null,
-                                    rewardVideo: null,
+                    {this.state.loaded && (
+                        <View
+                            style={{
+                                flexDirection: "row",
+                                flexWrap: "wrap",
+                            }}
+                        >
+                            {this.displayRewards()}
+                            {/* {this.displayNewRoutineContainer()} */}
+                        </View>
+                    )}
 
 
-                                    // TO DO: set up rewards
-                                    currentRewards: null
-                                })}
-                            ripple={ripple}
-                        />
 
-                        <Text style={styles.routineTitle} >
-                            Add a Reward
+                    {/* New Rewards Container */}
+                    <View style={styles.routineContainer}>
+                        <View style={{ flex: 1 }} >
+                            <RaisedTextButton style={styles.roundAddButton}
+                                title='+'
+                                color='#FF6978'
+                                onPress={this._onPress, () =>
+
+                                    navigate('EditReward', {
+                                        prevScreenTitle: 'Rewards',
+                                        currentRoutineName: null,
+                                        currentRoutineId: null,
+                                        currentRoutineStartTime: null,
+                                        currentRoutineEndTime: null,
+                                        currentRoutineApproval: 0,
+                                        rewardId: null,
+                                        rewardName: null,
+                                        rewardDescription: null,
+                                        rewardImage: null,
+                                        rewardVideo: null,
+
+
+                                        // TO DO: set up rewards
+                                        currentRewards: null
+                                    })}
+                                ripple={ripple}
+                            />
+
+                            <Text style={styles.routineTitle} >
+                                Add a Reward
                         </Text>
 
+                        </View>
                     </View>
+
                 </View>
-
-                {/* <View style={styles.pageFormat}>
-                    <Text style={styles.pageDescription}>
-                        Rewards are a great way to not only make your child happy but also have them complete daily tasks and routines!
-                    </Text>
-                </View> */}
-
-
-
-                {/* {this.state.loaded &&
-                    <View style={{ flex: 1, flexWrap: 'wrap', flexDirection: 'row', justifyContent: 'space-around' }}>
-
-                        {this.
-                            displayRoutines()}
-                    </View>
-                } */}
-            </View>
-
+            </ScrollView>
         );
     }
 }

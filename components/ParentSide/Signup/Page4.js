@@ -21,7 +21,7 @@ var radio_props = [
     {label: 'Non verbal', value: 4 }
   ];
 
-export default class Question2 extends Component {
+export default class Page4 extends Component {
     constructor(props) {
         super(props);
         const { navigate } = this.props.navigation;
@@ -56,13 +56,6 @@ export default class Question2 extends Component {
 
                 <View style={{backgroundColor:"#FFFCF9"}}>
                     <Text style={styles.pageHeader}>Create your child's profile</Text>
-
-                <StepIndicator
-                    customStyles={customStyles}
-                    stepCount= {4}
-                    currentPosition={this.state.currentPosition}
-                    // labels={labels}
-                />
 
                 <View style={styles.pageBodyContainer}>
                 <Text style={styles.pageBodyText}>4. How would you describe your child’s language ability?</Text>

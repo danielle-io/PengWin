@@ -16,23 +16,15 @@ let customFonts = {
 }
 
 
-
-var radio_props = [
-    {label: 'Reads well', value: 0 },
-    {label: 'Can read but needs visuals for better understanding', value: 1 },
-    {label: 'Cannot read', value: 2 }
-    // {label: 'Other', value: 3 }
-  ];
-
-export default class Question3 extends Component {
+export default class Page1 extends Component {
     constructor(props) {
         super(props);
-        const { navigate } = this.props.navigation;
-        this.navigate = navigate;
+        // const { navigate } = this.props.navigation;
+        // this.navigate = navigate;
         this.state = {
-        prevScreenTitle: this.props.navigation.state.params.prevScreenTitle,
+        // prevScreenTitle: this.props.navigation.state.params.prevScreenTitle,
         fontsLoaded: false,
-        currentPosition: 2,
+        currentPosition: 1,
         selected: false,
         chosenDate: new Date(),
         // steps: 3
@@ -51,7 +43,7 @@ export default class Question3 extends Component {
     // onContinueClicked = () => {
     //     this.props.navigation.navigate("Question2");
     // }
-    
+
     async postPreference(tag, value){
         var data = {
           [tag]: value,
@@ -86,17 +78,13 @@ export default class Question3 extends Component {
     render () {
         // if (this.state.fontsLoaded) {
             return (
-                // console.log("radio button options", radio_props[1].value),
+                console.log("date", new Date()),
+                console.log("date", new Date().getDate()),
 
                 <View style={{backgroundColor:"#FFFCF9"}}>
                     <Text style={styles.pageHeader}>Create your child's profile</Text>
 
-                    <StepIndicator
-                        customStyles={customStyles}
-                        stepCount= {4}
-                        currentPosition={this.state.currentPosition}
-                        // labels={labels}
-                    />
+                
                 {/* <View>
                     <MobileStepper
                         variant="dots"
@@ -107,24 +95,16 @@ export default class Question3 extends Component {
                     
 
                 <View style={styles.pageBodyContainer}>
-                <Text style={styles.pageBodyText}>3. How would you describe your child's reading ability?</Text>
+                <Text style={styles.pageBodyText}>1. What is your child's birthday?</Text>
 
                     {/* <View style={styles.radioButtonsContainer}> */}
 
-                    <View style={styles.radioButtons}>
-
-                        <RadioForm 
-                        radio_props={radio_props}
-                        initial={0}
-                        buttonColor={'#352D39'}
-                        labelStyle={{margin: 8, fontSize: 22, color: '#352D39'}}
-                        // labelWrapStyle ={{lineHeight: 5}}
-                        labelColor={'#352D39'}
-                        selectedButtonColor={'#352D39'}
-                        onPress={(choice) => {this.setState({value:choice}); this.state.selected = true; this.postPreference("reading_ability",choice)} }
-                        //it shows the value of previously selected choice. don't know why¯\_(ツ)_/¯
+                    <DatePickerIOS
+                        date={this.state.chosenDate}
+                        onDateChange={this.setDate}
+                        mode={'date'}
                         />
-                    </View>
+
                 </View>
                     
 
@@ -136,12 +116,18 @@ export default class Question3 extends Component {
                 style={this.state.selected
                         ? styles.buttonPrimary
                         : styles.buttonSecondary}
-                onPress={() => {this.navigate("Question4",{prevScreenTitle: 'Back'}); console.log("valueee", this.state.value); console.log("clickkk")}}
+                onPress={() => {
+                    this.props.navigation.navigate('Page2');                                }}
                 >
                 <View>
+
+                    
                 <Text style={this.state.selected
                         ? styles.buttonPrimaryText
-                        : styles.buttonSecondaryText}>Continue</Text>
+                        : styles.buttonSecondaryText}>Continue
+
+                        
+                        </Text>
                 </View>
                 
                 

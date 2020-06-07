@@ -215,7 +215,7 @@ export default class SignUp extends Component {
 
 
    <View style={styles.loginButton}>
-                <View style={ {flex: 1}, styles.routines}
+   <View style={ {flex: 1}, styles.routines}
                     onStartShouldSetResponder={() =>this.props.navigation.navigate('Pincode',{
                                 }) } >
            <ScrollView>

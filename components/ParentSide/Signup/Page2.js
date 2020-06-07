@@ -26,7 +26,7 @@ var radio_props = [
     {label: 'Other', value: 3 }
   ];
 
-export default class Question1 extends Component {
+export default class Page2 extends Component {
     constructor(props) {
         super(props);
 
@@ -96,12 +96,7 @@ export default class Question1 extends Component {
                 <View style={{backgroundColor:"#FFFCF9"}}>
                     <Text style={styles.pageHeader}>Create your child's profile</Text>
 
-                    <StepIndicator
-                        customStyles={customStyles}
-                        stepCount= {4}
-                        currentPosition={this.state.currentPosition}
-                        // labels={labels}
-                    />
+                   
 
                 {/* <Carousel
                             height={HEIGHT * 0.9}
@@ -113,7 +108,7 @@ export default class Question1 extends Component {
                     
 
                 <View style={styles.pageBodyContainer}>
-                <Text style={styles.pageBodyText}>1. What is your child's gender?</Text>
+                <Text style={styles.pageBodyText}>2. What is your child's gender?</Text>
 
                     {/* <View style={styles.radioButtonsContainer}> */}
 
@@ -134,14 +129,14 @@ export default class Question1 extends Component {
                 </View>
                     
                     
-                {/* <View style={styles.buttonContainer}>
+                 <View style={styles.buttonContainer}>
 
                 <TouchableOpacity
                 style= {this.state.selected
                         ? styles.buttonPrimary
                         : styles.buttonSecondary}
 
-                onPress={() => { this.navigation.navigate("Question2"); console.log("valueee", this.state.value); console.log("clickkk")}}
+                onPress={() => {  this.props.navigation.navigate('Page3'); console.log("valueee", this.state.value); console.log("clickkk")}}
                 >
                 <View>
                 <Text style={this.state.selected
@@ -151,7 +146,7 @@ export default class Question1 extends Component {
                 
                 </TouchableOpacity>
                 
-                </View> */}
+                </View> 
                 
                     
            </View>

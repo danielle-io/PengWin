@@ -16,15 +16,22 @@ let customFonts = {
 }
 
 
-export default class Question2 extends Component {
+
+var radio_props = [
+    {label: 'Reads well', value: 0 },
+    {label: 'Can read but needs visuals for better understanding', value: 1 },
+    {label: 'Cannot read', value: 2 }
+    // {label: 'Other', value: 3 }
+  ];
+
+export default class Page3 extends Component {
     constructor(props) {
         super(props);
-        // const { navigate } = this.props.navigation;
-        // this.navigate = navigate;
+        const { navigate } = this.props.navigation;
+        this.navigate = navigate;
         this.state = {
-        // prevScreenTitle: this.props.navigation.state.params.prevScreenTitle,
         fontsLoaded: false,
-        currentPosition: 1,
+        currentPosition: 2,
         selected: false,
         chosenDate: new Date(),
         // steps: 3
@@ -43,7 +50,7 @@ export default class Question2 extends Component {
     // onContinueClicked = () => {
     //     this.props.navigation.navigate("Question2");
     // }
-
+    
     async postPreference(tag, value){
         var data = {
           [tag]: value,
@@ -78,38 +85,31 @@ export default class Question2 extends Component {
     render () {
         // if (this.state.fontsLoaded) {
             return (
-                console.log("date", new Date()),
-                console.log("date", new Date().getDate()),
+                // console.log("radio button options", radio_props[1].value),
 
                 <View style={{backgroundColor:"#FFFCF9"}}>
                     <Text style={styles.pageHeader}>Create your child's profile</Text>
-
-                    <StepIndicator
-                        customStyles={customStyles}
-                        stepCount= {4}
-                        currentPosition={this.state.currentPosition}
-                        // labels={labels}
-                    />
-                {/* <View>
-                    <MobileStepper
-                        variant="dots"
-                        steps={4}
-                        // position="static"
-                    ></MobileStepper>
-                </View> */}
                     
 
                 <View style={styles.pageBodyContainer}>
-                <Text style={styles.pageBodyText}>2. What is your child's birthday?</Text>
+                <Text style={styles.pageBodyText}>3. How would you describe your child's reading ability?</Text>
 
                     {/* <View style={styles.radioButtonsContainer}> */}
 
-                    <DatePickerIOS
-                        date={this.state.chosenDate}
-                        onDateChange={this.setDate}
-                        mode={'date'}
-                        />
+                    <View style={styles.radioButtons}>
 
+                        <RadioForm 
+                        radio_props={radio_props}
+                        initial={0}
+                        buttonColor={'#352D39'}
+                        labelStyle={{margin: 8, fontSize: 22, color: '#352D39'}}
+                        // labelWrapStyle ={{lineHeight: 5}}
+                        labelColor={'#352D39'}
+                        selectedButtonColor={'#352D39'}
+                        onPress={(choice) => {this.setState({value:choice}); this.state.selected = true; this.postPreference("reading_ability",choice)} }
+                        //it shows the value of previously selected choice. don't know why¯\_(ツ)_/¯
+                        />
+                    </View>
                 </View>
                     
 
@@ -121,16 +121,7 @@ export default class Question2 extends Component {
                 style={this.state.selected
                         ? styles.buttonPrimary
                         : styles.buttonSecondary}
-                onPress={() => {
-                    // this.navigate("Question3",{prevScreenTitle: 'Back'}); 
-                                console.log("type", typeof(this.state.chosenDate)); 
-                                console.log("valueee", String(Number(this.state.chosenDate.getMonth() + 1))
-                                ); console.log("clickkk");
-                                this.postPreference("birthdate",
-                                this.state.chosenDate.getFullYear()+ '-' +
-                                String(Number(this.state.chosenDate.getMonth() + 1)) + '-' + 
-                                this.state.chosenDate.getDate()
-                                )}}
+                onPress={() => {this.navigate("Page4");  }}
                 >
                 <View>
                 <Text style={this.state.selected

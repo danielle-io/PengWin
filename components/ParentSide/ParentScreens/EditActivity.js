@@ -519,31 +519,7 @@ export default class Activity extends Component {
     return `${this._getMMSSFromMillis(0)}`;
   }
 
-  // }
-
-  // Start recording
-  // let rec = new Recorder("hello.mp4").record();
-  // this.setState((state) => {
-  //   const list = [...state.recordings, rec];
-  //   return {
-  //     recordings: list,
-  //   };
-  // };
-
-  // Stop recording after approximately 3 seconds
-  //   setTimeout(() => {
-  //     rec.stop((err) => {
-  //       // NOTE: In a real situation, handle possible errors here
-
-  //       // Play the file after recording has stopped
-  //       let play = new Player("hello.mp4").play().on("ended", () => {
-  //         // Enable button again after playback finishes
-  //         this.setState({ disabled: false });
-  //       });
-  //     });
-  //   }, 3000);
-  // }
-
+  
   imagePicker = async (imageName) => {
     console.log("in image picker");
     let pickerResult = await ImagePicker.launchImageLibraryAsync({

@@ -21,11 +21,13 @@ import Notifications from "./ParentSide/ParentScreens/Notifications";
 import RoutineApproval from "./ParentSide/ParentScreens/RoutineApproval";
 import CheckOffRoutine from "./ParentSide/ParentScreens/CheckOffRoutine";
 
-import Question1 from './ParentSide/Questionnaire/Question1';
-import Question2 from './ParentSide/Questionnaire/Question2';
-import Question3 from './ParentSide/Questionnaire/Question3';
-import Question4 from './ParentSide/Questionnaire/Question4';
 import Questionnaire from './ParentSide/Questionnaire/Main';
+
+import Start from './ParentSide/Signup/Start';
+import Page1 from './ParentSide/Signup/Page1';
+import Page2 from './ParentSide/Signup/Page2';
+import Page3 from './ParentSide/Signup/Page3';
+import Page4 from './ParentSide/Signup/Page4';
 
 import ChildRoutines from "./ChildScreens/ChildNavigation";
 import ChildActivity from "./ChildScreens/ChildActivity";
@@ -37,15 +39,16 @@ import ChildHurray from "./ChildScreens/ChildHurray";
 import ChildActivityReward from "./ChildScreens/ChildActivityReward";
 import ChildStartActivity from "./ChildScreens/ChildStartActivity";
 import ChildCamera from "../components/ImageRecognition/ChildCamera";
-
 import TestingHomePage from "./TestingHomePage";
 
 const Screens = createStackNavigator({
-  
+
   TestingHomePage: {screen: TestingHomePage},
   ParentNavigation: {screen: ParentNavigation},
-
   
+ 
+
+  ParentNavigation: {screen: ParentNavigation},
 
   Login: {screen: Login},
   SignUp: {screen: SignUp},
@@ -63,11 +66,13 @@ const Screens = createStackNavigator({
 
   // Notifications: {screen: Notifications},
   Questionnaire: {screen:Questionnaire},
-  Question1: {screen:Question1},
-  Question2: {screen:Question2},
-  Question3: {screen:Question3},
-  Question4: {screen:Question4},
   
+  Start: {screen:Start},
+  Page1: {screen:Page1},
+  Page2: {screen:Page2},
+  Page3: {screen:Page3},
+  Page4: {screen:Page4},
+
   Notifications: {screen: Notifications},
   EditReward: { screen: EditReward },
   ParentProfile: { screen: ParentProfile },
