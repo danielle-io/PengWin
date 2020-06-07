@@ -1,4 +1,3 @@
-
 import React, { Component } from 'react';
 import { ScrollView, Dimensions, StyleSheet, View, Text } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -21,12 +20,8 @@ export default class ParentRewards extends Component {
             secondLoaded: false,
             userId: 1,
             allRewards: null,
-            // allRewardNames: null,
             allActivities: null,
             allActivitiesDictionary: null,
-            //don't know if need this
-            reward_name: null,
-            routine_name: null,
             rewardToDelete: null
         };
     }
@@ -37,10 +32,7 @@ export default class ParentRewards extends Component {
 
     async componentDidMount() {
         this.props.navigation.addListener("didFocus", (payload) => {
-            // this.getRoutines();
-            // this.getAllActivitiesForUser();
             this.getAllRewardsForUser();
-            // this.getAllRewardNames();
         });
     }
 
@@ -83,53 +75,14 @@ export default class ParentRewards extends Component {
             });
     }
 
-    getAllActivitiesForUser() {
-        fetch(Environment + "/getActivities/" + this.state.userId, {
-            headers: {
-                "Cache-Control": "no-cache",
-            },
-        })
-            .then((response) => response.json())
-            .then((responseJson) => {
-                return responseJson;
-            })
-            .then((results) => {
-                this.setState({ allActivities: results });
-                this.createActivityDictionary();
-            })
-            .catch((error) => {
-                console.error(error);
-            });
-    }
-
-    createActivityDictionary() {
-        var tempDict = {};
-        this.state.allActivities.map((item) => {
-            tempDict[item.activity_id] = item;
-        });
-        console.log("TEMP DICT BELOW");
-        console.log(tempDict);
-
-        this.setState({ allActivitiesDictionary: tempDict });
-        console.log("the all activities dictionary is below");
-        console.log(this.state.allActivitiesDictionary);
-        this.setState({ secondLoaded: true });
-    }
-
-    deleteItem(r){
-        // this.setState({rewardToDelete: item});
-        // this.deleteReward();
+    deleteItem(r) {
         this.updateReward(r, "deleted", 1)
     }
 
     updateReward(rewardId, tag, value) {
-        // console.log("in fetch tag is and value is " + tag + " ")
-        // console.log("updating reward field");
-        console.log("Deleted reward id " + rewardId);
         var data = {
             [tag]: value,
         };
-
         let response = fetch(
             Environment + "/updateReward" + rewardId,
             {
@@ -142,24 +95,21 @@ export default class ParentRewards extends Component {
             }).then((results) => {
                 console.log("SUCCESS: updated amount of rewards");
                 this.setState({ loaded: false });
-          
+
                 console.log("delete worked");
                 this.getAllRewardsForUser();
-          
+
                 if (this.state.loaded) {
-                  console.log("rewards loaded again");
-                  this.displayRewards();
+                    console.log("rewards loaded again");
+                    this.displayRewards();
                 }
             });
-          }
+    }
 
     displayRewards() {
         const { navigate } = this.props.navigation;
-
-        // parse out the db objects returned from the routines call
         return this.state.allRewards.map((item) => {
             //want to map across each reward name in allRewardNames
-
             return (
                 <View style={styles["routineContainer"]}>
                     <MenuProvider>
@@ -200,8 +150,6 @@ export default class ParentRewards extends Component {
     }
 
     render() {
-      
-
         let ripple = { id: 'addButton' };
         const { navigate } = this.props.navigation
 
@@ -217,7 +165,6 @@ export default class ParentRewards extends Component {
                             }}
                         >
                             {this.displayRewards()}
-                            {/* {this.displayNewRoutineContainer()} */}
                         </View>
                     )}
 
@@ -243,10 +190,6 @@ export default class ParentRewards extends Component {
                                         rewardDescription: null,
                                         rewardImage: null,
                                         rewardVideo: null,
-
-
-                                        // TO DO: set up rewards
-                                        currentRewards: null
                                     })}
                                 ripple={ripple}
                             />
@@ -269,10 +212,6 @@ export default class ParentRewards extends Component {
 
 //Routines style sheet
 const styles = StyleSheet.create({
-
-    pageFormat: {
-        marginTop: -10
-    },
     pageDescription: {
         marginTop: 30,
         fontSize: 20,
@@ -300,37 +239,9 @@ const styles = StyleSheet.create({
         textAlign: 'center',
         flex: 1,
     },
-    routineContainterOptions: {
-        overflow: 'visible',
-        zIndex: 999,
-    },
-    routineOptionsPopout: {
-        overflow: 'visible',
-        zIndex: 999,
-    },
     routineMenuStyling: {
         overflow: 'visible',
         zIndex: 999,
-    },
-    routineDetailsIcon: {
-        color: '#355C7D',
-        fontSize: 14,
-    },
-    routineDetails: {
-        fontSize: 10,
-        zIndex: 2,
-    },
-    routineDetailsPreview: {
-        zIndex: 2,
-        marginBottom: 10,
-        marginLeft: 5,
-    },
-    selectText: {
-        fontSize: 15,
-        padding: 5,
-        marginTop: 10,
-        marginBottom: 10,
-        marginLeft: 10,
     },
     routineContainer: {
         width: WIDTH * .3,
@@ -340,24 +251,6 @@ const styles = StyleSheet.create({
         justifyContent: 'space-around',
         borderRadius: 10,
         backgroundColor: '#FFFFFF',
-        shadowOffset: { width: 5, height: 5, },
-        shadowColor: 'black',
-        shadowOpacity: .1,
-        borderWidth: 0,
-        paddingTop: 10,
-        overflow: 'visible',
-        marginLeft: 10,
-        marginRight: 10,
-    },
-
-    inactiveRoutineContainer: {
-        width: WIDTH * .3,
-        height: 150,
-        marginTop: 20,
-        marginBottom: 5,
-        justifyContent: 'space-around',
-        borderRadius: 10,
-        backgroundColor: '#d3d3d3',
         shadowOffset: { width: 5, height: 5, },
         shadowColor: 'black',
         shadowOpacity: .1,
@@ -389,9 +282,6 @@ const styles = StyleSheet.create({
         textAlignVertical: "auto",
         width: 220,
         marginBottom: 25,
-    },
-    dialog: {
-        backgroundColor: "#e1d8ff",
     },
     title: {
         fontSize: 16,
