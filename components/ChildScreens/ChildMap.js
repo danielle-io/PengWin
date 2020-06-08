@@ -38,6 +38,16 @@ export default class ChildMap extends Component {
       amt: this.props.navigation.state.params.amt,
       reward: this.props.navigation.state.params.reward,
       routineId: this.props.navigation.state.params.routineId,
+
+      currentRoutine: this.props.navigation.state.params.currentRoutine,
+      routineId: this.props.navigation.state.params.routineId,
+      rewardId: this.props.navigation.state.params.rewardId,
+      requiresApproval: this.props.navigation.state.params.requiresApproval,
+      amountOfActivities: this.props.navigation.state.params.amountOfActivities,
+      routineName: this.props.navigation.state.params.routineName,
+      activities: this.props.navigation.state.params.activities,
+      rewards: this.props.navigation.state.params.rewards,
+      routineTime: this.props.navigation.state.params.routineTime,
       fontsLoaded: false,
     };
   }
@@ -164,10 +174,17 @@ export default class ChildMap extends Component {
               <TouchableOpacity
                 style={styles.button}
                 onPress={() =>
-                  this.props.navigation.navigate("ChildActivity", {
-                    prevScreenTitle: "My Map",
+                  this.props.navigation.navigate("ChildStartActivity", {
+                    prevScreenTitle: "My Routines",
                     currentRoutine: this.state.title,
                     routineId: this.state.routineId,
+                    routineName: this.state.routineName,
+                    activities: this.state.activities,
+                    rewards: this.state.rewards,
+                    rewardId: this.state.rewardId,
+                    requiresApproval: this.state.requiresApproval,
+                    amountOfActivities: this.state.amountOfActivities,
+                    routineTime: this.state.routineTime
                   })
                 }
               >

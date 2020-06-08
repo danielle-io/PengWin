@@ -158,10 +158,9 @@ function AppTabView(props) {
 //Routing Screens
 const AppTabRouter = TabRouter(
   {
-
-    Notifications: { screen: Notifications },
-    ParentProfile: { screen: ParentProfile },
     ParentRoutines: { screen: ParentRoutines },
+    ParentProfile: { screen: ParentProfile },
+    
     ParentRewards: { screen: ParentRewards },
     Progress: { screen: Progress },
     Notifications: { screen: Notifications },

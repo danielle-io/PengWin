@@ -35,6 +35,7 @@ export default class ChildStartActivity extends Component {
       routineName: this.props.navigation.state.params.routineName,
       activities: this.props.navigation.state.params.activities,
       rewards: this.props.navigation.state.params.rewards,
+      routineTime: this.props.navigation.state.params.routineTime,
     };
     const { navigate } = this.props.navigation;
     this.navigate = navigate;
@@ -132,14 +133,21 @@ export default class ChildStartActivity extends Component {
   }
 
   render() {
+    let time = this.state.routineTime.split(":");
+    let hours = time[0];
+    let ampm = "AM";
+    if (hours > 11) ampm = "PM";
+    hours = hours % 12 || 12;
+
     if (this.state.loaded) {
       return (
         <View style={styles.container}>
           <Text style={styles.title}> Start {this.state.routineName}</Text>
           <Text style={styles.section}>
             {" "}
-            Hi, {this.state.child.first_name}! It’s It’s time to start your{" "}
-            {this.state.routineName}! Complete the routine to earn{" "}
+            Hi, {this.state.child.first_name}! It’s{" "}
+            {hours + ":" + time[1] + " " + ampm} and that means it’s time to
+            start your {this.state.routineName}! Complete the routine to earn{" "}
             {this.state.activities} stars and win {this.state.rewards} exciting
             rewards :){" "}
           </Text>
@@ -148,7 +156,7 @@ export default class ChildStartActivity extends Component {
           <TouchableOpacity
             style={styles.buttonStyle}
             onPress={() => {
-              this.insertChildNotification();
+                this.insertChildNotification();
             }}
           >
             <Text style={styles.textStyle}>Start Routine!</Text>

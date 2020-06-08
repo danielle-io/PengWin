@@ -202,8 +202,19 @@ export default class ChildRewards extends Component {
                     reward: item.reward_name,
                     routineId: item.routine_id,
                     rewardId: item.reward_id,
-                    requiresApproval: item.requires_approval
+                    requiresApproval: item.requires_approval,
+                    currentRoutine: item.routine_name,
+                    routineId: item.routine_id,
+                    routineName: item.routine_name,
+                    activities: item.amount_of_activities,
+                    rewards: item.amount_of_rewards,
+                    rewardId: item.reward_id,
+                    requiresApproval: item.requires_approval,
+                    amountOfActivities: item.amount_of_activities,
+                    routineTime: item.start_time,
                   })
+
+                  
                 }
               >
                 <ScrollView>
