@@ -53,7 +53,6 @@ export default class ChildNotifScreen extends Component {
   }
 
   async insertChildNotification(){
-    console.log("inserting child notification");
 
     const parentId = UserInfo.parent_id;
     const childId = UserInfo.child_id;
@@ -89,7 +88,6 @@ export default class ChildNotifScreen extends Component {
         return responseJson;
       })
       .then((results) => {
-        console.log("inserted a notification!!! " + results.child_notifications_id);
         this.navigate("ChildActivity", {
           prevScreenTitle: "My Routines",
           currentRoutine: this.state.currentRoutine,
@@ -143,7 +141,6 @@ export default class ChildNotifScreen extends Component {
   render() {
     let time = this.state.routineTime.split(":");
     let hours = time[0];
-    console.log(hours);
     let ampm = "AM";
     if (hours > 11) ampm = "PM";
     hours = hours % 12 || 12;

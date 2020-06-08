@@ -73,6 +73,7 @@ export default class EditRoutine extends Component {
       addRewardButtonClicked: false,
       loadedAfterDeletion: true,
       saveClicked: false,
+      newRoutineNewActivity: false,
     };
   }
 
@@ -108,32 +109,34 @@ export default class EditRoutine extends Component {
 
   // Update the activity routine relationship table
   async insertActivityRelationship(activity_id, order) {
-    var data = {
-      routine_id: this.state.routineId,
-      activity_id: activity_id,
-      order: order,
-    };
-    try {
-      let response = await fetch(
-        Environment + "/insertRoutineActivityRelationship/",
-        {
-          method: "POST",
-          headers: {
-            Accept: "application/json",
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(data),
+    if (this.state.routineId) {
+      var data = {
+        routine_id: this.state.routineId,
+        activity_id: activity_id,
+        order: order,
+      };
+      try {
+        let response = await fetch(
+          Environment + "/insertRoutineActivityRelationship/",
+          {
+            method: "POST",
+            headers: {
+              Accept: "application/json",
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(data),
+          }
+        );
+        if (response.status >= 200 && response.status < 300) {
+          this.getActivityRoutineJoinTable();
+          this.setState({
+            amount_of_activities: this.state.amount_of_activities + 1,
+          });
+          this.setState({ currentlySelectedActivity: null });
         }
-      );
-      if (response.status >= 200 && response.status < 300) {
-        this.getActivityRoutineJoinTable();
-        this.setState({
-          amount_of_activities: this.state.amount_of_activities + 1,
-        });
-        this.setState({ currentlySelectedActivity: null });
+      } catch (errors) {
+        console.log(errors);
       }
-    } catch (errors) {
-      console.log(errors);
     }
   }
 
@@ -155,7 +158,6 @@ export default class EditRoutine extends Component {
         }
       );
       if (response.status >= 200 && response.status < 300) {
-
         if (tag === "deleted") {
           // Re-fetch the activities, set up by order & id, then
           // remove used ones from all activities (all in one call)
@@ -181,6 +183,7 @@ export default class EditRoutine extends Component {
 
   // Update the DB
   updateRoutineData() {
+    console.log("update routine data");
     // Make sure the activity amount is correct, and if not, update it as well
     if (this.state.routineActivitiesByOrder) {
       this.updateRoutineActivityAmount();
@@ -197,7 +200,11 @@ export default class EditRoutine extends Component {
         });
       }
     }
-    this.props.navigation.navigate("ParentRoutines");
+    if (!this.state.newRoutineNewActivity) {
+      this.props.navigation.navigate("ParentRoutines");
+    } else {
+      this.setState({ newRoutineNewActivity: false });
+    }
   }
 
   createNewRoutine() {
@@ -205,7 +212,7 @@ export default class EditRoutine extends Component {
       const parentId = UserInfo.parent_id;
       const childId = UserInfo.child_id;
       const userId = UserInfo.user_id;
-      data = {
+      var data = {
         routine_name: this.state.routineName,
         start_time: this.state.startTime,
         end_time: this.state.endTime,
@@ -243,6 +250,13 @@ export default class EditRoutine extends Component {
         .then((results) => {
           // Set the new routineId
           this.setState({ routineId: results.insertId });
+          if (
+            this.state.currentlySelectedActivity !== null &&
+            this.state.routineId
+          ) {
+            console.log("adding activity to state");
+            // this.addNewActivityToState();
+          }
           this.saveAnyChanges();
         })
         .catch((error) => {
@@ -375,9 +389,7 @@ export default class EditRoutine extends Component {
         amount_of_activities: this.state.amount_of_activities - 1,
       });
       this.updateActivityOrders(order, listName, routineActivityId);
-    }
-
-    else {
+    } else {
       this.setState({
         amount_of_rewards: 0,
       });
@@ -392,7 +404,6 @@ export default class EditRoutine extends Component {
       this.state.routineActivitiesByOrder !== null &&
       this.state.routineActivitiesByOrder !== []
     ) {
-
       var arrLength = Object.keys(this.state.routineActivitiesByOrder).length;
       for (var i = order; i < arrLength; i++) {
         var currentActivity = this.state.routineActivitiesByOrder[i];
@@ -614,8 +625,7 @@ export default class EditRoutine extends Component {
 
     if (this.state.requiresApproval === 0) {
       this.setState({ requiresApproval: 1 });
-    } 
-    else {
+    } else {
       this.setState({ requiresApproval: 0 });
       newSwitchValue = 0;
     }
@@ -625,8 +635,16 @@ export default class EditRoutine extends Component {
 
   // ReRender the components on the click of the new button
   reRenderList(listName) {
-    this.setState({ activityChangeLoad: false });
+    if (!this.saveClicked) {
+      this.setState({ activityChangeLoad: false });
+    }
+    if (!this.state.routineId) {
 
+      if (this.state.currentlySelectedActivity) {
+        this.setState({ newRoutineNewActivity: true });
+        this.createNewRoutine();
+      }
+    }
     if (listName === "activity") {
       // This is to save the previously added activity if they
       // already added one and now clicked add again
@@ -634,36 +652,47 @@ export default class EditRoutine extends Component {
         this.addNewActivityToState();
       }
 
-      // Display everything once the activity is loaded
-      {
-        this.state.activityChangeLoad && this.displayList(listName);
-        this.addRow(
-          Object.keys(this.state.routineActivitiesByOrder).length + 1,
-          "activity"
-        );
+      if (!this.saveClicked) {
+        // Display everything once the activity is loaded
+        {
+          this.state.activityChangeLoad && this.displayList(listName);
+          this.addRow(
+            Object.keys(this.state.routineActivitiesByOrder).length + 1,
+            "activity"
+          );
+        }
       }
-    }
 
-    // Re-Load Rewards
-    if (listName === "reward") {
-      this.changeRoutineComponent("reward_id", this.state.newReward.id);
+      // Re-Load Rewards
+      if (listName === "reward") {
+        this.changeRoutineComponent("reward_id", this.state.newReward.id);
 
-      this.setState({
-        currentlySelectedReward: this.state.allRewardsByIdDictionary[
-          this.state.newReward.id
-        ],
-      });
+        this.setState({
+          currentlySelectedReward: this.state.allRewardsByIdDictionary[
+            this.state.newReward.id
+          ],
+        });
+      }
     }
   }
 
   addNewActivityToState() {
     var order = Object.keys(this.state.routineActivitiesByOrder).length;
-
-    var activity = this.state.allActivitiesDictionary[
+    // Avoid duplicate inserts
+    if (
+      this.state.currentlySelectedActivity &&
       this.state.currentlySelectedActivity.id
-    ];
-
-    this.insertActivityRelationship(activity.activity_id, order);
+    ) {
+      console.log("id exists");
+      // if (!this.state.currentlySelectedActivity.id in this.state.allActivitiesDictionary)
+      // {
+      console.log("not in dict");
+      var activity = this.state.allActivitiesDictionary[
+        this.state.currentlySelectedActivity.id
+      ];
+      this.insertActivityRelationship(activity.activity_id, order);
+      // }
+    }
   }
 
   getAddButtonClickAction(listName) {
@@ -928,12 +957,16 @@ export default class EditRoutine extends Component {
     if (!this.saveClicked) {
       this.setState({ addActivityButtonClicked: false });
       this.setState({ addRewardButtonClicked: false });
-    }
+    } else {
+      console.log("save clicked");
 
+      this.clickedAddActivity();
+    }
     this.updateDateChanges();
 
     // This means an item was selected but the add button wasnt pressed
-    if (this.state.currentlySelectedActivity != null) {
+    if (this.state.currentlySelectedActivity !== null && this.state.routineId) {
+      console.log("adding new activity");
       this.addNewActivityToState();
     }
 
@@ -969,6 +1002,7 @@ export default class EditRoutine extends Component {
   };
 
   _onSubmit = () => {
+    console.log("save clicked");
     this.setState({ saveClicked: true });
     if (this.state.routineId !== null) {
       this.saveAnyChanges();
@@ -977,9 +1011,9 @@ export default class EditRoutine extends Component {
       this.createNewRoutine();
     }
 
-      this.navigate("ParentNavigation", {
-        prevScreenTitle: "Routines",
-      });
+    this.navigate("ParentNavigation", {
+      prevScreenTitle: "Routines",
+    });
   };
 
   render() {
@@ -1040,28 +1074,29 @@ export default class EditRoutine extends Component {
                     }}
                   >
                     <TouchableOpacity
-                    onPress={
-                      (this._onPress,
-                      () =>
-                        this.props.navigation.navigate("EditActivity", {
-                          activityName: null,
-                          activityId: null,
-                          activityImagePath: null,
-                          activityDescription: null,
-                          activityAudioPath: null,
-                          activityVideoPath: null,
-                          activityTags: [],
-                          isPublic: 0,
-                          deletingRoutine: null,
-                          containersLoaded: null,
-                          rewardImage: null,
-                          rewardVideo: null,
-                          rewardDescription: null,
-                          previousPage: "Edit Routine",
-                          allActivitiesDictionary: this.state.allActivitiesDictionary,
-                        }))
-                    }
-                    ripple={ripple}
+                      onPress={
+                        (this._onPress,
+                        () =>
+                          this.props.navigation.navigate("EditActivity", {
+                            activityName: null,
+                            activityId: null,
+                            activityImagePath: null,
+                            activityDescription: null,
+                            activityAudioPath: null,
+                            activityVideoPath: null,
+                            activityTags: [],
+                            isPublic: 0,
+                            deletingRoutine: null,
+                            containersLoaded: null,
+                            rewardImage: null,
+                            rewardVideo: null,
+                            rewardDescription: null,
+                            previousPage: "Edit Routine",
+                            allActivitiesDictionary: this.state
+                              .allActivitiesDictionary,
+                          }))
+                      }
+                      ripple={ripple}
                       style={{ flexDirection: "row" }}
                     >
                       <Icon name="plus" style={styles.tagMenuIcons} />
@@ -1179,7 +1214,7 @@ export default class EditRoutine extends Component {
           >
             <RaisedTextButton
               onPress={() => this._onSubmit()}
-              style={{ width: 100, borderRadius: 40}}
+              style={{ width: 100, borderRadius: 40 }}
               titleStyle={styles.buttonstyle}
               title="Save"
               titleColor={"white"}
@@ -1308,7 +1343,6 @@ const styles = StyleSheet.create({
     fontSize: 20,
     marginTop: 10,
     marginBottom: 10,
-    // width: 600,
   },
   formIndent: {
     marginLeft: 30,
@@ -1334,7 +1368,6 @@ const styles = StyleSheet.create({
     borderWidth: 0,
   },
   tagMenuIconText: {
-    // color: "#FF6978",
     fontSize: 18,
     paddingTop: 5,
     marginLeft: 8,

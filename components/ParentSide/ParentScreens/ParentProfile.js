@@ -59,8 +59,7 @@ export default class ParentProfile extends Component {
     }
   }
 
-  // This allows this page to refresh when you come back from
-  // edit routines, which allows it to display any changes made
+
   componentDidMount() {
     this.props.navigation.addListener("didFocus", (payload) => {
       this.getUserInfo(), this.getChildInfo();
@@ -68,7 +67,6 @@ export default class ParentProfile extends Component {
   }
 
   getChildInfo() {
-    // Get the routines data from the db
     fetch(Environment + "/getChildFromParent/" + userId, {
       headers: {
         "Cache-Control": "no-cache",
@@ -88,7 +86,6 @@ export default class ParentProfile extends Component {
   }
 
   getUserInfo() {
-    // Get the routines data from the db
     fetch(Environment + "/getUser/" + userId, {
       headers: {
         "Cache-Control": "no-cache",
@@ -191,17 +188,36 @@ export default class ParentProfile extends Component {
 
   displayQuestionnaire() {
     return (
-      <View style={styles.question}>
-        <TouchableOpacity
-          onPress={() => {
-            this.navigate("Questionnaire");
+      <TouchableOpacity
+        onPress={() => {
+          this.navigate("Questionnaire");
+        }}
+      >
+        <View
+          style={{
+            flexDirection: "row",
+            justifyContent: "space-between",
+            marginLeft: 100,
+            marginRight: 100,
+            marginBottom: 50,
           }}
-          style={{ flexDirection: "row" }}
         >
-          <Icon name="account" style={styles.tagMenuIcons} />
-          <Text style={styles.tagMenuIconText}> Create Child's Profile</Text>
-        </TouchableOpacity>
-      </View>
+            <Text style={styles.tagMenuIconText}>
+              Create Child's Profile
+            </Text>
+
+          <View
+            stlye={{
+              textAlign: "right",
+              alignItems: "flex-end",
+              justifyContent: "flex-end",
+              marginTop: 20,
+            }}
+          >
+            <Icon style={styles.tagMenuIcons} name="chevron-right" />
+          </View>
+        </View>
+      </TouchableOpacity>
     );
   }
 
@@ -232,11 +248,6 @@ const styles = StyleSheet.create({
     marginRight: 100,
     marginBottom: 50,
   },
-  question: {
-    marginLeft: 80,
-    marginRight: 100,
-    marginBottom: 50,
-  },
   avatarContainer: {
     justifyContent: "center",
     alignItems: "center",
@@ -247,83 +258,35 @@ const styles = StyleSheet.create({
     color: "#FF6978",
     fontSize: 20,
     paddingTop: 5,
-    marginLeft: 30,
+    marginLeft: 10,
     marginTop: 10,
     flexDirection: "row",
   },
-
   textFields: {
     padding: 5,
     margin: 2,
-    marginLeft: 10,
+    marginLeft: 0,
     marginTop: 10,
     marginBottom: 10,
     fontSize: 20,
   },
-  formIndent: {
-    marginLeft: 30,
-  },
-  imageContainer: {
-    alignItems: "center",
-    marginBottom: 200,
-  },
-  imageButton: {
-    marginTop: 50,
-    marginLeft: 100,
-  },
-  descriptionBox: {
-    borderColor: "#e8e8e8",
-    borderWidth: 1,
-    borderRadius: 15,
-  },
-  descriptionLines: {
-    marginBottom: 4,
-    marginLeft: 8,
-    marginRight: 8,
-    marginTop: 10,
-  },
-  routineDetails: {
-    fontSize: 10,
-    paddingTop: 15,
-    paddingLeft: 15,
-  },
-  detailsContainer: {
-    padding: 2,
-    paddingTop: 10,
-    paddingBottom: 15,
-  },
-  routines: {
-    paddingLeft: 3,
-    textAlignVertical: "center",
-    width: WIDTH * 0.3,
-    height: 100,
-    marginTop: 5,
-    marginBottom: 5,
-    borderWidth: 3,
-    borderRadius: 15,
-    backgroundColor: "white",
-    shadowOffset: { width: 5, height: 5 },
-    shadowColor: "black",
-    shadowOpacity: 0.1,
-  },
-  routineTitle: {
-    fontSize: 14,
-    textAlign: "center",
-    textAlignVertical: "center",
-  },
   tagMenuIconText: {
-    // color: "#FF6978",
+    flexDirection: "row",
+    fontSize: 20,
     fontSize: 18,
     paddingTop: 5,
     marginTop: 8,
   },
   tagMenuIcons: {
+    flexDirection: "row",
     color: "#FF6978",
-    fontSize: 18,
+    fontSize: 22,
     paddingTop: 5,
     marginLeft: 30,
-    marginTop: 10,
-    flexDirection: "row",
+    marginTop: 8,
     fontWeight: "bold",
+    alignSelf: "flex-end",
+    textAlign: "right",
+    justifyContent: "flex-end",
   },
 });

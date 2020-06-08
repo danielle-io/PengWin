@@ -148,7 +148,6 @@ export default class ChildPincode extends Component {
                 value={code}
                 onTextChange={(code) => this.setState({ code })}
                 onFulfill={this._checkCode}
-                onBackspace={() => console.log("No more back.")}
               />
               <View style={{ marginTop: 30 }} />
               <Button
