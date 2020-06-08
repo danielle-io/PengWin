@@ -21,7 +21,7 @@ import Notifications from "./ParentSide/ParentScreens/Notifications";
 import RoutineApproval from "./ParentSide/ParentScreens/RoutineApproval";
 import CheckOffRoutine from "./ParentSide/ParentScreens/CheckOffRoutine";
 
-import Questionnaire from './ParentSide/Questionnaire/Main';
+import Questionnaire from './ParentSide/ParentScreens/Questionnaire';
 
 import Start from './ParentSide/Signup/Start';
 import Page1 from './ParentSide/Signup/Page1';

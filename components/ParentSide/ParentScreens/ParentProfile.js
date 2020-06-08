@@ -1,9 +1,11 @@
 import React, {Component} from 'react';
-import {View, Dimensions, StyleSheet} from 'react-native';
+import {View, Text, Dimensions, StyleSheet, TouchableOpacity} from 'react-native';
 import {TextField} from 'react-native-material-textfield';
 import UserAvatar from 'react-native-user-avatar';
 import Environment from '../../../database/sqlEnv';
 import UserInfo from "../../../state/UserInfo";
+import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+Icon.loadFont();
 
 const {width: WIDTH} = Dimensions.get('window');
 const parentId = UserInfo.parent_id;
@@ -19,7 +21,9 @@ export default class ParentProfile extends Component {
   constructor(props) {
     super(props);
     const {navigate} = this.props.navigation;
+    this.navigate = navigate;
     this.state = {
+      prevScreenTitle: "Profile",
       firstLoaded: false,
       loaded: false,
       childResults: null,
@@ -195,9 +199,39 @@ export default class ParentProfile extends Component {
           />
 
           {this.getChildsName()}
+
         </View>
+
+        
       );
     });
+  }
+
+  displayQuestionnaire() {
+
+    return (
+      <View style={styles.createProfile}>
+          <TouchableOpacity
+          onPress={()=>{this.navigate("Questionnaire")}}
+          >
+            <Text style={{
+            marginLeft: 10,
+            marginBottom: 10,
+            fontSize: 20}}> Create Child's Profile 
+                {/* <Icon
+                name='menu-right'
+                size= '28'
+                color='#5a5a5a' 
+                style={{top: 5}}
+                /> */}
+            </Text>
+            
+
+          </TouchableOpacity>
+
+      </View>
+    )
+    
   }
 
   fieldRef = React.createRef();
@@ -207,9 +241,14 @@ export default class ParentProfile extends Component {
     return (
       <View>
         {this.state.loaded && this.state.firstLoaded && (
-          <View>{this.displayUserData()}</View>
+          <View>{this.displayUserData()}
+          </View> 
         )}
+
+        {this.displayQuestionnaire()}
+        
       </View>
+      
     );
   }
 }
@@ -217,6 +256,12 @@ export default class ParentProfile extends Component {
 const styles = StyleSheet.create({
   parentProfileFormContainer: {
     marginTop: 10,
+    marginLeft: 100,
+    marginRight: 100,
+    marginBottom: 15,
+  },
+  createProfile: {
+    // marginTop: 1,
     marginLeft: 100,
     marginRight: 100,
     marginBottom: 50,

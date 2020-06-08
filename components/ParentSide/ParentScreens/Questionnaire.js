@@ -51,7 +51,7 @@ export default class Questionnaire extends Component {
               "tag":"language_ability"}],
           
             questionsLoaded: false,
-            prevScreenTitle: this.props.navigation.state.params.prevScreenTitle,
+            //prevScreenTitle: this.props.navigation.state.params.prevScreenTitle,
             // selected: false,
             datepicker_visible: false,
             chosenDate: new Date(),
@@ -92,7 +92,7 @@ export default class Questionnaire extends Component {
 
   static navigationOptions = ({ navigation }) => ({
     title: "Questionnaire",
-    prevScreenTitle: "Back",
+    //prevScreenTitle: "ParentProfile",
   });
 
  
