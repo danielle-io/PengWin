@@ -139,7 +139,6 @@ export default class ParentRoutines extends Component {
       })
       .then((routineResults) => {
         this.setState({ routines: routineResults });
-        // this.checkAmounts(routineResults);
         this.setState({ routinesLoaded: true });
       })
       .catch((error) => {
@@ -1036,7 +1035,6 @@ export default class ParentRoutines extends Component {
                       onSelect={() => this.duplicateActivity(item)}
                       text="Duplicate"
                     />
-                    {/* TODO: set up delete activity method */}
                     <MenuOption
                       onSelect={() => this.itemDeletionModal(item, "activity")}
                     >

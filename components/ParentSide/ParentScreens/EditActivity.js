@@ -1,5 +1,3 @@
-// TODO: the reward amount in the relational table needs to be updated when the
-// reward here is removed or added
 import React, { Component } from "react";
 import {
   Dimensions,
@@ -49,7 +47,6 @@ export default class Activity extends Component {
     this.isSeeking = false;
     this.shouldPlayAtEndOfSeek = false;
     this.state = {
-      // disabled: false,
       video: null,
       prevScreenTitle: this.props.navigation.state.params.prevScreenTitle,
       recordings: [],
@@ -728,7 +725,6 @@ export default class Activity extends Component {
           <TextField
             placeholder="Explain steps that would help your child complete the activity."
             value={this.state.activityDescription}
-            // labelOffset={10}
             style={
               (styles.textfieldWithFloatingLabel,
               styles.textFields,
@@ -765,8 +761,6 @@ export default class Activity extends Component {
             <View>
               {/* Record button */}
               <TouchableOpacity
-                // disabled={this.state.isLoading}
-                // disabled={this.state.disabled}
                 style={
                   this.state.isRecording ? styles.disabledbutton : styles.button
                 }
@@ -791,7 +785,6 @@ export default class Activity extends Component {
             <View>
               <TouchableOpacity
                 onPress={this._onPlayPausePressed}
-                // disabled={!this.state.isPlaybackAllowed || this.state.isLoading}
                 style={
                   this.state.disabled ? styles.disabledbutton : styles.button
                 }
@@ -812,21 +805,6 @@ export default class Activity extends Component {
             <Text>{this._getPlaybackTimestamp()}</Text>
           </View>
 
-          {/* <TouchableOpacity
-              disabled={this.state.disabled}
-              style={
-                this.state.disabled ? styles.disabledbutton : styles.button
-              }
-              onPress={() => this._onRecordPressed()}
-            >
-              <Icon
-                name="microphone"
-                color={this.state.disabled ? "#c4c4c4" : "#FF6978"}
-                size={30}
-                style={{ marginRight: 10 }}
-              />
-              <Text>Record</Text>
-            </TouchableOpacity> */}
           <View styles={{ flexDirection: "row", justifyContent: "center" }}>
             <TouchableOpacity
               style={styles.chooseButton}
@@ -1259,19 +1237,6 @@ const styles = StyleSheet.create({
     padding: 5,
   },
   descriptionModal: {
-    // margin: 12,
-    // height: 100,
-    // marginTop: 8,
-    // backgroundColor: "#f7f7f7",
-    // padding: 20,
-    // minWidth: 150,
-    // width: "70%",
-    // alignItems: "center",
-    // shadowColor: "#000",
-    // shadowOffset: {
-    //   width: 1,
-    //   height: 2,
-    // },
     shadowOpacity: 0.65,
     shadowRadius: 3.84,
     elevation: 5,

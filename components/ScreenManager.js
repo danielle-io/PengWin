@@ -50,22 +50,17 @@ const Screens = createStackNavigator({
   ChildCamera: {screen: ChildCamera },    
 
   ChildRoutines: { screen: ChildRoutines },
-
-  // ParentRoutines: { screen: ParentRoutines },
   EditActivity: { screen: EditActivity },
-  // ParentRewards: { screen: ParentRewards },
   PublicActivities: { screen: PublicActivities },
   ViewPublicActivity: { screen: ViewPublicActivity },
   CheckOffRoutine: {screen: CheckOffRoutine },    
 
-  // Notifications: {screen: Notifications},
   Questionnaire: {screen:Questionnaire},
   Notifications: {screen: Notifications},
   EditReward: { screen: EditReward },
   ParentProfile: { screen: ParentProfile },
   EditRoutine: { screen: EditRoutine },
   Progress: { screen: Progress },
-  Notifications: { screen: Notifications },
   RoutineApproval: { screen: RoutineApproval },
 
   ChildPincode: { screen: ChildPincode },

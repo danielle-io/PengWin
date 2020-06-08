@@ -47,18 +47,7 @@ export default class CheckOffRoutine extends Component {
     title: `${navigation.state.params.routineName}`,
     prevScreenTitle: "Notifications",
     headerBackTitle:  "Notifications",
-    routerBack: "Notifications",
-    // headerRight: () => (
-    //   <Icon
-    //     style={{ padding: 15, color: "#848484" }}
-    //     name={"account-circle"}
-    //     size={25}
-    //     onPress={() => {
-    //       navigation.navigate("ChildRoutines", {
-    //       });
-    //     }}
-    //   />
-    // ),    
+    routerBack: "Notifications", 
   });
 
   componentDidMount() {

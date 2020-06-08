@@ -1,14 +1,9 @@
-// TODO: the failure path
-// TODO: disable back button
 import React from "react";
 import {
   ActivityIndicator,
-  Button,
-  Clipboard,
   Dimensions,
   FlatList,
   Image,
-  Share,
   StyleSheet,
   Text,
   ScrollView,
@@ -188,8 +183,6 @@ export default class ChildCamera extends React.Component {
     this.createTagDictionary();
   }
 
-  // TODO: apply this function on component did mount
-  // TODO: remove to lowercase once its in the edit activity insertion code
   createTagDictionary() {
     var tempDictionary = {};
 
@@ -431,9 +424,6 @@ export default class ChildCamera extends React.Component {
                 height={30}
                 borderWidth={2}
                 borderRadius={20}
-                // flex: 1,
-                // resizeMode: "contain",
-                // marginRight: "1%",
               />
 
               <View style={styles.headerRibbonContainer}>
@@ -499,22 +489,7 @@ export default class ChildCamera extends React.Component {
                   />
                 </View>
               )}
-              {/* 
-              {!this.state.itemIsInTags && (
-                <View>
-                 
-                
-                  {this._maybeRenderImage()}
-                  {this._maybeRenderUploadingOverlay()}
-                </View>
-              )} */}
-
-              {/* {this.state.googleResponse && this.state.itemIsInTags && (
-                <View>
-                  {this.concatString()}
-                </View>
-              )} */}
-
+            
               {this.state.googleResponse && !this.state.itemIsInTags && (
                 <View
                   style={{

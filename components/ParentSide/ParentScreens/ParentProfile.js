@@ -11,15 +11,10 @@ const childId = UserInfo.child_id;
 const userId = UserInfo.user_id;
 
 export default class ParentProfile extends Component {
-  // static navigationOptions = ({navigation}) => ({
-  //   title: 'Parent Profile',
-  // });
-
   static navigationOptions = ({ navigation }) => ({
     title: "Profile",
     activeTab: 4,
   });
-
 
   constructor(props) {
     super(props);
@@ -50,9 +45,6 @@ export default class ParentProfile extends Component {
         },
         body: JSON.stringify(data),
       });
-      if (response.status >= 200 && response.status < 300) {
-        console.log('SUCCESSFUL CALL');
-      }
     } catch (errors) {
       alert(errors);
     }
@@ -67,6 +59,7 @@ export default class ParentProfile extends Component {
   }
 
   getChildInfo() {
+
     // Get the routines data from the db
     fetch(Environment + '/getChildFromParent/' + userId, {
       headers: {
@@ -183,7 +176,6 @@ export default class ParentProfile extends Component {
           />
 
           <TextField
-            // textInputStyle="number"
             id="parentEmail"
             placeholder="Email"
             value={item.email}
@@ -223,7 +215,6 @@ export default class ParentProfile extends Component {
 }
 
 const styles = StyleSheet.create({
-  // Parent Profile
   parentProfileFormContainer: {
     marginTop: 10,
     marginLeft: 100,
@@ -272,15 +263,6 @@ const styles = StyleSheet.create({
     paddingTop: 15,
     paddingLeft: 15,
   },
-  // routineTitle: {
-  //     paddingLeft: 15,
-  //     paddingTop: 12,
-  //     marginTop: 15,
-  //     fontSize: 10,
-  //     marginLeft: 10,
-  //     textAlign: 'left',
-  //     textAlignVertical: 'center'
-  // },
   detailsContainer: {
     padding: 2,
     paddingTop: 10,
