@@ -98,14 +98,11 @@ export default class ParentRewards extends Component {
       },
       body: JSON.stringify(data),
     }).then((results) => {
-      console.log("SUCCESS: updated amount of rewards");
       this.setState({ loaded: false });
 
-      console.log("delete worked");
       this.getAllRewardsForUser();
 
       if (this.state.loaded) {
-        console.log("rewards loaded again");
         this.displayRewards();
       }
     });

@@ -80,7 +80,6 @@ export default class SignUp extends Component {
   }
 
   getUserInfo() {
-    // Get the routines data from the db
     fetch(Environment + "/getUser/" + userId, {
       headers: {
         "Cache-Control": "no-cache",

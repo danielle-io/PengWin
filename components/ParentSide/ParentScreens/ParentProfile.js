@@ -1,13 +1,19 @@
-import React, {Component} from 'react';
-import {View, Text, Dimensions, StyleSheet, TouchableOpacity} from 'react-native';
-import {TextField} from 'react-native-material-textfield';
-import UserAvatar from 'react-native-user-avatar';
-import Environment from '../../../database/sqlEnv';
+import React, { Component } from "react";
+import {
+  View,
+  Text,
+  Dimensions,
+  StyleSheet,
+  TouchableOpacity,
+} from "react-native";
+import { TextField } from "react-native-material-textfield";
+import UserAvatar from "react-native-user-avatar";
+import Environment from "../../../database/sqlEnv";
 import UserInfo from "../../../state/UserInfo";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 Icon.loadFont();
 
-const {width: WIDTH} = Dimensions.get('window');
+const { width: WIDTH } = Dimensions.get("window");
 const parentId = UserInfo.parent_id;
 const childId = UserInfo.child_id;
 const userId = UserInfo.user_id;
@@ -20,7 +26,7 @@ export default class ParentProfile extends Component {
 
   constructor(props) {
     super(props);
-    const {navigate} = this.props.navigation;
+    const { navigate } = this.props.navigation;
     this.navigate = navigate;
     this.state = {
       prevScreenTitle: "Profile",
@@ -36,16 +42,15 @@ export default class ParentProfile extends Component {
   }
 
   async changeUserComponent(tag, value, id) {
-    console.log('routine id below');
     var data = {
       [tag]: value,
     };
     try {
-      let response = await fetch(Environment + '/updateUser/' + id, {
-        method: 'POST',
+      let response = await fetch(Environment + "/updateUser/" + id, {
+        method: "POST",
         headers: {
-          Accept: 'application/json',
-          'Content-Type': 'application/json',
+          Accept: "application/json",
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(data),
       });
@@ -57,82 +62,76 @@ export default class ParentProfile extends Component {
   // This allows this page to refresh when you come back from
   // edit routines, which allows it to display any changes made
   componentDidMount() {
-    this.props.navigation.addListener('didFocus', payload => {
+    this.props.navigation.addListener("didFocus", (payload) => {
       this.getUserInfo(), this.getChildInfo();
     });
   }
 
   getChildInfo() {
-
     // Get the routines data from the db
-    fetch(Environment + '/getChildFromParent/' + userId, {
+    fetch(Environment + "/getChildFromParent/" + userId, {
       headers: {
-        'Cache-Control': 'no-cache',
+        "Cache-Control": "no-cache",
       },
     })
-      .then(response => response.json())
-      .then(responseJson => {
+      .then((response) => response.json())
+      .then((responseJson) => {
         return responseJson;
       })
-      .then(results => {
-        this.setState({childResults: results});
-        console.log(this.state.childResults);
-        this.setState({loaded: true});
+      .then((results) => {
+        this.setState({ childResults: results });
+        this.setState({ loaded: true });
       })
-      .catch(error => {
+      .catch((error) => {
         console.error(error);
       });
   }
 
   getUserInfo() {
     // Get the routines data from the db
-    fetch(Environment + '/getUser/' + userId, {
+    fetch(Environment + "/getUser/" + userId, {
       headers: {
-        'Cache-Control': 'no-cache',
+        "Cache-Control": "no-cache",
       },
     })
-      .then(response => response.json())
-      .then(responseJson => {
+      .then((response) => response.json())
+      .then((responseJson) => {
         return responseJson;
       })
-      .then(results => {
-        this.setState({results: results});
-        console.log(this.state.results);
-        this.setState({firstLoaded: true});
+      .then((results) => {
+        this.setState({ results: results });
+        this.setState({ firstLoaded: true });
       })
-      .catch(error => {
+      .catch((error) => {
         console.error(error);
       });
   }
 
   getChildsName() {
-    return this.state.childResults.map(itemValue => {
+    return this.state.childResults.map((itemValue) => {
       return (
         <TextField
           id="childFirstName"
           placeholder="Your Child's First Name"
           value={itemValue.first_name}
           style={(styles.textfieldWithFloatingLabel, styles.textFields)}
-          textInputStyle={{flex: 1}}
-          onFocus={e => console.log('Focus', !!e)}
-          onBlur={e => console.log('Blur', !!e)}
-          onEndEditing={e => {
+          textInputStyle={{ flex: 1 }}
+          onEndEditing={(e) => {
             this.changeUserComponent(
-              'first_name',
+              "first_name",
               this.state.childFirstName,
-              itemValue.user_id,
+              itemValue.user_id
             );
           }}
-          onSubmitEditing={e => console.log('SubmitEditing', !!e)}
-          onChangeText={text => this.setState({childFirstName: text})}
+          onChangeText={(text) => this.setState({ childFirstName: text })}
         />
       );
     });
   }
 
   displayUserData() {
-    return this.state.results.map(item => {
-      var fullName = item.first_name + ' ' + item.last_name;
+    return this.state.results.map((item) => {
+      var fullName = item.first_name + " " + item.last_name;
 
       return (
         <View style={styles.parentProfileFormContainer}>
@@ -145,19 +144,15 @@ export default class ParentProfile extends Component {
             placeholder="First Name"
             value={item.first_name}
             style={(styles.textfieldWithFloatingLabel, styles.textFields)}
-            textInputStyle={{flex: 1}}
-            onFocus={e => console.log('Focus', !!e)}
-            onBlur={e => console.log('Blur', !!e)}
-            onEndEditing={e => {
+            textInputStyle={{ flex: 1 }}
+            onEndEditing={(e) => {
               this.changeUserComponent(
-                'first_name',
+                "first_name",
                 this.state.parentFirstName,
-                userId,
+                userId
               );
             }}
-            onSubmitEditing={e => console.log('SubmitEditing', !!e)}
-            onTextChange={s => console.log('TextChange', s)}
-            onChangeText={text => this.setState({parentFirstName: text})}
+            onChangeText={(text) => this.setState({ parentFirstName: text })}
           />
 
           <TextField
@@ -165,18 +160,15 @@ export default class ParentProfile extends Component {
             placeholder="Last Name"
             value={item.last_name}
             style={(styles.textfieldWithFloatingLabel, styles.textFields)}
-            textInputStyle={{flex: 1}}
-            onFocus={e => console.log('Focus', !!e)}
-            onBlur={e => console.log('Blur', !!e)}
-            onEndEditing={e => {
+            textInputStyle={{ flex: 1 }}
+            onEndEditing={(e) => {
               this.changeUserComponent(
-                'last_name',
+                "last_name",
                 this.state.parentLastName,
-                userId,
+                userId
               );
             }}
-            onSubmitEditing={e => console.log('SubmitEditing', !!e)}
-            onChangeText={text => this.setState({parentLastName: text})}
+            onChangeText={(text) => this.setState({ parentLastName: text })}
           />
 
           <TextField
@@ -184,71 +176,46 @@ export default class ParentProfile extends Component {
             placeholder="Email"
             value={item.email}
             style={(styles.textfieldWithFloatingLabel, styles.textFields)}
-            textInputStyle={{flex: 1}}
-            onFocus={e => console.log('Focus', !!e)}
-            onBlur={e => console.log('Blur', !!e)}
-            onEndEditing={e => {
-              this.changeUserComponent(
-                'email',
-                this.state.email,
-                userId,
-              );
+            textInputStyle={{ flex: 1 }}
+            onEndEditing={(e) => {
+              this.changeUserComponent("email", this.state.email, userId);
             }}
-            onSubmitEditing={e => console.log('SubmitEditing', !!e)}
-            onChangeText={text => this.setState({email: text})}
+            onChangeText={(text) => this.setState({ email: text })}
           />
 
           {this.getChildsName()}
-
         </View>
-
-        
       );
     });
   }
 
   displayQuestionnaire() {
-
     return (
-      <View style={styles.createProfile}>
-          <TouchableOpacity
-          onPress={()=>{this.navigate("Questionnaire")}}
-          >
-            <Text style={{
-            marginLeft: 10,
-            marginBottom: 10,
-            fontSize: 20}}> Create Child's Profile 
-                {/* <Icon
-                name='menu-right'
-                size= '28'
-                color='#5a5a5a' 
-                style={{top: 5}}
-                /> */}
-            </Text>
-            
-
-          </TouchableOpacity>
-
+      <View style={styles.question}>
+        <TouchableOpacity
+          onPress={() => {
+            this.navigate("Questionnaire");
+          }}
+          style={{ flexDirection: "row" }}
+        >
+          <Icon name="account" style={styles.tagMenuIcons} />
+          <Text style={styles.tagMenuIconText}> Create Child's Profile</Text>
+        </TouchableOpacity>
       </View>
-    )
-    
+    );
   }
 
   fieldRef = React.createRef();
 
   render() {
-
     return (
       <View>
         {this.state.loaded && this.state.firstLoaded && (
-          <View>{this.displayUserData()}
-          </View> 
+          <View>{this.displayUserData()}</View>
         )}
 
         {this.displayQuestionnaire()}
-        
       </View>
-      
     );
   }
 }
@@ -261,16 +228,28 @@ const styles = StyleSheet.create({
     marginBottom: 15,
   },
   createProfile: {
-    // marginTop: 1,
     marginLeft: 100,
     marginRight: 100,
     marginBottom: 50,
   },
+  question: {
+    marginLeft: 80,
+    marginRight: 100,
+    marginBottom: 50,
+  },
   avatarContainer: {
-    justifyContent: 'center',
-    alignItems: 'center',
-    alignContent: 'center',
+    justifyContent: "center",
+    alignItems: "center",
+    alignContent: "center",
     marginTop: 50,
+  },
+  linkColor: {
+    color: "#FF6978",
+    fontSize: 20,
+    paddingTop: 5,
+    marginLeft: 30,
+    marginTop: 10,
+    flexDirection: "row",
   },
 
   textFields: {
@@ -285,7 +264,7 @@ const styles = StyleSheet.create({
     marginLeft: 30,
   },
   imageContainer: {
-    alignItems: 'center',
+    alignItems: "center",
     marginBottom: 200,
   },
   imageButton: {
@@ -293,7 +272,7 @@ const styles = StyleSheet.create({
     marginLeft: 100,
   },
   descriptionBox: {
-    borderColor: '#e8e8e8',
+    borderColor: "#e8e8e8",
     borderWidth: 1,
     borderRadius: 15,
   },
@@ -315,21 +294,36 @@ const styles = StyleSheet.create({
   },
   routines: {
     paddingLeft: 3,
-    textAlignVertical: 'center',
+    textAlignVertical: "center",
     width: WIDTH * 0.3,
     height: 100,
     marginTop: 5,
     marginBottom: 5,
     borderWidth: 3,
     borderRadius: 15,
-    backgroundColor: 'white',
-    shadowOffset: {width: 5, height: 5},
-    shadowColor: 'black',
+    backgroundColor: "white",
+    shadowOffset: { width: 5, height: 5 },
+    shadowColor: "black",
     shadowOpacity: 0.1,
   },
   routineTitle: {
     fontSize: 14,
-    textAlign: 'center',
-    textAlignVertical: 'center',
+    textAlign: "center",
+    textAlignVertical: "center",
+  },
+  tagMenuIconText: {
+    // color: "#FF6978",
+    fontSize: 18,
+    paddingTop: 5,
+    marginTop: 8,
+  },
+  tagMenuIcons: {
+    color: "#FF6978",
+    fontSize: 18,
+    paddingTop: 5,
+    marginLeft: 30,
+    marginTop: 10,
+    flexDirection: "row",
+    fontWeight: "bold",
   },
 });

@@ -124,7 +124,6 @@ export default class Activity extends Component {
   }
 
   async createNewActivity() {
-    console.log("creating new activity");
     const parentId = UserInfo.parent_id;
     const childId = UserInfo.child_id;
     const userId = UserInfo.user_id;
@@ -155,7 +154,6 @@ export default class Activity extends Component {
         return responseJson;
       })
       .then((results) => {
-        console.log("new insert!!!");
         this.setState({ activityId: results.insertId });
         if (this.state.previousPage !== "Edit Routine") {
           this.props.navigation.navigate("ParentRoutines");
@@ -189,7 +187,6 @@ export default class Activity extends Component {
 
   updateAllChangedAttributes() {
     if (this.state.activityId === null) {
-      console.log("no activity id !!");
       this.createNewActivity();
     } else {
       if (this.state.changedValues) {
@@ -206,7 +203,6 @@ export default class Activity extends Component {
   }
 
   getParams() {
-    console.log("returning all activities");
     return { allActivitiesDictionary: this.state.allActivitiesDictionary };
   }
 
@@ -236,7 +232,6 @@ export default class Activity extends Component {
 
   componentDidMount() {
     this._askForPermissions();
-    console.log(this.state.activityTags);
   }
 
   _askForPermissions = async () => {
@@ -394,7 +389,6 @@ export default class Activity extends Component {
       await this.recording.stopAndUnloadAsync();
     } catch (error) {}
     const info = await FileSystem.getInfoAsync(this.recording.getURI());
-    console.log(`FILE INFO: ${JSON.stringify(info)}`);
     await Audio.setAudioModeAsync({
       allowsRecordingIOS: false,
       interruptionModeIOS: Audio.INTERRUPTION_MODE_IOS_DO_NOT_MIX,

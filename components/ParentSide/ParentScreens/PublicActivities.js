@@ -177,11 +177,6 @@ const styles = StyleSheet.create({
     paddingTop: 10,
     paddingLeft: 2,
   },
-  routineDetailsPreview: {
-    zIndex: 2,
-    marginBottom: 10,
-    marginLeft: 5,
-  },
   routineContainer: {
     width: WIDTH * 0.3,
     height: 150,

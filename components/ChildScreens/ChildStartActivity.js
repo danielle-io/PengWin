@@ -82,8 +82,6 @@ export default class ChildStartActivity extends Component {
   }
 
   async insertChildNotification() {
-    console.log("inserting child notification");
-
     const parentId = UserInfo.parent_id;
     const childId = UserInfo.child_id;
     const userId = UserInfo.user_id;
@@ -118,9 +116,6 @@ export default class ChildStartActivity extends Component {
         return responseJson;
       })
       .then((results) => {
-        console.log(
-          "inserted a notification!!! " + results.child_notifications_id
-        );
         this.navigate("ChildActivity", {
           prevScreenTitle: "My Routines",
           currentRoutine: this.state.currentRoutine,

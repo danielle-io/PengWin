@@ -121,9 +121,7 @@ export default class ParentRewards extends Component {
             }
         });
         let tempArray = this.state.changedRewardFields;
-        console.log(this.state.changedRewardFields);
         tempArray.push({ [tag]: value });
-        console.log("MADE A REWARDS ARRAY " + tempArray);
         this.setState({ changedRewardFields: tempArray });
     }
 
@@ -138,13 +136,11 @@ export default class ParentRewards extends Component {
     }
 
     _handleButtonPress = async () => {
-        console.log("Button is pressed!");
         let pickerResult = await ImagePicker.launchImageLibraryAsync({
             allowsEditing: true,
             aspect: [4, 3],
         });
         if (pickerResult) {
-            console.log("picker result is here " + pickerResult);
             this._handleImagePicked(pickerResult);
         }
     };

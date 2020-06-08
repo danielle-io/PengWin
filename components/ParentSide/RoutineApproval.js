@@ -44,8 +44,6 @@ export default class RoutineApproval extends Component {
             })
             .then(results => {
                 this.setState({ childResults: results });
-                console.log("CHILD RESULTS BELOW");
-                console.log(this.state.childResults);
                 this.setState({ childLoaded: true });
                 
             })
@@ -96,7 +94,6 @@ export default class RoutineApproval extends Component {
 
     displayActivities() {
         const { navigate } = this.props.navigation;
-        console.log("CHILD'S NAME BELOW");
         
         return (
             <View>
@@ -142,11 +139,6 @@ export default class RoutineApproval extends Component {
 
     render() {
         if (this.state.results !== null) {
-            console.log(this.state.results);
-        } else {
-            console.log('null below');
-            // return null;
-            // IS THIS WHERE I MAYBE MAKE ANOTHER CALL ?
         }
         return (
             
