@@ -1,5 +1,3 @@
-// TODO: show rewards per activity dynamically,
-// i.e. if no rewards, state that
 import React, { Component } from "react";
 import {
   View,

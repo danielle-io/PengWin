@@ -1,5 +1,3 @@
-// TODO: the reward amount in the relational table needs to be updated when the 
-// reward here is removed or added
 import React, { Component } from "react";
 import {
   Dimensions,
@@ -42,15 +40,6 @@ const pincode = UserInfo.pincode;
 const { width: WIDTH } = Dimensions.get("window");
 
 export default class Activity extends Component {
-  static navigationOptions = ({ navigation }) => ({
-    title: "Add an Activity", //`${navigation.state.params.currentRoutine}`,
-    prevScreenTitle: "Activities",
-    headerTitleStyle: { textAlign: "center", alignSelf: "center" },
-    headerStyle: {
-      backgroundColor: "white",
-    },
-  });
-
   constructor(props) {
     super(props);
     this.recording = null;
@@ -58,7 +47,6 @@ export default class Activity extends Component {
     this.isSeeking = false;
     this.shouldPlayAtEndOfSeek = false;
     this.state = {
-      // disabled: false,
       video: null,
       prevScreenTitle: this.props.navigation.state.params.prevScreenTitle,
       recordings: [],
@@ -75,12 +63,15 @@ export default class Activity extends Component {
       rewardImage: this.props.navigation.state.params.rewardImage,
       rewardDescription: this.props.navigation.state.params.rewardImage,
       rewardVideo: this.props.navigation.state.params.rewardVideo,
+      previousPage: this.props.navigation.state.params.previousPage,
+      allActivitiesDictionary: this.props.navigation.state.params
+        .allActivitiesDictionary,
+
       changedValues: [],
       haveRecordingPermissions: false,
       isLoading: false,
       rewardDescriptionModal: false,
       tempRewardDescription: "",
-
       isPlaybackAllowed: false,
       muted: false,
       soundPosition: null,
@@ -97,6 +88,16 @@ export default class Activity extends Component {
       JSON.stringify(Audio.RECORDING_OPTIONS_PRESET_LOW_QUALITY)
     );
   }
+
+  navigationOptions = ({ navigation }) => ({
+    title: "Add an Activity",
+    // prevScreenTitle: this.props.navigation.state.params.previousPage,
+    headerTitleStyle: { textAlign: "center", alignSelf: "center" },
+    headerStyle: {
+      backgroundColor: "white",
+    },
+    params: this.getParams(),
+  });
 
   updateActivity(tag, value) {
     var data = {
@@ -156,7 +157,30 @@ export default class Activity extends Component {
       .then((results) => {
         console.log("new insert!!!");
         this.setState({ activityId: results.insertId });
-        this.props.navigation.navigate("Routines")
+        if (this.state.previousPage !== "Edit Routine") {
+          this.props.navigation.navigate("ParentRoutines");
+        } else {
+          // Add the new activity to the all activities dictionary
+          let data = {
+            activity_id: this.state.activityId,
+            activity_name: this.state.activityName,
+            tags: this.state.activityTags.join(","),
+            image_path: this.state.activityImagePath,
+            activity_description: this.state.activityDescription,
+            audio_path: this.state.activityAudioPath,
+            video_path: this.state.activityVideoPath,
+            reward_image: this.state.rewardImage,
+            reward_video: this.state.rewardVideo,
+            reward_description: this.state.rewardDescription,
+            is_public: this.state.isPublic,
+            user_id: userId,
+            deleted: 0,
+          };
+
+          var tempDict = this.state.allActivitiesDictionary;
+          tempDict[this.state.activityId] = data;
+          this.setState({ allActivitiesDictionary: tempDict });
+        }
       })
       .catch((error) => {
         console.error(error);
@@ -176,10 +200,15 @@ export default class Activity extends Component {
         }
       }
     }
-    console.log("should navigate here");
-    this.props.navigation.navigate("ParentRoutines");
+    if (this.state.previousPage !== "Edit Routine") {
+      this.props.navigation.navigate("ParentRoutines");
+    }
   }
 
+  getParams() {
+    console.log("returning all activities");
+    return { allActivitiesDictionary: this.state.allActivitiesDictionary };
+  }
 
   getCurrentSwitchState() {
     if (this.state.isPublic === 1) {
@@ -487,31 +516,7 @@ export default class Activity extends Component {
     return `${this._getMMSSFromMillis(0)}`;
   }
 
-  // }
-
-  // Start recording
-  // let rec = new Recorder("hello.mp4").record();
-  // this.setState((state) => {
-  //   const list = [...state.recordings, rec];
-  //   return {
-  //     recordings: list,
-  //   };
-  // };
-
-  // Stop recording after approximately 3 seconds
-  //   setTimeout(() => {
-  //     rec.stop((err) => {
-  //       // NOTE: In a real situation, handle possible errors here
-
-  //       // Play the file after recording has stopped
-  //       let play = new Player("hello.mp4").play().on("ended", () => {
-  //         // Enable button again after playback finishes
-  //         this.setState({ disabled: false });
-  //       });
-  //     });
-  //   }, 3000);
-  // }
-
+  
   imagePicker = async (imageName) => {
     console.log("in image picker");
     let pickerResult = await ImagePicker.launchImageLibraryAsync({
@@ -720,7 +725,6 @@ export default class Activity extends Component {
           <TextField
             placeholder="Explain steps that would help your child complete the activity."
             value={this.state.activityDescription}
-            // labelOffset={10}
             style={
               (styles.textfieldWithFloatingLabel,
               styles.textFields,
@@ -757,8 +761,6 @@ export default class Activity extends Component {
             <View>
               {/* Record button */}
               <TouchableOpacity
-                // disabled={this.state.isLoading}
-                // disabled={this.state.disabled}
                 style={
                   this.state.isRecording ? styles.disabledbutton : styles.button
                 }
@@ -783,7 +785,6 @@ export default class Activity extends Component {
             <View>
               <TouchableOpacity
                 onPress={this._onPlayPausePressed}
-                // disabled={!this.state.isPlaybackAllowed || this.state.isLoading}
                 style={
                   this.state.disabled ? styles.disabledbutton : styles.button
                 }
@@ -804,21 +805,6 @@ export default class Activity extends Component {
             <Text>{this._getPlaybackTimestamp()}</Text>
           </View>
 
-          {/* <TouchableOpacity
-              disabled={this.state.disabled}
-              style={
-                this.state.disabled ? styles.disabledbutton : styles.button
-              }
-              onPress={() => this._onRecordPressed()}
-            >
-              <Icon
-                name="microphone"
-                color={this.state.disabled ? "#c4c4c4" : "#FF6978"}
-                size={30}
-                style={{ marginRight: 10 }}
-              />
-              <Text>Record</Text>
-            </TouchableOpacity> */}
           <View styles={{ flexDirection: "row", justifyContent: "center" }}>
             <TouchableOpacity
               style={styles.chooseButton}
@@ -920,7 +906,7 @@ export default class Activity extends Component {
               marginTop: 6,
             }}
           >
-            <TextInput              // multiline={true}
+            <TextInput // multiline={true}
               // input={{ paddingLeft: 8, marginLeft: 10, fontSize: 12 }}
               style={styles.rewardDescriptionInput}
               onChangeText={(text) =>
@@ -940,7 +926,7 @@ export default class Activity extends Component {
               style={styles.saveButtonMargin}
               onPress={() => this.saveRewardDescription()}
             >
-              <Text style={{ textAlign: "center",color: "#fff" }}>Save</Text>
+              <Text style={{ textAlign: "center", color: "#fff" }}>Save</Text>
             </TouchableOpacity>
           </View>
         </Dialog>
@@ -1251,19 +1237,6 @@ const styles = StyleSheet.create({
     padding: 5,
   },
   descriptionModal: {
-    // margin: 12,
-    // height: 100,
-    // marginTop: 8,
-    // backgroundColor: "#f7f7f7",
-    // padding: 20,
-    // minWidth: 150,
-    // width: "70%",
-    // alignItems: "center",
-    // shadowColor: "#000",
-    // shadowOffset: {
-    //   width: 1,
-    //   height: 2,
-    // },
     shadowOpacity: 0.65,
     shadowRadius: 3.84,
     elevation: 5,

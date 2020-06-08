@@ -12,12 +12,6 @@ import ChildRewards from './ChildRewards';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 Icon.loadFont();
 
-/*
- * DONE: CHANGE PROFILE TO BUTTON
- * TODO : SET PIN BETWEEN SWITCH TO PARENT
- */
-
-//HEADER TITLES
 const makeRoutineScreenConfig = navigation => {
   return {
     title: 'My Routines',

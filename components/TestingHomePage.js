@@ -281,12 +281,6 @@ export default class TestingHomePage extends Component {
               </TouchableOpacity>
             </View>
 
-            {/* <View style={{ flex: 1, justifyContent: 'center', flexDirection: 'row', flexWrap: 'wrap' }}>
-
-            <Text style={styles.testingh2}>LOGIN + OTHER SCREENS</Text>
-
-          </View> */}
-
             <View
               style={{
                 flex: 1,
@@ -322,7 +316,6 @@ export default class TestingHomePage extends Component {
 
 const styles = StyleSheet.create({
   container: {
-    // flex: 1 ,
     marginTop: "15%",
     textAlign: "center",
     alignContent: "center",
@@ -330,12 +323,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
     margin: "auto",
   },
-  // textWrapper: {
-  //   height: hp("100%"), // 70% of height device screen
-  //   width: wp("190%"), // 80% of width device screen
-  // },
   myText: {
-    fontSize: hp("5%"), // End result looks like the provided UI mockup
+    fontSize: hp("5%"), 
   },
   containerFull: {
     marginTop: 200,

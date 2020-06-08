@@ -1,7 +1,5 @@
 import React, { Component } from "react";
 import { View, Dimensions, Button, StyleSheet, Text, TouchableOpacity, Image} from 'react-native';
-
-// import LinearGradient from 'react-native-linear-gradient';
 import Mamanbaby from "../assets/images/mamanbaby.png";
 import { LinearGradient } from 'expo-linear-gradient';
 import { AppLoading } from "expo";
@@ -55,9 +53,7 @@ export default class HomePage extends Component {
                 
                 
                 </TouchableOpacity>
-            {/* </View> */}
 
-                {/* <View style={{alignItems:"flex-end"}}> */}
                 <TouchableOpacity
                 style= {[styles.buttonPrimary, {backgroundColor:'#B1EDE8', 
                                                 borderColor: '#B1EDE8',
@@ -70,9 +66,7 @@ export default class HomePage extends Component {
                 </View>
                 
                 
-                </TouchableOpacity>
-                {/* </View> */}
-                
+                </TouchableOpacity>                
                 
                 </View>
             </View>  
@@ -92,7 +86,6 @@ const styles= StyleSheet.create({
         color: spaceBlack,
         textAlign: 'center',
         marginTop: '20%',
-        // textTransform: 'uppercase'
     },
 
     pageBodyText: {
@@ -114,11 +107,9 @@ const styles= StyleSheet.create({
         borderColor: pastelRed,
         alignContent: 'center',
         marginLeft: 80
-        // marginTop: '45%'
       },
 
       buttonPrimaryText: {
-        // fontFamily: 'SF-Pro-Rounded-Semibold',
         fontSize: 30,
         fontWeight: "600",
         textAlign: 'center',

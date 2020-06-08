@@ -1,5 +1,3 @@
-// TODO: move activitites page and tab over to allActivitiesDictionary
-// rather than allActivities
 import React, { Component } from "react";
 import {
   Button,

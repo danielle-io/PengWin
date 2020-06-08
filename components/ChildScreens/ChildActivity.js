@@ -66,14 +66,13 @@ export default class ChildActivity extends Component {
       inputCode: "",
       rewardToggle: false,
     };
-
     ChildActivity.navigationOptions.headerBackTitle = this.props.navigation.state.params.currentRoutine;
   }
 
-  //initial code input value
+  // initial code input value
   pinInput = React.createRef();
 
-  //Header titles for routines
+  // Header titles for routines
   static navigationOptions = ({ navigation }) => ({
     title: `${navigation.state.params.currentRoutine}`,
   });
@@ -144,12 +143,7 @@ export default class ChildActivity extends Component {
         console.error(error);
       });
   }
-
-  //code is 1234
   _checkCode = (inputCode) => {
-    // console.log("INPUT CODE " + inputCode);
-    // console.log("pin CODE " + pincode);
-    // console.log("STATE INPUT CODE " + this.state.inputCode);
     if (inputCode != pincode) {
       this.pinInput.current.shake();
       this.setState({ inputCode: "" });
@@ -363,9 +357,6 @@ export default class ChildActivity extends Component {
                         onPress={() => {
                           this.navigate("ChildCamera", {
                             prevScreenTitle: "ACTIVITY",
-                            // TODO: try to process this array without eval bc
-                            // it could be dangerous if the user inputs a tag
-                            // that when evaluated runs something on the code
                             tags: item.tags.split(","),
                             key: key,
                             activities: this.state.activities,

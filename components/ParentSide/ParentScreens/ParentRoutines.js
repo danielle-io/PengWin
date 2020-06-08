@@ -50,7 +50,6 @@ export default class ParentRoutines extends Component {
       routinesLoaded: false,
       activitiesLoaded: false,
       routines: null,
-      allActivities: null,
       index: 0,
       selectedTab: 0,
       routes: [{ key: "1", title: "First" }, { key: "2", title: "Second" }],
@@ -140,7 +139,6 @@ export default class ParentRoutines extends Component {
       })
       .then((routineResults) => {
         this.setState({ routines: routineResults });
-        // this.checkAmounts(routineResults);
         this.setState({ routinesLoaded: true });
       })
       .catch((error) => {
@@ -849,6 +847,7 @@ export default class ParentRoutines extends Component {
 
   itemDeletionModal(item, type) {
     this.setState({ itemToDelete: item });
+    // console.log("item to delete" + itemToDelete)
     this.setState({ typeToDelete: type });
     this.setState({ deleteModalVisible: true });
   }
@@ -920,7 +919,7 @@ export default class ParentRoutines extends Component {
             (this._onPress,
             () =>
               this.props.navigation.navigate("EditActivity", {
-                prevScreenTitle: "Routines",
+                // prevScreenTitle: "Activities",
                 activityName: null,
                 activityId: null,
                 activityImagePath: null,
@@ -934,7 +933,8 @@ export default class ParentRoutines extends Component {
                 rewardImage: null,
                 rewardVideo: null,
                 rewardDescription: null,
-                allRewardsByIdDictionary: this.state.allRewardsByIdDictionary,
+                allActivitiesDictionary: this.state.allActivitiesDictionary,
+                previousPage: "Activities",
               }))
           }
           ripple={ripple}
@@ -1006,7 +1006,7 @@ export default class ParentRoutines extends Component {
                     <MenuOption
                       onSelect={() =>
                         this.props.navigation.navigate("EditActivity", {
-                          prevScreenTitle: "Routines",
+                          // prevScreenTitle: "Activities",
                           activityName: item.activity_name,
                           activityId: item.activity_id,
                           activityTags: item.tags.split(","),
@@ -1018,6 +1018,9 @@ export default class ParentRoutines extends Component {
                           rewardImage: item.reward_image,
                           rewardVideo: item.reward_video,
                           rewardDescription: item.reward_description,
+                          allActivitiesDictionary: this.state.allActivitiesDictionary,
+                          previousPage: "Activities",
+                          
                         })
                       }
                       ripple={ripple}
@@ -1032,7 +1035,6 @@ export default class ParentRoutines extends Component {
                       onSelect={() => this.duplicateActivity(item)}
                       text="Duplicate"
                     />
-                    {/* TODO: set up delete activity method */}
                     <MenuOption
                       onSelect={() => this.itemDeletionModal(item, "activity")}
                     >
@@ -1068,6 +1070,7 @@ export default class ParentRoutines extends Component {
 
   getRoutineTags(item) {
     if (item.routine_id in this.state.containerRoutineDict) {
+      // console.log("ROUTINE ID YAYYY: " + item.routine_id)
       var colorClass =
         this.state.containerRoutineDict[item.routine_id].color + "Tag";
 
@@ -1079,6 +1082,7 @@ export default class ParentRoutines extends Component {
             alignItems: "flex-end",
             right: 0,
             justifyContent: "flex-end",
+            color: "#fff"
             // position: "absolute",
           }}
         >
@@ -1100,7 +1104,8 @@ export default class ParentRoutines extends Component {
                 }}
                 style={styles[colorClass]}
               >
-                <Text style={styles.text}>{tag} </Text>
+              <Text style={{color: "#fff", fontSize:16,fontWeight:"bold"}}>{tag}</Text>
+                {/* <Text style={styles.text}>{tag} </Text> */}
 
                 <TouchableOpacity key={`${tag}-${index}`} />
               </TouchableOpacity>
@@ -1169,7 +1174,6 @@ export default class ParentRoutines extends Component {
                           sunday: item.sunday,
                           amount_of_activities: item.amount_of_activities,
                           amount_of_rewards: item.amount_of_rewards,
-                          allActivities: this.state.allActivities,
                           rewardId: item.reward_id,
                           allRewardsByIdDictionary: this.state
                             .allRewardsByIdDictionary,
@@ -1209,7 +1213,6 @@ export default class ParentRoutines extends Component {
               </View>
 
               <View style={styles.routineDetailsPreview}>
-                {/* <View style={{ float: "left" }}> */}
 
                 <View style={{ flexDirection: "row" }}>
                   <Text style={styles.routineDetails}>
@@ -1261,36 +1264,99 @@ export default class ParentRoutines extends Component {
 
   selectedColor(value) {
     this.setState({ selectedColor: value });
+    console.log("Selected color: " + value)
   }
 
   selectDeletion(id) {
     this.setState({ selectedDeletion: id });
   }
 
+  displayTags() {
+    if (this.state.containerDict) {
+      
+      return (
+        Object.keys(this.state.containerDict).map((item) => {
+
+          var colorClass =
+            this.state.containerDict[item].color + "Tag";
+            console.log("WHAT COLOR TAG: " + this.state.containerDict[item].color);
+            console.log("WHAT TAG: " + this.state.containerDict[item].name);
+            console.log("WHAT ID TAG: " + this.state.containerDict[item].container_id);
+               
+        return (
+          <View
+          style={{
+            padding: 8
+          }}
+        >
+          <Tags
+            readonly={true}
+            deleteTagOnPress={true}
+            containerStyle={{ justifyContent: "center" }}
+            inputStyle={{
+              backgroundColor: "none",
+              borderWidth: "none",
+              borderStyle: "none",
+            }}
+            initialTags={[
+              this.state.containerDict[item].name,
+            ]}
+            renderTag={({ tag, index }) => (
+              <TouchableOpacity
+
+                onPress={(id) => {
+                  //deleteTagOnPress
+                  console.log("TAG: " + tag)
+                  console.log("ID: "+ item.containerId);
+                  this.selectDeletion(id);
+                  this.deleteContainer()
+                }}
+                style={styles[colorClass]}
+              >
+              <Text style={{color: "#fff", fontSize:16,fontWeight:"bold"}}>{tag}</Text>
+
+                <TouchableOpacity key={`${tag}-${index}`} />
+              </TouchableOpacity>
+            )}
+          />
+        </View>
+        )
+              
+      })
+      )
+    }
+    
+  }
+
   render() {
-    if (this.state.routines !== null) {
+    if (this.state.routines !== null && this.state.containerDict) {
     } else {
       console.log("this.state.routines is null :( ");
     }
 
     let colors = [
       {
-        value: "green",
+        value: "blue",
       },
       {
-        value: "blue",
+        value: "green",
       },
       {
         value: "orange",
       },
       {
-        value: "purple",
+        value: "yellow",
       },
     ];
 
     let ripple = { id: "addButton" };
 
     return (
+
+      // console.log("container names: " + this.state.containerNames),
+      console.log("container dict: " + this.state.containerDict),
+      console.log("container routine dict: " + this.state.containerRoutineDict),
+
       <View>
         <SafeAreaView>
           <MaterialTabs
@@ -1373,37 +1439,103 @@ export default class ParentRoutines extends Component {
                       marginTop: 0,
                     }}
                   >
-                    <Text style={styles.titles}>Create a New Tag</Text>
+                    <Text style={styles.titles}>Routine Tags</Text>
                   </View>
 
-                  <View
-                    style={{
-                      flexDirection: "row",
+                  <Text style={{textAlign: "center", 
+                  paddingLeft: "10%", 
+                  // paddingRight:"10%",
+                  marginRight: "10%",
+                  marginTop: "1%", marginBottom:"3%",
+                  fontSize: 22}}>
+                  
+                  Routine Tags allow you to categorize routines based on colors and labels of your preference.</Text>
+                  <View style={{
                       justifyContent: "center",
-                      marginTop: 0,
-                    }}
-                  >
-                    <TextInput
-                      inputStyle={{ paddingLeft: 4, fontSize: 12 }}
-                      style={styles.tagNameContainer}
-                      placeholder="Tag Name"
-                      onChangeText={(text) =>
-                        this.setState({ newContainerName: text })
-                      }
-                    />
-                    {/* <View style={styles.textFields}> */}
+                      marginLeft:"10%",marginRight:"10%"}}>
+
+                    <Text style={{fontSize: 18}}>Tag Name</Text>
                       <TextField
-                        placeholder="Tag Name"
-                        // value={this.state.newContainerName}
+                        placeholder="Eg. Holiday Routine"
                         style={styles.textFields}
-                        // textInputStyle={{ flex: 1 }}
                         onChangeText={(text) =>
                           this.setState({ newContainerName: text })
                         }
                       />
-                    {/* </View> */}
+                  </View>
+                    
+                  <Text style={{
+                      justifyContent: "center",
+                      marginLeft:"10%",
+                      marginBottom:"2%",
+                      marginTop:"2%",
+                      fontSize:18}}>Tag Color</Text>
+                  <View style={{
+                      flexDirection: "row",
+                      marginLeft:"10%"
+                      }}>
+                  
+                  <TouchableOpacity
+                    style={{
+                            marginTop:5,
+                            margin:15,
+                            width:50,
+                            height:50,
+                            backgroundColor:'#7CB3FF',
+                            borderRadius:50
+                            }}
+                    onPress={() => this.setState({selectedColor : "blue"})
+                    }
+                            > 
+                            
+                    </TouchableOpacity>
 
-                    <Dropdown
+                    <TouchableOpacity
+                    style={{
+                            marginTop:5,
+                            margin:15,
+                            width:50,
+                            height:50,
+                            backgroundColor:'#8DE165',
+                            borderRadius:50
+                            }}
+                    onPress={() => this.setState({selectedColor : "green"})}
+                            > 
+                            
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                    style={{
+                            marginTop:5,
+                            margin:15,
+                            width:50,
+                            height:50,
+                            backgroundColor:'#FFA928',
+                            borderRadius:50
+                            }}
+                    onPress={() => this.setState({selectedColor : "orange"})}
+                            > 
+                            
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                    style={{
+                            marginTop:5,
+                            margin:15,
+                            width:50,
+                            height:50,
+                            backgroundColor:'#FFE24A',
+                            borderRadius:50
+                            }}
+                    onPress={() => {this.setState({selectedColor : "yellow"});
+                    console.log("routines routines: " + this.state.routines.routines)}
+                    }> 
+                            
+                    </TouchableOpacity>
+                    
+                  </View>
+
+                    {/* <Dropdown
                       containerStyle={{
                         padding: 1,
                         marginLeft: 15,
@@ -1413,29 +1545,31 @@ export default class ParentRoutines extends Component {
                       label="Select a color"
                       data={colors}
                       onChangeText={(value) => this.selectedColor(value)}
-                    />
-
-                    {/* <View style={{ flexDirection: "row", justifyContent: "center", marginTop: 0 }}> */}
-
-                    <TouchableOpacity
-                      style={styles.saveButton}
-                      onPress={() => this.saveNewContainer()}
-                    >
-                      <Text style={{ textAlign: "center", color: "#fff" }}>
-                        Save
-                      </Text>
-                    </TouchableOpacity>
-                  </View>
-
+                    /> */}
                   <View
                     style={{
                       flexDirection: "row",
-                      justifyContent: "center",
-                      marginTop: 0,
+                      // justifyContent: "center",
+                      marginTop: 0
                     }}
                   >
-                    <Text style={styles.titles}>Delete Routine Tags</Text>
+                    <Text style={{justifyContent: "center",
+                      marginLeft:"12%",
+                      marginBottom:"2%",
+                      marginTop:"2%",
+                      fontSize:18}}>My Tags</Text>
                   </View>
+
+                  {/* {this.state.routines.routines.map((item) => {
+                    return (
+                      this.getRoutineTags(item)
+                    )
+                  })} */}
+                  <View style={{
+                    flexDirection: "row",
+                    justifyContent: "center",
+                    marginLeft: "10%",
+                    marginRight: "10%"}}>{this.displayTags()}</View>
 
                   <View
                     style={{
@@ -1445,23 +1579,50 @@ export default class ParentRoutines extends Component {
                       marginBottom: 22,
                     }}
                   >
+
+                  <Text style={{
+                      marginLeft:"5%",
+                      marginBottom:"3%",
+                      marginTop:"2%",
+                      fontSize:18}}>Delete Tags</Text>
+                  
                     <Dropdown
-                      containerStyle={{ padding: 1, width: "58%" }}
+                      containerStyle={{ marginTop: "3%",
+                      width: "55%", 
+                      
+                      }}
                       label="Select a Tag to Delete"
                       data={this.state.containerNames}
-                      onChangeText={(id) => this.selectDeletion(id)}
+                      onChangeText={(id) => this.selectDeletion(id)
+                      // console.log("WHAT ID IS THIS: " + id)
+                      }
                     />
-
+             
                     <TouchableOpacity
                       style={styles.deleteButton}
                       onPress={() => this.deleteContainer()}
                     >
-                      <Text style={{ color: "#fff" }}>Delete</Text>
+                      <Text style={{ color: "#FF6978" }}>Delete</Text>
+                    </TouchableOpacity>
+                  </View>
+                  
+                  <View style={{justifyContent: "center",
+                      alignItems: "center",
+                      display: "flex",}}>
+                  <TouchableOpacity
+                      style={styles.saveButton}
+                      onPress={() => this.saveNewContainer()}
+                    >
+                      <Text style={{ fontSize: 24,
+                      fontWeight: "bold",
+                      textAlign: "center",
+                      color: "white" }}>
+                        Save
+                      </Text>
                     </TouchableOpacity>
                   </View>
                 </Dialog>
 
-                <View style={styles.textFields} />
 
                 <View
                   style={{
@@ -1719,33 +1880,35 @@ const styles = StyleSheet.create({
     fontSize: 14,
     // minWidth: 8,
     // minHeight: 20,
-    width: "10%",
-    height: 34,
-    borderRadius: 20,
+    width: 250,
+    height: 50,
+    paddingVertical: 7,
+    paddingHorizontal: 92,
+    borderRadius: 30,
     backgroundColor: "#FF6978",
     borderColor: "#fff",
     borderWidth: 1,
-    justifyContent: "center",
-    alignItems: "center",
+    alignContent:"center",
     flexDirection: "row",
     marginTop: 30,
-    // paddingLeft: 8,
-    // paddingRight: 8,
+    marginBottom: 30
+
   },
   deleteButton: {
-    marginLeft: 30,
+    marginLeft: "2%",
     fontSize: 14,
     height: 38,
     borderRadius: 20,
-    backgroundColor: "#FF6978",
-    borderColor: "#fff",
+    backgroundColor: "#fff",
+    borderColor: "#FF6978",
     borderWidth: 1,
     justifyContent: "center",
     alignItems: "center",
     // flexDirection: "row",
-    marginTop: 30,
-    paddingLeft: 12,
-    paddingRight: 8,
+    marginTop: 45,
+    // marginRight: "1%",
+    paddingLeft: 14,
+    paddingRight: 14,
   },
   tagNameContainer: {
     // padding: 12,
@@ -1774,10 +1937,11 @@ const styles = StyleSheet.create({
     // margin: 0,
   },
   textFields: {
-    padding: 2,
-    margin: 2,
+    // padding: 5,
     marginLeft: 10,
-    width: "30%",
+    marginRight: 10,
+    marginBottom: 5,
+    fontSize: 20,
   },
   tagsContainer: {
     marginTop: 0,
@@ -1877,28 +2041,30 @@ const styles = StyleSheet.create({
     alignItems: "flex-start",
   },
   greenTag: {
-    fontSize: 8,
+    fontSize: 18,
+    fontWeight: "bold",
     height: 25,
     minWidth: 50,
     width: 100,
     borderRadius: 20,
-    backgroundColor: "#8dd993",
-
+    backgroundColor: "#8DE165",
+    color:"#000",
     // borderWidth: 1,
     alignItems: "center",
     flexDirection: "row",
     justifyContent: "center",
     marginRight: 6,
-    opacity: 0.8,
+    // opacity: 0.8,
   },
   blueTag: {
-    color: "white",
-    fontSize: 8,
+    color: "#fff",
+    fontSize: 18,
+    fontWeight: "bold",
     height: 25,
     minWidth: 50,
     width: 100,
     borderRadius: 20,
-    backgroundColor: "#B1EDE8",
+    backgroundColor: "#7CB3FF",
     // borderWidth: 1,
     alignItems: "center",
     flexDirection: "row",
@@ -1906,13 +2072,15 @@ const styles = StyleSheet.create({
     marginRight: 6,
     // opacity: 0.5,
   },
-  purpleTag: {
-    fontSize: 8,
+  yellowTag: {
+    fontSize: 18,
+    fontWeight: "bold",
     height: 25,
     minWidth: 50,
     width: 100,
     borderRadius: 20,
-    backgroundColor: "#d7b9f0",
+    backgroundColor: "#FFE24A",
+    color: "#000",
     // borderWidth: 1,
     alignItems: "center",
     flexDirection: "row",
@@ -1921,13 +2089,14 @@ const styles = StyleSheet.create({
     // opacity: 0.5,
   },
   orangeTag: {
-    color: "white",
-    fontSize: 8,
+    color: "#fff",
+    fontSize: 18,
+    fontWeight: "bold",
     height: 25,
     minWidth: 50,
     width: 100,
     borderRadius: 20,
-    backgroundColor: "#fce2b8",
+    backgroundColor: "#FFA928",
     // borderWidth: 1,
     alignItems: "center",
     flexDirection: "row",
@@ -1990,7 +2159,7 @@ const styles = StyleSheet.create({
   },
   roundAddButton: {
     marginLeft: 6,
-    fontSize: 35,
+    fontSize: 40,
     height: 50,
     minWidth: 50,
     width: 50,
@@ -2004,14 +2173,14 @@ const styles = StyleSheet.create({
   },
   titles: {
     // fontWeight: "bold",
-    fontSize: 17,
+    fontSize: 36,
     padding: 5,
     marginTop: 15,
   },
-  textFields: {
-    padding: 2,
-    marginLeft: 15,
-  },
+  // textFields: {
+  //   padding: 2,
+  //   marginLeft: 15,
+  // },
   description: {
     fontSize: 12,
     padding: 5,

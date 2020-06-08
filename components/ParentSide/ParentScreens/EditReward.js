@@ -2,20 +2,16 @@ import React, { Component } from 'react';
 import { Button, Modal, Dimensions, StyleSheet, ScrollView, View, Text, TouchableOpacity } from 'react-native';
 import { TextField, FilledTextField } from 'react-native-material-textfield';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import { Dropdown } from 'react-native-material-dropdown';
-// import YouTube from 'react-native-youtube';
 import Dialog, { DialogContent } from "react-native-popup-dialog";
 import { Video } from "expo-av";
 import { Image } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import * as Permissions from "expo-permissions";
-import SearchableDropdown from "react-native-searchable-dropdown";
 import { RaisedTextButton } from "react-native-material-buttons";
-
 import Environment from "../../../database/sqlEnv";
 import UserInfo from "../../../state/UserInfo";
-
 import uuid from "uuid";
+import firebase from "../../../database/irDb";
 
 const { width: WIDTH } = Dimensions.get('window')
 
@@ -36,64 +32,29 @@ export default class ParentRewards extends Component {
             rewardDescription: this.props.navigation.state.params.rewardDescription,
             rewardImage: this.props.navigation.state.params.rewardImage,
             rewardVideo: this.props.navigation.state.params.rewardVideo,
-            //remove userID 1
-            userId: 1,
             photos: null,
             video: null,
-            routinesLoaded: false,
-            // activities: null,
-            allRoutines: null,
-            allActivities: null,
-            currentRoutine: null,
-            activitiesLoaded: false,
-            currentActivity: null,
-            routineData: null,
-            activityData: null,
             changedRewardFields: [],
-            //needed 
             pictureModal: false,
             visible: false,
-            uploading: false
-
-
-            //prevScreenTitle: this.props.navigation.state.params.prevScreenTitle,
+            uploading: false,
+            googleResponse: null,
         };
     }
 
-    // //from ChildActivity
-    // //Header titles for routines
-    // static navigationOptions = ({ navigation }) => ({
-    //     title: `${navigation.state.params.currentReward}`,
-    // });
-    // _onNext = () => {
-    //     this.child._animateNextPage(); // do stuff
-    // };
-
     componentDidMount() {
-        console.log('running component did mount for rewards');
         this.props.navigation.addListener(
             'didFocus',
             (payload) => {
-                this.getRoutines();
-                // this.getActivitiesForRoutine();
+                console.log('running component did mount for rewards');
             }
         )
     }
-
-
-    //onsubmit: call createRewards done
-    //post call 
-    //create Rewards funciton()
 
     createNewReward() {
         const parentId = UserInfo.parent_id;
         const childId = UserInfo.child_id;
         const userId = UserInfo.user_id
-        // console.log("Environment :: " + Environment);
-        // console.log("rewardName :: " + this.state.rewardName);
-        // console.log("rewardDescription :: " + this.state.rewardDescription);
-        // console.log("userId :: " + this.state.userId);
-
         data = {
             reward_name: this.state.rewardName,
             reward_description: this.state.rewardDescription,
@@ -118,81 +79,21 @@ export default class ParentRewards extends Component {
                 return responseJson;
             })
             .then((results) => {
-                // console.log(results);
-                // console.log("worked for rewards!");
-
-                // Set the new routineId
                 this.setState({ rewardId: results.insertId });
-                // this.saveAnyChanges();
             })
             .catch((error) => {
                 console.error(error);
             });
     }
 
-
-    // getAllActivitiesForRoutine() {
-    //     // console.log("WE ARE IN GET ALL ACTIVITIES FOR ROUTINE");
-    //     // console.log(this.state.currentRoutine)
-    //     var routineId = this.state.currentRoutine.id;
-    //     // console.log("CURRENT ROUTINE ID");
-    //     // console.log(routineId);
-    //     fetch(Environment + "/joinRoutineActivityTableByRoutineId/" + routineId, {
-    //         headers: {
-    //             "Cache-Control": "no-cache",
-    //         },
-    //     })
-    //         .then((response) => response.json())
-    //         .then((responseJson) => {
-    //             return responseJson;
-    //         })
-    //         .then((results) => {
-    //             this.setState({ allActivities: results });
-    //             this.setState({ activitiesLoaded: true });
-    //             this.storeActivites();
-    //         })
-    //         .catch((error) => {
-    //             console.error(error);
-    //         });
-    // }
-
-
-    // //Get the routines data from teh db
-    getRoutines() {
-        // fetch(Environment + '/routines/', {
-        // console.log(this.state.userId);
-        fetch(Environment + "/getRoutinesByUser/" + this.state.userId, {
-            headers: {
-                "Cache-Control": "no-cache",
-            },
-        })
-            .then((response) => response.json())
-            .then((responseJson) => {
-                return responseJson;
-            })
-            .then((results) => {
-                this.setState({ allRoutines: results });
-                // console.log("WHAT ARE ALL THE ROUTINESSSSS")
-                // console.log(this.state.allRoutines);
-                this.setState({ routinesLoaded: true });
-                // this.storeRoutines();
-                // this.storeRoutines();
-            })
-            .catch((error) => {
-                // console.log("AH");   
-                console.error(error);
-            });
-    }
 
     async updateRewardField(tag, value) {
-        // console.log("in fetch tag is and value is " + tag + " ")
-        // console.log("updating reward field");
         var data = {
             [tag]: value,
         };
         try {
             let response = await fetch(
-                Environment + "/updateReward/" + this.state.rewardId,
+                Environment + "/updateReward" + this.state.rewardId,
                 {
                     method: "POST",
                     headers: {
@@ -205,34 +106,13 @@ export default class ParentRewards extends Component {
             if (response.status >= 200 && response.status < 300) {
                 console.log("SUCCESS");
             }
-        } catch (errors) {
+        }
+        catch (errors) {
             console.log(errors);
         }
     }
 
-    //come back
-    // storeRoutines() {
-    //     var temprArray = [];
-    //     // console.log("AY");
-    //     // console.log(this.state.allRoutines);
-    //     this.state.allRoutines["routines"].map(item =>
-    //         temprArray.push({ id: item.routine_id, name: item.routine_name })
-    //     )
-    //     this.setState({ routineData: temprArray });
-    //     // console.log("HEYO in store routines");
-    //     // console.log(this.state.routineData);
 
-    // }
-
-    // storeActivites() {
-    //     // console.log("WE ARE IN  store activities");
-
-    //     var tempArray = [];
-    //     this.state.allActivities.map(item =>
-    //         tempArray.push({ id: item.activity_id, name: item.activity_name })
-    //     )
-    //     this.setState({ activityData: tempArray });
-    // }
 
     pushToChangedRewardsFields(tag, value) {
         Object.keys(this.state.changedRewardFields).map(function (keyName, keyIndex) {
@@ -240,223 +120,180 @@ export default class ParentRewards extends Component {
                 return;
             }
         });
-        // console.log("TAG " + tag + " VALUE " + value)
-
         let tempArray = this.state.changedRewardFields;
+        console.log(this.state.changedRewardFields);
         tempArray.push({ [tag]: value });
+        console.log("MADE A REWARDS ARRAY " + tempArray);
         this.setState({ changedRewardFields: tempArray });
-        // console.log("MADE A REWARDS ARRAY " + tempArray);
     }
 
 
     updateExistingRewardChanges() {
-        // console.log("CHANGED REWARD FIELDS " + this.state.changedRewardFields);
         for (const keyValuePair of this.state.changedRewardFields) {
             Object.entries(keyValuePair).map(([key, val]) => {
                 this.updateRewardField(key, val);
             });
         }
+        this.props.navigation.navigate("ParentRewards");
     }
 
-
-    displayForm(currentList) {
-        var stateName = "";
-        var placeholder = "";
-        var displayItems = [];
-
-        if (currentList === "activites") {
-            placeholder = "Select an activity"
-            displayItems = this.state.activityData;
-        }
-        else {
-            placeholder = "Select an routine";
-            // displayItems = this.state.allRoutines["routines"];
-            displayItems = this.state.routineData;
-            // console.log("all the routines inside items!");
-            // console.log(displayItems);
-
-
-
-        }
-        // const routineData = this.state.routinesArray;
-
-        return (
-            <View style={styles.drop}>
-                <ScrollView keyboardShouldPersistTaps="handled">
-                    <SearchableDropdown
-                        onItemSelect={(item) => {
-                            if (currentList === "activity") {
-                                this.setState({ currentActivity: item });
-                            }
-                            else {
-                                this.setState({ currentRoutine: item });
-                            }
-                        }}
-                        containerStyle={{ padding: 5 }}
-                        itemStyle={styles.dropDownItem}
-                        itemTextStyle={{ color: "#222" }}
-                        itemsContainerStyle={{ maxHeight: 140 }}
-                        items={displayItems}
-                        resetValue={false}
-                        textInputProps={{
-                            placeholder: placeholder,
-                            underlineColorAndroid: "transparent",
-                            style: {
-                                padding: 12,
-                                borderWidth: 1,
-                                borderColor: "#ccc",
-                                borderRadius: 5,
-                            },
-                        }}
-                        // value={this.state.currentlySelectedActivity}
-                        listProps={{
-                            nestedScrollEnabled: true,
-                        }}
-                    />
-                </ScrollView>
-            </View>
-        )
-    }
-
-    //From ChildActivity
-    _onNext = () => {
-        this.child._animateNextPage(); // do stuff
-    };
-
-    //from EditActivity
     _handleButtonPress = async () => {
         console.log("Button is pressed!");
         let pickerResult = await ImagePicker.launchImageLibraryAsync({
             allowsEditing: true,
             aspect: [4, 3],
         });
-
-        this.setState({ photos: pickerResult });
+        if (pickerResult) {
+            console.log("picker result is here " + pickerResult);
+            this._handleImagePicked(pickerResult);
+        }
     };
 
     videoPicker = async () => {
         let vid = await ImagePicker.launchImageLibraryAsync({
             mediaTypes: ImagePicker.MediaTypeOptions.Videos,
         });
-
-        this.setState({ video: vid });
-
+        this._handleVideoPicked(vid);
     };
-    //Take Photo 
+
+    // Take Photo 
     takePhoto = async () => {
         let pickerResult = await ImagePicker.launchCameraAsync({
-          allowsEditing: true,
-          aspect: [4, 3],
+            allowsEditing: true,
+            aspect: [4, 3],
         });
-        
+
         this.setState({ photos: pickerResult });
-        // this._handleImagePicked(pickerResult);
-      };
-    
-      _handleImagePicked = async (pickerResult) => {
+        this._handleImagePicked(pickerResult);
+    };
+
+
+    _handleImagePicked = async (pickerResult) => {
         try {
-          this.setState({ uploading: true });
-    
-          if (!pickerResult.cancelled) {
-            var uploadUrl = await this.uploadImageAsync(pickerResult.uri);
-            this.setState({ rewardImage: uploadUrl });
-            this.submitToGoogle();
-          }
-        } catch (e) {
-          console.log(e);
-          alert("Upload failed, sorry :(");
-        } finally {
-          this.setState({ uploading: false });
-        }
-      };
-    
-      async uploadImageAsync(uri) {
-        const blob = await new Promise((resolve, reject) => {
-          const xhr = new XMLHttpRequest();
-          xhr.onload = function() {
-            resolve(xhr.response);
-          };
-          xhr.onerror = function(e) {
-            console.log(e);
-            reject(new TypeError("Network request failed"));
-          };
-          xhr.responseType = "blob";
-          xhr.open("GET", uri, true);
-          xhr.send(null);
-        });
-    
-        const ref = firebase
-          .storage()
-          .ref()
-          .child(uuid.v4());
-        const snapshot = await ref.put(blob);
-    
-        blob.close();
-    
-        return await snapshot.ref.getDownloadURL();
-      }
-    
-      submitToGoogle = async () => {
-        try {
-          
-          this.setState({ uploading: true });
-          let { rewardImage } = this.state;
-          let body = JSON.stringify({
-            requests: [
-              {
-                features: [
-                  { type: "LABEL_DETECTION", maxResults: 10 },
-                  { type: "LANDMARK_DETECTION", maxResults: 5 },
-                  { type: "FACE_DETECTION", maxResults: 5 },
-                  { type: "LOGO_DETECTION", maxResults: 5 },
-                  { type: "TEXT_DETECTION", maxResults: 5 },
-                  { type: "DOCUMENT_TEXT_DETECTION", maxResults: 5 },
-                  { type: "SAFE_SEARCH_DETECTION", maxResults: 5 },
-                  { type: "IMAGE_PROPERTIES", maxResults: 5 },
-                  { type: "CROP_HINTS", maxResults: 5 },
-                  { type: "WEB_DETECTION", maxResults: 5 },
-                ],
-                image: {
-                  source: {
-                    imageUri: activityImage,
-                  },
-                },
-              },
-            ],
-          });
-          let response = await fetch(
-            "https://vision.googleapis.com/v1/images:annotate?key=" +
-              irEnv["GOOGLE_CLOUD_VISION_API_KEY"],
-            {
-              headers: {
-                Accept: "application/json",
-                "Content-Type": "application/json",
-              },
-              method: "POST",
-              body: body,
+            this.setState({ uploading: true });
+
+            if (!pickerResult.cancelled) {
+                var uploadUrl = await this.uploadImageAsync(pickerResult.uri);
+                console.log("Upload URl is " + uploadUrl);
+                this.setState({ rewardImage: uploadUrl });
             }
-          );
-          let responseJson = await response.json();
-          this.setState({
-            googleResponse: responseJson,
-            uploading: false,
-          });
-        } catch (error) {
-          console.log(error);
+        } catch (e) {
+            console.log(e);
+            alert("Upload failed, sorry :(");
+        } finally {
+            this.setState({ uploading: false });
         }
-      };
+    };
 
+    _handleVideoPicked = async (pickerResult) => {
+        try {
+            this.setState({ uploading: true });
 
+            if (!pickerResult.cancelled) {
+                var uploadUrl = await this.uploadImageAsync(pickerResult.uri);
+                console.log("Upload URl is " + uploadUrl);
+                this.setState({ rewardVideo: uploadUrl });
+            }
+        } catch (e) {
+            console.log(e);
+            alert("Upload failed, sorry :(");
+        } finally {
+            this.setState({ uploading: false });
+        }
+    };
 
+    async uploadImageAsync(uri) {
+        console.log("uploading reward");
+        const blob = await new Promise((resolve, reject) => {
+            const xhr = new XMLHttpRequest();
+            xhr.onload = function () {
+                resolve(xhr.response);
+            };
+            xhr.onerror = function (e) {
+                console.log(e);
+                reject(new TypeError("Network request failed"));
+            };
+            xhr.responseType = "blob";
+            xhr.open("GET", uri, true);
+            xhr.send(null);
+        });
+
+        const ref = firebase
+            .storage()
+            .ref()
+            .child(uuid.v4());
+        const snapshot = await ref.put(blob);
+
+        blob.close();
+
+        return await snapshot.ref.getDownloadURL();
+    }
+
+    submitToGoogle = async () => {
+        try {
+
+            this.setState({ uploading: true });
+            let { rewardImage } = this.state;
+            let { rewardVideo } = this.state;
+            let body = JSON.stringify({
+                requests: [
+                    {
+                        features: [
+                            { type: "LABEL_DETECTION", maxResults: 10 },
+                            { type: "LANDMARK_DETECTION", maxResults: 5 },
+                            { type: "FACE_DETECTION", maxResults: 5 },
+                            { type: "LOGO_DETECTION", maxResults: 5 },
+                            { type: "TEXT_DETECTION", maxResults: 5 },
+                            { type: "DOCUMENT_TEXT_DETECTION", maxResults: 5 },
+                            { type: "SAFE_SEARCH_DETECTION", maxResults: 5 },
+                            { type: "IMAGE_PROPERTIES", maxResults: 5 },
+                            { type: "CROP_HINTS", maxResults: 5 },
+                            { type: "WEB_DETECTION", maxResults: 5 },
+                        ],
+                        image: {
+                            source: {
+                                imageUri: rewardImage,
+                            },
+                        },
+                        Video: {
+                            source: {
+                                videoUri: rewardVideo,
+                            },
+                        },
+                    },
+                ],
+            });
+            let response = await fetch(
+                "https://vision.googleapis.com/v1/images:annotate?key=" +
+                irEnv["GOOGLE_CLOUD_VISION_API_KEY"],
+                {
+                    headers: {
+                        Accept: "application/json",
+                        "Content-Type": "application/json",
+                    },
+                    method: "POST",
+                    body: body,
+                }
+            );
+            let responseJson = await response.json();
+            this.setState({
+                googleResponse: responseJson,
+                uploading: false,
+            });
+        } catch (error) {
+            console.log(error);
+        }
+    };
 
 
     //Choose Photo or video
     returnImage = () => {
-        if (this.state.photos) {
+        let { rewardImage, googleResponse } = this.state;
+        if (this.state.rewardImage) {
             return (
                 <Image
                     style={{ width: 300, height: 200, borderRadius: 15 }}
-                    source={{ uri: this.state.photos.uri }}
+                    source={{ uri: this.state.rewardImage }}
                 />
             );
         }
@@ -467,11 +304,11 @@ export default class ParentRewards extends Component {
 
 
     returnVideo = () => {
-
-        if (this.state.video) {
+        let { rewardVideo, googleResponse } = this.state;
+        if (this.state.rewardVideo) {
             return (
                 <Video
-                    source={{ uri: this.state.video.uri }}
+                    source={{ uri: this.state.rewardVideo }}
                     rate={1.0}
                     volume={1.0}
                     isMuted={false}
@@ -486,31 +323,15 @@ export default class ParentRewards extends Component {
         }
     };
 
-
-
-
-
-
-
-
     fieldRef = React.createRef();
-    onSubmit = () => {
-        let { current: field } = this.fieldRef;
-        // console.log(field.value());
-    };
+
 
     _onSubmit = () => {
-        // console.log("rewardId " + this.state.rewardId);
-        if (this.state.rewardId) {
-            // console.log("existing reward edits");
+        if (this.state.rewardId != null) {
+            this.pushToChangedRewardsFields("reward_image", this.state.rewardImage)
             this.updateExistingRewardChanges();
-            //   this.saveAnyChanges();
-            //   var alr = "";
-
-            // this.
         }
         else {
-            // console.log("new reward");
             this.createNewReward();
         }
     }
@@ -523,18 +344,6 @@ export default class ParentRewards extends Component {
         this.setState({ pictureModal: false });
     }
 
-    //FIX!
-    // saveCameraIcon() {
-    //     this.setState({ pictureModal: false });
-
-    //     if (this.state.tempRewardDescription !== "") {
-    //         this.setState({ rewardDescription: this.state.tempRewardDescription });
-    //         this.pushToUpdateActivityArray(
-    //             "reward_description",
-    //             this.state.tempRewardDescription
-    //         );
-    //     }
-    // }
 
     render() {
 
@@ -542,8 +351,8 @@ export default class ParentRewards extends Component {
 
         return (
 
-            // <ScrollView style={{ backgroundColor: "#FFFCF9", padding: 20 }}>
-            <ScrollView keyboardShouldPersistTaps="always">
+            <ScrollView style={{ backgroundColor: "#FFFCF9", padding: 20 }}>
+
                 <View>
 
                     <View style={styles.rewardsContainer}>
@@ -589,29 +398,7 @@ export default class ParentRewards extends Component {
                                 }}
                             ></TextField>
 
-                            {/* {this.state.routinesLoaded &&
-                                <View>
-                                    <Text style={styles.textFields}>
-                                        Select Routine
-                                    </Text>
-                                    {this.displayForm("routine")}
-                                </View>
-                            } */}
 
-                            {/* {this.state.currentRoutine !== null &&
-                                <View>
-                                    {this.getAllActivitiesForRoutine()}
-                                </View>
-                            } */}
-
-                            {/* {this.state.activitiesLoaded &&
-                                <View>
-                                    <Text style={styles.textFields}>
-                                        Select Activity
-                                </Text>
-                                    {this.displayForm("activites")}
-                                </View>
-                            } */}
 
 
                             <View style={styles.editRoutineIconAndTitle}>
@@ -627,28 +414,14 @@ export default class ParentRewards extends Component {
 
                                     <TouchableOpacity
                                         style={styles.camerabutton}
-                                        // onPress={this._handleButtonPress}
                                         onPress={() => {
                                             this.clickedCameraIcon();
                                         }}
-
-                                        
                                     >
-                                        {/* onPress={() => {
-                                        this.navigate('Camera', {prevScreenTitle: 'EditReward' });
-                                        this._onNext();
-                                    }}> */}
-                                        {/* <Icon name="camera-enhance" color="#DADADA" size={100} /> */}
                                         {this.returnImage()}
 
                                     </TouchableOpacity>
-
-
-
-
-
                                 </View>
-
                             </View>
 
                             <Dialog
@@ -660,20 +433,11 @@ export default class ParentRewards extends Component {
                                     this.cancelCameraIcon();
                                 }}
                             >
-                                {/* <View
-                                    style={{
-                                        flexDirection: "row",
-                                        justifyContent: "center",
-                                        marginTop: 10,
-                                    }}
-                                >
-                                    <Text style={styles.titles}>Take image</Text>
-                                    
-                                </View> */}
+
 
 
                                 <View style={styles.editRoutineIconAndTitle}>
-                                 
+
                                     <View style={{
                                         alignItems: "center",
                                         flexDirection: "column",
@@ -682,19 +446,12 @@ export default class ParentRewards extends Component {
 
                                     }}>
 
-                                        {/* <Text style={styles.textFields}> Choose from Library</Text>
-                                        <TouchableOpacity
-                                            // style={styles.camerabutton}
-                                            onPress={this._handleButtonPress}
-                                           
-                                        >
-                                            
-                                            {this.returnImage()}
 
-                                        </TouchableOpacity> */}
+
                                         <Button
-                                            title = "Take a Photo"
+                                            title="Take a Photo"
                                             onPress={this.takePhoto}
+
                                         />
 
                                         <Button
@@ -702,11 +459,6 @@ export default class ParentRewards extends Component {
                                             onPress={this._handleButtonPress}
                                         />
 
-                                        {this.returnImage()}
-
-                                        
-
-                                        
 
                                     </View>
 
@@ -725,7 +477,6 @@ export default class ParentRewards extends Component {
                                     flexDirection: "row",
                                     justifyContent: "center",
                                     margin: 70,
-                                    // marginBottom: 100
                                 }}>
                                     <TouchableOpacity
                                         style={styles.camerabutton}
@@ -736,10 +487,6 @@ export default class ParentRewards extends Component {
                                 </View>
 
                             </View>
-
-
-
-
 
                         </View>
 
@@ -761,13 +508,11 @@ export default class ParentRewards extends Component {
                                 titleColor={"#FF6978"}
                                 color={"white"}
                             />
-
                         </View>
 
                     </View>
 
                 </View >
-
 
             </ScrollView>
         );
@@ -780,21 +525,7 @@ export default class ParentRewards extends Component {
 
 
 const styles = StyleSheet.create({
-    tagModal: {
-        margin: 12,
-        backgroundColor: "#f7f7f7",
-        padding: 20,
-        width: "50%",
-        alignItems: "center",
-        shadowColor: "#000",
-        shadowOffset: {
-            width: 1,
-            height: 2,
-        },
-        shadowOpacity: 0.65,
-        shadowRadius: 3.84,
-        elevation: 5,
-    },
+
     bottomModal: {
         fontSize: 30,
         marginRight: 200,
@@ -822,12 +553,6 @@ const styles = StyleSheet.create({
         marginRight: 100,
         marginBottom: 50,
     },
-    avatarContainer: {
-        justifyContent: 'center',
-        alignItems: 'center',
-        alignContent: 'center',
-        marginTop: 50,
-    },
     textFields: {
         padding: 2,
         margin: 2,
@@ -835,47 +560,6 @@ const styles = StyleSheet.create({
         marginTop: 5,
         marginBottom: 10,
         fontSize: 20,
-    },
-    formIndent: {
-        marginLeft: 30,
-    },
-    imageContainer: {
-        alignItems: 'center',
-        marginBottom: 200,
-    },
-    imageButton: {
-        marginTop: 50,
-        marginLeft: 100,
-    },
-    descriptionBox: {
-        borderColor: '#e8e8e8',
-        borderWidth: 1,
-        borderRadius: 15,
-    },
-    descriptionLines: {
-        marginBottom: 4,
-        marginLeft: 8,
-        marginRight: 8,
-        marginTop: 10
-    },
-    routineDetails: {
-        fontSize: 150,
-        paddingTop: 15,
-        paddingLeft: 135
-    },
-    // routineTitle: {
-    //     paddingLeft: 15,
-    //     paddingTop: 12,
-    //     marginTop: 15,
-    //     fontSize: 10,
-    //     marginLeft: 10,
-    //     textAlign: 'left',
-    //     textAlignVertical: 'center'
-    // },
-    detailsContainer: {
-        padding: 2,
-        paddingTop: 10,
-        paddingBottom: 15
     },
     routines: {
         paddingLeft: 3,
@@ -891,11 +575,6 @@ const styles = StyleSheet.create({
         shadowColor: 'black',
         shadowOpacity: .1,
         borderWidth: 0
-    },
-    routineTitle: {
-        fontSize: 14,
-        textAlign: 'center',
-        textAlignVertical: 'center'
     },
     saveButton: {
         marginLeft: 6,
@@ -934,14 +613,6 @@ const styles = StyleSheet.create({
         flexDirection: "row",
         margin: 5,
         padding: 2,
-    },
-    dropDownItem: {
-        padding: 10,
-        marginTop: 2,
-        backgroundColor: "#ddd",
-        borderColor: "#bbb",
-        borderWidth: 1,
-        borderRadius: 5,
     },
     buttonstyle: {
         fontSize: 15,

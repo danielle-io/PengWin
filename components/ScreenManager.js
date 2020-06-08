@@ -21,11 +21,7 @@ import Notifications from "./ParentSide/ParentScreens/Notifications";
 import RoutineApproval from "./ParentSide/ParentScreens/RoutineApproval";
 import CheckOffRoutine from "./ParentSide/ParentScreens/CheckOffRoutine";
 
-import Question1 from './ParentSide/Questionnaire/Question1';
-import Question2 from './ParentSide/Questionnaire/Question2';
-import Question3 from './ParentSide/Questionnaire/Question3';
-import Question4 from './ParentSide/Questionnaire/Question4';
-import Questionnaire from './ParentSide/Questionnaire/Main';
+import Questionnaire from './ParentSide/ParentScreens/Questionnaire';
 
 import Start from './ParentSide/Signup/Start';
 import Page1 from './ParentSide/Signup/Page1';
@@ -46,45 +42,25 @@ import ChildCamera from "../components/ImageRecognition/ChildCamera";
 import TestingHomePage from "./TestingHomePage";
 
 const Screens = createStackNavigator({
-
-  ChildRoutines: { screen: ChildRoutines },
   ParentNavigation: {screen: ParentNavigation},
   TestingHomePage: {screen: TestingHomePage},
-
-  
   Login: {screen: Login},
   SignUp: {screen: SignUp},
   Pincode: {screen: Pincode},
   ChildCamera: {screen: ChildCamera },    
 
   ChildRoutines: { screen: ChildRoutines },
-
-  ParentRoutines: { screen: ParentRoutines },
   EditActivity: { screen: EditActivity },
-  ParentRewards: { screen: ParentRewards },
   PublicActivities: { screen: PublicActivities },
   ViewPublicActivity: { screen: ViewPublicActivity },
   CheckOffRoutine: {screen: CheckOffRoutine },    
 
-  // Notifications: {screen: Notifications},
   Questionnaire: {screen:Questionnaire},
-  Question1: {screen:Question1},
-  Question2: {screen:Question2},
-  Question3: {screen:Question3},
-  Question4: {screen:Question4},
-  
-  Start: {screen:Start},
-  Page1: {screen:Page1},
-  Page2: {screen:Page2},
-  Page3: {screen:Page3},
-  Page4: {screen:Page4},
-
   Notifications: {screen: Notifications},
   EditReward: { screen: EditReward },
   ParentProfile: { screen: ParentProfile },
   EditRoutine: { screen: EditRoutine },
   Progress: { screen: Progress },
-  Notifications: { screen: Notifications },
   RoutineApproval: { screen: RoutineApproval },
 
   ChildPincode: { screen: ChildPincode },
