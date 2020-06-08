@@ -44,7 +44,7 @@ export default class ChildPincode extends Component {
     } else {
       this.setState({visible: false});
       //nav to parent
-      this.navigate('ParentRoutines', {prevScreenTitle: 'My Routines'});
+      this.navigate('ParentNavigation', {prevScreenTitle: 'My Routines'});
     }
   };
 
@@ -98,7 +98,6 @@ export default class ChildPincode extends Component {
                 value={code}
                 onTextChange={code => this.setState({code})}
                 onFulfill={this._checkCode}
-                onBackspace={() => console.log('No more back.')}
               />
             </View>
           </DialogContent>
