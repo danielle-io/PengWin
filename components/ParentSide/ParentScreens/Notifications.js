@@ -83,7 +83,6 @@ export default class Notifications extends Component {
         this.setState({ childNotifications: results });
         console.log(results);
         if (results.length === 0) {
-          console.log("true");
           this.setState({ noNotifications: true });
         } else {
           this.loopOverNotificationRoutines();

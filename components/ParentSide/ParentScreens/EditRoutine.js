@@ -182,7 +182,6 @@ export default class EditRoutine extends Component {
   // Update the DB
   updateRoutineData() {
     // Make sure the activity amount is correct, and if not, update it as well
-    console.log("changes of routine state" + this.state.changedValues);
     if (this.state.routineActivitiesByOrder) {
       this.updateRoutineActivityAmount();
     }
@@ -242,8 +241,6 @@ export default class EditRoutine extends Component {
           return responseJson;
         })
         .then((results) => {
-          console.log("worked!!!");
-
           // Set the new routineId
           this.setState({ routineId: results.insertId });
           this.saveAnyChanges();
@@ -367,8 +364,6 @@ export default class EditRoutine extends Component {
         ],
       });
     }
-    console.log("currentlySelectedReward below");
-    console.log(this.state.currentlySelectedReward);
 
     this.setState({ rewardLoaded: true });
   }
@@ -397,8 +392,6 @@ export default class EditRoutine extends Component {
       this.state.routineActivitiesByOrder !== null &&
       this.state.routineActivitiesByOrder !== []
     ) {
-      console.log("this.state.routineActivitiesByOrder");
-      console.log(this.state.routineActivitiesByOrder);
 
       var arrLength = Object.keys(this.state.routineActivitiesByOrder).length;
       for (var i = order; i < arrLength; i++) {
@@ -450,7 +443,6 @@ export default class EditRoutine extends Component {
         // from the potential options for the dropdown
         this.removeAlreadyAddedActivitiesFromOptions();
         this.setState({ activityChangeLoad: true });
-        console.log("loadedAfterDeletion is " + this.state.loadedAfterDeletion);
 
         if (!this.state.loadedAfterDeletion) {
           this.displayList("activities");
@@ -465,8 +457,6 @@ export default class EditRoutine extends Component {
   // to easily change & display in order, & by ID
   // to easily figure out what to omit from the drop down
   setUpActivitiesDictionaryByOrderAndId(activitiesFromDb) {
-    console.log("set up activities by order and id");
-    console.log(activitiesFromDb);
     var tempOrderDict = {};
     var tempIdDict = {};
     var counter = 0;
@@ -613,7 +603,6 @@ export default class EditRoutine extends Component {
   }
 
   getCurrentSwitchState() {
-    console.log("THIS REQUIRES APPROVAL" + this.state.requiresApproval)
     if (this.state.requiresApproval === 1) {
       return true;
     }
@@ -985,7 +974,6 @@ export default class EditRoutine extends Component {
       this.saveAnyChanges();
       var alr = "";
     } else {
-      console.log("new routine");
       this.createNewRoutine();
     }
 

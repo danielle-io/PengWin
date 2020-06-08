@@ -101,9 +101,6 @@ export default class ChildCamera extends React.Component {
   }
 
   updateImageArrayInDb(inputString) {
-    console.log("inputString is :: " + inputString);
-    console.log("the notif id is " + this.state.childNotificationsId);
-
     var data = {
       image_path_array: inputString,
       activities_complete: this.state.key + 1,
@@ -146,7 +143,6 @@ export default class ChildCamera extends React.Component {
         return responseJson;
       })
       .then((results) => {
-        // //console.log("RESULTS FROM DB ARE " + results[0].image_path_array);
         if (typeof results[0] !== "undefined") {
           this.setState({ currentImages: results[0].image_path_array });
         }
@@ -190,8 +186,6 @@ export default class ChildCamera extends React.Component {
       var word = this.state.tags[i].toLowerCase();
 
       tempDictionary[word] = 1;
-      console.log("TAGGSSS " + this.state.tags);
-      console.log("TAG " + this.state.tags[i].toLowerCase());
     }
     this.setState({ tagsDictionary: tempDictionary });
   }
@@ -444,8 +438,6 @@ export default class ChildCamera extends React.Component {
 
           {/* Body */}
           <ScrollView
-          // style={styles.container}
-          // contentContainerStyle={styles.contentContainer}
           >
             <View>
               {!this.state.itemIsInTags && (
