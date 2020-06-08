@@ -132,7 +132,6 @@ export default class ChildCamera extends React.Component {
   }
 
   async getCurrentImages() {
-    console.log("getting image paths from db");
     fetch(
       Environment +
         "/getImagePathFromNotifcations/" +

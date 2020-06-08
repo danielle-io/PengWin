@@ -8,13 +8,11 @@ import Pincode from "./Pincode";
 import HomePage from './HomePage';
 
 import ParentNavigation from "./ParentSide/ParentNavigation";
-import ParentRewards from "./ParentSide/ParentScreens/ParentRewards";
 import EditReward from "./ParentSide/ParentScreens/EditReward";
 import ParentProfile from "./ParentSide/ParentScreens/ParentProfile";
 import PublicActivities from "./ParentSide/ParentScreens/PublicActivities";
 import ViewPublicActivity from "./ParentSide/ParentScreens/ViewPublicActivity";
 import EditRoutine from "./ParentSide/ParentScreens/EditRoutine";
-import ParentRoutines from "./ParentSide/ParentScreens/ParentRoutines";
 import EditActivity from "./ParentSide/ParentScreens/EditActivity";
 import Progress from "./ParentSide/ParentScreens/Progress";
 import Notifications from "./ParentSide/ParentScreens/Notifications";

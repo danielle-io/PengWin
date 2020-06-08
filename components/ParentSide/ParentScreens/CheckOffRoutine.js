@@ -70,8 +70,6 @@ export default class CheckOffRoutine extends Component {
       })
       .then((rewardResult) => {
         this.setState({ reward: rewardResult[0] });
-        console.log("reward is below");
-        console.log(rewardResult);
         this.setState({ rewardLoaded: true });
       })
       .catch((error) => {
@@ -107,7 +105,6 @@ export default class CheckOffRoutine extends Component {
         return responseJson;
       })
       .then((results) => {
-        console.log(results);
          this.props.navigation.navigate("Notifications", {
           });
       })

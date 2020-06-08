@@ -76,7 +76,6 @@ export default class ChildRoutines extends Component {
         body: JSON.stringify(data),
       });
       if (response.status >= 200 && response.status < 300) {
-        console.log("SUCCESS");
       }
     } catch (errors) {
       alert(errors);

@@ -45,7 +45,6 @@ export default class TestingHomePage extends Component {
   }
 
   getRewardAmount(routineId, rewardAmount, rewardId) {
-    console.log("check reward amount");
     fetch(Environment + "/joinRoutineActivityTableByRoutineId/" + routineId)
       .then((response) => response.json())
       .then((responseJson) => {
@@ -62,10 +61,6 @@ export default class TestingHomePage extends Component {
   compareRewardAmount(routineId, rewardAmount, rewardId, activities) {
     var rewardCount = 0;
     for (var i = 0; i < activities.length; i++) {
-      console.log(activities[i].reward_image);
-      console.log(activities[i].reward_video);
-      console.log(activities[i].reward_description);
-
       if (
         activities[i].reward_image ||
         activities[i].reward_video ||

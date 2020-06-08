@@ -289,7 +289,6 @@ export default class Activity extends Component {
 
       if (!pickerResult.cancelled) {
         var uploadUrl = await this.uploadImageAsync(pickerResult.uri);
-        console.log("Upload URL is " + uploadUrl);
 
         if (imageName === "activityImage") {
           this.setState({ activityImagePath: uploadUrl });
@@ -314,7 +313,6 @@ export default class Activity extends Component {
   };
 
   async uploadImageAsync(uri) {
-    console.log("uploading image");
     const blob = await new Promise((resolve, reject) => {
       const xhr = new XMLHttpRequest();
       xhr.onload = function() {

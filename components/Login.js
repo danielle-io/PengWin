@@ -17,7 +17,6 @@ const { width: WIDTH } = Dimensions.get("window");
 export default class Login extends Component {
   state = { email: "", password: "", errorMessage: null };
   handleLogin = () => {
-    console.log("handleLogin");
   };
   constructor(props) {
     super(props);
@@ -50,7 +49,6 @@ export default class Login extends Component {
       .auth()
       .createUserWithEmailAndPassword(this.state.Username, this.state.password)
       .then((u) => {
-        console.log(u);
       })
       .catch((err) => {
         console.log(err);
