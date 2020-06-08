@@ -56,7 +56,6 @@ export default class ChildRewards extends Component {
       .then((results) => {
         this.setState({ results: results });
         this.setState({ loaded: true });
-        console.log(this.state.results);
       })
       .catch((error) => {
         console.error(error);
@@ -158,7 +157,7 @@ export default class ChildRewards extends Component {
         }}
       >
         {this.state.results.map((item) => {
-          if (item.requires_approval == 1)
+          if (item.requires_approval == 0 && item.is_active == 1)
             return (
               <View style={({ flex: 1 }, styles.routines)}>
                 <ScrollView>
@@ -191,7 +190,7 @@ export default class ChildRewards extends Component {
         }}
       >
         {this.state.results.map((item) => {
-          if (item.requires_approval == 0)
+          if (item.requires_approval == 1 && item.is_active == 1)
             return (
               <View
                 style={({ flex: 1 }, styles.routines)}
@@ -261,7 +260,6 @@ export default class ChildRewards extends Component {
                 this.setState({
                   selectedTab: index,
                 });
-                console.log(this.state.selectedTab);
               }}
             />
           </SafeAreaView>
@@ -294,7 +292,7 @@ const styles = {
     opacity: 0.6,
   },
   imageContainer: {
-    marginRight: 44,
+    marginRight: 30,
     marginTop: 30,
     width: 200,
     height: 250,

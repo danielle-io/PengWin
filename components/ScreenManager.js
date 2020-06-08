@@ -47,13 +47,11 @@ import TestingHomePage from "./TestingHomePage";
 
 const Screens = createStackNavigator({
 
+  ChildRoutines: { screen: ChildRoutines },
+  ParentNavigation: {screen: ParentNavigation},
   TestingHomePage: {screen: TestingHomePage},
-  ParentNavigation: {screen: ParentNavigation},
+
   
- 
-
-  ParentNavigation: {screen: ParentNavigation},
-
   Login: {screen: Login},
   SignUp: {screen: SignUp},
   Pincode: {screen: Pincode},

@@ -112,8 +112,8 @@ export default class RoutineApproval extends Component {
       <View style={{backgroundColor: "#FFFCF9",}}>
         {this.state.activitiesLoaded && (
           <Carousel
-            height={HEIGHT * 0.9}
-            hideIndicators={false}
+            height={HEIGHT}
+            hideIndicators={true}
             indicatorSize={12}
             animate={false}
             onRef={(ref) => (this.child = ref)}
@@ -283,6 +283,7 @@ export default class RoutineApproval extends Component {
 const styles = StyleSheet.create({
   carouselContainer: {
     backgroundColor: "#FFFCF9",
+    paddingBottom:30,
   },
   next: {
     fontSize: 20,

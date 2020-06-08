@@ -596,7 +596,7 @@ const styles = StyleSheet.create({
   textStyle: {
     fontFamily: "Gaegu",
     fontSize: 20,
-    color: "white",
+    color: "#5a5a5a",
     textAlign: "center",
   },
   buttonStyle: {
