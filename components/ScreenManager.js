@@ -5,7 +5,7 @@ import { createStackNavigator } from "react-navigation-stack";
 import Login from "./Login";
 import SignUp from "./SignUp";
 import Pincode from "./Pincode";
-import HomePage from './HomePage';
+import HomePage from "./HomePage";
 
 import ParentNavigation from "./ParentSide/ParentNavigation";
 import EditReward from "./ParentSide/ParentScreens/EditReward";
@@ -19,7 +19,7 @@ import Notifications from "./ParentSide/ParentScreens/Notifications";
 import RoutineApproval from "./ParentSide/ParentScreens/RoutineApproval";
 import CheckOffRoutine from "./ParentSide/ParentScreens/CheckOffRoutine";
 
-import Questionnaire from './ParentSide/ParentScreens/Questionnaire';
+import Questionnaire from "./ParentSide/ParentScreens/Questionnaire";
 
 import ChildRoutines from "./ChildScreens/ChildNavigation";
 import ChildActivity from "./ChildScreens/ChildActivity";
@@ -34,30 +34,30 @@ import ChildCamera from "../components/ImageRecognition/ChildCamera";
 import TestingHomePage from "./TestingHomePage";
 
 const Screens = createStackNavigator({
-  ParentNavigation: {screen: ParentNavigation},
-  TestingHomePage: {screen: TestingHomePage},
-  Login: {screen: Login},
-  SignUp: {screen: SignUp},
-  Pincode: {screen: Pincode},
-  ChildCamera: {screen: ChildCamera },    
+  ParentNavigation: { screen: ParentNavigation },
 
-  ChildRoutines: { screen: ChildRoutines },
+  TestingHomePage: { screen: TestingHomePage },
+  Login: { screen: Login },
+  SignUp: { screen: SignUp },
+  Pincode: { screen: Pincode },
+  ChildCamera: { screen: ChildCamera },
+
   EditActivity: { screen: EditActivity },
   PublicActivities: { screen: PublicActivities },
   ViewPublicActivity: { screen: ViewPublicActivity },
-  CheckOffRoutine: {screen: CheckOffRoutine },    
+  CheckOffRoutine: { screen: CheckOffRoutine },
 
-  Questionnaire: {screen:Questionnaire},
-  Notifications: {screen: Notifications},
+  Questionnaire: { screen: Questionnaire },
+  Notifications: { screen: Notifications },
   EditReward: { screen: EditReward },
   ParentProfile: { screen: ParentProfile },
   EditRoutine: { screen: EditRoutine },
   Progress: { screen: Progress },
   RoutineApproval: { screen: RoutineApproval },
 
+  ChildRoutines: { screen: ChildRoutines },
   ChildPincode: { screen: ChildPincode },
   ChildNotifScreen: { screen: ChildNotifScreen },
-  ChildActivity: { screen: ChildActivity },
   ChildMap: { screen: ChildMap },
   ChildRewards: { screen: ChildRewards },
   ChildStartActivity: { screen: ChildStartActivity },

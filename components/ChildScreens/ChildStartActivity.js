@@ -5,6 +5,7 @@ import {
   Image,
   View,
   Text,
+  ScrollView,
   TouchableOpacity,
 } from "react-native";
 import { AppLoading } from "expo";
@@ -23,6 +24,8 @@ const { width: WIDTH, height: HEIGHT } = Dimensions.get("window");
 export default class ChildStartActivity extends Component {
   constructor(props) {
     super(props);
+    const { navigate } = this.props.navigation;
+    this.navigate = navigate;
     this.state = {
       prevScreenTitle: this.props.navigation.state.params.prevScreenTitle,
       currentRoutine: this.props.navigation.state.params.currentRoutine,
@@ -36,8 +39,6 @@ export default class ChildStartActivity extends Component {
       activities: this.props.navigation.state.params.activities,
       rewards: this.props.navigation.state.params.rewards,
     };
-    const { navigate } = this.props.navigation;
-    this.navigate = navigate;
     ChildStartActivity.navigationOptions.headerBackTitle = this.props.navigation.state.params.currentRoutine;
     this.getChild();
   }
@@ -135,24 +136,26 @@ export default class ChildStartActivity extends Component {
     if (this.state.loaded) {
       return (
         <View style={styles.container}>
-          <Text style={styles.title}> Start {this.state.routineName}</Text>
-          <Text style={styles.section}>
-            {" "}
-            Hi, {this.state.child.first_name}! It’s It’s time to start your{" "}
-            {this.state.routineName}! Complete the routine to earn{" "}
-            {this.state.activities} stars and win {this.state.rewards} exciting
-            rewards :){" "}
-          </Text>
-          <View style={styles.image}>{this.renderStars()}</View>
-          <Image source={Wave} style={{ margin: 10, marginLeft: 50 }} />
-          <TouchableOpacity
-            style={styles.buttonStyle}
-            onPress={() => {
-              this.insertChildNotification();
-            }}
-          >
-            <Text style={styles.textStyle}>Start Routine!</Text>
-          </TouchableOpacity>
+          <ScrollView>
+            <Text style={styles.title}> Start {this.state.routineName}</Text>
+            <Text style={styles.section}>
+              {" "}
+              Hi, {this.state.child.first_name}! It’s It’s time to start your{" "}
+              {this.state.routineName} Routine! Complete the routine to earn{" "}
+              {this.state.activities} stars and win {this.state.rewards}{" "}
+              exciting rewards :){" "}
+            </Text>
+            <View style={styles.image}>{this.renderStars()}</View>
+            <Image source={Wave} style={{ margin: 10, marginLeft: 50 }} />
+            <TouchableOpacity
+              style={styles.buttonStyle}
+              onPress={() => {
+                this.insertChildNotification();
+              }}
+            >
+              <Text style={styles.textStyle}>Start Routine!</Text>
+            </TouchableOpacity>
+          </ScrollView>
         </View>
       );
     } else {
@@ -167,6 +170,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     alignItems: "center",
     justifyContent: "center",
+    marginBottom: 40,
   },
   image: {
     flexDirection: "row",

@@ -211,7 +211,7 @@ export default class ChildRoutines extends Component {
           <View
             style={({ flex: 1 }, styles.routines)}
             onStartShouldSetResponder={() =>
-              this.props.navigation.navigate("ChildActivity", {
+              this.props.navigation.navigate("ChildStartActivity", {
                 prevScreenTitle: "My Routines",
                 currentRoutine: item.routine_name,
                 routineId: item.routine_id,

@@ -44,8 +44,6 @@ const childId = UserInfo.child_id;
 const userId = UserInfo.user_id;
 const pincode = UserInfo.pincode;
 
-// currentImages: eval(this.state.currentImages),
-
 export default class ChildCamera extends React.Component {
   constructor(props) {
     super(props);
@@ -96,7 +94,7 @@ export default class ChildCamera extends React.Component {
       console.log("=== empty");
       inputString = this.state.activityImage;
     }
-
+    console.log(this.state.currentImages);
     this.updateImageArrayInDb(inputString);
   }
 
@@ -105,6 +103,9 @@ export default class ChildCamera extends React.Component {
       image_path_array: inputString,
       activities_complete: this.state.key + 1,
     };
+
+    console.log('input string ' + inputString);
+    console.log("ID is " + this.state.childNotificationsId);
 
     fetch(
       Environment +
