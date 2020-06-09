@@ -46,7 +46,6 @@ export default class ParentRewards extends Component {
         this.props.navigation.addListener(
             'didFocus',
             (payload) => {
-                console.log('running component did mount for rewards');
             }
         )
     }
@@ -104,7 +103,6 @@ export default class ParentRewards extends Component {
                 }
             );
             if (response.status >= 200 && response.status < 300) {
-                console.log("SUCCESS");
             }
         }
         catch (errors) {
@@ -187,7 +185,6 @@ export default class ParentRewards extends Component {
 
             if (!pickerResult.cancelled) {
                 var uploadUrl = await this.uploadImageAsync(pickerResult.uri);
-                console.log("Upload URl is " + uploadUrl);
                 this.setState({ rewardVideo: uploadUrl });
             }
         } catch (e) {
@@ -199,7 +196,6 @@ export default class ParentRewards extends Component {
     };
 
     async uploadImageAsync(uri) {
-        console.log("uploading reward");
         const blob = await new Promise((resolve, reject) => {
             const xhr = new XMLHttpRequest();
             xhr.onload = function () {

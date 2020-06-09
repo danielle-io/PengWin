@@ -38,6 +38,7 @@ export default class ChildStartActivity extends Component {
       routineName: this.props.navigation.state.params.routineName,
       activities: this.props.navigation.state.params.activities,
       rewards: this.props.navigation.state.params.rewards,
+      routineTime: this.props.navigation.state.params.routineTime,
     };
     ChildStartActivity.navigationOptions.headerBackTitle = this.props.navigation.state.params.currentRoutine;
     this.getChild();
@@ -133,6 +134,12 @@ export default class ChildStartActivity extends Component {
   }
 
   render() {
+    let time = this.state.routineTime.split(":");
+    let hours = time[0];
+    let ampm = "AM";
+    if (hours > 11) ampm = "PM";
+    hours = hours % 12 || 12;
+
     if (this.state.loaded) {
       return (
         <View style={styles.container}>
@@ -140,9 +147,10 @@ export default class ChildStartActivity extends Component {
             <Text style={styles.title}> Start {this.state.routineName}</Text>
             <Text style={styles.section}>
               {" "}
-              Hi, {this.state.child.first_name}! It’s It’s time to start your{" "}
-              {this.state.routineName} Routine! Complete the routine to earn{" "}
-              {this.state.activities} stars and win {this.state.rewards}{" "}
+              Hi, {this.state.child.first_name}! It’s{" "}
+              {hours + ":" + time[1] + " " + ampm} and that means it’s time to
+              start your {this.state.routineName} Routine! Complete the routine
+              to earn {this.state.activities} stars and win {this.state.rewards}{" "}
               exciting rewards :){" "}
             </Text>
             <View style={styles.image}>{this.renderStars()}</View>
@@ -170,7 +178,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     alignItems: "center",
     justifyContent: "center",
-    marginBottom: 40,
+    marginBottom: 80,
   },
   image: {
     flexDirection: "row",

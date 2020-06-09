@@ -39,9 +39,8 @@ export default class ChildPincode extends Component {
   };
   pinInput = React.createRef();
 
-  //TODO: Navigate to parent, Dynamic Code
   _checkCode = (code) => {
-    if (code != "12345") {
+    if (code !== "1234") {
       this.pinInput.current.shake();
       Alert.alert("PinCode Created!", this.props.navigation.navigate(""));
 
@@ -60,9 +59,6 @@ export default class ChildPincode extends Component {
       <View style={styles.container}>
         <Text style={styles.headingContainer}>CREATE A PASSCODE</Text>
         <View style={styles.logoContainer}>
-          {/* <Image source={Logo}
-          style={styles.logo}>
-          </Image> */}
         </View>
 
         <View style={{ marginTop: -750 }} />
@@ -100,7 +96,6 @@ export default class ChildPincode extends Component {
         >
           <DialogContent>
             <Text style={styles.title}>Create Pincode?</Text>
-            {/* <Text>This will log you out of the child mode. If you wish to switch from child to parent mode, you will need to enter your 4 digit passcode. Do you wish to continue the switch to parent mode of the app?</Text> */}
 
             <Button
               onPress={() => {

@@ -35,8 +35,6 @@ export default class ChildPincode extends Component {
   };
   pinInput = React.createRef();
 
-  //code is 1234
-  //TODO: Navigate to parent, Dynamic Code
   _checkCode = code => {
     if (code != '1234') {
       this.pinInput.current.shake();
@@ -44,7 +42,7 @@ export default class ChildPincode extends Component {
     } else {
       this.setState({visible: false});
       //nav to parent
-      this.navigate('ParentRoutines', {prevScreenTitle: 'My Routines'});
+      this.navigate('ParentNavigation', {prevScreenTitle: 'My Routines'});
     }
   };
 
@@ -98,7 +96,6 @@ export default class ChildPincode extends Component {
                 value={code}
                 onTextChange={code => this.setState({code})}
                 onFulfill={this._checkCode}
-                onBackspace={() => console.log('No more back.')}
               />
             </View>
           </DialogContent>

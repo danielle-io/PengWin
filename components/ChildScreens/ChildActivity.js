@@ -136,9 +136,7 @@ export default class ChildActivity extends Component {
       .then((responseJson) => {
         return responseJson;
       })
-      .then((results) => {
-        console.log(results);
-      })
+      .then((results) => {})
       .catch((error) => {
         console.error(error);
       });
@@ -209,8 +207,6 @@ export default class ChildActivity extends Component {
 
                     <Image
                       source={Head}
-                      // style={{transform: [{ scale: 0.40 }]}}
-                      // style={{ width: 140, height: 115 }}
                       style={{
                         flex: 1,
                         width: 140,
@@ -228,9 +224,6 @@ export default class ChildActivity extends Component {
                         height={30}
                         borderWidth={2}
                         borderRadius={20}
-                        // flex: 1,
-                        // resizeMode: "contain",
-                        // marginRight: "1%",
                       />
 
                       <View style={styles.headerRibbonContainer}>
@@ -342,38 +335,35 @@ export default class ChildActivity extends Component {
                         </View>
                       </View>
                     )}
-
-                    
                   </ScrollView>
                   <View
-                      style={{
-                        bottom: 100,
-                        justifyContent: "center",
-                        alignItems: "center",
+                    style={{
+                      bottom: 100,
+                      justifyContent: "center",
+                      alignItems: "center",
+                    }}
+                  >
+                    <TouchableOpacity
+                      style={styles.buttonStyle}
+                      onPress={() => {
+                        this.navigate("ChildCamera", {
+                          prevScreenTitle: "ACTIVITY",
+                          tags: item.tags.split(","),
+                          key: key,
+                          activities: this.state.activities,
+                          childNotificationsId: this.state.childNotificationsId,
+                          activityId: item.activity_id,
+                          rewardToggle:
+                            item.reward_image ||
+                            item.reward_video ||
+                            item.reward_description,
+                        });
+                        this._onNext();
                       }}
                     >
-                      <TouchableOpacity
-                        style={styles.buttonStyle}
-                        onPress={() => {
-                          this.navigate("ChildCamera", {
-                            prevScreenTitle: "ACTIVITY",
-                            tags: item.tags.split(","),
-                            key: key,
-                            activities: this.state.activities,
-                            childNotificationsId: this.state
-                              .childNotificationsId,
-                            activityId: item.activity_id,
-                            rewardToggle:
-                              item.reward_image ||
-                              item.reward_video ||
-                              item.reward_description,
-                          });
-                          this._onNext();
-                        }}
-                      >
-                        <Text style={styles.textStyle}>Take A Picture!</Text>
-                      </TouchableOpacity>
-                    </View>
+                      <Text style={styles.textStyle}>Take A Picture!</Text>
+                    </TouchableOpacity>
+                  </View>
                 </View>
               );
             })}
@@ -466,11 +456,9 @@ export default class ChildActivity extends Component {
                   cellStyleFocused={{
                     borderColor: "black",
                   }}
-                  // x
                   value={this.state.inputCode}
                   onTextChange={(inputCode) => this.setState({ inputCode })}
                   onFulfill={this._checkCode}
-                  onBackspace={() => console.log("No more back.")}
                 />
               </View>
             </DialogContent>
@@ -587,7 +575,7 @@ const styles = StyleSheet.create({
   textStyle: {
     fontFamily: "Gaegu",
     fontSize: 20,
-    color: "white",
+    color: "#5a5a5a",
     textAlign: "center",
   },
   buttonStyle: {

@@ -183,7 +183,6 @@ export default class EditRoutine extends Component {
 
   // Update the DB
   updateRoutineData() {
-    console.log("update routine data");
     // Make sure the activity amount is correct, and if not, update it as well
     if (this.state.routineActivitiesByOrder) {
       this.updateRoutineActivityAmount();
@@ -254,8 +253,6 @@ export default class EditRoutine extends Component {
             this.state.currentlySelectedActivity !== null &&
             this.state.routineId
           ) {
-            console.log("adding activity to state");
-            // this.addNewActivityToState();
           }
           this.saveAnyChanges();
         })
@@ -473,6 +470,7 @@ export default class EditRoutine extends Component {
     var counter = 0;
 
     activitiesFromDb.map((item) => {
+
       // Make sure the order numbers are in order and correct
       if (item.order !== counter) {
         tempOrderDict[counter] = item;
@@ -514,6 +512,7 @@ export default class EditRoutine extends Component {
         mappingVal.push(this.state.currentlySelectedReward);
       }
     } else if (this.state.routineActivitiesByOrder !== null) {
+    
       // Put ordered activities an array to loop over them
       for (
         var i = 0;
@@ -528,7 +527,7 @@ export default class EditRoutine extends Component {
 
     var item_name = "";
 
-    //  this is the loop where activities populate and rewards populate
+    //  This is the loop where activities populate and rewards populate
     if (mappingVal !== null) {
       return mappingVal.map((item) => {
         if (listName === "activity") {
@@ -639,13 +638,13 @@ export default class EditRoutine extends Component {
       this.setState({ activityChangeLoad: false });
     }
     if (!this.state.routineId) {
-
       if (this.state.currentlySelectedActivity) {
         this.setState({ newRoutineNewActivity: true });
         this.createNewRoutine();
       }
     }
     if (listName === "activity") {
+     
       // This is to save the previously added activity if they
       // already added one and now clicked add again
       if (this.state.currentlySelectedActivity != null) {
@@ -653,6 +652,7 @@ export default class EditRoutine extends Component {
       }
 
       if (!this.saveClicked) {
+
         // Display everything once the activity is loaded
         {
           this.state.activityChangeLoad && this.displayList(listName);
@@ -678,20 +678,16 @@ export default class EditRoutine extends Component {
 
   addNewActivityToState() {
     var order = Object.keys(this.state.routineActivitiesByOrder).length;
+   
     // Avoid duplicate inserts
     if (
       this.state.currentlySelectedActivity &&
       this.state.currentlySelectedActivity.id
     ) {
-      console.log("id exists");
-      // if (!this.state.currentlySelectedActivity.id in this.state.allActivitiesDictionary)
-      // {
-      console.log("not in dict");
       var activity = this.state.allActivitiesDictionary[
         this.state.currentlySelectedActivity.id
       ];
       this.insertActivityRelationship(activity.activity_id, order);
-      // }
     }
   }
 
@@ -958,15 +954,12 @@ export default class EditRoutine extends Component {
       this.setState({ addActivityButtonClicked: false });
       this.setState({ addRewardButtonClicked: false });
     } else {
-      console.log("save clicked");
-
       this.clickedAddActivity();
     }
     this.updateDateChanges();
 
     // This means an item was selected but the add button wasnt pressed
     if (this.state.currentlySelectedActivity !== null && this.state.routineId) {
-      console.log("adding new activity");
       this.addNewActivityToState();
     }
 
@@ -1002,7 +995,6 @@ export default class EditRoutine extends Component {
   };
 
   _onSubmit = () => {
-    console.log("save clicked");
     this.setState({ saveClicked: true });
     if (this.state.routineId !== null) {
       this.saveAnyChanges();
@@ -1019,7 +1011,6 @@ export default class EditRoutine extends Component {
   render() {
     if (this.state.activitiesLoaded && this.state.rewardLoaded) {
     } else {
-      console.log("RETURNING NULL");
       return null;
     }
     let ripple = { id: "addButton" };
@@ -1256,12 +1247,6 @@ const styles = StyleSheet.create({
     fontSize: 20,
     marginTop: 0,
     marginLeft: 10,
-    marginBottom: 10,
-  },
-  addText: {
-    fontSize: 20,
-    marginTop: 5,
-    marginLeft: 2,
     marginBottom: 10,
   },
   editRoutineFormContainer: {

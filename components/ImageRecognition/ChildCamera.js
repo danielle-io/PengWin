@@ -91,10 +91,8 @@ export default class ChildCamera extends React.Component {
     if (this.state.currentImages) {
       inputString = this.state.currentImages + "," + this.state.activityImage;
     } else {
-      console.log("=== empty");
       inputString = this.state.activityImage;
     }
-    console.log(this.state.currentImages);
     this.updateImageArrayInDb(inputString);
   }
 
@@ -103,9 +101,6 @@ export default class ChildCamera extends React.Component {
       image_path_array: inputString,
       activities_complete: this.state.key + 1,
     };
-
-    console.log('input string ' + inputString);
-    console.log("ID is " + this.state.childNotificationsId);
 
     fetch(
       Environment +
@@ -400,8 +395,6 @@ export default class ChildCamera extends React.Component {
 
             <Image
               source={Head}
-              // style={{transform: [{ scale: 0.40 }]}}
-              // style={{ width: 140, height: 115 }}
               style={{
                 flex: 1,
                 width: 140,
@@ -535,9 +528,6 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingBottom: 10,
   },
-  contentContainer: {
-    paddingTop: 30,
-  },
   linkContainer: {
     marginTop: 20,
     alignItems: "center",
@@ -601,18 +591,6 @@ const styles = StyleSheet.create({
     borderColor: "#B1EDE8",
     height: 80,
     width: 80,
-  },
-  ribbonImage: {
-    height: 50,
-    width: 40,
-    marginTop: 1,
-    marginLeft: 9,
-  },
-  linkStyle: {
-    fontFamily: "SF",
-    fontSize: 20,
-    color: "#fff",
-    flexWrap: "wrap",
   },
   textArea: {
     fontFamily: "SF",

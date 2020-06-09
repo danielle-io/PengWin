@@ -1,5 +1,4 @@
 const environment = require("../database/sqlConfig");
-
 const express = require("express");
 const bodyParser = require("body-parser");
 const mysql = require("mysql");
@@ -77,7 +76,6 @@ app.get("/getImagePathFromNotifcations/:childNotificationsId", function(
       function(error, results, fields) {
         connection.release();
         if (error) throw error;
-        console.log(results);
         res.send(results);
       }
     );
@@ -104,9 +102,6 @@ app.get("/getParentIdOfUser/:userId", function(req, res) {
 app.post("/updateRoutine/:routineId", function(req, res) {
   let routineId = req.params.routineId;
   var postData = req.body;
-  console.log(
-    "updating routine, routine id is " + routineId + " data is " + postData
-  );
   db.getConnection(function(err, connection) {
     connection.query(
       "UPDATE routines SET ? WHERE routine_id = ?",
@@ -118,7 +113,6 @@ app.post("/updateRoutine/:routineId", function(req, res) {
           throw error;
           console.log(err);
         }
-        console.log("RESULTS ARE " + JSON.stringify(results));
         res.send(JSON.stringify(results));
       }
     );
@@ -129,8 +123,6 @@ app.post("/updateRoutine/:routineId", function(req, res) {
 app.post('/updateChildNotificationsTable/:childNotificationId', function (req, res) {
   let childNotificationId = req.params.childNotificationId;
   var postData = req.body;
-
-  console.log("updating child notifs, id is " + childNotificationId);
 
   db.getConnection(function (err, connection) {
     
@@ -143,7 +135,6 @@ app.post('/updateChildNotificationsTable/:childNotificationId', function (req, r
           throw error;
           console.log(err);
         }
-        console.log("RESULTS ARE " + results);
         res.send(JSON.stringify(results))
       });
   });
@@ -213,7 +204,6 @@ app.post("/incrementChildRoutines/:childID", function(req, res) {
 app.post("/updateActivity/:activityId", function(req, res) {
   let activityId = req.params.activityId;
   var postData = req.body;
-  console.log(postData);
   db.getConnection(function(err, connection) {
     connection.query(
       "UPDATE activities SET ? WHERE activity_id = ?",
@@ -225,7 +215,6 @@ app.post("/updateActivity/:activityId", function(req, res) {
           throw error;
           console.log(err);
         }
-        console.log(results);
         res.send(JSON.stringify(results));
       }
     );
@@ -237,7 +226,6 @@ app.post('/updateRoutineRequiresApproval/:routine_id', function (req, res) {
   let routine_id = req.params.routine_id;
   var postData = req.body;
 
-  console.log(postData);
   connection.getConnection(function (err, connection) {
     connection.query('UPDATE child_notifications SET ? WHERE routine_id = ?',
       [postData, routine_id],
@@ -271,7 +259,6 @@ app.post('/insertRoutine', function (req, res) {
 });
 
 app.post("/insertActivity", function(req, res) {
-  console.log("inserting");
   var postData = req.body;
   db.getConnection(function(err, connection) {
     connection.query("INSERT INTO activities SET ?", postData, function(
@@ -284,7 +271,6 @@ app.post("/insertActivity", function(req, res) {
         throw error;
         console.log(err);
       }
-      console.log(results);
       res.send(JSON.stringify(results));
     });
   });
@@ -302,8 +288,6 @@ app.post("/insertChildRoutineNotifications", function(req, res) {
           throw error;
           console.log(err);
         }
-        console.log(JSON.stringify(results));
-
         res.send(JSON.stringify(results));
       }
     );
@@ -333,7 +317,6 @@ app.post("/updateChildNotifications/:childNotificationsId", function(req, res) {
 app.post("/updatePreferences/:user_preference_id", function(req, res) {
   let user_preference_id = req.params.user_preference_id;
   var postData = req.body;
-  console.log(postData);
   db.getConnection(function(err, connection) {
     connection.query(
       "UPDATE user_preferences SET ? WHERE user_preference_id =" +
@@ -364,7 +347,6 @@ app.post("/insertRoutineActivityRelationship", function(req, res) {
           throw error;
           console.log(err);
         }
-        console.log(JSON.stringify(results));
         res.send(JSON.stringify(results));
       }
     );
@@ -372,8 +354,6 @@ app.post("/insertRoutineActivityRelationship", function(req, res) {
 });
 
 app.post("/insertContainerRoutineRelationship", function(req, res) {
-  console.log("insertContainerRoutineRelationship");
-
   var postData = req.body;
   db.getConnection(function(err, connection) {
     connection.query(
@@ -385,7 +365,6 @@ app.post("/insertContainerRoutineRelationship", function(req, res) {
           throw error;
           console.log(err);
         }
-        console.log(JSON.stringify(results));
         res.send(JSON.stringify(results));
       }
     );
@@ -396,7 +375,6 @@ app.post("/insertContainerRoutineRelationship", function(req, res) {
 app.post("/updateContainer/:containerId", function(req, res) {
   let containerId = req.params.containerId;
   var postData = req.body;
-  console.log("updating container, container id is " + containerId);
   db.getConnection(function(err, connection) {
     connection.query(
       "UPDATE containers SET ? WHERE container_id = ?",
@@ -408,7 +386,6 @@ app.post("/updateContainer/:containerId", function(req, res) {
           throw error;
           console.log(err);
         }
-        console.log("RESULTS ARE " + JSON.stringify(results));
         res.send(JSON.stringify(results));
       }
     );
@@ -418,7 +395,6 @@ app.post("/updateContainer/:containerId", function(req, res) {
 app.post("/updateRoutineTagTable/:containerRoutineId", function(req, res) {
   let containerRoutineId = req.params.containerRoutineId;
   var postData = req.body;
-  console.log("updating containerRoutineId " + containerRoutineId);
   db.getConnection(function(err, connection) {
     connection.query(
       "UPDATE container_routine_relationship SET ? WHERE container_routine_id = ?",
@@ -448,8 +424,6 @@ app.post("/insertNewContainer", function(req, res) {
         throw error;
         console.log(err);
       }
-      console.log(JSON.stringify(results));
-
       res.send(JSON.stringify(results));
     });
   });
@@ -493,7 +467,6 @@ app.post("/updateReward:rewardId", function(req, res) {
           throw error;
           console.log(err);
         }
-        console.log("RESULTS ARE " + JSON.stringify(results));
         res.send(JSON.stringify(results));
       }
     );
@@ -530,7 +503,6 @@ app.get("/getContainers/:userId", function(req, res) {
           throw error;
           console.log(err);
         }
-        console.log(results);
         res.send(JSON.stringify(results));
       }
     );
@@ -549,7 +521,6 @@ app.get("/getContainersPerRoutines/:userId", function(req, res) {
           throw error;
           console.log(err);
         }
-        console.log(results);
         res.send(JSON.stringify(results));
       }
     );
@@ -577,7 +548,6 @@ app.get("/getActivities/:userId", function(req, res) {
 
 app.get("/getAllRelationshipsForActivity/:activityId", function(req, res) {
   let activityId = req.params.activityId;
-  console.log("looking at relationship activity id is " + activityId);
 
   db.getConnection(function(err, connection) {
     connection.query(
@@ -589,7 +559,6 @@ app.get("/getAllRelationshipsForActivity/:activityId", function(req, res) {
           throw error;
           console.log(error);
         }
-        console.log(JSON.stringify(results));
         res.send(JSON.stringify(results));
       }
     );
@@ -605,8 +574,6 @@ app.get("/getPublicActivities/:userId", function(req, res) {
         userId,
       function(error, results, fields) {
         connection.release();
-        console.log("get public activities call");
-        console.log(results);
         if (error) {
           throw error;
           console.log(error);
@@ -627,36 +594,13 @@ app.get("/getActivitiesFromRoutine/:routineID", function(req, res) {
         routineID,
       function(error, results, fields) {
         connection.release();
-
-        console.log(results);
         console.log(error);
         if (error) throw error;
-
         res.send(results);
       }
     );
   });
 });
-
-// app.get("/getImagePathFromRewards/:rewardId", function(
-//   req,
-//   res
-// ) {
-//   let childNotificationsId = req.params.childNotificationsId;
-//   db.getConnection(function(err, connection) {
-//     connection.query(
-//       "SELECT * FROM rewards where reward_id = ?",
-//       [rewardId],
-//       function(error, results, fields) {
-//         connection.release();
-//         if (error) throw error;
-//         console.log(results);
-//         res.send(results);
-//       }
-//     );
-//   });
-// });
-
 
 app.get("/getAllRewards/:userId", function(req, res) {
   let userId = req.params.userId;
@@ -673,7 +617,6 @@ app.get("/getAllRewards/:userId", function(req, res) {
         throw error;
         console.log(err);
       }
-      console.log(results);
       res.send(results);
     });
   });
@@ -768,16 +711,10 @@ app.get("/joinRoutineActivityTableByRoutineId/:routineId", function(req, res) {
       [routineId],
       function(error, results, fields) {
         connection.release();
-        // console.log('routine routes below');
-        // console.log(results);
-        // console.log(error);
-
         if (error) {
           throw error;
           console.log(err);
         }
-        // console.log("RESULTS FROM JOINING");
-        // console.log(results);
         res.send(results);
       }
     );
@@ -813,11 +750,7 @@ app.get("/getRoutinesByUser/:userId", function(req, res) {
       [userId],
       function(error, results, fields) {
         connection.release();
-        console.log("here end of results");
-
         if (error) console.log(error);
-
-        console.log(results);
         res.json({ routines: results });
       }
     );

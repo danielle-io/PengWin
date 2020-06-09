@@ -54,8 +54,6 @@ export default class ChildRoutines extends Component {
       .then((results) => {
         this.setState({ routines: results });
         this.setState({ loaded: true });
-
-        // this.setNotifs();
       })
       .catch((error) => {
         console.error(error);
@@ -83,15 +81,9 @@ export default class ChildRoutines extends Component {
   }
 
   componentDidMount() {
-    // this.registerForPushNotificationsAsync();
-
     this.props.navigation.addListener("didFocus", (payload) => {
       this.getRoutines();
     });
-
-    // this._notificationSubscription = Notifications.addListener(
-    //   this._handleNotification
-    // );
   }
 
   registerForPushNotificationsAsync = async () => {
@@ -221,13 +213,12 @@ export default class ChildRoutines extends Component {
                 rewardId: item.reward_id,
                 requiresApproval: item.requires_approval,
                 amountOfActivities: item.amount_of_activities,
+                routineTime: item.start_time
               })
             }
           >
-            {/* <ScrollView> */}
             <View style ={{flexDirection: 'column', justifyContent: 'space-between'}}>
               <Text style={styles.routineTitle}>{item.routine_name}</Text>
-            {/* </ScrollView> */}
 
             <View style={styles.detailsContainer}>
               <Text style={styles.routineDetails}>
@@ -259,7 +250,8 @@ export default class ChildRoutines extends Component {
 
   render() {
     return (
-      <View>
+      <View style={{marginBottom: 40}}>
+        <ScrollView>
         {this.state.loaded && (
           <View
             style={{
@@ -271,6 +263,7 @@ export default class ChildRoutines extends Component {
             {this.renderRoutines()}
           </View>
         )}
+        </ScrollView>
       </View>
     );
   }

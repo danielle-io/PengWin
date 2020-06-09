@@ -81,7 +81,6 @@ export default class Notifications extends Component {
       })
       .then((results) => {
         this.setState({ childNotifications: results });
-        console.log(results);
         if (results.length === 0) {
           this.setState({ noNotifications: true });
         } else {

@@ -29,7 +29,6 @@ export default class SignUp extends Component {
   }
 
   async changeUserComponent(tag, value, id) {
-    console.log("routine id below");
     var data = {
       [tag]: value,
     };
@@ -43,7 +42,6 @@ export default class SignUp extends Component {
         body: JSON.stringify(data),
       });
       if (response.status >= 200 && response.status < 300) {
-        console.log("SUCCESSFUL CALL");
       }
     } catch (errors) {
       alert(errors);
@@ -71,7 +69,6 @@ export default class SignUp extends Component {
       })
       .then((results) => {
         this.setState({ childResults: results });
-        console.log(this.state.childResults);
         this.setState({ loaded: true });
       })
       .catch((error) => {
@@ -91,7 +88,6 @@ export default class SignUp extends Component {
       })
       .then((results) => {
         this.setState({ results: results });
-        console.log(this.state.results);
         this.setState({ firstLoaded: true });
       })
       .catch((error) => {
@@ -108,8 +104,6 @@ export default class SignUp extends Component {
           value={itemValue.first_name}
           style={(styles.textfieldWithFloatingLabel, styles.textFields)}
           textInputStyle={{ flex: 1 }}
-          onFocus={(e) => console.log("Focus", !!e)}
-          onBlur={(e) => console.log("Blur", !!e)}
           onEndEditing={(e) => {
             this.changeUserComponent(
               "first_name",
@@ -117,7 +111,6 @@ export default class SignUp extends Component {
               itemValue.user_id
             );
           }}
-          onSubmitEditing={(e) => console.log("SubmitEditing", !!e)}
           onChangeText={(text) => this.setState({ childFirstName: text })}
         />
       );
@@ -140,8 +133,6 @@ export default class SignUp extends Component {
             value={item.first_name}
             style={(styles.textfieldWithFloatingLabel, styles.textFields)}
             textInputStyle={{ flex: 1 }}
-            onFocus={(e) => console.log("Focus", !!e)}
-            onBlur={(e) => console.log("Blur", !!e)}
             onEndEditing={(e) => {
               this.changeUserComponent(
                 "first_name",
@@ -149,8 +140,6 @@ export default class SignUp extends Component {
                 userId
               );
             }}
-            onSubmitEditing={(e) => console.log("SubmitEditing", !!e)}
-            onTextChange={(s) => console.log("TextChange", s)}
             onChangeText={(text) => this.setState({ parentFirstName: text })}
           />
 
@@ -160,8 +149,6 @@ export default class SignUp extends Component {
             value={item.last_name}
             style={(styles.textfieldWithFloatingLabel, styles.textFields)}
             textInputStyle={{ flex: 1 }}
-            onFocus={(e) => console.log("Focus", !!e)}
-            onBlur={(e) => console.log("Blur", !!e)}
             onEndEditing={(e) => {
               this.changeUserComponent(
                 "last_name",
@@ -169,23 +156,18 @@ export default class SignUp extends Component {
                 userId
               );
             }}
-            onSubmitEditing={(e) => console.log("SubmitEditing", !!e)}
             onChangeText={(text) => this.setState({ parentLastName: text })}
           />
 
           <TextField
-            // textInputStyle="number"
             id="parentEmail"
             placeholder="Password"
             value={item.email}
             style={(styles.textfieldWithFloatingLabel, styles.textFields)}
             textInputStyle={{ flex: 1 }}
-            onFocus={(e) => console.log("Focus", !!e)}
-            onBlur={(e) => console.log("Blur", !!e)}
             onEndEditing={(e) => {
               this.changeUserComponent("email", this.state.email, userId);
             }}
-            onSubmitEditing={(e) => console.log("SubmitEditing", !!e)}
             onChangeText={(text) => this.setState({ email: text })}
           />
 
@@ -222,7 +204,6 @@ export default class SignUp extends Component {
 }
 
 const styles = StyleSheet.create({
-  // Parent Profile
   parentProfileFormContainer: {
     marginTop: 10,
     marginLeft: 100,
@@ -234,12 +215,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     alignContent: "center",
     marginTop: 50,
-  },
-  buttonContainer: {
-    marginTop: 100,
-    fontSize: 200,
-    width: 200,
-    height: 200,
   },
   loginButton: {
     marginTop: 90,
@@ -261,7 +236,6 @@ const styles = StyleSheet.create({
     borderWidth: 0,
     marginLeft: -25,
   },
-
   textFields: {
     padding: 5,
     margin: 2,
@@ -269,38 +243,5 @@ const styles = StyleSheet.create({
     marginTop: 10,
     marginBottom: 10,
     fontSize: 20,
-  },
-  formIndent: {
-    marginLeft: 30,
-  },
-  imageContainer: {
-    alignItems: "center",
-    marginBottom: 200,
-  },
-  imageButton: {
-    marginTop: 50,
-    marginLeft: 100,
-  },
-  descriptionBox: {
-    borderColor: "#e8e8e8",
-    borderWidth: 1,
-    borderRadius: 15,
-  },
-  descriptionLines: {
-    marginBottom: 4,
-    marginLeft: 8,
-    marginRight: 8,
-    marginTop: 10,
-  },
-  routineDetails: {
-    fontSize: 10,
-    paddingTop: 15,
-    paddingLeft: 15,
-  },
-
-  detailsContainer: {
-    padding: 2,
-    paddingTop: 10,
-    paddingBottom: 15,
   },
 });

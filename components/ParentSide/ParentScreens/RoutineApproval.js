@@ -60,7 +60,6 @@ export default class RoutineApproval extends Component {
       .then((results) => {
         this.setState({ activities: results });
         this.setState({ activitiesLoaded: true });
-        console.log(results);
       })
       .catch((error) => {
         console.error(error);
@@ -97,7 +96,6 @@ export default class RoutineApproval extends Component {
       // Put something here for when they didnt take an image
       return "";
     } else {
-      console.log(imageArray[key]);
       return imageArray[key];
     }
   }
@@ -110,8 +108,8 @@ export default class RoutineApproval extends Component {
       <View style={{backgroundColor: "#FFFCF9",}}>
         {this.state.activitiesLoaded && (
           <Carousel
-            height={HEIGHT * 0.9}
-            hideIndicators={false}
+            height={HEIGHT}
+            hideIndicators={true}
             indicatorSize={12}
             animate={false}
             onRef={(ref) => (this.child = ref)}
@@ -273,7 +271,6 @@ export default class RoutineApproval extends Component {
       return (<View>{this.displayActivities()}</View>);
 
     } else {
-      console.log("null");
     }
   }
 }
@@ -281,6 +278,7 @@ export default class RoutineApproval extends Component {
 const styles = StyleSheet.create({
   carouselContainer: {
     backgroundColor: "#FFFCF9",
+    paddingBottom:30,
   },
   next: {
     fontSize: 20,

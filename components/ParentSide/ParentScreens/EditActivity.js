@@ -116,7 +116,6 @@ export default class Activity extends Component {
         }
       );
       if (response.status >= 200 && response.status < 300) {
-        console.log("SUCCESS");
       }
     } catch (errors) {
       alert(errors);
@@ -510,27 +509,20 @@ export default class Activity extends Component {
 
   
   imagePicker = async (imageName) => {
-    console.log("in image picker");
     let pickerResult = await ImagePicker.launchImageLibraryAsync({
       allowsEditing: true,
       aspect: [4, 3],
     });
     if (pickerResult) {
-      console.log("picker result is here " + pickerResult);
       this._handleImagePicked(pickerResult, imageName);
-      // this.setState({ activityImagePath: pickerResult });
     }
   };
 
   newTagAdded(newTag) {
-    console.log("newTagAdded");
-    console.log("tag is " + newTag);
     this.setState({ activityTags: newTag.split(",") });
     if (this.state.activityId) {
-      console.log("activity id exists");
       this.updateActivity("tags", newTag.toLowerCase().replace(/\s+/g, ""));
     }
-    console.log("state is " + this.state.activityTags);
   }
 
   getImageText() {
@@ -556,7 +548,6 @@ export default class Activity extends Component {
     });
 
     this.setState({ video: vid });
-    console.log("VIDEO " + vid);
   };
 
   returnImage = () => {
@@ -573,7 +564,6 @@ export default class Activity extends Component {
   };
 
   returnVideo = () => {
-    console.log(this.state.video);
     if (this.state.video) {
       return (
         <Video
@@ -833,7 +823,6 @@ export default class Activity extends Component {
                 {this.state.recordings !== [] && (
                   <View>
                     {this.state.recordings.map((item) => {
-                      console.log(item);
                       return (
                         <TouchableOpacity
                           onPress={this._playFromStart}

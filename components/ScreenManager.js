@@ -34,13 +34,13 @@ import ChildCamera from "../components/ImageRecognition/ChildCamera";
 import TestingHomePage from "./TestingHomePage";
 
 const Screens = createStackNavigator({
-  ParentNavigation: { screen: ParentNavigation },
-
-  TestingHomePage: { screen: TestingHomePage },
-  Login: { screen: Login },
-  SignUp: { screen: SignUp },
-  Pincode: { screen: Pincode },
-  ChildCamera: { screen: ChildCamera },
+  TestingHomePage: {screen: TestingHomePage},
+  ChildRoutines: { screen: ChildRoutines },
+  ParentNavigation: {screen: ParentNavigation},
+  Login: {screen: Login},
+  SignUp: {screen: SignUp},
+  Pincode: {screen: Pincode},
+  ChildCamera: {screen: ChildCamera },    
 
   EditActivity: { screen: EditActivity },
   PublicActivities: { screen: PublicActivities },

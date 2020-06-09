@@ -91,14 +91,6 @@ export default class ViewPublicActiviy extends Component {
   }
 
   copyActivity() {
-    console.log("userId " + userId);
-    console.log("activity name " + this.state.activityName);
-    console.log("activity tags " + this.state.activityTags);
-    console.log("activity desc " + this.state.activityDescription);
-    console.log("activity image " + this.state.activityImagePath);
-    console.log("activity video " + this.state.activityVideoPath);
-    console.log("activity audio " + this.state.activityAudioPath);
-
     let data = {
       user_id: userId,
       activity_name: this.state.activityName + " (Private Copy)",
@@ -184,7 +176,6 @@ export default class ViewPublicActiviy extends Component {
 
       if (!pickerResult.cancelled) {
         var uploadUrl = await this.uploadImageAsync(pickerResult.uri);
-        console.log("Upload URL is " + uploadUrl);
 
         this.setState({ activityImagePath: uploadUrl });
         this.pushToUpdateActivityArray(
@@ -250,7 +241,6 @@ export default class ViewPublicActiviy extends Component {
       await this.recording.stopAndUnloadAsync();
     } catch (error) {}
     const info = await FileSystem.getInfoAsync(this.recording.getURI());
-    console.log(`FILE INFO: ${JSON.stringify(info)}`);
     await Audio.setAudioModeAsync({
       allowsRecordingIOS: false,
       interruptionModeIOS: Audio.INTERRUPTION_MODE_IOS_DO_NOT_MIX,
@@ -397,13 +387,11 @@ export default class ViewPublicActiviy extends Component {
       aspect: [4, 3],
     });
     if (pickerResult) {
-      console.log("picker result is here " + pickerResult);
       this._handleImagePicked(pickerResult);
     }
   };
 
   closeModal(){
-    console.log("close");
     this.setState({
       copyModalVisible: false,
     })
@@ -418,7 +406,6 @@ export default class ViewPublicActiviy extends Component {
     });
 
     this.setState({ video: vid });
-    console.log("VIDEO " + vid);
   };
 
   returnImage = () => {
@@ -457,7 +444,6 @@ export default class ViewPublicActiviy extends Component {
 
   onSubmit = () => {
     let { current: field } = this.fieldRef;
-    console.log(field.value());
   };
 
   formatText = (text) => {
@@ -639,7 +625,6 @@ export default class ViewPublicActiviy extends Component {
                     {this.state.recordings !== [] && (
                       <View>
                         {this.state.recordings.map((item) => {
-                          console.log(item);
                           return (
                             <TouchableOpacity
                               onPress={this._playFromStart}

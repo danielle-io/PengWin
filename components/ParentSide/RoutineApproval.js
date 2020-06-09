@@ -10,7 +10,6 @@ const { width: WIDTH, height: HEIGHT } = Dimensions.get('window');
 export default class RoutineApproval extends Component {
     static navigationOptions = ({ navigation }) => ({
         title: "Approve Routine",
-        
     });
 
     constructor(props) {
@@ -84,11 +83,9 @@ export default class RoutineApproval extends Component {
         });
     }
     componentDidMount() {
-        console.log('running component did mount for ROUTINE APPROVAL ');
         this.props.navigation.addListener('didFocus', payload => {
             this.getActivities();
             this.getChildInfo();
-            
         });
     }
 

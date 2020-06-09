@@ -7,7 +7,6 @@ import {
   View,
   Text,
   ScrollView,
-  TextInput,
   TouchableOpacity,
 } from "react-native";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
@@ -105,14 +104,12 @@ export default class ParentRoutines extends Component {
   // This allows this page to refresh when you come back from
   // edit routines, which allows it to display any changes made
   async componentDidMount() {
-    console.log("in mount");
     this.setState({ containersLoaded: false });
 
     this.getAllRewardsForUser();
     this.getContainers();
 
     await this.props.navigation.addListener("didFocus", (payload) => {
-      console.log("reloading items");
       this.setState({ routinesLoaded: false });
       this.setState({ activitiesLoaded: false });
 
@@ -382,20 +379,16 @@ export default class ParentRoutines extends Component {
       })
       .then((activities) => {
         if (activities === []) {
-          console.log("returning 0");
           return 0;
         }
-        console.log("LENGTH IS " + Object.keys(activities).length);
         if (activities.length !== amountOfActivities) {
           this.updateRoutineWithoutReload(
             routineId,
             "amount_of_activities",
             activities.length
           );
-          console.log("returning activities.length " + activities.length);
           this.state.routineActivityAmountDict[routineId] = activities.length;
         } else {
-          console.log("returning amount of activities " + amountOfActivities);
           this.state.routineActivityAmountDict[routineId] = amountOfActivities;
         }
       })
@@ -416,7 +409,6 @@ export default class ParentRoutines extends Component {
   }
 
   getRewardAmount(routineId, rewardAmount, rewardId) {
-    console.log("check reward amount");
     fetch(Environment + "/joinRoutineActivityTableByRoutineId/" + routineId)
       .then((response) => response.json())
       .then((responseJson) => {
@@ -433,9 +425,7 @@ export default class ParentRoutines extends Component {
   compareRewardAmount(routineId, rewardAmount, rewardId, activities) {
     var rewardCount = 0;
     for (var i = 0; i < activities.length; i++) {
-      console.log(activities[i].reward_image);
-      console.log(activities[i].reward_video);
-      console.log(activities[i].reward_description);
+
 
       if (
         activities[i].reward_image ||
@@ -512,7 +502,6 @@ export default class ParentRoutines extends Component {
           return responseJson;
         })
         .then((routineResults) => {
-          console.log(routineResults);
         });
     }
   }
@@ -533,7 +522,6 @@ export default class ParentRoutines extends Component {
           body: JSON.stringify(data),
         }
       );
-      console.log(response.status);
     } catch (errors) {
       console.log(errors);
     }
@@ -774,15 +762,12 @@ export default class ParentRoutines extends Component {
   }
 
   getActivityRelationshipsForDeletion(activityId) {
-    console.log("getActivityRelationshipsForDeletion id is " + activityId);
-
     fetch(Environment + "/getAllRelationshipsForActivity/" + activityId)
       .then((response) => response.json())
       .then((responseJson) => {
         return responseJson;
       })
       .then((activityRoutineItems) => {
-        console.log();
         this.removeActivityOrders(activityRoutineItems);
       })
       .catch((error) => {
@@ -835,7 +820,6 @@ export default class ParentRoutines extends Component {
 
   itemDeletionModal(item, type) {
     this.setState({ itemToDelete: item });
-    // console.log("item to delete" + itemToDelete)
     this.setState({ typeToDelete: type });
     this.setState({ deleteModalVisible: true });
   }
@@ -1015,7 +999,6 @@ export default class ParentRoutines extends Component {
                       <Text style={{ color: "black" }}>Edit</Text>
                     </MenuOption>
                     <MenuOption
-                      onSelect={() => console.log("quick start")}
                       text="Quick Start"
                     />
                     <MenuOption
@@ -1057,7 +1040,6 @@ export default class ParentRoutines extends Component {
 
   getRoutineTags(item) {
     if (item.routine_id in this.state.containerRoutineDict) {
-      // console.log("ROUTINE ID YAYYY: " + item.routine_id)
       var colorClass =
         this.state.containerRoutineDict[item.routine_id].color + "Tag";
 
@@ -1303,7 +1285,6 @@ export default class ParentRoutines extends Component {
     let ripple = { id: "addButton" };
     if (this.state.routines !== null && this.state.containerDict) {
     } else {
-      console.log("this.state.routines is null");
     }
 
     return (
@@ -1481,9 +1462,6 @@ export default class ParentRoutines extends Component {
                       }}
                       onPress={() => {
                         this.setState({ selectedColor: "yellow" });
-                        console.log(
-                          "routines routines: " + this.state.routines.routines
-                        );
                       }}
                     />
                   </View>
