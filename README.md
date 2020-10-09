@@ -1,5 +1,6 @@
 PengWin is a mobile application to assist kids with Autism in completing their daily tasks by gamifying user defined activities and utilizing image recognition technology to validate the completion of each task.
 
+Demo: https://www.youtube.com/watch?v=H22GVl9oUnw&feature=youtu.be
 
 To run the application:
  *database files are required*
