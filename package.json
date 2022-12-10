@@ -29,7 +29,7 @@
     "expo-image-picker": "^8.1.0",
     "expo-linear-gradient": "~8.1.0",
     "expo-video-player": "^1.5.7",
-    "express": "^4.17.1",
+    "express": "^4.17.3",
     "firebase": "^7.9.0",
     "mysql": "^2.18.1",
     "netinfo": "^0.1.3",
